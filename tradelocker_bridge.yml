@@ -1,0 +1,86 @@
+name: TradeLocker Bridge - 1 Minute Cron
+
+on:
+  schedule:
+    # Run every 1 minute
+    - cron: '* * * * *'
+  
+  # Allow manual trigger
+  workflow_dispatch:
+
+jobs:
+  tradelocker-cron:
+    runs-on: ubuntu-latest
+    
+    # Timeout to prevent hanging
+    timeout-minutes: 2
+    
+    steps:
+      # Step 1: Checkout repository
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      # Step 2: Download previous state
+      - name: Download state
+        uses: actions/download-artifact@v4
+        with:
+          name: tradelocker-state
+          path: .
+        continue-on-error: true # Ignore if it doesn't exist yet
+      
+      # Step 3: Set up Python
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      
+      # Step 4: Install dependencies
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+      
+      # Step 5: Create .env1 file from GitHub secrets
+      - name: Create .env1 configuration
+        run: |
+          cat > .env1 << EOF
+          TL_EMAIL=${{ secrets.TL_EMAIL }}
+          TL_PASSWORD=${{ secrets.TL_PASSWORD }}
+          TL_SERVER=${{ secrets.TL_SERVER }}
+          TL_ACCOUNT_ID=${{ secrets.TL_ACCOUNT_ID }}
+          TL_ACC_NUM=${{ secrets.TL_ACC_NUM }}
+          TL_ENV=${{ secrets.TL_ENV }}
+          TL_DEFAULT_QTY=${{ secrets.TL_DEFAULT_QTY }}
+          TG_TOKEN=${{ secrets.TG_TOKEN }}
+          TG_CHAT=${{ secrets.TG_CHAT }}
+          TL_PAIR_MAP=${{ secrets.TL_PAIR_MAP }}
+          EOF
+          chmod 600 .env1
+      
+      # Step 6: Run the cron cycle
+      - name: Run TradeLocker Bridge Cron
+        run: |
+          python3 -c "from tradelocker_bridge import run_cron_cycle; run_cron_cycle()"
+        timeout-minutes: 1
+      
+      # Step 7: Upload state and logs
+      - name: Upload state and logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tradelocker-state
+          path: |
+            tradelocker_bridge.log
+            tradelocker_crash.log
+            tradelocker_status.json
+            tradelocker_processed.json
+            tradelocker_heartbeat.txt
+          retention-days: 1
+      
+      # Step 8: Notify on failure
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "❌ TradeLocker Bridge cron job failed"
+          echo "Run: ${{ github.run_number }}"
+          echo "Check artifacts for logs"

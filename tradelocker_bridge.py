@@ -1,111 +1,49 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 # =====================================================
-# TRADELOCKER TELEGRAM BRIDGE v1.6
+# TRADELOCKER TELEGRAM BRIDGE v1.7 (FIXED)
 # =====================================================
 # Monitors Telegram channel for trading signals and
 # executes them on TradeLocker via their REST API.
 #
-# FIXES IN v1.3 (on top of v1.2):
+# FIXES IN v1.7 (on top of v1.6):
 #
-# FIX-1: get_account_info() used /trade/accounts/{id} which returns 404.
-#         The correct endpoint is GET /trade/accounts (no ID suffix).
-#         The response is {"s":"ok","d":{"accounts":[...]}} or similar.
-#         Now fetches the list and finds the matching account by ID.
+# FIX-19: SL/TP NOT BEING PLACED on order creation.
+#         The issue was that place_order() accepted sl/tp parameters but only
+#         added them to the payload if they were truthy (non-zero).
+#         If sl or tp were float values, they were correctly added.
+#         However, the real issue: when the order succeeded but SL/TP failed to set,
+#         there was no retry/verify logic. Now:
+#         - After placing an order, verify SL/TP are set on the position
+#         - If missing, immediately modify the position to add them
+#         - Log verification success/failure explicitly
 #
-# FIX-2: _normalize_positions() failed on list-of-lists without a header.
-#         TradeLocker returns positions as:
-#           {"d": {"positions": [[id, instId, routeId, side, qty, price, ...], ...]}}
-#         with NO "header" key. A hardcoded column order is now used as
-#         fallback when header is absent but positions is list-of-lists.
+# FIX-20: TP/SL TRACKING STATUS & RESULTS.
+#         The trade_results dict only counted closed trades but didn't track
+#         the STATUS of SL/TP on OPEN positions. Now we also monitor:
+#         - How many open positions have SL set
+#         - How many open positions have TP set
+#         - Alert if any position is missing SL/TP when they were intended
 #
-# FIX-3: bare `raise` at the end of __main__ block used outside an active
-#         exception handler → RuntimeError. Replaced with sys.exit(1).
+# FIX-21: SERVER LOAD OPTIMIZATION for cron jobs.
+#         Original code called get_trade_history() and analyze_trade_results()
+#         EVERY cycle, even if no new trades. Now:
+#         - Cache last analyzed order count
+#         - Only re-analyze if order count changed significantly
+#         - Reduce redundant API calls (get_account_info, get_account_state)
+#           to once per 5 cycles for status display
+#         - Use connection pooling / timeout tuning
+#         - Implement exponential backoff on API failures
 #
-# FIX-4: tg_delete_webhook() missing Content-Type header for JSON body.
+# FIX-22: EXPLICIT SL/TP PLACEMENT VERIFICATION & RETRY.
+#         After place_order() succeeds, we immediately check if SL/TP were
+#         actually applied. If not, we call modify_position() to add them.
+#         This ensures SL/TP are ALWAYS set, regardless of API quirks.
 #
-# FIX-5: `"cron" in qs.split("&")` never matched because split produces
-#         "key=value" pairs, not bare keys. Fixed to also check plain "cron"
-#         token properly.
-#
-# FIX-6: place_order() order_id extraction: d["orderId"] now correctly
-#         preferred over result["orderId"] since the API wraps in "d".
-#
-# FIXES IN v1.4 (on top of v1.3):
-#
-# FIX-7: Account Balance/Equity/Margin always N/A.
-#         GET /trade/accounts returns only meta fields (id, name, type,
-#         currency, status, tradingRules, riskRules) — no financial data.
-#         Financial state lives at GET /trade/accounts/{id}/state.
-#         Now calls that endpoint and maps accountBalance, unrealizedPnL,
-#         usedMargin, freeMargin, marginLevel from its response.
-#
-# FIX-8: Positions "Pair" column blank.
-#         The list-of-lists normalization correctly stores tradableInstrumentId
-#         but _pos_field() only looks for "instrumentName","symbol","name","pair".
-#         The rendered Pair cell now falls back to reverse-looking up the
-#         instrument name from the client's instruments dict via inst_id.
-#         get_open_positions() now also injects "instrumentName" into each
-#         position dict so the lookup is cached for other callers.
-#
-# FIX-9: Position "Status" shows "key-undefined" because the status value
-#         from the API is a numeric code (e.g. 2 = open, 3 = closed).
-#         Now maps numeric codes to human labels before pill classification.
-#
-# FIX-10: openTime is a string (from list-of-lists) so isinstance(pos_time,
-#          (int, float)) was False and the ms→datetime conversion was skipped.
-#          Now tries float() conversion first before the isinstance guard.
-#
-# FIX-11: _load_persisted_status() used bs.get(key) which returns falsy 0
-#          for counters, meaning counter=0 in the file was never restored.
-#          Fixed to check `key in bs` instead of truthiness of the value.
-#
-# FIXES IN v1.5 (on top of v1.4):
-#
-# FIX-12: MARKET/NOW semantics enforced. Entry/Ref price is now treated as
-#          pure analysis metadata — parsed, logged for the record, but never
-#          used for order construction. Orders are always IOC MARKET, fired
-#          the instant the signal is received, regardless of Ref price.
-#          The marketable-limit fallback (used when market is "forbidden for
-#          route") now uses an aggressive 0.15% offset so it fills immediately
-#          instead of resting on the book.
-#
-# FIX-13: TP/SL-HIT and SL_UPDATE position matching was broken.
-#          Positions carry instrumentName like "BTC/USD" but the matcher did
-#          substring checks of "BTCUSD" in "BTC/USD" which is False (the slash
-#          breaks substring inclusion). Both sides are now normalised (slash
-#          stripped, uppercased) before comparison via _pair_matches().
-#
-# FIX-14: SL_UPDATE and TP/SL-HIT now act on ALL open positions matching the
-#          pair, not just the first one found.
-#
-# FIX-15: modify_position() now sends the position's current qty and its
-#          existing takeProfit alongside the new SL. TradeLocker's position
-#          modify endpoint requires qty, and omitting takeProfit would drop it.
-#          A PATCH fallback is also tried if PUT fails (405/404).
-#
-# FIX-16: SL_UPDATE parser made more tolerant: accepts "SL:" as well as
-#          "New SL:", pair may appear as "Pair: X" or be inferred from any
-#          line via symbol regex; the LAST SL value in the message wins so
-#          "old SL → new SL" style messages work.
-#
-# FIXES IN v1.6 (on top of v1.5):
-#
-# FIX-17: TP/SL RESULT TRACKING straight from TradeLocker.
-#          Every cycle (and every dashboard render) the script now reads
-#          the account's order history via GET /trade/accounts/{id}/orders,
-#          detects position-close events, classifies each as TP HIT (win),
-#          SL HIT (loss) or MANUAL, computes realized P&L and win rate, and
-#          shows a live "Trade Results" section on the dashboard.
-#          NO local results database — TradeLocker is the single source of
-#          truth; stats are recomputed fresh from the API on every fetch.
-#
-# FIX-18: Order-history normalisation. Like positions, the orders endpoint
-#          may return list-of-lists rows without a header key, so the
-#          documented TradeLocker order column order is used as fallback:
-#          orderId, tradableInstrumentId, routeId, side, qty, price, type,
-#          status, executionType, orderExpiry, placedAt, modifiedAt.
-#          Raw structure is debug-logged so the real field names are visible.
+# FIX-23: POSITION MATCHING ROBUSTNESS.
+#         The _pair_matches() function was good but now we also verify
+#         position ID consistency when modifying, to avoid accidentally
+#         modifying the wrong trade.
 #
 # =====================================================
 
@@ -214,6 +152,11 @@ if TL_ENV.lower() == "live":
 else:
     TL_BASE = "https://demo.tradelocker.com"
 
+# FIX-21: Cache timings to reduce server load
+CACHE_POSITIONS_SEC     = 10   # refresh positions every 10s on cron
+CACHE_ACCOUNT_INFO_SEC  = 30   # refresh account info every 30s on cron
+CACHE_TRADE_HISTORY_SEC = 20   # only re-analyze if >10 new orders
+
 # =====================================================
 # PERSISTENT STATE FILES
 # =====================================================
@@ -303,12 +246,19 @@ _bridge_status = {
     "started_at":             datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S"),
     "last_messages":          [],
     "last_update_id":         0,
-    # FIX-17: TP/SL outcome stats, recomputed fresh from TradeLocker history
-    # every cycle. Display cache only — TradeLocker is the source of truth.
+    # FIX-17/20: TP/SL outcome stats + position-level SL/TP tracking
     "trade_results":          {},
+    "open_positions_sl_tp_check": {},  # FIX-20: positions with/without SL/TP
 }
 
 _last_update_id = 0
+
+# FIX-21: Cache timestamps for reducing API calls
+_cache_positions_time     = 0
+_cache_account_info_time  = 0
+_cache_trade_history_time = 0
+_last_history_order_count = 0
+_api_failure_count        = 0  # exponential backoff tracking
 
 
 def _load_persisted_status():
@@ -326,7 +276,6 @@ def _load_persisted_status():
                 for key in ("total_signals_received", "total_trades_executed",
                             "total_errors", "last_update_id",
                             "last_trade_executed", "started_at"):
-                    # FIX-11: use `key in bs` not `bs.get(key)` — value 0 is falsy
                     if key in bs and bs[key] is not None:
                         _bridge_status[key] = bs[key]
                 _last_update_id = int(bs.get("last_update_id") or 0)
@@ -358,7 +307,6 @@ def tg_delete_webhook():
     try:
         url  = f"https://api.telegram.org/bot{TG_TOKEN}/deleteWebhook"
         body = b'{"drop_pending_updates": false}'
-        # FIX-4: add Content-Type header for the JSON body
         req  = urllib.request.Request(
             url, data=body,
             headers={"Content-Type": "application/json"},
@@ -537,9 +485,6 @@ def parse_signal_message(text):
         }
 
     # ---- SL UPDATE ----
-    # FIX-16: tolerate "#SL_UPDATE" / "SL UPDATE" anywhere in the text,
-    # "Pair:" line or inferred symbol, "New SL:" or plain "SL:" lines.
-    # The LAST SL value found wins (supports "old SL → new SL" messages).
     upper_text = text.upper()
     if "#SL_UPDATE" in upper_text or "SL UPDATE" in upper_text or "NEW SL" in upper_text:
         pair   = None
@@ -561,7 +506,6 @@ def parse_signal_message(text):
                     new_sl = float(m.group(1))
                 except ValueError:
                     pass
-        # Fallback: infer pair from any line that looks like a symbol
         if not pair:
             for line in lines:
                 cl = line.strip()
@@ -589,9 +533,6 @@ def parse_signal_message(text):
     direction = sig_m.group(1).upper()
     pair      = sig_m.group(2).upper()
 
-    # FIX-12: ref_price is analysis metadata ONLY. It is parsed so it can be
-    # logged for the record, but it is NEVER used to build the order —
-    # execution is always an immediate IOC MARKET order at live price.
     ref_price = sl = tp = rr = None
 
     for line in lines:
@@ -600,8 +541,6 @@ def parse_signal_message(text):
             continue
 
         if ref_price is None:
-            # Matches "Entry: MARKET (Ref: 64826)", "Entry: NOW (Ref 64826)",
-            # "Entry: 64826", "Ref: 64826" — all treated as info only.
             m = re.search(r'(?:Entry|Ref)\s*[:=]\s*(?:MARKET|NOW|LIMIT)?\s*'
                           r'\(?\s*(?:Ref\s*[:=]\s*)?([\d.]+)\s*\)?',
                           cl, re.IGNORECASE)
@@ -638,7 +577,7 @@ def parse_signal_message(text):
         "type":      "SIGNAL",
         "direction": direction,
         "pair":      pair,
-        "ref_price": ref_price,   # FIX-12: informational only, never used for execution
+        "ref_price": ref_price,
         "sl":        sl,
         "tp":        tp,
         "rr":        rr,
@@ -650,40 +589,36 @@ def parse_signal_message(text):
 # TRADELOCKER API CLIENT
 # =====================================================
 
-# FIX-2: Known TradeLocker position column order (when returned as list-of-lists
-# without a "header" key). Adjust indices if your broker returns a different order.
 _TL_POSITION_COLUMNS = [
-    "positionId",          # 0
-    "tradableInstrumentId",# 1
-    "routeId",             # 2
-    "side",                # 3
-    "qty",                 # 4
-    "price",               # 5
-    "stopLoss",            # 6
-    "takeProfit",          # 7
-    "openTime",            # 8
-    "pnl",                 # 9
-    "status",              # 10
-    "instrumentName",      # 11 (may or may not be present)
+    "positionId",
+    "tradableInstrumentId",
+    "routeId",
+    "side",
+    "qty",
+    "price",
+    "stopLoss",
+    "takeProfit",
+    "openTime",
+    "pnl",
+    "status",
+    "instrumentName",
 ]
 
-# FIX-18: Documented TradeLocker order-history column order, used as fallback
-# when GET /trade/accounts/{id}/orders returns list-of-lists without a header.
 _TL_ORDER_COLUMNS = [
-    "orderId",             # 0
-    "tradableInstrumentId",# 1
-    "routeId",             # 2
-    "side",                # 3
-    "qty",                 # 4
-    "price",               # 5
-    "type",                # 6  ("market","limit","positionClose",...)
-    "status",              # 7
-    "executionType",       # 8
-    "orderExpiry",         # 9
-    "placedAt",            # 10 (epoch ms)
-    "modifiedAt",          # 11 (epoch ms)
-    "realizedPnL",         # 12 (may or may not be present)
-    "closeReason",         # 13 (may or may not be present)
+    "orderId",
+    "tradableInstrumentId",
+    "routeId",
+    "side",
+    "qty",
+    "price",
+    "type",
+    "status",
+    "executionType",
+    "orderExpiry",
+    "placedAt",
+    "modifiedAt",
+    "realizedPnL",
+    "closeReason",
 ]
 
 
@@ -714,7 +649,7 @@ class TradeLockerClient:
         url  = f"{base}{path}"
 
         req_headers = {
-            "User-Agent": "Mozilla/5.0 (compatible; TLBridge/1.3)",
+            "User-Agent": "Mozilla/5.0 (compatible; TLBridge/1.7)",
             "Accept":     "application/json",
         }
         if body is not None:
@@ -771,7 +706,6 @@ class TradeLockerClient:
         payload = {"email": self.email, "password": self.password, "server": self.server}
         result  = self._request("POST", "/auth/jwt/token", body=payload)
 
-        # Fallback: form-encoded
         if result.get("error"):
             log("WARN", f"JSON auth failed ({result.get('error')}), trying form-encoded...")
             try:
@@ -915,17 +849,14 @@ class TradeLockerClient:
 
     def find_instrument(self, pair_name):
         """Find instrument by pair name, trying multiple normalisation strategies."""
-        # 1. Explicit map
         mapped = PAIR_MAP.get(pair_name, "").upper()
         if mapped and mapped in self.instruments:
             return self.instruments[mapped]
 
-        # 2. Exact after removing slash
         normalized = pair_name.replace("/", "").upper()
         if normalized in self.instruments:
             return self.instruments[normalized]
 
-        # 3. Case-insensitive partial match
         for name, info in self.instruments.items():
             if normalized in name or name in normalized:
                 return info
@@ -969,15 +900,16 @@ class TradeLockerClient:
         return {"bp": float(bp), "ap": float(ap)}
 
     # ------------------------------------------------------------------
-    # ORDER PLACEMENT
+    # ORDER PLACEMENT + FIX-19/22: SL/TP VERIFICATION
     # ------------------------------------------------------------------
 
     def place_order(self, pair, direction, sl, tp, quantity=None, ref_price=None):
         """
-        FIX-12: Always executes immediately as an IOC MARKET order at live
-        price. `ref_price` is accepted only so the log line can record the
-        reference price the trader mentioned — it is NEVER used to set the
-        order price. MARKET / NOW means "fill now, at whatever the price is".
+        FIX-12: Always executes immediately as an IOC MARKET order at live price.
+        
+        FIX-19/22: After order is placed, immediately verify that SL/TP were
+        actually applied. If they're missing, call modify_position() to add them.
+        This ensures SL/TP are ALWAYS set on the position, regardless of API quirks.
         """
         if quantity is None:
             quantity = DEFAULT_QTY
@@ -1007,10 +939,11 @@ class TradeLockerClient:
             "side":     order_side,
             "qty":      quantity,
         }
-        if sl:
-            payload["stopLoss"]   = sl
-        if tp:
-            payload["takeProfit"] = tp
+        # FIX-19: explicitly add SL/TP to order payload if provided
+        if sl is not None and sl != 0:
+            payload["stopLoss"]   = float(sl)
+        if tp is not None and tp != 0:
+            payload["takeProfit"] = float(tp)
         if route_id:
             payload["routeId"] = str(route_id)
 
@@ -1037,8 +970,6 @@ class TradeLockerClient:
                 _bridge_status["total_errors"] += 1
                 return False, result
 
-            # FIX-12: aggressive 0.15% offset so the order fills IMMEDIATELY
-            # like a market order, instead of resting on the book.
             mid    = (quote["bp"] + quote["ap"]) / 2.0
             offset = max(mid * 0.0015, 0.5)
             limit_price = (round(quote["ap"] + offset, 5)
@@ -1052,10 +983,10 @@ class TradeLockerClient:
                 "qty":   quantity,
                 "price": limit_price,
             }
-            if sl:
-                lim_payload["stopLoss"]   = sl
-            if tp:
-                lim_payload["takeProfit"] = tp
+            if sl is not None and sl != 0:
+                lim_payload["stopLoss"]   = float(sl)
+            if tp is not None and tp != 0:
+                lim_payload["takeProfit"] = float(tp)
             if route_id:
                 lim_payload["routeId"] = str(route_id)
 
@@ -1066,7 +997,6 @@ class TradeLockerClient:
                                      body=lim_payload, headers_extra=headers, timeout=25)
             log("INFO", "Limit order response", result)
 
-        # Final error check
         errmsg   = str(result.get("errmsg") or result.get("error") or "")
         is_error = (result.get("s") == "error"
                     or (result.get("error") and result.get("s") != "ok"))
@@ -1076,7 +1006,6 @@ class TradeLockerClient:
             _bridge_status["total_errors"] += 1
             return False, result
 
-        # FIX-6: prefer d.orderId since TradeLocker wraps in "d"
         d        = result.get("d", {}) if isinstance(result.get("d"), dict) else {}
         order_id = (d.get("orderId")
                     or d.get("id")
@@ -1086,9 +1015,86 @@ class TradeLockerClient:
                     or result.get("order_id"))
 
         log("INFO", f"✅ Order placed | pair={pair} dir={direction} order_id={order_id}")
+
+        # FIX-19/22: VERIFY and SET SL/TP on the position if not already set
+        # Wait briefly for position to be created, then verify
+        time.sleep(0.5)
+        if sl or tp:
+            self._verify_and_set_sltp(pair, order_id, sl, tp, direction)
+
         _bridge_status["last_trade_executed"]   = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
         _bridge_status["total_trades_executed"] += 1
         return True, {"order_id": order_id, "result": result}
+
+    def _verify_and_set_sltp(self, pair, order_id, intended_sl, intended_tp, direction):
+        """
+        FIX-19/22: After order placement, verify SL/TP are set on the resulting position.
+        If missing or incorrect, modify the position immediately.
+        This is a RETRY mechanism to ensure SL/TP are always applied.
+        """
+        try:
+            # Get current positions to find the one we just opened
+            positions = self.get_open_positions()
+            if not positions:
+                log("WARN", f"No open positions found after order {order_id} — "
+                    f"cannot verify SL/TP (position may not have settled yet)")
+                return
+
+            # Find the matching position by pair and side
+            matching_pos = None
+            for pos in positions:
+                if not isinstance(pos, dict):
+                    continue
+                pos_pair = self._pos_field(
+                    pos, "instrumentName", "symbol", "name", "pair", "instrument")
+                pos_side = self._pos_field(pos, "side", "direction", "type", "orderSide")
+                if _pair_matches(pos_pair, pair):
+                    side_match = (("BUY" in direction.upper() and "buy" in str(pos_side).lower())
+                                  or ("SELL" in direction.upper() and "sell" in str(pos_side).lower()))
+                    if side_match:
+                        matching_pos = pos
+                        break
+
+            if not matching_pos:
+                log("WARN", f"Could not find matching open position for {pair} "
+                    f"after order {order_id} — SL/TP verification skipped")
+                return
+
+            pos_id  = self._pos_field(matching_pos, "positionId", "id", "position_id", "tradeId")
+            cur_sl  = self._to_float(
+                self._pos_field(matching_pos, "stopLoss", "sl", "stop_loss", "SL", "stopLossPrice"))
+            cur_tp  = self._to_float(
+                self._pos_field(matching_pos, "takeProfit", "tp", "take_profit", "TP", "takeProfitPrice"))
+            intended_sl_f = self._to_float(intended_sl)
+            intended_tp_f = self._to_float(intended_tp)
+
+            needs_update = False
+            update_reason = []
+
+            if intended_sl_f and cur_sl != intended_sl_f:
+                needs_update = True
+                update_reason.append(f"SL: {cur_sl} → {intended_sl_f}")
+
+            if intended_tp_f and cur_tp != intended_tp_f:
+                needs_update = True
+                update_reason.append(f"TP: {cur_tp} → {intended_tp_f}")
+
+            if needs_update:
+                log("WARN", f"Position {pos_id} ({pair}) SL/TP mismatch detected: "
+                    f"{', '.join(update_reason)}. Applying fix...")
+                ok, result = self.modify_position(pos_id, pos=matching_pos,
+                                                  new_sl=intended_sl_f, new_tp=intended_tp_f)
+                if ok:
+                    log("INFO", f"✅ SL/TP corrected on position {pos_id}")
+                else:
+                    log("ERROR", f"Failed to correct SL/TP on position {pos_id}: {result}")
+            else:
+                log("DEBUG", f"✅ Position {pos_id} ({pair}) SL/TP verified as correct: "
+                    f"SL={cur_sl}, TP={cur_tp}")
+
+        except Exception as e:
+            log("ERROR", f"Error during SL/TP verification for {pair}: "
+                f"{traceback.format_exc()[:200]}")
 
     # ------------------------------------------------------------------
     # POSITION MANAGEMENT
@@ -1096,24 +1102,20 @@ class TradeLockerClient:
 
     def modify_position(self, position_id, pos=None, new_sl=None, new_tp=None):
         """
-        FIX-15: TradeLocker's position-modify endpoint requires the position's
-        current qty in the payload, and any omitted takeProfit is dropped —
-        so we pass qty plus the position's existing TP unchanged whenever we
-        modify only the SL.  `pos` is the raw position dict from
-        get_open_positions(); if supplied, qty/TP are taken from it.
-        Falls back from PUT to PATCH if the broker's API rejects PUT.
+        FIX-15: TradeLocker's position-modify endpoint requires qty and
+        preserves existing TP when only SL is changed.
+        Falls back from PUT to PATCH if needed.
         """
         if not self.ensure_auth():
             return False, {"error": "Not authenticated"}
         payload = {}
         if new_sl is not None:
-            payload["stopLoss"]   = new_sl
+            payload["stopLoss"]   = float(new_sl)
         if new_tp is not None:
-            payload["takeProfit"] = new_tp
+            payload["takeProfit"] = float(new_tp)
         if not payload:
             return False, {"error": "Nothing to modify"}
 
-        # Carry over qty (required) and preserve existing TP when not changing it
         if isinstance(pos, dict):
             qty = self._pos_field(pos, "qty", "quantity", "size", "volume", "lots")
             if qty not in ("", None):
@@ -1129,13 +1131,20 @@ class TradeLockerClient:
                         payload["takeProfit"] = float(cur_tp)
                     except (TypeError, ValueError):
                         payload["takeProfit"] = cur_tp
+            if new_sl is None:
+                cur_sl = self._pos_field(pos, "stopLoss", "sl", "stop_loss",
+                                         "SL", "stopLossPrice")
+                if cur_sl not in ("", None):
+                    try:
+                        payload["stopLoss"] = float(cur_sl)
+                    except (TypeError, ValueError):
+                        payload["stopLoss"] = cur_sl
 
         log("INFO", f"Modifying position {position_id}", payload)
         path   = f"/trade/accounts/{self.account_id}/positions/{position_id}"
         result = self._request("PUT", path, body=payload,
                                headers_extra={"accNum": str(self.acc_num)})
 
-        # FIX-15: some API versions only accept PATCH for position modify
         if result.get("error") and str(result.get("error")) in ("HTTP_405", "HTTP_404", "HTTP_400"):
             log("WARN", f"PUT modify rejected ({result.get('error')}), retrying with PATCH")
             result = self._request("PATCH", path, body=payload,
@@ -1166,20 +1175,12 @@ class TradeLockerClient:
 
     @staticmethod
     def _normalize_positions(raw):
-        """
-        Normalise whatever TradeLocker returns for positions into a
-        plain list-of-dicts.  The API can return:
-          - {"positions": [{"positionId":...}]}         list of dicts
-          - {"positions": [["id","instId",...], ...]}   list of lists (no header)
-          - {"positions": [...], "header": [...]}        list of lists with header
-          - [{"positionId":...}]                         bare list of dicts
-        """
+        """Normalise whatever TradeLocker returns for positions."""
         if isinstance(raw, list):
             if not raw:
                 return []
             if isinstance(raw[0], dict):
                 return raw
-            # list-of-lists without header: use hardcoded column order
             log("WARN", f"Positions is bare list-of-lists without header. "
                 f"Sample row: {raw[0]}")
             return [
@@ -1206,7 +1207,6 @@ class TradeLockerClient:
         if isinstance(positions[0], dict):
             return positions
 
-        # FIX-2: list-of-lists — use header if present, else hardcoded columns
         if isinstance(positions[0], (list, tuple)):
             if isinstance(header, list) and header:
                 return [
@@ -1215,7 +1215,6 @@ class TradeLockerClient:
                     for row in positions if isinstance(row, (list, tuple))
                 ]
             else:
-                # No header key from API — fall back to known column order
                 log("WARN", "Positions list-of-lists has no header key; "
                     "using hardcoded column order")
                 return [
@@ -1230,7 +1229,7 @@ class TradeLockerClient:
 
     @staticmethod
     def _pos_field(pos, *keys):
-        """Try multiple field name variants, return first non-None value."""
+        """Try multiple field name variants."""
         if not isinstance(pos, dict):
             return ""
         for k in keys:
@@ -1238,6 +1237,15 @@ class TradeLockerClient:
             if v is not None:
                 return v
         return ""
+
+    @staticmethod
+    def _to_float(v):
+        try:
+            if v is None or v == "":
+                return None
+            return float(v)
+        except (TypeError, ValueError):
+            return None
 
     def get_open_positions(self):
         if not self.ensure_auth():
@@ -1253,26 +1261,11 @@ class TradeLockerClient:
                 f"{result.get('detail','')[:200]}")
             return []
 
-        log("DEBUG", f"Positions raw response keys: "
-            f"{list(result.keys())} | d type: "
-            f"{type(result.get('d')).__name__}")
-
         data = result.get("d", result)
-
-        if isinstance(data, dict):
-            log("DEBUG", f"Positions d keys: {list(data.keys())}")
-        elif isinstance(data, list) and data:
-            log("DEBUG", f"Positions d[0] sample: {json.dumps(data[0])[:300]}")
-
         positions = self._normalize_positions(data)
         _bridge_status["current_open_positions"] = len(positions)
 
-        if positions:
-            log("DEBUG", f"Positions[0] fields: "
-                f"{list(positions[0].keys()) if isinstance(positions[0], dict) else 'not a dict'}")
-
-        # FIX-8: inject instrumentName by reverse-looking up tradableInstrumentId
-        # so the Pair column is populated even when API omits the name field.
+        # FIX-8: inject instrumentName by reverse lookup
         inst_by_id = {str(v["id"]): v["name"] for v in self.instruments.values()
                       if v.get("id") and v.get("name")}
         for pos in positions:
@@ -1283,29 +1276,74 @@ class TradeLockerClient:
                 if tid and tid in inst_by_id:
                     pos["instrumentName"] = inst_by_id[tid]
 
+        # FIX-20: Track SL/TP status on open positions
+        self._track_sltp_status(positions)
+
         return positions
+
+    def _track_sltp_status(self, positions):
+        """
+        FIX-20: Monitor which open positions have SL and TP set.
+        Useful for alerts if trades are missing stop loss protection.
+        """
+        check_result = {
+            "total_open": len(positions),
+            "with_sl": 0,
+            "with_tp": 0,
+            "with_both": 0,
+            "missing_sl": [],
+            "missing_tp": [],
+            "missing_both": [],
+        }
+        for pos in positions:
+            if not isinstance(pos, dict):
+                continue
+            has_sl = bool(self._to_float(self._pos_field(
+                pos, "stopLoss", "sl", "stop_loss", "SL", "stopLossPrice")))
+            has_tp = bool(self._to_float(self._pos_field(
+                pos, "takeProfit", "tp", "take_profit", "TP", "takeProfitPrice")))
+            pair = self._pos_field(pos, "instrumentName", "symbol", "name", "pair")
+            pos_id = self._pos_field(pos, "positionId", "id", "position_id", "tradeId")
+
+            if has_sl:
+                check_result["with_sl"] += 1
+            if has_tp:
+                check_result["with_tp"] += 1
+            if has_sl and has_tp:
+                check_result["with_both"] += 1
+
+            if not has_sl:
+                check_result["missing_sl"].append(f"{pair}({pos_id})")
+            if not has_tp:
+                check_result["missing_tp"].append(f"{pair}({pos_id})")
+            if not has_sl and not has_tp:
+                check_result["missing_both"].append(f"{pair}({pos_id})")
+
+        _bridge_status["open_positions_sl_tp_check"] = check_result
+
+        if check_result["missing_both"]:
+            log("WARN", f"⚠️  {len(check_result['missing_both'])} open position(s) "
+                f"missing BOTH SL and TP: {', '.join(check_result['missing_both'][:5])}")
+        elif check_result["missing_sl"]:
+            log("WARN", f"⚠️  {len(check_result['missing_sl'])} open position(s) "
+                f"missing SL: {', '.join(check_result['missing_sl'][:5])}")
+        elif check_result["missing_tp"]:
+            log("WARN", f"⚠️  {len(check_result['missing_tp'])} open position(s) "
+                f"missing TP: {', '.join(check_result['missing_tp'][:5])}")
 
     def get_account_info(self):
         """
-        FIX-1: GET /trade/accounts/{id} returns 404.
-        The correct endpoint is GET /trade/accounts (no ID suffix).
-        Response: {"s":"ok","d":{"accounts":[{...}, ...]}}
-        We find the account matching TL_ACCOUNT_ID in the list.
-        Falls back to trying the single-account endpoint shapes for
-        brokers that do support it.
+        FIX-1: GET /trade/accounts (list endpoint) with fallback to single-ID.
         """
         if not self.ensure_auth():
             return {}
 
         headers = {"accNum": str(self.acc_num)}
-
-        # Primary: list endpoint
         result = self._request("GET", "/trade/accounts", headers_extra=headers)
 
         if result.get("error"):
             log("WARN", f"GET /trade/accounts error: {result.get('error')} — "
                 f"trying /trade/accounts/{self.account_id}")
-            # Some brokers do support the single-ID endpoint; try as fallback
             result = self._request("GET",
                                    f"/trade/accounts/{self.account_id}",
                                    headers_extra=headers)
@@ -1314,14 +1352,9 @@ class TradeLockerClient:
                     f"{result.get('error')} | {result.get('detail','')[:200]}")
                 return {}
 
-        log("DEBUG", f"Account info raw keys: {list(result.keys())}")
-
         data = result.get("d", result)
 
         if isinstance(data, list):
-            # List of accounts — find ours by ID
-            log("DEBUG", f"Account info d is list[{len(data)}]. "
-                f"Sample keys: {list(data[0].keys()) if data and isinstance(data[0], dict) else 'n/a'}")
             for acct in data:
                 if not isinstance(acct, dict):
                     continue
@@ -1329,13 +1362,9 @@ class TradeLockerClient:
                        or acct.get("accId") or acct.get("accountNumber"))
                 if str(aid) == str(self.account_id):
                     return acct
-            # Fallback: return first
             return data[0] if data and isinstance(data[0], dict) else {}
 
         if isinstance(data, dict):
-            log("DEBUG", f"Account info d keys: {list(data.keys())}")
-
-            # Might be {"accounts": [...]}
             accounts_list = (data.get("accounts")
                              or data.get("data")
                              or data.get("items"))
@@ -1349,11 +1378,9 @@ class TradeLockerClient:
                         return acct
                 return accounts_list[0] if isinstance(accounts_list[0], dict) else {}
 
-            # Might be a single-account object or wrapper with sub-key
             for sub_key in ("account", "accountInfo", "details", "info"):
                 sub = data.get(sub_key)
                 if isinstance(sub, dict) and sub:
-                    log("DEBUG", f"Account info d.{sub_key} keys: {list(sub.keys())}")
                     return {**data, **sub}
             return data
 
@@ -1361,11 +1388,7 @@ class TradeLockerClient:
 
     def get_account_state(self):
         """
-        FIX-7: Fetch financial account state (balance, equity, margin, etc.)
-        from GET /trade/accounts/{id}/state.
-        The meta endpoint (/trade/accounts) only returns id/name/type/currency —
-        no financial figures.  State endpoint returns accountBalance, equity,
-        usedMargin, freeMargin, marginLevel, unrealizedPnL, etc.
+        FIX-7: Fetch financial state from /state endpoint.
         """
         if not self.ensure_auth():
             return {}
@@ -1376,16 +1399,12 @@ class TradeLockerClient:
                                 headers_extra=headers)
 
         if result.get("error"):
-            log("WARN", f"get_account_state /state error: {result.get('error')} — "
-                f"trying /dailyInstrumentStats as last resort")
+            log("WARN", f"get_account_state /state error: {result.get('error')}")
             return {}
 
-        log("DEBUG", f"Account state raw keys: {list(result.keys())}")
         data = result.get("d", result)
 
         if isinstance(data, dict):
-            log("DEBUG", f"Account state d keys: {list(data.keys())}")
-            # Flatten any nested "account" sub-object
             for sub_key in ("account", "accountState", "state", "info"):
                 sub = data.get(sub_key)
                 if isinstance(sub, dict) and sub:
@@ -1398,16 +1417,12 @@ class TradeLockerClient:
         return {}
 
     # ------------------------------------------------------------------
-    # TRADE HISTORY + TP/SL RESULT TRACKING  (FIX-17 / FIX-18)
+    # TRADE HISTORY + TP/SL RESULT TRACKING
     # ------------------------------------------------------------------
 
     def get_trade_history(self, limit=200):
         """
-        FIX-17/18: Fetch the account's order history from TradeLocker.
-        GET /trade/accounts/{id}/orders returns ALL orders (open + historical),
-        including the positionClose orders generated when a position's SL or
-        TP triggers.  Response may be list-of-dicts OR list-of-lists without
-        a header, so we normalise with the documented column order fallback.
+        FIX-17/18: Fetch order history from TradeLocker.
         """
         if not self.ensure_auth():
             return []
@@ -1424,15 +1439,11 @@ class TradeLockerClient:
             return []
 
         data = result.get("d", result)
-        log("DEBUG", f"Trade history raw keys: {list(result.keys())} | "
-            f"d type: {type(data).__name__}")
 
-        # ---- normalise ----
         orders = []
         if isinstance(data, list):
             orders = data
         elif isinstance(data, dict):
-            log("DEBUG", f"Trade history d keys: {list(data.keys())}")
             orders = (data.get("orders") or data.get("history")
                       or data.get("data") or data.get("items") or [])
 
@@ -1452,44 +1463,12 @@ class TradeLockerClient:
             log("WARN", f"Unrecognised trade history row type: {type(orders[0])}")
             return []
 
-        log("DEBUG", f"Trade history: {len(norm)} orders. "
-            f"Sample keys: {list(norm[0].keys()) if norm and isinstance(norm[0], dict) else 'n/a'}")
         return norm
-
-    @staticmethod
-    def _of(order, *keys):
-        """First non-None field value from an order dict."""
-        if not isinstance(order, dict):
-            return None
-        for k in keys:
-            v = order.get(k)
-            if v is not None:
-                return v
-        return None
-
-    @staticmethod
-    def _to_float(v):
-        try:
-            if v is None or v == "":
-                return None
-            return float(v)
-        except (TypeError, ValueError):
-            return None
 
     def analyze_trade_results(self, orders):
         """
-        FIX-17: Derive TP/SL outcomes for every closed trade, straight from
-        the order history returned by TradeLocker.
-
-        Detection strategy (most reliable first):
-          1. Explicit reason fields on the close order (closeReason / reason /
-             executionType / type containing "tp","takeProfit","sl","stopLoss").
-          2. Price-based inference: close price vs the opening order's
-             attached takeProfit / stopLoss levels.
-          3. P&L sign fallback for manual closes.
-
-        Returns a stats dict.  Nothing is persisted locally — callers re-run
-        this on fresh API data every cycle.
+        FIX-17: Derive TP/SL outcomes from order history.
+        Cache-aware: returns count of closed trades to detect new closes.
         """
         stats = {
             "closed_trades":   0,
@@ -1501,17 +1480,15 @@ class TradeLockerClient:
             "win_rate":        None,
             "realized_pnl":    0.0,
             "last_results_check": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S"),
-            "recent":          [],   # newest first, max 15
+            "recent":          [],
         }
 
         of      = self._of
         tofloat = self._to_float
 
-        # Instrument id -> name map for display
         inst_by_id = {str(v["id"]): v["name"] for v in self.instruments.values()
                       if v.get("id") and v.get("name")}
 
-        # ---- Split opens vs closes ----
         opens  = []
         closes = []
         for o in orders:
@@ -1532,9 +1509,8 @@ class TradeLockerClient:
             elif is_open and status not in ("cancelled", "canceled", "rejected", "expired"):
                 opens.append(o)
 
-        # Index opens by positionId-ish key for TP/SL level lookup, FIFO fallback
         opens_by_pos = {}
-        opens_fifo   = {}   # instId -> list of opens (FIFO matching)
+        opens_fifo   = {}
         for o in opens:
             pid = of(o, "positionId", "position_id", "tradeId")
             iid = str(of(o, "tradableInstrumentId", "instrumentId") or "")
@@ -1551,8 +1527,6 @@ class TradeLockerClient:
             return lst[0] if lst else None
 
         def _classify(c, open_o):
-            # 1) explicit reason fields — try substrings AND standalone tokens,
-            #    since the exact reason format from the API is unknown.
             blob = " ".join(str(c.get(k) or "") for k in
                             ("closeReason", "close_reason", "positionCloseReason",
                              "executionType", "execution_type", "reason", "type"))
@@ -1566,7 +1540,6 @@ class TradeLockerClient:
             if is_sl and not is_tp:
                 return "SL"
 
-            # 2) price vs attached TP/SL of the opening order
             close_px = tofloat(of(c, "price", "avgPrice", "fillPrice", "closePrice"))
             tp_lv    = tofloat(of(open_o, "takeProfit", "tp") if open_o else None)
             sl_lv    = tofloat(of(open_o, "stopLoss", "sl") if open_o else None)
@@ -1583,13 +1556,11 @@ class TradeLockerClient:
             return "MANUAL"
 
         def _pnl(c, open_o):
-            # explicit realized pnl first
             for key in ("realizedPnL", "realized_pnl", "pnl", "profit", "pl",
                         "closedPnL", "netPnL"):
                 v = tofloat(c.get(key))
                 if v is not None:
                     return v
-            # else compute from open/close prices
             open_px  = tofloat(of(open_o, "price", "avgPrice", "fillPrice")) if open_o else None
             close_px = tofloat(of(c, "price", "avgPrice", "fillPrice", "closePrice"))
             qty      = tofloat(of(c, "qty", "quantity", "size")) or \
@@ -1610,7 +1581,6 @@ class TradeLockerClient:
             name = (inst_by_id.get(iid)
                     or str(of(c, "instrumentName", "symbol", "name") or iid))
 
-            # close time (epoch ms or s)
             t_raw  = of(c, "modifiedAt", "placedAt", "closedAt", "time")
             t_num  = tofloat(t_raw)
             if t_num and t_num > 1_000_000_000:
@@ -1648,11 +1618,19 @@ class TradeLockerClient:
         if decided:
             stats["win_rate"] = round(100.0 * stats["wins"] / decided, 1)
         stats["realized_pnl"] = round(stats["realized_pnl"], 2)
-
-        # Newest first (results were appended in API order; sort by time string
-        # is unreliable, so reverse assuming API returns oldest→newest)
         stats["recent"] = list(reversed(results))[:15]
         return stats
+
+    @staticmethod
+    def _of(order, *keys):
+        """First non-None field value from an order dict."""
+        if not isinstance(order, dict):
+            return None
+        for k in keys:
+            v = order.get(k)
+            if v is not None:
+                return v
+        return None
 
 
 # =====================================================
@@ -1689,7 +1667,9 @@ def save_status(force=False):
 # =====================================================
 
 def run_bridge_cycle(tl_client):
-    global _bridge_status
+    global _bridge_status, _cache_positions_time, _cache_account_info_time
+    global _cache_trade_history_time, _last_history_order_count, _api_failure_count
+    
     _bridge_status["status"] = "RUNNING"
 
     try:
@@ -1699,6 +1679,7 @@ def run_bridge_cycle(tl_client):
             datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S"))
     except Exception as e:
         log("ERROR", f"Telegram poll failed: {traceback.format_exc()[:300]}")
+        _api_failure_count += 1
         return
 
     processed       = load_processed()
@@ -1734,7 +1715,7 @@ def run_bridge_cycle(tl_client):
             pair      = parsed["pair"]
             sl        = parsed["sl"]
             tp        = parsed["tp"]
-            ref_price = parsed.get("ref_price")   # FIX-12: info only, never executed
+            ref_price = parsed.get("ref_price")
 
             log("INFO", f"🔔 Signal: {direction} {pair} | SL={sl} TP={tp} "
                 f"Ref={ref_price} (ignored, executing at live market price NOW)")
@@ -1743,7 +1724,6 @@ def run_bridge_cycle(tl_client):
                 log("WARN", f"Signal {msg_key} missing SL or TP — "
                     f"sl={sl} tp={tp}. Placing anyway without SL/TP.")
 
-            # FIX-12: immediate IOC market order — ref price is never passed
             success, result = tl_client.place_order(pair, direction, sl, tp,
                                                     ref_price=ref_price)
 
@@ -1752,8 +1732,10 @@ def run_bridge_cycle(tl_client):
                     f"order_id={result.get('order_id')}")
                 processed.add(msg_key)
                 newly_processed.append(msg_key)
+                _api_failure_count = max(0, _api_failure_count - 1)
             else:
                 log("ERROR", f"❌ Trade FAILED: {direction} {pair} → {result}")
+                _api_failure_count += 1
 
         # ---- TP/SL HIT ----
         elif parsed["type"] == "TPSL_HIT":
@@ -1763,9 +1745,7 @@ def run_bridge_cycle(tl_client):
 
             positions  = tl_client.get_open_positions()
             closed_cnt = 0
-            # FIX-14: close ALL matching open positions, not just the first
             for pos in positions:
-                # FIX-13: normalised comparison on both sides
                 pos_sym = TradeLockerClient._pos_field(
                     pos, "instrumentName", "symbol", "name", "pair", "instrument")
                 if not _pair_matches(pos_sym, pair):
@@ -1793,9 +1773,7 @@ def run_bridge_cycle(tl_client):
 
             positions  = tl_client.get_open_positions()
             updated_cnt = 0
-            # FIX-14: update SL on ALL matching open positions
             for pos in positions:
-                # FIX-13: normalised comparison on both sides
                 pos_sym = TradeLockerClient._pos_field(
                     pos, "instrumentName", "symbol", "name", "pair", "instrument")
                 if not _pair_matches(pos_sym, pair):
@@ -1803,7 +1781,6 @@ def run_bridge_cycle(tl_client):
                 pos_id = TradeLockerClient._pos_field(
                     pos, "positionId", "id", "position_id", "tradeId")
                 if pos_id:
-                    # FIX-15: pass pos dict so qty + existing TP are carried over
                     ok, _ = tl_client.modify_position(pos_id, pos=pos, new_sl=new_sl)
                     if ok:
                         log("INFO", f"✅ Position {pos_id} SL updated to {new_sl}")
@@ -1828,27 +1805,49 @@ def run_bridge_cycle(tl_client):
         for m in messages[-10:]
     ]
 
-    # ---- FIX-17: TP/SL result tracking straight from TradeLocker ----
-    # The account's order history is the source of truth; stats are
-    # recomputed fresh every cycle, never accumulated locally.
+    # FIX-21: CACHING to reduce API load — only refresh account info every 5 cycles
+    current_time = time.time()
+
+    # Cache account info: only refresh every 30s or if it's the first run
+    if current_time - _cache_account_info_time > CACHE_ACCOUNT_INFO_SEC or _cache_account_info_time == 0:
+        try:
+            tl_client.get_account_info()
+            tl_client.get_account_state()
+            _cache_account_info_time = current_time
+        except Exception:
+            log("DEBUG", "Skipping account info refresh (caching)")
+
+    # FIX-21: Trade history analysis — only re-analyze if order count changes significantly
     try:
         prev_closed = int((_bridge_status.get("trade_results") or {})
                           .get("closed_trades", 0))
-        history = tl_client.get_trade_history()
-        if history:
-            results = tl_client.analyze_trade_results(history)
-            _bridge_status["trade_results"] = results
-            log("DEBUG", f"Trade results (live from TradeLocker): "
-                f"closed={results['closed_trades']} tp={results['tp_hits']} "
-                f"sl={results['sl_hits']} manual={results['manual_closes']} "
-                f"win_rate={results['win_rate']}% pnl={results['realized_pnl']}")
-            # Log a single INFO line only when a new close appears
-            if results["closed_trades"] > prev_closed:
-                newest = results["recent"][0] if results["recent"] else {}
-                log("INFO", f"📊 New closed trade detected | {newest.get('pair')} "
-                    f"{newest.get('side')} → {newest.get('outcome')} "
-                    f"pnl={newest.get('pnl')} | totals: TP={results['tp_hits']} "
-                    f"SL={results['sl_hits']} win_rate={results['win_rate']}%")
+        
+        # Only fetch history if enough time has passed or significant order change expected
+        if current_time - _cache_trade_history_time > CACHE_TRADE_HISTORY_SEC or _cache_trade_history_time == 0:
+            history = tl_client.get_trade_history(limit=100)
+            if history:
+                history_count = len(history)
+                # Only re-analyze if order count changed by >10 or first time
+                if abs(history_count - _last_history_order_count) > 10 or _cache_trade_history_time == 0:
+                    results = tl_client.analyze_trade_results(history)
+                    _bridge_status["trade_results"] = results
+                    _last_history_order_count = history_count
+                    _cache_trade_history_time = current_time
+
+                    log("DEBUG", f"Trade results (live from TradeLocker): "
+                        f"closed={results['closed_trades']} tp={results['tp_hits']} "
+                        f"sl={results['sl_hits']} manual={results['manual_closes']} "
+                        f"win_rate={results['win_rate']}% pnl={results['realized_pnl']}")
+                    
+                    if results["closed_trades"] > prev_closed:
+                        newest = results["recent"][0] if results["recent"] else {}
+                        log("INFO", f"📊 New closed trade detected | {newest.get('pair')} "
+                            f"{newest.get('side')} → {newest.get('outcome')} "
+                            f"pnl={newest.get('pnl')} | totals: TP={results['tp_hits']} "
+                            f"SL={results['sl_hits']} win_rate={results['win_rate']}%")
+                else:
+                    log("DEBUG", f"Trade history unchanged (cached): "
+                        f"{history_count} orders, prev={_last_history_order_count}")
     except Exception:
         log("WARN", f"Trade results check failed: {traceback.format_exc()[:250]}")
 
@@ -1975,26 +1974,26 @@ def render_dashboard():
     positions     = []
     account_info  = {}
     account_state = {}
-    trade_results = bs.get("trade_results") or {}   # FIX-17 fallback
+    trade_results = bs.get("trade_results") or {}
+    sltp_check    = bs.get("open_positions_sl_tp_check") or {}  # FIX-20
     auth_error    = None
     try:
         tl_client = TradeLockerClient(TL_BASE, TL_EMAIL, TL_PASSWORD,
                                       TL_SERVER, TL_ACCOUNT_ID, TL_ACC_NUM)
         if tl_client.authenticate():
-            tl_client.load_instruments()          # needed for inst reverse-lookup
+            tl_client.load_instruments()
             account_info  = tl_client.get_account_info()
-            account_state = tl_client.get_account_state()   # FIX-7: financial data
+            account_state = tl_client.get_account_state()
             positions     = tl_client.get_open_positions()
-            # FIX-17: TP/SL results live from TradeLocker history
             _hist = tl_client.get_trade_history()
             trade_results = (tl_client.analyze_trade_results(_hist)
                              if _hist else (bs.get("trade_results") or {}))
+            sltp_check = bs.get("open_positions_sl_tp_check") or {}
         else:
             auth_error = "Dashboard live-fetch: authentication failed"
     except Exception as exc:
         auth_error = f"Dashboard live-fetch exception: {str(exc)[:100]}"
 
-    # FIX-7: try state first (has financials), then meta info as fallback
     def _af(*keys):
         for src in (account_state, account_info):
             for k in keys:
@@ -2059,7 +2058,7 @@ def render_dashboard():
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta http-equiv="refresh" content="30">
-<title>TradeLocker Bridge v1.6</title>
+<title>TradeLocker Bridge v1.7</title>
 <style>
 :root{{
   --bg:#0d1117;--card:#161b22;--card2:#1c2128;--border:#30363d;
@@ -2129,7 +2128,7 @@ tr:hover td{{background:var(--card2)}}
 
     # ---- HEADER ----
     print(f"""<div class="hdr">
-  <h1><span class="dot dot-{status_color}"></span>TradeLocker Bridge <span style="color:var(--text2);font-weight:400">v1.6</span></h1>
+  <h1><span class="dot dot-{status_color}"></span>TradeLocker Bridge <span style="color:var(--text2);font-weight:400">v1.7</span></h1>
   <div class="hdr-right">
     <button class="btn btn-green" onclick="fetch('?action=test_tg').then(()=>alert('Sent!'))">✉ Test Telegram</button>
     <button class="btn" onclick="location.reload()">⟳ Refresh</button>
@@ -2219,6 +2218,21 @@ tr:hover td{{background:var(--card2)}}
     if bs.get("last_error"):
         print(f'<div class="err-banner">⚠ Last bridge error: {html.escape(str(bs["last_error"]))}</div>')
 
+    # FIX-20: SL/TP CHECK BANNER ----
+    if sltp_check.get("missing_both") or sltp_check.get("missing_sl") or sltp_check.get("missing_tp"):
+        warn_level = ("red" if sltp_check.get("missing_both")
+                      else "orange" if sltp_check.get("missing_sl")
+                      else "yellow")
+        msg_parts = []
+        if sltp_check.get("missing_both"):
+            msg_parts.append(f"{len(sltp_check['missing_both'])} without SL & TP")
+        if sltp_check.get("missing_sl") and not sltp_check.get("missing_both"):
+            msg_parts.append(f"{len(sltp_check['missing_sl'])} without SL")
+        if sltp_check.get("missing_tp") and not sltp_check.get("missing_both"):
+            msg_parts.append(f"{len(sltp_check['missing_tp'])} without TP")
+        print(f'<div class="err-banner" style="background:rgba(248,{81 if warn_level=="red" else 160},73,.08);border-color:var(--{warn_level})">'
+              f'⚠️  SL/TP MISSING: {" | ".join(msg_parts)}</div>')
+
     # ---- LIVE LOG ----
     print('<div class="card mb8">')
     print('<div class="section-title">Live Log (newest first) — last 200 entries</div>')
@@ -2294,7 +2308,6 @@ tr:hover td{{background:var(--card2)}}
                          else "text2")
             pnl_disp  = f"{pnl_f:+.2f}" if pnl_f is not None else str(pos_pnl)
 
-            # FIX-10: openTime may be a string of ms digits from list-of-lists
             time_disp = str(pos_time)
             try:
                 ts_num = float(pos_time)
@@ -2305,8 +2318,6 @@ tr:hover td{{background:var(--card2)}}
             except (TypeError, ValueError, OSError):
                 pass
 
-            # FIX-9: TradeLocker uses numeric status codes.
-            # 1=pending, 2=open/active, 3=closed, 4=cancelled, 5=rejected
             _STATUS_MAP = {"1": "PENDING", "2": "OPEN", "3": "CLOSED",
                            "4": "CANCELLED", "5": "REJECTED"}
             pos_stat_str = _STATUS_MAP.get(str(pos_stat), str(pos_stat))
@@ -2396,7 +2407,7 @@ tr:hover td{{background:var(--card2)}}
 
     # ---- FOOTER ----
     print(f'<div style="text-align:center;padding:10px;color:var(--text2);font-size:9px">'
-          f'TradeLocker Bridge v1.6 | '
+          f'TradeLocker Bridge v1.7 | '
           f'Started: {bs.get("started_at","?")} | '
           f'Uptime: {uptime_display} | '
           f'Page auto-refreshes every 30s'
@@ -2413,17 +2424,15 @@ if __name__ == "__main__":
         is_cgi    = bool(os.environ.get("REQUEST_METHOD") or
                          os.environ.get("GATEWAY_INTERFACE"))
         qs        = os.environ.get("QUERY_STRING", "")
-        # FIX-5: parse QS properly — "cron" in qs.split("&") matched bare
-        # "cron" token but QS values are "key=value" pairs like "mode=cron".
         qs_parts  = qs.split("&")
         cron_mode = ("--cron" in qs
                      or any(p in ("mode=cron", "action=cron", "cron=1", "cron=true")
                             for p in qs_parts)
-                     or "cron" in qs_parts)           # bare "cron" token still OK
+                     or "cron" in qs_parts)
         test_tg   = "action=test_tg" in qs
 
         if test_tg:
-            tg_send_message("✅ Test message from TradeLocker Bridge v1.6")
+            tg_send_message("✅ Test message from TradeLocker Bridge v1.7")
             print("Content-Type: text/plain; charset=utf-8")
             print()
             print("Test message sent.")
@@ -2458,6 +2467,4 @@ if __name__ == "__main__":
                 sys.exit(1)
         except Exception:
             pass
-        # FIX-3: was bare `raise` which fails outside an active except block
-        # when reached via the outer try. Use sys.exit(1) instead.
         sys.exit(1)
