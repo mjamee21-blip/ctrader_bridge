@@ -26,14 +26,13 @@ jobs:
         with:
           name: tradelocker-state
           path: .
-        continue-on-error: true # Ignore if it doesn't exist yet
+        continue-on-error: true
       
       # Step 3: Set up Python
       - name: Set up Python 3.11
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
-          cache: 'pip'
       
       # Step 4: Install dependencies
       - name: Install Python dependencies
