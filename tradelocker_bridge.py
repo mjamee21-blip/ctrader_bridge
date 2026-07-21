@@ -114,32 +114,12 @@ sys.excepthook = _boot_excepthook
 # CONFIG LOADER
 # =====================================================
 
-def load_env(filename=".env1"):
+def load_env():
     """
-    FIX-24: Load environment variables from .env1 file FIRST,
-    then fall back to os.environ for any missing keys.
-    This allows GitHub Actions to pass secrets via actual
-    environment variables while still supporting local .env1.
+    Load environment variables from os.environ only.
+    GitHub Actions secrets are passed as real environment variables.
     """
     env_vars = {}
-    env_path = os.path.join(SCRIPT_DIR, filename)
-    try:
-        if os.path.exists(env_path):
-            with open(env_path, 'r') as f:
-                for line in f:
-                    line = line.strip()
-                    if line and not line.startswith('#') and '=' in line:
-                        key, value = line.split('=', 1)
-                        env_vars[key.strip()] = value.strip().strip('"').strip("'")
-    except Exception:
-        pass
-
-    # FIX-24: OS environment variables ALWAYS take priority over .env1 file.
-    # This is critical for GitHub Actions where:
-    #   - Secrets are passed via the workflow's env: block (real env vars)
-    #   - The .env1 file is created via bash heredoc which can corrupt
-    #     values containing $, #, \, etc.
-    # OS env vars from the workflow's env: block are always trustworthy.
     for key in ("TL_EMAIL", "TL_PASSWORD", "TL_SERVER", "TL_ACCOUNT_ID",
                 "TL_ACC_NUM", "TL_ENV", "TL_BASE_URL", "TL_PAIR_MAP",
                 "TL_DEFAULT_QTY", "TG_TOKEN", "TG_CHAT"):
@@ -150,7 +130,7 @@ def load_env(filename=".env1"):
     return env_vars
 
 
-ENV = load_env(".env1")
+ENV = load_env()
 
 def _safe_int(val, default):
     try:

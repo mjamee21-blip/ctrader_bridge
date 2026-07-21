@@ -59,53 +59,16 @@ jobs:
         run: |
           echo "🔍 Checking environment variables..."
           echo "Git commit: $(git rev-parse HEAD)"
-          echo "TL_EMAIL present: $([ -n \"$TL_EMAIL\" ] && echo 'YES' || echo 'NO')"
-          echo "TL_PASSWORD present: $([ -n \"$TL_PASSWORD\" ] && echo 'YES' || echo 'NO')"
-          echo "TL_SERVER present: $([ -n \"$TL_SERVER\" ] && echo 'YES' || echo 'NO')"
-          echo "TL_ACCOUNT_ID present: $([ -n \"$TL_ACCOUNT_ID\" ] && echo 'YES' || echo 'NO')"
-          echo "TL_ACC_NUM present: $([ -n \"$TL_ACC_NUM\" ] && echo 'YES' || echo 'NO')"
-          echo "TL_ENV present: $([ -n \"$TL_ENV\" ] && echo 'YES' || echo 'NO')"
-          echo "TG_TOKEN present: $([ -n \"$TG_TOKEN\" ] && echo 'YES' || echo 'NO')"
-          echo "TG_CHAT present: $([ -n \"$TG_CHAT\" ] && echo 'YES' || echo 'NO')"
-          echo ""
-          echo "🔍 Checking .env1 file..."
-          if [ -f .env1 ]; then
-            echo ".env1 exists"
-            grep -c '=' .env1 || echo "No config lines found"
-            echo "TL_EMAIL in .env1: $(grep '^TL_EMAIL=' .env1 | cut -d= -f2 | head -c 5)***"
-          else
-            echo ".env1 does NOT exist"
-          fi
-      
-      # Step 6: Create .env1 file from GitHub secrets
-      - name: Create .env1 configuration
-        run: |
-          cat > .env1 << EOF
-          TL_EMAIL=${{ secrets.TL_EMAIL }}
-          TL_PASSWORD=${{ secrets.TL_PASSWORD }}
-          TL_SERVER=${{ secrets.TL_SERVER }}
-          TL_ACCOUNT_ID=${{ secrets.TL_ACCOUNT_ID }}
-          TL_ACC_NUM=${{ secrets.TL_ACC_NUM }}
-          TL_ENV=${{ secrets.TL_ENV }}
-          TL_BASE_URL=${{ secrets.TL_BASE_URL }}
-          TL_DEFAULT_QTY=${{ secrets.TL_DEFAULT_QTY }}
-          TG_TOKEN=${{ secrets.TG_TOKEN }}
-          TG_CHAT=${{ secrets.TG_CHAT }}
-          TL_PAIR_MAP=${{ secrets.TL_PAIR_MAP }}
-          EOF
-          # Ensure fallback defaults if values are empty
-          [ -s .env1 ] || true
-          sed -i 's/^TL_SERVER=$/TL_SERVER=TradeLocker-Demo/' .env1
-          sed -i 's/^TL_ACCOUNT_ID=$/TL_ACCOUNT_ID=0/' .env1
-          sed -i 's/^TL_ACC_NUM=$/TL_ACC_NUM=1/' .env1
-          sed -i 's/^TL_ENV=$/TL_ENV=demo/' .env1
-          sed -i 's/^TL_DEFAULT_QTY=$/TL_DEFAULT_QTY=0.10/' .env1
-          chmod 600 .env1
-          echo "✅ .env1 file created"
-          echo "File contents (masked):"
-          grep -c '=' .env1
-      
-      # Step 7: Run the cron cycle with full Python debug
+          if [ -n "$TL_EMAIL" ]; then echo "TL_EMAIL: present"; else echo "TL_EMAIL: EMPTY/MISSING"; fi
+          if [ -n "$TL_PASSWORD" ]; then echo "TL_PASSWORD: present"; else echo "TL_PASSWORD: EMPTY/MISSING"; fi
+          if [ -n "$TL_SERVER" ]; then echo "TL_SERVER: $TL_SERVER"; else echo "TL_SERVER: EMPTY/MISSING"; fi
+          if [ -n "$TL_ACCOUNT_ID" ]; then echo "TL_ACCOUNT_ID: $TL_ACCOUNT_ID"; else echo "TL_ACCOUNT_ID: EMPTY/MISSING"; fi
+          if [ -n "$TL_ACC_NUM" ]; then echo "TL_ACC_NUM: $TL_ACC_NUM"; else echo "TL_ACC_NUM: EMPTY/MISSING"; fi
+          if [ -n "$TL_ENV" ]; then echo "TL_ENV: $TL_ENV"; else echo "TL_ENV: EMPTY/MISSING"; fi
+          if [ -n "$TG_TOKEN" ]; then echo "TG_TOKEN: present"; else echo "TG_TOKEN: EMPTY/MISSING"; fi
+          if [ -n "$TG_CHAT" ]; then echo "TG_CHAT: $TG_CHAT"; else echo "TG_CHAT: EMPTY/MISSING"; fi
+       
+      # Step 6: Run the cron cycle with full Python debug
       - name: Run TradeLocker Bridge Cron
         env:
           TL_EMAIL: ${{ secrets.TL_EMAIL }}
@@ -121,13 +84,11 @@ jobs:
           TL_PAIR_MAP: ${{ secrets.TL_PAIR_MAP }}
         run: |
           python3 -c "
-          import os, json, traceback, sys
+          import os, traceback, sys
           print('🔍 Python env vars check:')
           for key in ['TL_EMAIL','TL_PASSWORD','TL_SERVER','TL_ACCOUNT_ID','TL_ACC_NUM','TL_ENV','TG_TOKEN','TG_CHAT']:
               val = os.environ.get(key, '')
               print(f'  {key}: {\"***present*** (len=\" + str(len(val)) + \")\" if val else \"EMPTY/MISSING\"}'  )
-          import traceback
-          import sys
           try:
               from tradelocker_bridge import run_cron_cycle
               success = run_cron_cycle()
