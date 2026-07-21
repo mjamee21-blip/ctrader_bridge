@@ -1963,9 +1963,9 @@ def run_cron_cycle():
         tl_client = TradeLockerClient(TL_BASE, TL_EMAIL, TL_PASSWORD,
                                       TL_SERVER, TL_ACCOUNT_ID, TL_ACC_NUM)
         if not tl_client.authenticate():
-            log("ERROR", "Cron: authentication failed")
-            _bridge_status["status"]     = "AUTH_FAILED"
-            _bridge_status["last_error"] = "Authentication failed"
+            auth_err = _bridge_status.get("last_error") or "Authentication failed"
+            print(f"❌ CRON AUTH FAILED: {auth_err}")
+            print(f"   Check secrets: TL_EMAIL, TL_PASSWORD, TL_SERVER, TL_ACCOUNT_ID are set correctly.")
             save_status(force=True)
             return False
 
@@ -1975,6 +1975,7 @@ def run_cron_cycle():
             run_bridge_cycle(tl_client)
         except Exception:
             err = traceback.format_exc()
+            print(f"❌ CRON CYCLE ERROR: {err}")
             log("ERROR", f"Cron cycle error: {err[:400]}")
             _bridge_status["last_error"]    = err[:120]
             _bridge_status["total_errors"] += 1

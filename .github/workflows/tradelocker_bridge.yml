@@ -34,21 +34,25 @@ jobs:
       # Step 4: Validate secrets are configured
       - name: Validate secrets
         run: |
-          if [ -z "${{ secrets.TL_EMAIL }}" ] || [ -z "${{ secrets.TL_PASSWORD }}" ]; then
-            echo "❌ CRITICAL: TL_EMAIL and TL_PASSWORD secrets are not configured!"
+          missing=0
+          for var in TL_EMAIL TL_PASSWORD TL_ACCOUNT_ID TL_SERVER; do
+            val="${!var}"
+            if [ -z "$val" ]; then
+              echo "❌ CRITICAL: $var secret is not configured or is empty!"
+              missing=$((missing+1))
+            fi
+          done
+          if [ "$missing" -gt 0 ]; then
+            echo ""
             echo "Go to: Settings → Secrets and variables → Actions"
-            echo "Add the following secrets:"
-            echo "  - TL_EMAIL (required)"
-            echo "  - TL_PASSWORD (required)"
-            echo "  - TL_SERVER (optional, default: TradeLocker-Demo)"
-            echo "  - TL_ACCOUNT_ID (required)"
-            echo "  - TL_ACC_NUM (optional, default: 1)"
-            echo "  - TL_ENV (optional, default: demo)"
-            echo "  - TG_TOKEN (required)"
-            echo "  - TG_CHAT (required)"
+            echo "Required secrets:"
+            echo "  - TL_EMAIL (your TradeLocker login email)"
+            echo "  - TL_PASSWORD (your TradeLocker login password)"
+            echo "  - TL_SERVER (your broker server name, e.g. TradeLocker-Demo)"
+            echo "  - TL_ACCOUNT_ID (your TradeLocker account number)"
             exit 1
           fi
-          echo "✅ Secrets validated"
+          echo "✅ All required secrets validated"
       
       # Step 5: Debug - verify environment variables exist
       - name: Debug environment variables
@@ -136,18 +140,53 @@ jobs:
               raise e
           "
         timeout-minutes: 1
-      
-      # Step 8: Notify on failure
+       
+      # Step 8: Show debug logs on failure
+      - name: Show debug logs on failure
+        if: failure()
+        run: |
+          echo "==== DEBUG: Python env vars check ===="
+          if [ -n "$TL_EMAIL" ]; then echo "TL_EMAIL: present"; else echo "TL_EMAIL: EMPTY/MISSING"; fi
+          if [ -n "$TL_PASSWORD" ]; then echo "TL_PASSWORD: present"; else echo "TL_PASSWORD: EMPTY/MISSING"; fi
+          if [ -n "$TL_SERVER" ]; then echo "TL_SERVER: $TL_SERVER"; else echo "TL_SERVER: EMPTY/MISSING"; fi
+          if [ -n "$TL_ACCOUNT_ID" ]; then echo "TL_ACCOUNT_ID: $TL_ACCOUNT_ID"; else echo "TL_ACCOUNT_ID: EMPTY/MISSING"; fi
+          if [ -n "$TL_ACC_NUM" ]; then echo "TL_ACC_NUM: $TL_ACC_NUM"; else echo "TL_ACC_NUM: EMPTY/MISSING"; fi
+          if [ -n "$TL_ENV" ]; then echo "TL_ENV: $TL_ENV"; else echo "TL_ENV: EMPTY/MISSING"; fi
+          if [ -n "$TG_TOKEN" ]; then echo "TG_TOKEN: present"; else echo "TG_TOKEN: EMPTY/MISSING"; fi
+          if [ -n "$TG_CHAT" ]; then echo "TG_CHAT: $TG_CHAT"; else echo "TG_CHAT: EMPTY/MISSING"; fi
+          echo ""
+          echo "==== DEBUG: Bridge log file (last 100 lines) ===="
+          if [ -f tradelocker_bridge.log ]; then
+            tail -n 100 tradelocker_bridge.log || true
+          else
+            echo "tradelocker_bridge.log not found"
+          fi
+          echo ""
+          echo "==== DEBUG: Status file ===="
+          if [ -f tradelocker_status.json ]; then
+            cat tradelocker_status.json || true
+          else
+            echo "tradelocker_status.json not found"
+          fi
+          echo ""
+          echo "==== DEBUG: Crash log file ===="
+          if [ -f tradelocker_crash.log ]; then
+            cat tradelocker_crash.log || true
+          else
+            echo "tradelocker_crash.log not found"
+          fi
+       
+      # Step 9: Notify on failure
       - name: Notify on failure
         if: failure()
         run: |
           echo "❌ TradeLocker Bridge cron job failed"
           echo "Run: ${{ github.run_number }}"
-          echo "Check the logs above for details"
+          echo "Check the 'Show debug logs on failure' step above for detailed error output."
           echo ""
           echo "Common causes:"
           echo "1. Secrets not configured in Settings → Secrets and variables → Actions"
-          echo "2. TradeLocker credentials expired or invalid"
+          echo "2. TradeLocker credentials expired or invalid (check TL_EMAIL, TL_PASSWORD, TL_SERVER, TL_ACCOUNT_ID)"
           echo "3. Telegram bot token invalid"
           echo "4. Network connectivity issues to TradeLocker API"
       
