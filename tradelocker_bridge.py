@@ -144,24 +144,36 @@ def _safe_float(val, default):
 # =====================================================
 # CONFIGURATION
 # =====================================================
-TL_EMAIL      = ENV.get("TL_EMAIL", "")
-TL_PASSWORD   = ENV.get("TL_PASSWORD", "")
-TL_SERVER     = ENV.get("TL_SERVER", "TradeLocker-Demo")
-TL_ACCOUNT_ID = _safe_int(ENV.get("TL_ACCOUNT_ID"), 0)
-TL_ACC_NUM    = _safe_int(ENV.get("TL_ACC_NUM"), 1)
-TL_ENV        = ENV.get("TL_ENV", "demo")
-
-TG_TOKEN = ENV.get("TG_TOKEN", "")
-TG_CHAT  = ENV.get("TG_CHAT", "")
-
-PAIR_MAP_RAW = ENV.get("TL_PAIR_MAP", "")
 try:
-    PAIR_MAP = json.loads(PAIR_MAP_RAW) if PAIR_MAP_RAW else {}
-except Exception:
-    PAIR_MAP = {}
+    TL_EMAIL      = ENV.get("TL_EMAIL", "")
+    TL_PASSWORD   = ENV.get("TL_PASSWORD", "")
+    TL_SERVER     = ENV.get("TL_SERVER", "TradeLocker-Demo")
+    TL_ACCOUNT_ID = _safe_int(ENV.get("TL_ACCOUNT_ID"), 0)
+    TL_ACC_NUM    = _safe_int(ENV.get("TL_ACC_NUM"), 1)
+    TL_ENV        = ENV.get("TL_ENV", "demo")
 
-# Default lot size
-DEFAULT_QTY = _safe_float(ENV.get("TL_DEFAULT_QTY"), 0.10)
+    TG_TOKEN = ENV.get("TG_TOKEN", "")
+    TG_CHAT  = ENV.get("TG_CHAT", "")
+
+    PAIR_MAP_RAW = ENV.get("TL_PAIR_MAP", "")
+    try:
+        PAIR_MAP = json.loads(PAIR_MAP_RAW) if PAIR_MAP_RAW else {}
+    except Exception:
+        PAIR_MAP = {}
+
+    # Default lot size
+    DEFAULT_QTY = _safe_float(ENV.get("TL_DEFAULT_QTY"), 0.10)
+except Exception:
+    TL_EMAIL      = ""
+    TL_PASSWORD   = ""
+    TL_SERVER     = "TradeLocker-Demo"
+    TL_ACCOUNT_ID = 0
+    TL_ACC_NUM    = 1
+    TL_ENV        = "demo"
+    TG_TOKEN      = ""
+    TG_CHAT       = ""
+    PAIR_MAP      = {}
+    DEFAULT_QTY   = 0.10
 
 TL_BASE = ENV.get("TL_BASE_URL")
 if not TL_BASE:

@@ -47,6 +47,13 @@ jobs:
           TG_CHAT=${{ secrets.TG_CHAT }}
           TL_PAIR_MAP=${{ secrets.TL_PAIR_MAP }}
           EOF
+          # Ensure fallback defaults if values are empty
+          [ -s .env1 ] || true
+          sed -i 's/^TL_SERVER=$/TL_SERVER=TradeLocker-Demo/' .env1
+          sed -i 's/^TL_ACCOUNT_ID=$/TL_ACCOUNT_ID=0/' .env1
+          sed -i 's/^TL_ACC_NUM=$/TL_ACC_NUM=1/' .env1
+          sed -i 's/^TL_ENV=$/TL_ENV=demo/' .env1
+          sed -i 's/^TL_DEFAULT_QTY=$/TL_DEFAULT_QTY=0.10/' .env1
           chmod 600 .env1
       
       # Step 5: Run the cron cycle
