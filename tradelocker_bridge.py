@@ -735,12 +735,15 @@ class TradeLockerClient:
         log("INFO", f"Authenticating with TradeLocker [{TL_ENV.upper()}] server={self.server}")
 
         if not (self.email and self.password and self.server):
-            log("ERROR", "Missing TL_EMAIL / TL_PASSWORD / TL_SERVER in .env")
-            _bridge_status["last_error"] = "Missing credentials in .env"
+            msg = "Missing TL_EMAIL / TL_PASSWORD / TL_SERVER in env"
+            print(f"❌ AUTH PRECHECK FAILED: {msg}")
+            log("ERROR", msg)
+            _bridge_status["last_error"] = msg
             _bridge_status["status"]     = "AUTH_FAILED"
             return False
 
         payload = {"email": self.email, "password": self.password, "server": self.server}
+        print(f"🔑 AUTH ATTEMPT: base={self.base_url} server={self.server} email_len={len(self.email or '')}")
         result  = self._request("POST", "/auth/jwt/token", body=payload)
 
         if result.get("error"):
@@ -763,6 +766,8 @@ class TradeLockerClient:
 
         if result.get("error"):
             detail = result.get("detail", result["error"])
+            msg = f"Authentication failed: {str(detail)[:120]}"
+            print(f"❌ AUTH FAILED: {msg}")
             log("ERROR", f"Authentication failed: {result}")
             _bridge_status["last_error"] = f"Auth failed: {str(detail)[:80]}"
             _bridge_status["status"]     = "AUTH_FAILED"
@@ -776,7 +781,9 @@ class TradeLockerClient:
                                or result.get("refresh_token"))
 
         if not self.access_token:
-            log("ERROR", f"No access token in auth response: {json.dumps(result)[:300]}")
+            msg = f"No access token in auth response: {json.dumps(result)[:200]}"
+            print(f"❌ AUTH FAILED: {msg}")
+            log("ERROR", msg)
             _bridge_status["last_error"] = "No access token returned"
             _bridge_status["status"]     = "AUTH_FAILED"
             self.authenticated = False
@@ -1932,6 +1939,19 @@ def continuous_run():
 # =====================================================
 
 def run_cron_cycle():
+    config_debug = {
+        "TL_BASE": TL_BASE,
+        "TL_SERVER": TL_SERVER,
+        "TL_ACCOUNT_ID": TL_ACCOUNT_ID,
+        "TL_ACC_NUM": TL_ACC_NUM,
+        "TL_ENV": TL_ENV,
+        "email_set": bool(TL_EMAIL),
+        "password_set": bool(TL_PASSWORD),
+        "token_set": bool(TG_TOKEN),
+        "chat_set": bool(TG_CHAT),
+    }
+    print(f"🔧 CRON CONFIG: {json.dumps(config_debug)}")
+
     try:
         _load_persisted_status()
 
@@ -1943,9 +1963,6 @@ def run_cron_cycle():
         tl_client = TradeLockerClient(TL_BASE, TL_EMAIL, TL_PASSWORD,
                                       TL_SERVER, TL_ACCOUNT_ID, TL_ACC_NUM)
         if not tl_client.authenticate():
-            auth_err = _bridge_status.get("last_error") or "Authentication failed"
-            print(f"❌ CRON AUTH FAILED: {auth_err}")
-            print(f"   Check secrets: TL_EMAIL, TL_PASSWORD, TL_SERVER, TL_ACCOUNT_ID are set correctly.")
             save_status(force=True)
             return False
 
@@ -1973,6 +1990,7 @@ def run_cron_cycle():
 
     except Exception:
         err = traceback.format_exc()
+        print(f"❌ CRON RUNNER CRASHED: {err}")
         try:
             log("ERROR", f"Cron runner crashed: {err[:400]}")
             save_status(force=True)
