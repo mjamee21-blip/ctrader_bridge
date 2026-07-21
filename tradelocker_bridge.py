@@ -147,10 +147,12 @@ except Exception:
 # Default lot size
 DEFAULT_QTY = float(ENV.get("TL_DEFAULT_QTY", "0.10"))
 
-if TL_ENV.lower() == "live":
-    TL_BASE = "https://live.tradelocker.com"
-else:
-    TL_BASE = "https://demo.tradelocker.com"
+TL_BASE = ENV.get("TL_BASE_URL")
+if not TL_BASE:
+    if TL_ENV.lower() == "live":
+        TL_BASE = "https://live.tradelocker.com"
+    else:
+        TL_BASE = "https://demo.tradelocker.com"
 
 # FIX-21: Cache timings to reduce server load
 CACHE_POSITIONS_SEC     = 10   # refresh positions every 10s on cron

@@ -2396,3 +2396,12 @@ BOOT: tradelocker_bridge.py started at 2026-07-20 16:29:19
 BOOT: tradelocker_bridge.py started at 2026-07-20 16:29:22
 BOOT: tradelocker_bridge.py started at 2026-07-20 16:29:51
 BOOT: tradelocker_bridge.py started at 2026-07-20 16:29:54
+BOOT: tradelocker_bridge.py started at 2026-07-21 12:58:37
+BOOT FAILURE:
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "/home/runner/work/tradelocker_bridge/tradelocker_bridge/tradelocker_bridge.py", line 190, in <module>
+    DEFAULT_QTY = float(ENV.get("TL_DEFAULT_QTY", "0.10"))
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: could not convert string to float: ''
+
