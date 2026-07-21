@@ -1,0 +1,52 @@
+{
+  "status": {
+    "status": "AUTH_FAILED",
+    "last_telegram_poll": null,
+    "last_trade_executed": null,
+    "total_signals_received": 0,
+    "total_trades_executed": 0,
+    "total_errors": 0,
+    "current_open_positions": 0,
+    "access_token_expires_at": null,
+    "instruments_loaded": 0,
+    "last_error": "Authentication failed",
+    "uptime_seconds": 1,
+    "started_at": "2026-07-21 17:40:17",
+    "last_messages": [],
+    "last_update_id": 0,
+    "trade_results": {},
+    "open_positions_sl_tp_check": {}
+  },
+  "last_logs": [
+    {
+      "time": "2026-07-21 17:40:17",
+      "level": "INFO",
+      "message": "=== Cron cycle START | offset=0 ===",
+      "data": null
+    },
+    {
+      "time": "2026-07-21 17:40:19",
+      "level": "ERROR",
+      "message": "Failed to delete webhook: HTTP Error 404: Not Found",
+      "data": null
+    },
+    {
+      "time": "2026-07-21 17:40:19",
+      "level": "INFO",
+      "message": "Authenticating with TradeLocker [DEMO] server=TradeLocker-Demo",
+      "data": null
+    },
+    {
+      "time": "2026-07-21 17:40:19",
+      "level": "ERROR",
+      "message": "Missing TL_EMAIL / TL_PASSWORD / TL_SERVER in .env",
+      "data": null
+    },
+    {
+      "time": "2026-07-21 17:40:19",
+      "level": "ERROR",
+      "message": "Cron: authentication failed",
+      "data": null
+    }
+  ]
+}

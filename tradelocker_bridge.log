@@ -25614,3 +25614,12 @@ Reason: Ã¢Å“â€¦ TP +50% Reached
 [2026-07-20 16:29:55] DEBUG | Positions[0] fields: ['positionId', 'tradableInstrumentId', 'routeId', 'side', 'qty', 'price', 'stopLoss', 'takeProfit', 'openTime', 'pnl', 'status']
 [2026-07-20 16:29:55] DEBUG | Trade history raw keys: ['s', 'd'] | d type: dict
 [2026-07-20 16:29:55] DEBUG | Trade history d keys: ['orders']
+[2026-07-21 17:38:09] INFO | TradeLocker Bridge — continuous mode starting
+[2026-07-21 17:38:09] INFO | Authenticating with TradeLocker [DEMO] server=TradeLocker-Demo
+[2026-07-21 17:38:09] ERROR | Missing TL_EMAIL / TL_PASSWORD / TL_SERVER in .env
+[2026-07-21 17:38:09] ERROR | Initial auth failed — cannot start
+[2026-07-21 17:40:17] INFO | === Cron cycle START | offset=0 ===
+[2026-07-21 17:40:19] ERROR | Failed to delete webhook: HTTP Error 404: Not Found
+[2026-07-21 17:40:19] INFO | Authenticating with TradeLocker [DEMO] server=TradeLocker-Demo
+[2026-07-21 17:40:19] ERROR | Missing TL_EMAIL / TL_PASSWORD / TL_SERVER in .env
+[2026-07-21 17:40:19] ERROR | Cron: authentication failed
