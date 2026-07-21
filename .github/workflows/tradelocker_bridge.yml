@@ -20,26 +20,18 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
       
-      # Step 2: Download previous state
-      - name: Download state
-        uses: actions/download-artifact@v4
-        with:
-          name: tradelocker-state
-          path: .
-        continue-on-error: true
-      
-      # Step 3: Set up Python
+      # Step 2: Set up Python
       - name: Set up Python 3.11
         uses: actions/setup-python@v2
         with:
           python-version: '3.11'
       
-      # Step 4: Install dependencies
+      # Step 3: Install dependencies
       - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
       
-      # Step 5: Create .env1 file from GitHub secrets
+      # Step 4: Create .env1 file from GitHub secrets
       - name: Create .env1 configuration
         run: |
           cat > .env1 << EOF
@@ -57,30 +49,15 @@ jobs:
           EOF
           chmod 600 .env1
       
-      # Step 6: Run the cron cycle
+      # Step 5: Run the cron cycle
       - name: Run TradeLocker Bridge Cron
         run: |
           python3 -c "from tradelocker_bridge import run_cron_cycle; run_cron_cycle()"
         timeout-minutes: 1
       
-      # Step 7: Upload state and logs
-      - name: Upload state and logs
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: tradelocker-state
-          path: |
-            tradelocker_bridge.log
-            tradelocker_crash.log
-            tradelocker_status.json
-            tradelocker_processed.json
-            tradelocker_heartbeat.txt
-          retention-days: 1
-      
-      # Step 8: Notify on failure
+      # Step 6: Notify on failure
       - name: Notify on failure
         if: failure()
         run: |
           echo "❌ TradeLocker Bridge cron job failed"
           echo "Run: ${{ github.run_number }}"
-          echo "Check artifacts for logs"
