@@ -34,22 +34,20 @@ jobs:
       # Step 4: Validate secrets are configured
       - name: Validate secrets
         run: |
-          missing=0
-          for var in TL_EMAIL TL_PASSWORD TL_ACCOUNT_ID TL_SERVER; do
-            val="${{ secrets[var] }}"
-            if [ -z "$val" ]; then
-              echo "❌ CRITICAL: $var secret is not configured or is empty!"
-              missing=$((missing+1))
-            fi
-          done
-          if [ "$missing" -gt 0 ]; then
-            echo ""
-            echo "Go to: Settings → Secrets and variables → Actions"
-            echo "Required secrets:"
-            echo "  - TL_EMAIL (your TradeLocker login email)"
-            echo "  - TL_PASSWORD (your TradeLocker login password)"
-            echo "  - TL_SERVER (your broker server name, e.g. TradeLocker-Demo)"
-            echo "  - TL_ACCOUNT_ID (your TradeLocker account number)"
+          if [ -z "${{ secrets.TL_EMAIL }}" ]; then
+            echo "❌ CRITICAL: TL_EMAIL secret is not configured or is empty!"
+            exit 1
+          fi
+          if [ -z "${{ secrets.TL_PASSWORD }}" ]; then
+            echo "❌ CRITICAL: TL_PASSWORD secret is not configured or is empty!"
+            exit 1
+          fi
+          if [ -z "${{ secrets.TL_ACCOUNT_ID }}" ]; then
+            echo "❌ CRITICAL: TL_ACCOUNT_ID secret is not configured or is empty!"
+            exit 1
+          fi
+          if [ -z "${{ secrets.TL_SERVER }}" ]; then
+            echo "❌ CRITICAL: TL_SERVER secret is not configured or is empty!"
             exit 1
           fi
           echo "✅ All required secrets validated"
