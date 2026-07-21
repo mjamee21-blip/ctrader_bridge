@@ -54,9 +54,13 @@ jobs:
         run: |
           python3 -c "
           import traceback
+          import sys
           try:
               from tradelocker_bridge import run_cron_cycle
-              run_cron_cycle()
+              success = run_cron_cycle()
+              if not success:
+                  print('❌ TradeLocker Bridge cron cycle returned False (authentication failed or execution error).')
+                  sys.exit(1)
           except Exception as e:
               print('CRASH TRACEBACK:')
               traceback.print_exc()

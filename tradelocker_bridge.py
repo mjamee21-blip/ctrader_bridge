@@ -125,14 +125,30 @@ def load_env(filename=".env1"):
 
 ENV = load_env(".env1")
 
+def _safe_int(val, default):
+    try:
+        if val is not None and str(val).strip():
+            return int(str(val).strip())
+    except Exception:
+        pass
+    return default
+
+def _safe_float(val, default):
+    try:
+        if val is not None and str(val).strip():
+            return float(str(val).strip())
+    except Exception:
+        pass
+    return default
+
 # =====================================================
 # CONFIGURATION
 # =====================================================
 TL_EMAIL      = ENV.get("TL_EMAIL", "")
 TL_PASSWORD   = ENV.get("TL_PASSWORD", "")
 TL_SERVER     = ENV.get("TL_SERVER", "TradeLocker-Demo")
-TL_ACCOUNT_ID = int(ENV.get("TL_ACCOUNT_ID", "0"))
-TL_ACC_NUM    = int(ENV.get("TL_ACC_NUM", "1"))
+TL_ACCOUNT_ID = _safe_int(ENV.get("TL_ACCOUNT_ID"), 0)
+TL_ACC_NUM    = _safe_int(ENV.get("TL_ACC_NUM"), 1)
 TL_ENV        = ENV.get("TL_ENV", "demo")
 
 TG_TOKEN = ENV.get("TG_TOKEN", "")
@@ -145,7 +161,7 @@ except Exception:
     PAIR_MAP = {}
 
 # Default lot size
-DEFAULT_QTY = float(ENV.get("TL_DEFAULT_QTY", "0.10"))
+DEFAULT_QTY = _safe_float(ENV.get("TL_DEFAULT_QTY"), 0.10)
 
 TL_BASE = ENV.get("TL_BASE_URL")
 if not TL_BASE:
