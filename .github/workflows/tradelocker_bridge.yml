@@ -50,7 +50,30 @@ jobs:
           fi
           echo "✅ Secrets validated"
       
-      # Step 5: Create .env1 file from GitHub secrets
+      # Step 5: Debug - verify environment variables exist
+      - name: Debug environment variables
+        run: |
+          echo "🔍 Checking environment variables..."
+          echo "Git commit: $(git rev-parse HEAD)"
+          echo "TL_EMAIL present: $([ -n \"$TL_EMAIL\" ] && echo 'YES' || echo 'NO')"
+          echo "TL_PASSWORD present: $([ -n \"$TL_PASSWORD\" ] && echo 'YES' || echo 'NO')"
+          echo "TL_SERVER present: $([ -n \"$TL_SERVER\" ] && echo 'YES' || echo 'NO')"
+          echo "TL_ACCOUNT_ID present: $([ -n \"$TL_ACCOUNT_ID\" ] && echo 'YES' || echo 'NO')"
+          echo "TL_ACC_NUM present: $([ -n \"$TL_ACC_NUM\" ] && echo 'YES' || echo 'NO')"
+          echo "TL_ENV present: $([ -n \"$TL_ENV\" ] && echo 'YES' || echo 'NO')"
+          echo "TG_TOKEN present: $([ -n \"$TG_TOKEN\" ] && echo 'YES' || echo 'NO')"
+          echo "TG_CHAT present: $([ -n \"$TG_CHAT\" ] && echo 'YES' || echo 'NO')"
+          echo ""
+          echo "🔍 Checking .env1 file..."
+          if [ -f .env1 ]; then
+            echo ".env1 exists"
+            grep -c '=' .env1 || echo "No config lines found"
+            echo "TL_EMAIL in .env1: $(grep '^TL_EMAIL=' .env1 | cut -d= -f2 | head -c 5)***"
+          else
+            echo ".env1 does NOT exist"
+          fi
+      
+      # Step 6: Create .env1 file from GitHub secrets
       - name: Create .env1 configuration
         run: |
           cat > .env1 << EOF
@@ -75,8 +98,10 @@ jobs:
           sed -i 's/^TL_DEFAULT_QTY=$/TL_DEFAULT_QTY=0.10/' .env1
           chmod 600 .env1
           echo "✅ .env1 file created"
+          echo "File contents (masked):"
+          grep -c '=' .env1
       
-      # Step 6: Run the cron cycle
+      # Step 7: Run the cron cycle with full Python debug
       - name: Run TradeLocker Bridge Cron
         env:
           TL_EMAIL: ${{ secrets.TL_EMAIL }}
@@ -92,6 +117,11 @@ jobs:
           TL_PAIR_MAP: ${{ secrets.TL_PAIR_MAP }}
         run: |
           python3 -c "
+          import os, json, traceback, sys
+          print('🔍 Python env vars check:')
+          for key in ['TL_EMAIL','TL_PASSWORD','TL_SERVER','TL_ACCOUNT_ID','TL_ACC_NUM','TL_ENV','TG_TOKEN','TG_CHAT']:
+              val = os.environ.get(key, '')
+              print(f'  {key}: {\"***present*** (len=\" + str(len(val)) + \")\" if val else \"EMPTY/MISSING\"}'  )
           import traceback
           import sys
           try:
@@ -107,7 +137,7 @@ jobs:
           "
         timeout-minutes: 1
       
-      # Step 7: Notify on failure
+      # Step 8: Notify on failure
       - name: Notify on failure
         if: failure()
         run: |
