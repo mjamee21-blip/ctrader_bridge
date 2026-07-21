@@ -45,6 +45,13 @@
 #         position ID consistency when modifying, to avoid accidentally
 #         modifying the wrong trade.
 #
+# FIX-24: ENVIRONMENT VARIABLE FALLBACK for CI/CD (GitHub Actions).
+#         The load_env() function only read from the .env1 file. In GitHub
+#         Actions, secrets are passed as actual environment variables, not
+#         via .env1. Now load_env() falls back to os.environ when a key is
+#         not found in the .env1 file, enabling GitHub Actions to work
+#         correctly with repository secrets.
+#
 # =====================================================
 
 import sys
@@ -108,6 +115,12 @@ sys.excepthook = _boot_excepthook
 # =====================================================
 
 def load_env(filename=".env1"):
+    """
+    FIX-24: Load environment variables from .env1 file FIRST,
+    then fall back to os.environ for any missing keys.
+    This allows GitHub Actions to pass secrets via actual
+    environment variables while still supporting local .env1.
+    """
     env_vars = {}
     env_path = os.path.join(SCRIPT_DIR, filename)
     try:
@@ -120,6 +133,18 @@ def load_env(filename=".env1"):
                         env_vars[key.strip()] = value.strip().strip('"').strip("'")
     except Exception:
         pass
+
+    # FIX-24: Fall back to actual environment variables for any key
+    # that was not set in the .env1 file. This supports GitHub Actions
+    # where secrets are passed as real env vars (TL_EMAIL, TG_TOKEN, etc.)
+    for key in ("TL_EMAIL", "TL_PASSWORD", "TL_SERVER", "TL_ACCOUNT_ID",
+                "TL_ACC_NUM", "TL_ENV", "TL_BASE_URL", "TL_PAIR_MAP",
+                "TL_DEFAULT_QTY", "TG_TOKEN", "TG_CHAT"):
+        if key not in env_vars or not env_vars.get(key):
+            env_val = os.environ.get(key)
+            if env_val:
+                env_vars[key] = env_val
+
     return env_vars
 
 
@@ -2457,7 +2482,7 @@ if __name__ == "__main__":
         qs_parts  = qs.split("&")
         cron_mode = ("--cron" in qs
                      or any(p in ("mode=cron", "action=cron", "cron=1", "cron=true")
-                            for p in qs_parts)
+                             for p in qs_parts)
                      or "cron" in qs_parts)
         test_tg   = "action=test_tg" in qs
 
