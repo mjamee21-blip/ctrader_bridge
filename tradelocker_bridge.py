@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 # =====================================================
-# TRADELOCKER TELEGRAM BRIDGE v1.7 (FIXED)
+# TRADELOCKER TELEGRAM BRIDGE v1.7.1 (FIXED)
 # =====================================================
 # Monitors Telegram channel for trading signals and
 # executes them on TradeLocker via their REST API.
