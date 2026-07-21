@@ -52,7 +52,16 @@ jobs:
       # Step 5: Run the cron cycle
       - name: Run TradeLocker Bridge Cron
         run: |
-          python3 -c "from tradelocker_bridge import run_cron_cycle; run_cron_cycle()"
+          python3 -c "
+          import traceback
+          try:
+              from tradelocker_bridge import run_cron_cycle
+              run_cron_cycle()
+          except Exception as e:
+              print('CRASH TRACEBACK:')
+              traceback.print_exc()
+              raise e
+          "
         timeout-minutes: 1
       
       # Step 6: Notify on failure
