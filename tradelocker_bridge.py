@@ -752,6 +752,7 @@ class TradeLockerClient:
             headers={
                 "accept": "application/json",
                 "content-type": "application/json",
+                "User-Agent": "Mozilla/5.0 (compatible; TLBridge/1.7)",
             },
             method="POST",
         )
