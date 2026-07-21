@@ -750,12 +750,12 @@ class TradeLockerClient:
             url,
             data=payload,
             headers={
-                "accept": "application/json, text/plain, */*",
-                "content-type": "application/json",
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+                "Accept": "application/json, text/plain, */*",
                 "Accept-Language": "en-US,en;q=0.9",
-                "Referer": f"{self.base_url}/",
-                "Origin": self.base_url,
+                "Referer": "https://demo.tradelocker.com/",
+                "Origin": "https://demo.tradelocker.com/",
+                "content-type": "application/json",
             },
             method="POST",
         )
