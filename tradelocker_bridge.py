@@ -732,46 +732,54 @@ class TradeLockerClient:
     # ------------------------------------------------------------------
 
     def authenticate(self):
-        log("INFO", f"Authenticating with TradeLocker [{TL_ENV.upper()}] server={self.server}")
-
         if not (self.email and self.password and self.server):
-            msg = "Missing TL_EMAIL / TL_PASSWORD / TL_SERVER in env"
+            msg = "Missing TL_EMAIL / TL_PASSWORD / TL_SERVER"
             print(f"❌ AUTH PRECHECK FAILED: {msg}")
-            log("ERROR", msg)
             _bridge_status["last_error"] = msg
             _bridge_status["status"]     = "AUTH_FAILED"
             return False
 
-        payload = {"email": self.email, "password": self.password, "server": self.server}
-        print(f"🔑 AUTH ATTEMPT: base={self.base_url} server={self.server} email_len={len(self.email or '')}")
-        result  = self._request("POST", "/auth/jwt/token", body=payload)
+        url = f"{self.base_url}/backend-api/auth/jwt/token"
+        payload = json.dumps({
+            "email": self.email,
+            "password": self.password,
+            "server": self.server,
+        }).encode()
 
-        if result.get("error"):
-            log("WARN", f"JSON auth failed ({result.get('error')}), trying form-encoded...")
-            try:
-                url  = f"{self.auth_base_url}/auth/jwt/token"
-                data = urllib.parse.urlencode(payload).encode()
-                req  = urllib.request.Request(url, data=data, headers={
-                    "User-Agent": "Mozilla/5.0",
-                    "Accept":     "application/json",
-                })
-                with urllib.request.urlopen(req, timeout=20) as resp:
-                    content = resp.read().decode()
-                    if content.strip():
-                        result = json.loads(content)
-                        if not result.get("error"):
-                            log("INFO", "Form-encoded auth succeeded")
-            except Exception as e:
-                log("WARN", f"Form-encoded auth failed: {str(e)[:80]}")
+        req = urllib.request.Request(
+            url,
+            data=payload,
+            headers={
+                "accept": "application/json",
+                "content-type": "application/json",
+            },
+            method="POST",
+        )
+
+        try:
+            with urllib.request.urlopen(req, timeout=20) as resp:
+                content = resp.read().decode()
+                result = json.loads(content) if content.strip() else {}
+        except HTTPError as e:
+            body = e.read().decode() if e.fp else ""
+            msg = f"Authentication failed: HTTP {e.code} {body[:120]}"
+            print(f"❌ AUTH FAILED: {msg}")
+            _bridge_status["last_error"] = msg
+            _bridge_status["status"]     = "AUTH_FAILED"
+            return False
+        except Exception as e:
+            msg = f"Authentication failed: {str(e)[:120]}"
+            print(f"❌ AUTH FAILED: {msg}")
+            _bridge_status["last_error"] = msg
+            _bridge_status["status"]     = "AUTH_FAILED"
+            return False
 
         if result.get("error"):
             detail = result.get("detail", result["error"])
             msg = f"Authentication failed: {str(detail)[:120]}"
             print(f"❌ AUTH FAILED: {msg}")
-            log("ERROR", f"Authentication failed: {result}")
-            _bridge_status["last_error"] = f"Auth failed: {str(detail)[:80]}"
+            _bridge_status["last_error"] = msg
             _bridge_status["status"]     = "AUTH_FAILED"
-            self.authenticated = False
             return False
 
         self.access_token  = (result.get("accessToken")
@@ -781,12 +789,10 @@ class TradeLockerClient:
                                or result.get("refresh_token"))
 
         if not self.access_token:
-            msg = f"No access token in auth response: {json.dumps(result)[:200]}"
+            msg = "No access token in auth response"
             print(f"❌ AUTH FAILED: {msg}")
-            log("ERROR", msg)
-            _bridge_status["last_error"] = "No access token returned"
+            _bridge_status["last_error"] = msg
             _bridge_status["status"]     = "AUTH_FAILED"
-            self.authenticated = False
             return False
 
         self.authenticated    = True
@@ -795,7 +801,7 @@ class TradeLockerClient:
         self.token_expires_at = time.time() + expires_in
         _bridge_status["access_token_expires_at"] = datetime.fromtimestamp(
             self.token_expires_at, tz=timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
-        log("INFO", "Authentication successful")
+        print("✅ AUTH SUCCESS")
         return True
 
     def refresh_auth(self):
