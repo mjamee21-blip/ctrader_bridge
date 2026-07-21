@@ -63,6 +63,7 @@ import re
 import urllib.request
 import urllib.parse
 from urllib.error import URLError, HTTPError
+from curl_cffi import requests as curl_requests
 from datetime import datetime, timezone, timedelta
 import traceback
 import ssl
@@ -697,32 +698,29 @@ class TradeLockerClient:
             req_headers.update(headers_extra)
 
         try:
-            encoded = json.dumps(body).encode() if body is not None else None
-            req     = urllib.request.Request(url, data=encoded,
-                                             headers=req_headers, method=method)
-            with urllib.request.urlopen(req, timeout=timeout) as resp:
-                content = resp.read().decode()
-                if not content.strip():
-                    return {}
-                stripped = content.lstrip()
-                if stripped.startswith("<!DOCTYPE") or stripped.startswith("<html"):
-                    log("ERROR", f"HTML response on {method} {path}: {content[:200]}")
-                    return {"error": "HTML_RESPONSE", "detail": content[:200]}
-                try:
-                    return json.loads(content)
-                except Exception as je:
-                    log("ERROR", f"JSON parse error on {method} {path}: "
-                        f"{str(je)[:60]} | raw: {content[:200]}")
-                    return {"error": "INVALID_JSON", "detail": content[:300]}
-
-        except HTTPError as e:
-            body_txt = ""
+            data = json.dumps(body) if body is not None else None
+            resp = curl_requests.request(
+                method,
+                url,
+                headers=req_headers,
+                data=data,
+                timeout=timeout,
+                impersonate="chrome120",
+            )
+            content = resp.text
+            if not content.strip():
+                return {}
+            stripped = content.lstrip()
+            if stripped.startswith("<!DOCTYPE") or stripped.startswith("<html"):
+                log("ERROR", f"HTML response on {method} {path}: {content[:200]}")
+                return {"error": "HTML_RESPONSE", "detail": content[:200]}
             try:
-                body_txt = e.read().decode()
-            except Exception:
-                pass
-            log("ERROR", f"HTTP {e.code} on {method} {path}: {body_txt[:300]}")
-            return {"error": f"HTTP_{e.code}", "detail": body_txt[:300]}
+                return resp.json()
+            except Exception as je:
+                log("ERROR", f"JSON parse error on {method} {path}: "
+                    f"{str(je)[:60]} | raw: {content[:200]}")
+                return {"error": "INVALID_JSON", "detail": content[:300]}
+
         except Exception as e:
             log("ERROR", f"Request failed on {method} {path}: {str(e)[:100]}")
             return {"error": str(e)[:100]}
@@ -740,37 +738,29 @@ class TradeLockerClient:
             return False
 
         url = f"{self.base_url}/backend-api/auth/jwt/token"
-        payload = json.dumps({
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+            "Accept": "application/json, text/plain, */*",
+            "Accept-Language": "en-US,en;q=0.9",
+            "Referer": "https://demo.tradelocker.com/",
+            "Origin": "https://demo.tradelocker.com/",
+            "content-type": "application/json",
+        }
+        payload = {
             "email": self.email,
             "password": self.password,
             "server": self.server,
-        }).encode()
-
-        req = urllib.request.Request(
-            url,
-            data=payload,
-            headers={
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
-                "Accept": "application/json, text/plain, */*",
-                "Accept-Language": "en-US,en;q=0.9",
-                "Referer": "https://demo.tradelocker.com/",
-                "Origin": "https://demo.tradelocker.com/",
-                "content-type": "application/json",
-            },
-            method="POST",
-        )
+        }
 
         try:
-            with urllib.request.urlopen(req, timeout=20) as resp:
-                content = resp.read().decode()
-                result = json.loads(content) if content.strip() else {}
-        except HTTPError as e:
-            body = e.read().decode() if e.fp else ""
-            msg = f"Authentication failed: HTTP {e.code} {body[:120]}"
-            print(f"❌ AUTH FAILED: {msg}")
-            _bridge_status["last_error"] = msg
-            _bridge_status["status"]     = "AUTH_FAILED"
-            return False
+            resp = curl_requests.post(
+                url,
+                json=payload,
+                headers=headers,
+                timeout=20,
+                impersonate="chrome120",
+            )
+            result = resp.json() if resp.text.strip() else {}
         except Exception as e:
             msg = f"Authentication failed: {str(e)[:120]}"
             print(f"❌ AUTH FAILED: {msg}")
@@ -778,9 +768,9 @@ class TradeLockerClient:
             _bridge_status["status"]     = "AUTH_FAILED"
             return False
 
-        if result.get("error"):
-            detail = result.get("detail", result["error"])
-            msg = f"Authentication failed: {str(detail)[:120]}"
+        if resp.status_code != 200 or result.get("error"):
+            detail = result.get("detail", result.get("error", f"HTTP {resp.status_code}"))
+            msg = f"Authentication failed: HTTP {resp.status_code} {str(detail)[:120]}"
             print(f"❌ AUTH FAILED: {msg}")
             _bridge_status["last_error"] = msg
             _bridge_status["status"]     = "AUTH_FAILED"
