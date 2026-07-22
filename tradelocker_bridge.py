@@ -34,9 +34,13 @@ DEFAULT_QTY     = float(os.environ.get("TL_DEFAULT_QTY", "0.10"))
 if not TL_BASE_URL:
     TL_BASE_URL = "https://demo.tradelocker.com" if TL_ENV == "demo" else "https://live.tradelocker.com"
 
-AUTH_URL    = f"{TL_BASE_URL}/backend-api/auth/jwt/token"
-API_BASE    = f"{TL_BASE_URL}/backend-api"
-TG_API      = f"https://api.telegram.org/bot{TG_TOKEN}"
+TL_BASE_URL = TL_BASE_URL.rstrip("/")
+if TL_BASE_URL.endswith("/backend-api"):
+    TL_BASE_URL = TL_BASE_URL[: -len("/backend-api")]
+
+AUTH_URL = f"{TL_BASE_URL}/backend-api/auth/jwt/token"
+API_BASE = f"{TL_BASE_URL}/backend-api"
+TG_API   = f"https://api.telegram.org/bot{TG_TOKEN}"
 
 BROWSER_HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
