@@ -158,6 +158,10 @@ class TradeLockerClient:
             return False
         
         data = result.get("d", result)
+        if data is None:
+            data = result
+        if not isinstance(data, dict):
+            data = result
         instruments = data.get("instruments") or data.get("data") or data.get("items") or []
         _instruments = {}
         
@@ -308,6 +312,10 @@ class TradeLockerClient:
         if result.get("error"):
             return []
         data = result.get("d", result)
+        if data is None:
+            data = result
+        if not isinstance(data, dict):
+            return []
         if isinstance(data, list):
             return data
         return data.get("positions") or data.get("data") or data.get("items") or []
@@ -343,11 +351,17 @@ class TradeLockerClient:
     def get_account_state(self):
         result = self._req("GET", f"/trade/accounts/{TL_ACCOUNT_ID}/state", headers_extra={"accNum": str(TL_ACC_NUM)})
         data = result.get("d", result)
+        if data is None:
+            data = result
         return data if isinstance(data, dict) else {}
     
     def get_orders(self):
         result = self._req("GET", f"/trade/accounts/{TL_ACCOUNT_ID}/orders?limit=50", headers_extra={"accNum": str(TL_ACC_NUM)})
         data = result.get("d", result)
+        if data is None:
+            data = result
+        if not isinstance(data, dict):
+            return []
         raw_orders = data if isinstance(data, list) else (data.get("orders") or data.get("data") or data.get("items") or [])
         return raw_orders[:20]
 
@@ -489,30 +503,12 @@ def generate_dashboard_html(client, connected, error):
     positions = client.get_open_positions() if connected else []
     orders = client.get_orders() if connected else []
     
-    # System status - with safe defaults to prevent NoneType errors
-    tl = _system_status.get("tradelocker") or {}
-    tg = _system_status.get("telegram") or {}
-    inst = _system_status.get("instruments") or {}
-    trades = _system_status.get("trades") or {}
-    cron = _system_status.get("cron") or {}
-    
-    # Ensure all required keys exist
-    tl.setdefault("connected", False)
-    tl.setdefault("last_check", None)
-    tl.setdefault("error", None)
-    tl.setdefault("latency_ms", None)
-    tg.setdefault("connected", False)
-    tg.setdefault("last_check", None)
-    tg.setdefault("error", None)
-    tg.setdefault("latency_ms", None)
-    inst.setdefault("loaded", False)
-    inst.setdefault("count", 0)
-    inst.setdefault("last_loaded", None)
-    inst.setdefault("error", None)
-    trades.setdefault("total", 0)
-    trades.setdefault("successful", 0)
-    trades.setdefault("failed", 0)
-    trades.setdefault("last_trade", None)
+    # System status
+    tl = _system_status["tradelocker"]
+    tg = _system_status["telegram"]
+    inst = _system_status["instruments"]
+    trades = _system_status["trades"]
+    cron = _system_status["cron"]
     
     # Account state
     account_state = {
@@ -599,24 +595,6 @@ def generate_dashboard_html(client, connected, error):
     
     last_update = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
     
-    # Safe access helpers
-    tl_connected = tl.get("connected", False) if tl else False
-    tg_connected = tg.get("connected", False) if tg else False
-    inst_loaded = inst.get("loaded", False) if inst else False
-    tl_error = tl.get("error", "") if tl else ""
-    tg_error = tg.get("error", "") if tg else ""
-    tl_latency = tl.get("latency_ms", "N/A") if tl else "N/A"
-    tg_latency = tg.get("latency_ms", "N/A") if tg else "N/A"
-    tl_last = tl.get("last_check", "Never")[:19] if tl and tl.get("last_check") else "Never"
-    tg_last = tg.get("last_check", "Never")[:19] if tg and tg.get("last_check") else "Never"
-    inst_count = inst.get("count", 0) if inst else 0
-    inst_last = inst.get("last_loaded", "Never")[:19] if inst and inst.get("last_loaded") else "Never"
-    inst_error = inst.get("error", "") if inst else ""
-    trades_total = trades.get("total", 0) if trades else 0
-    trades_success = trades.get("successful", 0) if trades else 0
-    trades_failed = trades.get("failed", 0) if trades else 0
-    trades_rate = round(trades_success / max(trades_total, 1) * 100, 1)
-    
     html = f"""<!DOCTYPE html>
 <html>
 <head>
@@ -674,31 +652,31 @@ def generate_dashboard_html(client, connected, error):
         <!-- System Health -->
         <div class="section-title">❤️ System Health</div>
         <div class="conn-grid">
-            <div class="conn-card {"ok" if tl_connected else "error"}">
-                <div class="conn-title"><span class="heartbeat {"online" if tl_connected else "offline"}"></span>TradeLocker</div>
-                <div class="conn-detail">Status: {"Online" if tl_connected else "Offline"}</div>
-                <div class="conn-detail">Latency: {tl_latency}ms</div>
-                <div class="conn-detail">Last: {tl_last}</div>
-                {f'<div class="conn-detail" style="color: #f85149;">{tl_error}</div>' if tl_error else ""}
+            <div class="conn-card {"ok" if tl.get("connected") else "error"}">
+                <div class="conn-title"><span class="heartbeat {"online" if tl.get("connected") else "offline"}"></span>TradeLocker</div>
+                <div class="conn-detail">Status: {"Online" if tl.get("connected") else "Offline"}</div>
+                <div class="conn-detail">Latency: {tl.get("latency_ms", "N/A")}ms</div>
+                <div class="conn-detail">Last: {tl.get("last_check", "Never")[:19]}</div>
+                {f'<div class="conn-detail" style="color: #f85149;">{tl.get("error")}</div>' if tl.get("error") else ""}
             </div>
-            <div class="conn-card {"ok" if tg_connected else "error"}">
-                <div class="conn-title"><span class="heartbeat {"online" if tg_connected else "offline"}"></span>Telegram</div>
-                <div class="conn-detail">Status: {"Online" if tg_connected else "Offline"}</div>
-                <div class="conn-detail">Latency: {tg_latency}ms</div>
-                <div class="conn-detail">Last: {tg_last}</div>
-                {f'<div class="conn-detail" style="color: #f85149;">{tg_error}</div>' if tg_error else ""}
+            <div class="conn-card {"ok" if tg.get("connected") else "error"}">
+                <div class="conn-title"><span class="heartbeat {"online" if tg.get("connected") else "offline"}"></span>Telegram</div>
+                <div class="conn-detail">Status: {"Online" if tg.get("connected") else "Offline"}</div>
+                <div class="conn-detail">Latency: {tg.get("latency_ms", "N/A")}ms</div>
+                <div class="conn-detail">Last: {tg.get("last_check", "Never")[:19]}</div>
+                {f'<div class="conn-detail" style="color: #f85149;">{tg.get("error")}</div>' if tg.get("error") else ""}
             </div>
-            <div class="conn-card {"ok" if inst_loaded else "error"}">
-                <div class="conn-title"><span class="heartbeat {"online" if inst_loaded else "offline"}"></span>Instruments</div>
-                <div class="conn-detail">Loaded: {inst_count} pairs</div>
-                <div class="conn-detail">Last: {inst_last}</div>
-                {f'<div class="conn-detail" style="color: #f85149;">{inst_error}</div>' if inst_error else ""}
+            <div class="conn-card {"ok" if inst.get("loaded") else "error"}">
+                <div class="conn-title"><span class="heartbeat {"online" if inst.get("loaded") else "offline"}"></span>Instruments</div>
+                <div class="conn-detail">Loaded: {inst.get("count", 0)} pairs</div>
+                <div class="conn-detail">Last: {inst.get("last_loaded", "Never")[:19]}</div>
+                {f'<div class="conn-detail" style="color: #f85149;">{inst.get("error")}</div>' if inst.get("error") else ""}
             </div>
             <div class="conn-card ok">
                 <div class="conn-title"><span class="heartbeat online"></span>Dashboard</div>
                 <div class="conn-detail">Status: Active</div>
                 <div class="conn-detail">Last Update: {last_update[:19]}</div>
-                <div class="conn-detail">Script Started: {_system_status.get("script_start", "Unknown")[:19]}</div>
+                <div class="conn-detail">Script Started: {_system_status["script_start"][:19]}</div>
             </div>
         </div>
         
@@ -706,19 +684,19 @@ def generate_dashboard_html(client, connected, error):
         <div class="section-title">📊 Trade Statistics</div>
         <div class="stats-row">
             <div class="stat-box">
-                <div class="stat-box-value" style="color: #58a6ff;">{trades_total}</div>
+                <div class="stat-box-value" style="color: #58a6ff;">{trades["total"]}</div>
                 <div class="stat-box-label">Total Trades</div>
             </div>
             <div class="stat-box">
-                <div class="stat-box-value" style="color: #3fb950;">{trades_success}</div>
+                <div class="stat-box-value" style="color: #3fb950;">{trades["successful"]}</div>
                 <div class="stat-box-label">Successful</div>
             </div>
             <div class="stat-box">
-                <div class="stat-box-value" style="color: #f85149;">{trades_failed}</div>
+                <div class="stat-box-value" style="color: #f85149;">{trades["failed"]}</div>
                 <div class="stat-box-label">Failed</div>
             </div>
             <div class="stat-box">
-                <div class="stat-box-value" style="color: #d29922;">{trades_rate}%</div>
+                <div class="stat-box-value" style="color: #d29922;">{round(trades["successful"] / max(trades["total"], 1) * 100, 1)}%</div>
                 <div class="stat-box-label">Success Rate</div>
             </div>
         </div>
