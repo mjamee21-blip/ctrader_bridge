@@ -58,56 +58,14 @@ jobs:
           TG_CHAT: ${{ secrets.TG_CHAT }}
           TL_PAIR_MAP: ${{ secrets.TL_PAIR_MAP }}
         run: |
-          python3 -c "
-          import os, traceback, sys
-          print('Python env vars check:')
-          for key in ['TL_EMAIL','TL_PASSWORD','TL_SERVER','TL_ACCOUNT_ID','TL_ACC_NUM','TL_ENV','TG_TOKEN','TG_CHAT']:
-              val = os.environ.get(key, '')
-              print(f'  {key}: {\"present (len=\" + str(len(val)) + \")\" if val else \"EMPTY/MISSING\"}'  )
-          try:
-              from tradelocker_bridge import run_cron_cycle
-              success = run_cron_cycle()
-              if not success:
-                  print('TradeLocker Bridge cron cycle returned False (authentication failed or execution error).')
-                  sys.exit(1)
-          except Exception as e:
-              print('CRASH TRACEBACK:')
-              traceback.print_exc()
-              raise e
-          "
+          python3 tradelocker_bridge.py --cron
         timeout-minutes: 1
-
-      - name: Show logs on failure
-        if: failure()
-        run: |
-          echo "==== DEBUG: Bridge log file (last 100 lines) ===="
-          if [ -f tradelocker_bridge.log ]; then
-            tail -n 100 tradelocker_bridge.log || true
-          else
-            echo "tradelocker_bridge.log not found"
-          fi
-          echo ""
-          echo "==== DEBUG: Status file ===="
-          if [ -f tradelocker_status.json ]; then
-            cat tradelocker_status.json || true
-          else
-            echo "tradelocker_status.json not found"
-          fi
-          echo ""
-          echo "==== DEBUG: Crash log file ===="
-          if [ -f tradelocker_crash.log ]; then
-            cat tradelocker_crash.log || true
-          else
-            echo "tradelocker_crash.log not found"
-          fi
 
       - name: Notify on failure
         if: failure()
         run: |
           echo "TradeLocker Bridge cron job failed"
           echo "Run: ${{ github.run_number }}"
-          echo "Check the 'Show logs on failure' step above for detailed error output."
-          echo ""
           echo "Common causes:"
           echo "1. Secrets not configured in Settings -> Secrets and variables -> Actions"
           echo "2. TradeLocker credentials expired or invalid"
