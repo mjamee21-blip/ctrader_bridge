@@ -1,21 +1,15 @@
-name: TradeLocker Bot & Dashboard
+name: TradeLocker Bot
 
 on:
   workflow_dispatch:
   push:
     branches: [main]
   schedule:
-    # Run every minute (covers both bot and dashboard)
+    # Run bot every minute
     - cron: '* * * * *'
 
 permissions:
   contents: write
-  pages: write
-  id-token: write
-
-concurrency:
-  group: pages
-  cancel-in-progress: false
 
 jobs:
   bot:
@@ -45,9 +39,10 @@ jobs:
           TL_DEFAULT_QTY: ${{ secrets.TL_DEFAULT_QTY }}
         run: python3 tradelocker_bot.py
 
-  dashboard:
+  generate_dashboard:
     runs-on: ubuntu-latest
-    name: Update Dashboard
+    name: Generate Dashboard (Manual Only)
+    if: github.event_name == 'workflow_dispatch'
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -79,15 +74,5 @@ jobs:
           git config --global user.email "bot@github.com"
           git config --global user.name "Dashboard Bot"
           git add docs/ || true
-          git commit -m "Update dashboard $(date -u '+%Y-%m-%d %H:%M UTC')" || true
+          git commit -m "Manual dashboard update $(date -u '+%Y-%m-%d %H:%M UTC')" || true
           git push || true
-
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./docs
-          publish_branch: gh-pages
-          force_orphan: true
-          user_name: 'github-actions[bot]'
-          user_email: 'github-actions[bot]@users.noreply.github.com'
