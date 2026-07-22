@@ -1,50 +1,22 @@
-name: TradeLocker Bridge - 1 Minute Cron
+name: Telegram Trades to TradeLocker
 
 on:
   schedule:
-    - cron: '* * * * *'
+    - cron: '3,33 * * * *'
   workflow_dispatch:
 
 jobs:
-  tradelocker-cron:
+  trade:
     runs-on: ubuntu-latest
-    timeout-minutes: 2
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Python 3.11
-        uses: actions/setup-python@v2
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
         with:
           python-version: '3.11'
-
-      - name: Install Python dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install curl_cffi
-
-      - name: Validate secrets
-        run: |
-          if [ -z "${{ secrets.TL_EMAIL }}" ]; then
-            echo "CRITICAL: TL_EMAIL secret is not configured"
-            exit 1
-          fi
-          if [ -z "${{ secrets.TL_PASSWORD }}" ]; then
-            echo "CRITICAL: TL_PASSWORD secret is not configured"
-            exit 1
-          fi
-          if [ -z "${{ secrets.TL_ACCOUNT_ID }}" ]; then
-            echo "CRITICAL: TL_ACCOUNT_ID secret is not configured"
-            exit 1
-          fi
-          if [ -z "${{ secrets.TL_SERVER }}" ]; then
-            echo "CRITICAL: TL_SERVER secret is not configured"
-            exit 1
-          fi
-          echo "All required secrets validated"
-
-      - name: Run TradeLocker Bridge Cron
+      
+      - name: Execute TradeLocker Bot
         env:
           TL_EMAIL: ${{ secrets.TL_EMAIL }}
           TL_PASSWORD: ${{ secrets.TL_PASSWORD }}
@@ -52,22 +24,8 @@ jobs:
           TL_ACCOUNT_ID: ${{ secrets.TL_ACCOUNT_ID }}
           TL_ACC_NUM: ${{ secrets.TL_ACC_NUM }}
           TL_ENV: ${{ secrets.TL_ENV }}
-          TL_BASE_URL: ${{ secrets.TL_BASE_URL }}
-          TL_DEFAULT_QTY: ${{ secrets.TL_DEFAULT_QTY }}
           TG_TOKEN: ${{ secrets.TG_TOKEN }}
           TG_CHAT: ${{ secrets.TG_CHAT }}
           TL_PAIR_MAP: ${{ secrets.TL_PAIR_MAP }}
-        run: |
-          python3 tradelocker_bridge.py --cron
-        timeout-minutes: 1
-
-      - name: Notify on failure
-        if: failure()
-        run: |
-          echo "TradeLocker Bridge cron job failed"
-          echo "Run: ${{ github.run_number }}"
-          echo "Common causes:"
-          echo "1. Secrets not configured in Settings -> Secrets and variables -> Actions"
-          echo "2. TradeLocker credentials expired or invalid"
-          echo "3. Telegram bot token invalid"
-          echo "4. Network connectivity issues to TradeLocker API"
+          TL_DEFAULT_QTY: ${{ secrets.TL_DEFAULT_QTY }}
+        run: python3 tradelocker_telegram_bot.py
