@@ -3,8 +3,17 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta http-equiv="refresh" content="600">
+    <meta http-equiv="refresh" content="120">
     <title>TradeLocker Dashboard</title>
+    <script>
+        // Check authentication status before loading
+        (function() {
+            const auth = sessionStorage.getItem('dashboard_authenticated');
+            if (auth !== 'true') {
+                location.href = 'login.html';
+            }
+        })();
+    </script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0d1117; color: #c9d1d9; font-size: 13px; }
@@ -164,23 +173,23 @@
         <div class="card"><table>
 <thead><tr><th>Time</th><th>Level</th><th>Message</th></tr></thead>
 <tbody><tr>
-<td class="time">2026-07-22 20:06:39 UTC</td>
+<td class="time">2026-07-22 20:24:08 UTC</td>
 <td style="color:#58a6ff;font-weight:600;">INFO</td>
 <td>=== DASHBOARD GENERATION STARTED ===</td>
 </tr><tr>
-<td class="time">2026-07-22 20:06:39 UTC</td>
+<td class="time">2026-07-22 20:24:08 UTC</td>
 <td style="color:#3fb950;font-weight:600;">SUCCESS</td>
 <td>TradeLocker authenticated on HEROFX</td>
 </tr><tr>
-<td class="time">2026-07-22 20:06:39 UTC</td>
+<td class="time">2026-07-22 20:24:08 UTC</td>
 <td style="color:#3fb950;font-weight:600;">SUCCESS</td>
 <td>TradeLocker: CONNECTED</td>
 </tr><tr>
-<td class="time">2026-07-22 20:06:39 UTC</td>
+<td class="time">2026-07-22 20:24:08 UTC</td>
 <td style="color:#58a6ff;font-weight:600;">INFO</td>
 <td>Loaded 172 instruments from TradeLocker</td>
 </tr><tr>
-<td class="time">2026-07-22 20:06:40 UTC</td>
+<td class="time">2026-07-22 20:24:09 UTC</td>
 <td style="color:#3fb950;font-weight:600;">SUCCESS</td>
 <td>Telegram: CONNECTED (@Forexunitedbot)</td>
 </tr></tbody></table></div>
@@ -197,7 +206,7 @@
         <div class="section-title">Recent Orders (Last 20)</div>
         <div class="card"><div class="empty">No recent orders</div></div>
 
-        <div class="last-update">Last updated: 2026-07-22 20:06:41 UTC | Auto-refresh every 1 min | 5 Total Logs | 0 Alerts</div>
+        <div class="last-update">Last updated: 2026-07-22 20:24:10 UTC | Auto-refresh every 1 min | 5 Total Logs | 0 Alerts</div>
     </div>
 
     <!-- Settings Modal -->
@@ -287,16 +296,54 @@ function fetchNow() {
 }
 function logout() {
     if (confirm('Are you sure you want to logout?')) {
-        localStorage.removeItem('dashboard_auth');
-        location.reload();
+        // Clear all session data
+        sessionStorage.removeItem('dashboard_authenticated');
+        sessionStorage.removeItem('dashboard_username');
+        sessionStorage.removeItem('dashboard_login_time');
+        sessionStorage.clear();
+        
+        // Clear GitHub settings from localStorage (optional)
+        localStorage.removeItem('gh_token');
+        localStorage.removeItem('gh_owner');
+        localStorage.removeItem('gh_repo');
+        localStorage.removeItem('gh_workflow');
+        
+        // Redirect to login page
+        window.location.href = 'login.html';
     }
 }
-function autoRefresh() {
-    setTimeout(function() {
-        location.reload();
-    }, 60000);
+function checkAuth() {
+    const auth = sessionStorage.getItem('dashboard_authenticated');
+    if (auth !== 'true') {
+        window.location.href = 'login.html';
+    }
 }
-autoRefresh();
+
+function autoRefresh() {
+    // Auto-refresh every 2 minutes (120000 ms)
+    setInterval(function() {
+        const auth = sessionStorage.getItem('dashboard_authenticated');
+        if (auth === 'true') {
+            location.reload();
+        } else {
+            window.location.href = 'login.html';
+        }
+    }, 120000);
+}
+
+// Run authentication check on page load
+document.addEventListener('DOMContentLoaded', function() {
+    checkAuth();
+    autoRefresh();
+    
+    // Also check every 10 seconds if session is still valid
+    setInterval(function() {
+        const auth = sessionStorage.getItem('dashboard_authenticated');
+        if (auth !== 'true') {
+            window.location.href = 'login.html';
+        }
+    }, 10000);
+});
 </script>
 
 </body>
