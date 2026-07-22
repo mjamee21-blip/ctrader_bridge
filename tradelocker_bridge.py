@@ -77,20 +77,22 @@ def authenticate():
         print(f"AUTH FAILED: {str(exc)[:120]}")
         return None
 
-    if resp.status_code != 200 or data.get("error"):
-        detail = data.get("detail", data.get("error", f"HTTP {resp.status_code}"))
+    token = (data.get("accessToken")
+             or data.get("access_token")
+             or data.get("token"))
+    if token:
+        _auth_token = token
+        expires_in = data.get("expiresIn") or data.get("expires_in") or 3600
+        _auth_expires_at = time.time() + int(expires_in)
+        print(f"AUTH OK (HTTP {resp.status_code})")
+        return _auth_token
+
+    if data.get("error"):
+        detail = data.get("detail", data.get("error"))
         print(f"AUTH FAILED: HTTP {resp.status_code} {str(detail)[:120]}")
-        return None
-
-    _auth_token = data.get("accessToken") or data.get("access_token") or data.get("token")
-    if not _auth_token:
-        print("AUTH FAILED: no access token in response")
-        return None
-
-    expires_in = data.get("expiresIn") or data.get("expires_in") or 3600
-    _auth_expires_at = time.time() + int(expires_in)
-    print("AUTH OK")
-    return _auth_token
+    else:
+        print(f"AUTH FAILED: HTTP {resp.status_code} no token in response")
+    return None
 
 
 def tl_get(path, extra_headers=None):
