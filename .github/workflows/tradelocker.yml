@@ -5,7 +5,7 @@ on:
     # Bot: Run every :03 and :33 (trading signals)
     - cron: '* * * * *'
     # Dashboard: Run every :00 and :30 (updates every 30 min)
-    - cron: '0,30 * * * *'
+    - cron: '* 2 * * * *'
   workflow_dispatch:
   push:
     branches: [main]
