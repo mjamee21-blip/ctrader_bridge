@@ -17,13 +17,16 @@ except:
 TL_EMAIL = os.environ.get("TL_EMAIL", "")
 TL_PASSWORD = os.environ.get("TL_PASSWORD", "")
 TL_SERVER = os.environ.get("TL_SERVER", "TradeLocker-Demo")
-TL_ACCOUNT_ID = int(os.environ.get("TL_ACCOUNT_ID", "0"))
-TL_ACC_NUM = int(os.environ.get("TL_ACC_NUM", "1"))
+TL_ACCOUNT_ID_STR = os.environ.get("TL_ACCOUNT_ID", "0").strip()
+TL_ACCOUNT_ID = int(TL_ACCOUNT_ID_STR) if TL_ACCOUNT_ID_STR else 0
+TL_ACC_NUM_STR = os.environ.get("TL_ACC_NUM", "1").strip()
+TL_ACC_NUM = int(TL_ACC_NUM_STR) if TL_ACC_NUM_STR else 1
 TL_ENV = os.environ.get("TL_ENV", "demo")
 TG_TOKEN = os.environ.get("TG_TOKEN", "")
 TG_CHAT = os.environ.get("TG_CHAT", "")
 TL_PAIR_MAP_JSON = os.environ.get("TL_PAIR_MAP", "{}")
-DEFAULT_QTY = float(os.environ.get("TL_DEFAULT_QTY", "0.10"))
+TL_DEFAULT_QTY_STR = os.environ.get("TL_DEFAULT_QTY", "0.10").strip()
+DEFAULT_QTY = float(TL_DEFAULT_QTY_STR) if TL_DEFAULT_QTY_STR else 0.10
 
 try:
     PAIR_MAP = json.loads(TL_PAIR_MAP_JSON)
@@ -295,7 +298,21 @@ def pair_matches(pos_symbol, pair):
 def main():
     global _last_update_id
     
-    if not (TL_EMAIL and TL_PASSWORD and TG_TOKEN and TG_CHAT):
+    # Validate required secrets
+    if not TL_EMAIL:
+        print("ERROR: TL_EMAIL not set")
+        return False
+    if not TL_PASSWORD:
+        print("ERROR: TL_PASSWORD not set")
+        return False
+    if not TG_TOKEN:
+        print("ERROR: TG_TOKEN not set")
+        return False
+    if not TG_CHAT:
+        print("ERROR: TG_CHAT not set")
+        return False
+    if TL_ACCOUNT_ID == 0:
+        print("ERROR: TL_ACCOUNT_ID not set or invalid")
         return False
     
     client = TradeLockerClient()

@@ -26,6 +26,6 @@ jobs:
           TL_ENV: ${{ secrets.TL_ENV }}
           TG_TOKEN: ${{ secrets.TG_TOKEN }}
           TG_CHAT: ${{ secrets.TG_CHAT }}
-          TL_PAIR_MAP: ${{ secrets.TL_PAIR_MAP }}
-          TL_DEFAULT_QTY: ${{ secrets.TL_DEFAULT_QTY }}
+          TL_PAIR_MAP: ${{ secrets.TL_PAIR_MAP || '{}' }}
+          TL_DEFAULT_QTY: ${{ secrets.TL_DEFAULT_QTY || '0.10' }}
         run: python3 tradelocker_telegram_bot.py
