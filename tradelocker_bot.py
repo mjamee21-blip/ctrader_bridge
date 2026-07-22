@@ -671,20 +671,20 @@ def generate_dashboard_html(client, connected, error):
                 <div class="conn-title"><span class="heartbeat {"online" if tl.get("connected") else "offline"}"></span>TradeLocker</div>
                 <div class="conn-detail">Status: {"Online" if tl.get("connected") else "Offline"}</div>
                 <div class="conn-detail">Latency: {tl.get("latency_ms", "N/A")}ms</div>
-                <div class="conn-detail">Last: {tl.get("last_check", "Never")[:19]}</div>
+                <div class="conn-detail">Last: {(tl.get("last_check") or "Never")[:19]}</div>
                 {f'<div class="conn-detail" style="color: #f85149;">{tl.get("error")}</div>' if tl.get("error") else ""}
             </div>
             <div class="conn-card {"ok" if tg.get("connected") else "error"}">
                 <div class="conn-title"><span class="heartbeat {"online" if tg.get("connected") else "offline"}"></span>Telegram</div>
                 <div class="conn-detail">Status: {"Online" if tg.get("connected") else "Offline"}</div>
                 <div class="conn-detail">Latency: {tg.get("latency_ms", "N/A")}ms</div>
-                <div class="conn-detail">Last: {tg.get("last_check", "Never")[:19]}</div>
+                <div class="conn-detail">Last: {(tg.get("last_check") or "Never")[:19]}</div>
                 {f'<div class="conn-detail" style="color: #f85149;">{tg.get("error")}</div>' if tg.get("error") else ""}
             </div>
             <div class="conn-card {"ok" if inst.get("loaded") else "error"}">
                 <div class="conn-title"><span class="heartbeat {"online" if inst.get("loaded") else "offline"}"></span>Instruments</div>
                 <div class="conn-detail">Loaded: {inst.get("count", 0)} pairs</div>
-                <div class="conn-detail">Last: {inst.get("last_loaded", "Never")[:19]}</div>
+                <div class="conn-detail">Last: {(inst.get("last_loaded") or "Never")[:19]}</div>
                 {f'<div class="conn-detail" style="color: #f85149;">{inst.get("error")}</div>' if inst.get("error") else ""}
             </div>
             <div class="conn-card ok">
