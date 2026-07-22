@@ -1,13 +1,15 @@
-name: Telegram Trades to TradeLocker
+name: TradeLocker Bot & Dashboard
 
 on:
   schedule:
+    # Bot: Run every :03 and :33 (trading)
     - cron: '3,33 * * * *'
   workflow_dispatch:
 
 jobs:
-  trade:
+  bot:
     runs-on: ubuntu-latest
+    name: Execute Trading Bot
     steps:
       - uses: actions/checkout@v4
       
@@ -16,8 +18,9 @@ jobs:
         with:
           python-version: '3.11'
       
-      - name: Execute TradeLocker Bot
+      - name: Run Trading Bot
         env:
+          MODE: bot
           TL_EMAIL: ${{ secrets.TL_EMAIL }}
           TL_PASSWORD: ${{ secrets.TL_PASSWORD }}
           TL_SERVER: ${{ secrets.TL_SERVER }}
@@ -26,6 +29,36 @@ jobs:
           TL_ENV: ${{ secrets.TL_ENV }}
           TG_TOKEN: ${{ secrets.TG_TOKEN }}
           TG_CHAT: ${{ secrets.TG_CHAT }}
-          TL_PAIR_MAP: ${{ secrets.TL_PAIR_MAP || '{}' }}
-          TL_DEFAULT_QTY: ${{ secrets.TL_DEFAULT_QTY || '0.10' }}
-        run: python3 tradelocker_telegram_bot.py
+          TL_PAIR_MAP: ${{ secrets.TL_PAIR_MAP }}
+          TL_DEFAULT_QTY: ${{ secrets.TL_DEFAULT_QTY }}
+        run: python3 tradelocker_bot.py
+
+  dashboard:
+    runs-on: ubuntu-latest
+    name: Update Dashboard
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Generate Dashboard
+        env:
+          MODE: dashboard
+          TL_EMAIL: ${{ secrets.TL_EMAIL }}
+          TL_PASSWORD: ${{ secrets.TL_PASSWORD }}
+          TL_SERVER: ${{ secrets.TL_SERVER }}
+          TL_ACCOUNT_ID: ${{ secrets.TL_ACCOUNT_ID }}
+          TL_ACC_NUM: ${{ secrets.TL_ACC_NUM }}
+          TL_ENV: ${{ secrets.TL_ENV }}
+        run: python3 tradelocker_bot.py
+      
+      - name: Commit Dashboard
+        run: |
+          git config --global user.email "bot@github.com"
+          git config --global user.name "Dashboard Bot"
+          git add docs/index.html || true
+          git commit -m "Update dashboard $(date)" || true
+          git push || true
