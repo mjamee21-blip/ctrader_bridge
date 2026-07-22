@@ -1,20 +1,22 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# TradeLocker Telegram Bot + Dashboard (Enhanced with Login)
+# TradeLocker Telegram Bot + Dashboard (Enhanced with Login + Status Monitoring)
 # Features:
 #   - Connection status for TradeLocker AND Telegram on dashboard
 #   - Login authentication (username/password from GitHub secrets)
+#   - Cron job status monitoring (running, completed, errors)
+#   - Backend process logs and heartbeat tracking
 #   - "Fetch Now" button (triggers GitHub Actions workflow via API)
 #   - Shows SL/TP and P&L results for each trade from live TradeLocker data
 #   - Places MARKET orders immediately — ignores any price/REF in signal
 #   - Accurate SL/TP placement from signal
 #   - SL update handling (adjusts existing position SL)
 #   - Instrument ID resolution (pair name → numeric tradableInstrumentId)
-#   - Dashboard shows: balance, equity, margin, open positions, closed trades, orders, connection status
+#   - Dashboard shows: balance, equity, margin, open positions, closed trades, orders, connection status, process logs
 
 import os, json, re, urllib.request, urllib.parse, sys, hashlib, hmac, base64
 from urllib.error import HTTPError
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 import ssl
 
 try:
@@ -71,6 +73,95 @@ PAIR_ALIASES = {
 TL_BASE = "https://live.tradelocker.com" if TL_ENV.lower() == "live" else "https://demo.tradelocker.com"
 _last_update_id = 0
 _instruments = {}
+_process_logs = []  # Store process logs for dashboard
+_heartbeat_log = {}  # Store heartbeat info
+
+# =====================================================================
+# PROCESS LOGGING & HEARTBEAT SYSTEM
+# =====================================================================
+
+def log_process(level, message):
+    """Log process events for dashboard display."""
+    timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
+    log_entry = {
+        "timestamp": timestamp,
+        "level": level,  # "info", "success", "error", "warning"
+        "message": message
+    }
+    _process_logs.append(log_entry)
+    print(f"[{level.upper()}] {timestamp} - {message}")
+    
+    # Keep only last 100 logs
+    if len(_process_logs) > 100:
+        _process_logs.pop(0)
+
+def save_heartbeat(job_name, status, details=""):
+    """Save heartbeat for cron job status."""
+    timestamp = datetime.now(timezone.utc).isoformat()
+    _heartbeat_log[job_name] = {
+        "status": status,  # "running", "completed", "failed", "idle"
+        "timestamp": timestamp,
+        "details": details
+    }
+    
+    # Save to file for persistence across runs
+    os.makedirs("docs", exist_ok=True)
+    heartbeat_file = os.path.join("docs", "heartbeat.json")
+    try:
+        with open(heartbeat_file, "w") as f:
+            json.dump(_heartbeat_log, f, indent=2)
+    except Exception as e:
+        print(f"[WARNING] Could not save heartbeat: {e}")
+
+def load_heartbeat():
+    """Load heartbeat data from previous runs."""
+    global _heartbeat_log
+    heartbeat_file = os.path.join("docs", "heartbeat.json")
+    try:
+        if os.path.exists(heartbeat_file):
+            with open(heartbeat_file, "r") as f:
+                _heartbeat_log = json.load(f)
+    except Exception as e:
+        print(f"[WARNING] Could not load heartbeat: {e}")
+
+def get_job_status(job_name):
+    """Get current job status with time since last run."""
+    if job_name not in _heartbeat_log:
+        return {"status": "idle", "message": "No data", "time_ago": "never"}
+    
+    hb = _heartbeat_log[job_name]
+    status = hb.get("status", "unknown")
+    timestamp = hb.get("timestamp", "")
+    details = hb.get("details", "")
+    
+    # Calculate time since last run
+    time_ago = "unknown"
+    if timestamp:
+        try:
+            last_run = datetime.fromisoformat(timestamp)
+            now = datetime.now(timezone.utc)
+            delta = now - last_run.replace(tzinfo=timezone.utc)
+            
+            if delta.total_seconds() < 60:
+                time_ago = f"{int(delta.total_seconds())}s ago"
+            elif delta.total_seconds() < 3600:
+                time_ago = f"{int(delta.total_seconds() / 60)}m ago"
+            elif delta.total_seconds() < 86400:
+                time_ago = f"{int(delta.total_seconds() / 3600)}h ago"
+            else:
+                time_ago = f"{int(delta.total_seconds() / 86400)}d ago"
+        except:
+            time_ago = timestamp
+    
+    message = details if details else ("No errors" if status == "completed" else "Processing...")
+    
+    return {
+        "status": status,
+        "message": message,
+        "time_ago": time_ago,
+        "timestamp": timestamp,
+        "raw_status": status
+    }
 
 # =====================================================================
 # AUTHENTICATION HELPER
@@ -123,18 +214,18 @@ class TradeLockerClient:
     def auth(self):
         """Authenticate with TradeLocker and store the JWT token."""
         if not TL_EMAIL or not TL_PASSWORD:
-            print("[TradeLocker] ERROR: TL_EMAIL or TL_PASSWORD not set")
+            log_process("error", "TL_EMAIL or TL_PASSWORD not set")
             return False
             
         payload = {"email": TL_EMAIL, "password": TL_PASSWORD, "server": TL_SERVER}
         result = self._req("POST", "/auth/jwt/token", body=payload)
         if result.get("error"):
-            print(f"[TradeLocker] Auth failed: {result}")
+            log_process("error", f"TradeLocker auth failed: {result}")
             return False
         self.token = result.get("accessToken") or result.get("access_token") or result.get("token")
         self.authenticated = bool(self.token)
         if self.authenticated:
-            print(f"[TradeLocker] Authenticated successfully on {TL_SERVER}")
+            log_process("success", f"TradeLocker authenticated on {TL_SERVER}")
         return self.authenticated
 
     def load_instruments(self):
@@ -149,7 +240,7 @@ class TradeLockerClient:
         result = self._req("GET", f"/trade/accounts/{TL_ACCOUNT_ID}/instruments",
                            headers_extra={"accNum": str(TL_ACC_NUM)})
         if result.get("error"):
-            print(f"[TradeLocker] Failed to load instruments: {result}")
+            log_process("warning", f"Failed to load instruments: {result}")
             return False
 
         data = result.get("d", result)
@@ -168,9 +259,7 @@ class TradeLockerClient:
             if name and inst_id is not None:
                 _instruments[name] = {"id": inst_id, "route_id": route_id}
 
-        print(f"[TradeLocker] Loaded {len(_instruments)} instruments (name→numeric ID mapping)")
-        examples = list(_instruments.keys())[:10]
-        print(f"[TradeLocker] Sample instruments: {examples}")
+        log_process("info", f"Loaded {len(_instruments)} instruments from TradeLocker")
         return len(_instruments) > 0
 
     def find_instrument(self, pair_name):
@@ -187,28 +276,23 @@ class TradeLockerClient:
         # 1. Check user-defined PAIR_MAP first
         mapped = PAIR_MAP.get(pair_name, "").upper()
         if mapped and mapped in _instruments:
-            print(f"[Instruments] '{pair_name}' → PAIR_MAP → '{mapped}' (ID: {_instruments[mapped]['id']})")
             return _instruments[mapped]
 
         # 2. Check common aliases
         alias = PAIR_ALIASES.get(normalized, "")
         if alias and alias in _instruments:
-            print(f"[Instruments] '{pair_name}' → ALIAS '{alias}' (ID: {_instruments[alias]['id']})")
             return _instruments[alias]
 
         # 3. Exact match
         if normalized in _instruments:
-            print(f"[Instruments] '{pair_name}' → exact match (ID: {_instruments[normalized]['id']})")
             return _instruments[normalized]
 
         # 4. Fuzzy match (contains)
         for name, info in _instruments.items():
             if normalized in name or name in normalized:
-                print(f"[Instruments] '{pair_name}' → fuzzy match '{name}' (ID: {info['id']})")
                 return info
 
-        print(f"[Instruments] WARNING: Could not find instrument for '{pair_name}'")
-        print(f"[Instruments] Available (first 20): {list(_instruments.keys())[:20]}")
+        log_process("warning", f"Could not find instrument for '{pair_name}'")
         return None
 
     def get_quote(self, inst_id):
@@ -232,22 +316,20 @@ class TradeLockerClient:
         if not qty:
             qty = DEFAULT_QTY
 
-        print(f"\n[Order] Placing {direction} market order for {pair} | Qty: {qty} | SL: {sl} | TP: {tp}")
+        log_process("info", f"Placing {direction} market order for {pair} | Qty: {qty} | SL: {sl} | TP: {tp}")
 
         instrument = self.find_instrument(pair)
         if not instrument:
-            print("[Order] Instrument not found, reloading instruments...")
+            log_process("info", "Instrument not found, reloading instruments...")
             self.load_instruments()
             instrument = self.find_instrument(pair)
         if not instrument:
-            print(f"[Order] FAILED: Cannot resolve instrument ID for '{pair}'")
+            log_process("error", f"Cannot resolve instrument ID for '{pair}'")
             return False
 
         inst_id = instrument["id"]
         route_id = instrument.get("route_id")
         side = "buy" if direction.upper() == "BUY" else "sell"
-
-        print(f"[Order] Instrument ID: {inst_id} | Route ID: {route_id} | Side: {side}")
 
         payload = {
             "tradableInstrumentId": inst_id,
@@ -258,10 +340,8 @@ class TradeLockerClient:
         }
         if sl is not None:
             payload["stopLoss"] = float(sl)
-            print(f"[Order] Stop Loss set to: {sl}")
         if tp is not None:
             payload["takeProfit"] = float(tp)
-            print(f"[Order] Take Profit set to: {tp}")
         if route_id:
             payload["routeId"] = str(route_id)
 
@@ -270,10 +350,10 @@ class TradeLockerClient:
 
         if result.get("error") or result.get("s") == "error":
             errmsg = result.get("errmsg") or result.get("body") or result.get("error") or ""
-            print(f"[Order] Market order failed: {errmsg}")
+            log_process("error", f"Market order failed: {errmsg}")
 
             if "forbidden" in str(errmsg).lower() and "route" in str(errmsg).lower():
-                print("[Order] Route forbidden — trying limit order near market price...")
+                log_process("info", "Route forbidden — trying limit order near market price...")
                 quote = self.get_quote(inst_id)
                 if quote:
                     mid = (quote["bp"] + quote["ap"]) / 2.0
@@ -297,13 +377,13 @@ class TradeLockerClient:
                                        body=lim_payload, headers_extra={"accNum": str(TL_ACC_NUM)}, timeout=25)
 
                     if result.get("error") or result.get("s") == "error":
-                        print(f"[Order] Limit order also failed: {result}")
+                        log_process("error", f"Limit order also failed: {result}")
                         return False
-                    print(f"[Order] Limit order placed at {limit_price}")
+                    log_process("success", f"Limit order placed at {limit_price}")
                     return True
             return False
 
-        print(f"[Order] ✅ Market order placed successfully!")
+        log_process("success", f"Market order placed successfully!")
         return True
 
     def get_open_positions(self):
@@ -322,7 +402,7 @@ class TradeLockerClient:
         result = self._req("DELETE", f"/trade/accounts/{TL_ACCOUNT_ID}/positions/{pos_id}",
                            headers_extra={"accNum": str(TL_ACC_NUM)})
         success = not result.get("error")
-        print(f"[Position] Close {pos_id}: {'✅ Success' if success else '❌ Failed'}")
+        log_process("success" if success else "error", f"Close position {pos_id}: {'Success' if success else 'Failed'}")
         return success
 
     def modify_position(self, pos_id, pos, new_sl):
@@ -330,7 +410,7 @@ class TradeLockerClient:
         Update the SL of an existing position.
         Used when a SL_UPDATE signal is received.
         """
-        print(f"[Position] Updating SL for position {pos_id} → new SL: {new_sl}")
+        log_process("info", f"Updating SL for position {pos_id} → new SL: {new_sl}")
 
         payload = {"stopLoss": float(new_sl)}
         if isinstance(pos, dict):
@@ -353,7 +433,7 @@ class TradeLockerClient:
                                body=payload, headers_extra={"accNum": str(TL_ACC_NUM)})
 
         success = not result.get("error")
-        print(f"[Position] SL update: {'✅ Success' if success else '❌ Failed'} ({result})")
+        log_process("success" if success else "error", f"SL update: {'Success' if success else 'Failed'}")
         return success
 
     def get_account_state(self):
@@ -439,7 +519,7 @@ def tg_get_messages(offset=0):
                     messages.append({"text": text})
             return messages
     except Exception as ex:
-        print(f"[Telegram] Error fetching messages: {ex}")
+        log_process("warning", f"Error fetching Telegram messages: {ex}")
         return []
 
 # =====================================================================
@@ -477,7 +557,7 @@ def parse_signal(text):
                     pair_str = m.group(1)
                     break
         result = "TP" if "TP HIT" in first else "SL"
-        print(f"[Signal] TPSL_HIT: {result} on {pair_str}")
+        log_process("info", f"TPSL_HIT: {result} on {pair_str}")
         return {"type": "TPSL_HIT", "result": result, "pair": pair_str}
 
     # --- Handle SL Update signals ---
@@ -493,7 +573,7 @@ def parse_signal(text):
                 except:
                     pass
         if pair and new_sl:
-            print(f"[Signal] SL_UPDATE: {pair} → new SL {new_sl}")
+            log_process("info", f"SL_UPDATE: {pair} → new SL {new_sl}")
             return {"type": "SL_UPDATE", "pair": pair, "new_sl": new_sl}
         return None
 
@@ -521,15 +601,15 @@ def parse_signal(text):
             except:
                 pass
 
-    print(f"[Signal] {direction} {pair} | SL: {sl} | TP: {tp} (entry price IGNORED — market execution)")
+    log_process("info", f"SIGNAL: {direction} {pair} | SL: {sl} | TP: {tp}")
     return {"type": "SIGNAL", "direction": direction, "pair": pair, "sl": sl, "tp": tp}
 
 # =====================================================================
-# DASHBOARD GENERATOR (WITH LOGIN)
+# DASHBOARD GENERATOR (WITH LOGIN & STATUS)
 # =====================================================================
 
 def generate_dashboard_html(client, tl_connected, tl_error, tg_connected, tg_info):
-    """Generate the full dashboard HTML with login, connection status, fetch button, SL/TP, and results."""
+    """Generate the full dashboard HTML with login, connection status, process logs, and cron status."""
 
     state = client.get_account_state() if tl_connected else {}
     positions = client.get_open_positions() if tl_connected else []
@@ -571,7 +651,7 @@ def generate_dashboard_html(client, tl_connected, tl_error, tg_connected, tg_inf
                 'time': pos_time
             })
         except Exception as e:
-            print(f"[Dashboard] Error parsing position: {e}")
+            log_process("warning", f"Error parsing position: {e}")
             continue
 
     # --- Closed trades (results) ---
@@ -604,7 +684,7 @@ def generate_dashboard_html(client, tl_connected, tl_error, tg_connected, tg_inf
                 'time': close_time
             })
         except Exception as e:
-            print(f"[Dashboard] Error parsing trade: {e}")
+            log_process("warning", f"Error parsing trade: {e}")
             continue
 
     # --- Recent orders ---
@@ -627,7 +707,7 @@ def generate_dashboard_html(client, tl_connected, tl_error, tg_connected, tg_inf
                 'time': order_time
             })
         except Exception as e:
-            print(f"[Dashboard] Error parsing order: {e}")
+            log_process("warning", f"Error parsing order: {e}")
             continue
 
     last_update = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
@@ -642,6 +722,10 @@ def generate_dashboard_html(client, tl_connected, tl_error, tg_connected, tg_inf
     tg_status_icon = "✓" if tg_connected else "✗"
     tg_status_text = "Connected" if tg_connected else "Disconnected"
     tg_detail = f"Bot: @{tg_info.get('username', 'N/A')}" if tg_connected else tg_info.get('error', 'Unknown error')
+
+    # --- Get cron job status ---
+    bot_status = get_job_status("bot")
+    dashboard_status = get_job_status("dashboard")
 
     # --- Build tables ---
     if positions_data:
@@ -704,6 +788,34 @@ def generate_dashboard_html(client, tl_connected, tl_error, tg_connected, tg_inf
         orders_table += "</tbody></table>"
     else:
         orders_table = '<div class="empty">No recent orders</div>'
+
+    # --- Build process logs table ---
+    logs_table = ""
+    if _process_logs:
+        logs_table = """<table>
+<thead><tr><th>Time</th><th>Level</th><th>Message</th></tr></thead>
+<tbody>"""
+        # Show last 30 logs
+        for log in _process_logs[-30:]:
+            level = log.get("level", "info").upper()
+            level_color = {
+                "INFO": "#58a6ff",
+                "SUCCESS": "#3fb950",
+                "ERROR": "#f85149",
+                "WARNING": "#d29922"
+            }.get(level, "#c9d1d9")
+            logs_table += f"""<tr>
+<td class="time">{log['timestamp']}</td>
+<td style="color:{level_color};font-weight:600;">{level}</td>
+<td>{log['message']}</td>
+</tr>"""
+        logs_table += "</tbody></table>"
+    else:
+        logs_table = '<div class="empty">No logs yet</div>'
+
+    # --- Cron job status indicators ---
+    bot_color = "#3fb950" if bot_status["raw_status"] == "completed" else ("#f85149" if bot_status["raw_status"] == "failed" else "#d29922")
+    dashboard_color = "#3fb950" if dashboard_status["raw_status"] == "completed" else ("#f85149" if dashboard_status["raw_status"] == "failed" else "#d29922")
 
     # --- JavaScript ---
     js_code = """
@@ -774,6 +886,12 @@ function logout() {
         location.reload();
     }
 }
+function autoRefresh() {
+    setTimeout(function() {
+        location.reload();
+    }, 60000);
+}
+autoRefresh();
 </script>
 """
 
@@ -800,6 +918,12 @@ function logout() {
         .btn-settings:hover {{ background: #484f58; }}
         .btn-logout {{ background: #da3633; color: #fff; }}
         .btn-logout:hover {{ background: #f85149; }}
+        .heartbeat {{ display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; animation: pulse 1.5s ease-in-out infinite; }}
+        .heartbeat.running {{ background: #d29922; animation: pulse 0.8s ease-in-out infinite; }}
+        .heartbeat.completed {{ background: #3fb950; animation: none; }}
+        .heartbeat.failed {{ background: #f85149; animation: none; }}
+        .heartbeat.idle {{ background: #6e7681; animation: none; }}
+        @keyframes pulse {{ 0%, 100% {{ opacity: 1; }} 50% {{ opacity: 0.5; }} }}
         .conn-grid {{ display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }}
         .conn-card {{ background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 15px; }}
         .conn-header {{ display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }}
@@ -832,6 +956,11 @@ function logout() {
         .modal-actions {{ display: flex; gap: 10px; margin-top: 20px; justify-content: flex-end; }}
         .last-update {{ color: #8b949e; font-size: 11px; text-align: center; margin-top: 20px; }}
         .account-info {{ background: #0d1117; padding: 10px; border-radius: 6px; font-size: 11px; color: #8b949e; margin-bottom: 15px; }}
+        .cron-grid {{ display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }}
+        .cron-card {{ background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 12px; }}
+        .cron-title {{ font-size: 11px; font-weight: 700; text-transform: uppercase; margin-bottom: 8px; }}
+        .cron-status {{ font-size: 10px; color: #8b949e; }}
+        .cron-time {{ font-size: 10px; color: #6e7681; margin-top: 4px; }}
     </style>
 </head>
 <body>
@@ -868,6 +997,27 @@ function logout() {
             </div>
         </div>
 
+        <!-- Cron Job Status -->
+        <div class="section-title">🔄 Cron Job Status</div>
+        <div class="cron-grid">
+            <div class="cron-card">
+                <div class="cron-title">
+                    <span class="heartbeat {bot_status['raw_status']}"></span>Trading Bot
+                </div>
+                <div class="cron-status">{bot_status['raw_status'].upper()}</div>
+                <div class="cron-time">{bot_status['time_ago']}</div>
+                <div style="font-size:10px;color:#8b949e;margin-top:6px;">{bot_status['message']}</div>
+            </div>
+            <div class="cron-card">
+                <div class="cron-title">
+                    <span class="heartbeat {dashboard_status['raw_status']}"></span>Dashboard
+                </div>
+                <div class="cron-status">{dashboard_status['raw_status'].upper()}</div>
+                <div class="cron-time">{dashboard_status['time_ago']}</div>
+                <div style="font-size:10px;color:#8b949e;margin-top:6px;">{dashboard_status['message']}</div>
+            </div>
+        </div>
+
         <!-- Account Overview -->
         <div class="section-title">Account Overview</div>
         <div class="grid">
@@ -878,6 +1028,10 @@ function logout() {
             <div class="card stat"><div class="stat-value">{account_state['margin_level']}</div><div class="stat-label">Margin Level</div></div>
             <div class="card stat"><div class="stat-value">{account_state['daypl']}</div><div class="stat-label">Day P&L</div></div>
         </div>
+
+        <!-- Backend Process Logs -->
+        <div class="section-title">📋 Backend Process Logs</div>
+        <div class="card">{logs_table}</div>
 
         <!-- Open Positions -->
         <div class="section-title">Open Positions ({len(positions_data)}) — Live SL/TP & P&L</div>
@@ -891,7 +1045,7 @@ function logout() {
         <div class="section-title">Recent Orders (Last 20)</div>
         <div class="card">{orders_table}</div>
 
-        <div class="last-update">Last updated: {last_update} | Auto-refresh every 10 min</div>
+        <div class="last-update">Last updated: {last_update} | Auto-refresh every 1 min</div>
     </div>
 
     <!-- Settings Modal -->
@@ -928,71 +1082,82 @@ function logout() {
 
 def run_bot():
     """Run the trading bot: fetch Telegram signals → place TradeLocker orders."""
-    if not (TL_EMAIL and TL_PASSWORD and TG_TOKEN and TG_CHAT):
-        print("[Bot] ERROR: Missing required secrets (TL_EMAIL, TL_PASSWORD, TG_TOKEN, TG_CHAT)")
+    try:
+        save_heartbeat("bot", "running", "Initializing bot...")
+        log_process("info", "=== BOT CYCLE STARTED ===")
+        
+        if not (TL_EMAIL and TL_PASSWORD and TG_TOKEN and TG_CHAT):
+            log_process("error", "Missing required secrets (TL_EMAIL, TL_PASSWORD, TG_TOKEN, TG_CHAT)")
+            save_heartbeat("bot", "failed", "Missing credentials")
+            return False
+
+        client = TradeLockerClient()
+        if not client.auth():
+            log_process("error", "TradeLocker authentication failed")
+            save_heartbeat("bot", "failed", "Auth failed")
+            return False
+
+        client.load_instruments()
+
+        messages = tg_get_messages(offset=_last_update_id)
+        log_process("info", f"Fetched {len(messages)} new messages from Telegram")
+
+        for msg in messages:
+            text = (msg.get("text") or "").strip()
+            if not looks_like_signal(text):
+                continue
+
+            log_process("info", "=== Processing Signal ===")
+            log_process("info", f"Signal: {text[:200]}")
+
+            parsed = parse_signal(text)
+            if not parsed:
+                log_process("warning", "Could not parse signal, skipping")
+                continue
+
+            if parsed["type"] == "SIGNAL":
+                client.place_order(
+                    pair=parsed["pair"],
+                    direction=parsed["direction"],
+                    sl=parsed["sl"],
+                    tp=parsed["tp"]
+                )
+
+            elif parsed["type"] == "TPSL_HIT":
+                pair = parsed["pair"]
+                result = parsed["result"]
+                log_process("info", f"{result} HIT on {pair} — closing position")
+                positions = client.get_open_positions()
+                for pos in positions:
+                    if not isinstance(pos, dict):
+                        continue
+                    pos_sym = pos.get('instrumentName') or pos.get('symbol') or pos.get('name') or ""
+                    if pos_sym.replace("/", "").upper() == pair.replace("/", "").upper():
+                        pos_id = pos.get('positionId') or pos.get('id')
+                        if pos_id:
+                            client.close_position(pos_id)
+
+            elif parsed["type"] == "SL_UPDATE":
+                pair = parsed["pair"]
+                new_sl = parsed["new_sl"]
+                log_process("info", f"SL UPDATE on {pair} → {new_sl}")
+                positions = client.get_open_positions()
+                for pos in positions:
+                    if not isinstance(pos, dict):
+                        continue
+                    pos_sym = pos.get('instrumentName') or pos.get('symbol') or pos.get('name') or ""
+                    if pos_sym.replace("/", "").upper() == pair.replace("/", "").upper():
+                        pos_id = pos.get('positionId') or pos.get('id')
+                        if pos_id:
+                            client.modify_position(pos_id, pos, new_sl)
+
+        log_process("info", "=== BOT CYCLE COMPLETE ===")
+        save_heartbeat("bot", "completed", "No errors")
+        return True
+    except Exception as e:
+        log_process("error", f"Bot cycle failed: {str(e)}")
+        save_heartbeat("bot", "failed", str(e)[:100])
         return False
-
-    client = TradeLockerClient()
-    if not client.auth():
-        print("[Bot] ERROR: TradeLocker authentication failed")
-        return False
-
-    client.load_instruments()
-
-    messages = tg_get_messages(offset=_last_update_id)
-    print(f"[Bot] Fetched {len(messages)} new messages from Telegram")
-
-    for msg in messages:
-        text = (msg.get("text") or "").strip()
-        if not looks_like_signal(text):
-            continue
-
-        print(f"\n[Bot] === Processing Signal ===")
-        print(f"[Bot] Raw: {text[:200]}")
-
-        parsed = parse_signal(text)
-        if not parsed:
-            print("[Bot] Could not parse signal, skipping")
-            continue
-
-        if parsed["type"] == "SIGNAL":
-            client.place_order(
-                pair=parsed["pair"],
-                direction=parsed["direction"],
-                sl=parsed["sl"],
-                tp=parsed["tp"]
-            )
-
-        elif parsed["type"] == "TPSL_HIT":
-            pair = parsed["pair"]
-            result = parsed["result"]
-            print(f"[Bot] {result} HIT on {pair} — closing position")
-            positions = client.get_open_positions()
-            for pos in positions:
-                if not isinstance(pos, dict):
-                    continue
-                pos_sym = pos.get('instrumentName') or pos.get('symbol') or pos.get('name') or ""
-                if pos_sym.replace("/", "").upper() == pair.replace("/", "").upper():
-                    pos_id = pos.get('positionId') or pos.get('id')
-                    if pos_id:
-                        client.close_position(pos_id)
-
-        elif parsed["type"] == "SL_UPDATE":
-            pair = parsed["pair"]
-            new_sl = parsed["new_sl"]
-            print(f"[Bot] SL UPDATE on {pair} — new SL: {new_sl}")
-            positions = client.get_open_positions()
-            for pos in positions:
-                if not isinstance(pos, dict):
-                    continue
-                pos_sym = pos.get('instrumentName') or pos.get('symbol') or pos.get('name') or ""
-                if pos_sym.replace("/", "").upper() == pair.replace("/", "").upper():
-                    pos_id = pos.get('positionId') or pos.get('id')
-                    if pos_id:
-                        client.modify_position(pos_id, pos, new_sl)
-
-    print(f"\n[Bot] === Bot cycle complete ===")
-    return True
 
 # =====================================================================
 # DASHBOARD MODE
@@ -1000,35 +1165,64 @@ def run_bot():
 
 def generate_dashboard():
     """Generate the dashboard HTML with connection status and deploy to GitHub Pages."""
-    print(f"[Dashboard] Starting at {datetime.now(timezone.utc).isoformat()}")
-    print(f"[Dashboard] TL_ENV={TL_ENV}, TL_SERVER={TL_SERVER}, TL_ACCOUNT_ID={TL_ACCOUNT_ID}")
+    try:
+        load_heartbeat()
+        save_heartbeat("dashboard", "running", "Generating dashboard...")
+        log_process("info", "=== DASHBOARD GENERATION STARTED ===")
+        
+        print(f"[Dashboard] Starting at {datetime.now(timezone.utc).isoformat()}")
+        print(f"[Dashboard] TL_ENV={TL_ENV}, TL_SERVER={TL_SERVER}, TL_ACCOUNT_ID={TL_ACCOUNT_ID}")
 
-    client = TradeLockerClient()
+        client = TradeLockerClient()
 
-    tl_connected = client.auth()
-    tl_error = None
-    if not tl_connected:
-        tl_error = "Failed to authenticate. Check TL_EMAIL, TL_PASSWORD, TL_SERVER secrets."
-        print(f"[Dashboard] TradeLocker: DISCONNECTED — {tl_error}")
-    else:
-        print("[Dashboard] TradeLocker: CONNECTED")
-        client.load_instruments()
+        tl_connected = client.auth()
+        tl_error = None
+        if not tl_connected:
+            tl_error = "Failed to authenticate. Check TL_EMAIL, TL_PASSWORD, TL_SERVER secrets."
+            log_process("warning", f"TradeLocker: DISCONNECTED — {tl_error}")
+        else:
+            log_process("success", "TradeLocker: CONNECTED")
+            client.load_instruments()
 
-    tg_connected, tg_info = test_telegram_connection()
-    if tg_connected:
-        print(f"[Dashboard] Telegram: CONNECTED (@{tg_info.get('username')})")
-    else:
-        print(f"[Dashboard] Telegram: DISCONNECTED — {tg_info.get('error')}")
+        tg_connected, tg_info = test_telegram_connection()
+        if tg_connected:
+            log_process("success", f"Telegram: CONNECTED (@{tg_info.get('username')})")
+        else:
+            log_process("warning", f"Telegram: DISCONNECTED — {tg_info.get('error')}")
 
-    html = generate_dashboard_html(client, tl_connected, tl_error, tg_connected, tg_info)
+        html = generate_dashboard_html(client, tl_connected, tl_error, tg_connected, tg_info)
 
-    os.makedirs("docs", exist_ok=True)
-    output_path = os.path.join("docs", "index.html")
-    with open(output_path, "w", encoding="utf-8") as f:
-        f.write(html)
+        os.makedirs("docs", exist_ok=True)
+        output_path = os.path.join("docs", "index.html")
+        with open(output_path, "w", encoding="utf-8") as f:
+            f.write(html)
 
-    print(f"[Dashboard] Written to {output_path} ({len(html)} bytes)")
-    return True
+        log_process("success", f"Dashboard written to {output_path}")
+        print(f"[Dashboard] Written to {output_path} ({len(html)} bytes)")
+        
+        log_process("info", "=== DASHBOARD GENERATION COMPLETE ===")
+        save_heartbeat("dashboard", "completed", "No errors")
+        return True
+    except Exception as e:
+        log_process("error", f"Dashboard generation failed: {str(e)}")
+        save_heartbeat("dashboard", "failed", str(e)[:100])
+        import traceback
+        traceback.print_exc()
+        
+        try:
+            os.makedirs("docs", exist_ok=True)
+            with open("docs/index.html", "w", encoding="utf-8") as f:
+                f.write(f"""<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>TradeLocker Dashboard</title></head>
+<body style="font-family:sans-serif;background:#0d1117;color:#f85149;padding:40px;">
+<h1>⚠️ Dashboard Error</h1>
+<p>The dashboard generator encountered a fatal error:</p>
+<pre style="background:#161b22;padding:15px;border-radius:6px;overflow-x:auto;">{str(e)}</pre>
+<p style="color:#8b949e;margin-top:20px;">Check the GitHub Actions logs for details.</p>
+</body></html>""")
+        except:
+            pass
+        return False
 
 # =====================================================================
 # MAIN
@@ -1045,18 +1239,4 @@ if __name__ == "__main__":
         print(f"FATAL ERROR: {e}")
         import traceback
         traceback.print_exc()
-        if MODE == "dashboard":
-            try:
-                os.makedirs("docs", exist_ok=True)
-                with open("docs/index.html", "w", encoding="utf-8") as f:
-                    f.write(f"""<!DOCTYPE html>
-<html><head><meta charset="utf-8"><title>TradeLocker Dashboard</title></head>
-<body style="font-family:sans-serif;background:#0d1117;color:#f85149;padding:40px;">
-<h1>⚠️ Dashboard Error</h1>
-<p>The dashboard generator encountered a fatal error:</p>
-<pre style="background:#161b22;padding:15px;border-radius:6px;overflow-x:auto;">{str(e)}</pre>
-<p style="color:#8b949e;margin-top:20px;">Check the GitHub Actions logs for details.</p>
-</body></html>""")
-            except:
-                pass
         sys.exit(1)
