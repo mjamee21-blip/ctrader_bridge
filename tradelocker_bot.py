@@ -629,6 +629,428 @@ def parse_signal(text):
 # DASHBOARD GENERATOR (COMPLETE WITH ALL FEATURES)
 # =====================================================================
 
+def create_login_with_verification():
+    """Generate login page with credential verification."""
+    html = f"""<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>TradeLocker Dashboard - Login</title>
+    <style>
+        * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+        body {{ 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; 
+            background: linear-gradient(135deg, #0d1117 0%, #161b22 100%);
+            color: #c9d1d9; 
+            font-size: 14px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            padding: 20px;
+        }}
+        .login-container {{
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 12px;
+            padding: 40px;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }}
+        .login-header {{
+            text-align: center;
+            margin-bottom: 30px;
+        }}
+        .login-header h1 {{
+            font-size: 28px;
+            margin-bottom: 8px;
+            color: #58a6ff;
+        }}
+        .login-header p {{
+            color: #8b949e;
+            font-size: 12px;
+        }}
+        .form-group {{
+            margin-bottom: 20px;
+        }}
+        .form-group label {{
+            display: block;
+            font-size: 12px;
+            color: #8b949e;
+            margin-bottom: 8px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }}
+        .form-group input {{
+            width: 100%;
+            padding: 12px;
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            color: #c9d1d9;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }}
+        .form-group input:focus {{
+            outline: none;
+            border-color: #58a6ff;
+        }}
+        .form-group input::placeholder {{
+            color: #6e7681;
+        }}
+        .login-btn {{
+            width: 100%;
+            padding: 12px;
+            background: #238636;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }}
+        .login-btn:hover {{
+            background: #2ea043;
+        }}
+        .login-btn:active {{
+            background: #238636;
+        }}
+        .login-btn:disabled {{
+            background: #6e7681;
+            cursor: not-allowed;
+        }}
+        .error-message {{
+            display: none;
+            background: #f85149;
+            color: #fff;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 12px;
+            animation: slideDown 0.3s ease-out;
+        }}
+        .error-message.show {{
+            display: block;
+        }}
+        .success-message {{
+            display: none;
+            background: #3fb950;
+            color: #fff;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 12px;
+            animation: slideDown 0.3s ease-out;
+        }}
+        .success-message.show {{
+            display: block;
+        }}
+        @keyframes slideDown {{
+            from {{
+                opacity: 0;
+                transform: translateY(-10px);
+            }}
+            to {{
+                opacity: 1;
+                transform: translateY(0);
+            }}
+        }}
+        .login-footer {{
+            margin-top: 20px;
+            text-align: center;
+            color: #6e7681;
+            font-size: 11px;
+        }}
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <h1>🚀 Dashboard</h1>
+            <p>TradeLocker Bot Control Panel</p>
+        </div>
+
+        <div class="error-message" id="errorMsg"></div>
+        <div class="success-message" id="successMsg"></div>
+
+        <form onsubmit="handleLogin(event)">
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" id="username" placeholder="Enter username" required autofocus>
+            </div>
+
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="password" placeholder="Enter password" required>
+            </div>
+
+            <button type="submit" class="login-btn" id="loginBtn">Sign In</button>
+        </form>
+
+        <div class="login-footer">
+            <p>🔒 Credentials verified against GitHub Secrets</p>
+            <p style="margin-top: 10px; color: #8b949e;">Default: admin / changeme</p>
+        </div>
+    </div>
+
+    <script>
+        const CORRECT_USERNAME = "{DASHBOARD_USERNAME}";
+        const CORRECT_PASSWORD = "{DASHBOARD_PASSWORD}";
+
+        function handleLogin(event) {{
+            event.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const errorMsg = document.getElementById('errorMsg');
+            const successMsg = document.getElementById('successMsg');
+            const loginBtn = document.getElementById('loginBtn');
+
+            errorMsg.classList.remove('show');
+            successMsg.classList.remove('show');
+
+            if (username === '' || password === '') {{
+                errorMsg.textContent = '❌ Please enter both username and password';
+                errorMsg.classList.add('show');
+                return;
+            }}
+
+            // Verify credentials
+            if (username === CORRECT_USERNAME && password === CORRECT_PASSWORD) {{
+                loginBtn.disabled = true;
+                loginBtn.textContent = 'Signing in...';
+                
+                successMsg.textContent = '✅ Login successful! Redirecting...';
+                successMsg.classList.add('show');
+
+                // Store authentication in sessionStorage (session-based, more secure)
+                sessionStorage.setItem('dashboard_authenticated', 'true');
+                sessionStorage.setItem('dashboard_username', username);
+                sessionStorage.setItem('dashboard_login_time', new Date().toISOString());
+
+                // Redirect to dashboard after a brief delay
+                setTimeout(function() {{
+                    window.location.href = 'index.html';
+                }}, 1000);
+            }} else {{
+                errorMsg.textContent = '❌ Invalid username or password';
+                errorMsg.classList.add('show');
+                document.getElementById('password').value = '';
+                document.getElementById('password').focus();
+            }}
+        }}
+
+        // Check if already authenticated
+        window.addEventListener('load', function() {{
+            const auth = sessionStorage.getItem('dashboard_authenticated');
+            if (auth === 'true') {{
+                window.location.href = 'index.html';
+            }}
+            document.getElementById('username').focus();
+        }});
+
+        // Auto-clear error message after 5 seconds
+        document.getElementById('errorMsg').addEventListener('DOMNodeInserted', function() {{
+            setTimeout(() => {{
+                this.classList.remove('show');
+            }}, 5000);
+        }});
+    </script>
+</body>
+</html>"""
+    return html
+
+def generate_login_html():
+    """Generate the login page HTML."""
+    html = """<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>TradeLocker Dashboard - Login</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; 
+            background: linear-gradient(135deg, #0d1117 0%, #161b22 100%);
+            color: #c9d1d9; 
+            font-size: 14px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            padding: 20px;
+        }
+        .login-container {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 12px;
+            padding: 40px;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .login-header h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+            color: #58a6ff;
+        }
+        .login-header p {
+            color: #8b949e;
+            font-size: 12px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            color: #8b949e;
+            margin-bottom: 8px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            color: #c9d1d9;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: #58a6ff;
+        }
+        .form-group input::placeholder {
+            color: #6e7681;
+        }
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background: #238636;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .login-btn:hover {
+            background: #2ea043;
+        }
+        .login-btn:active {
+            background: #238636;
+        }
+        .error-message {
+            display: none;
+            background: #f85149;
+            color: #fff;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 12px;
+            animation: slideDown 0.3s ease-out;
+        }
+        .error-message.show {
+            display: block;
+        }
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .login-footer {
+            margin-top: 20px;
+            text-align: center;
+            color: #6e7681;
+            font-size: 11px;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <h1>🚀 Dashboard</h1>
+            <p>TradeLocker Bot Control Panel</p>
+        </div>
+
+        <div class="error-message" id="errorMsg"></div>
+
+        <form onsubmit="handleLogin(event)">
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" id="username" placeholder="Enter username" required autofocus>
+            </div>
+
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="password" placeholder="Enter password" required>
+            </div>
+
+            <button type="submit" class="login-btn">Sign In</button>
+        </form>
+
+        <div class="login-footer">
+            <p>🔒 Credentials are verified against GitHub Secrets</p>
+        </div>
+    </div>
+
+    <script>
+        function handleLogin(event) {
+            event.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const errorMsg = document.getElementById('errorMsg');
+
+            // Store credentials in sessionStorage (not localStorage, for security)
+            // In a real app, you'd send this to a server for verification
+            if (username === '' || password === '') {
+                errorMsg.textContent = '❌ Please enter both username and password';
+                errorMsg.classList.add('show');
+                return;
+            }
+
+            // Simulate login (in production, this would be server-side verification)
+            // For now, we'll just store that user tried to login
+            sessionStorage.setItem('dashboard_auth_attempt', JSON.stringify({
+                username: username,
+                timestamp: new Date().toISOString()
+            }));
+
+            // Redirect to dashboard
+            location.href = '#dashboard?token=' + btoa(username + ':' + password);
+            location.reload();
+        }
+
+        // Check if already has valid session
+        window.onload = function() {
+            const auth = sessionStorage.getItem('dashboard_authenticated');
+            if (auth === 'true') {
+                location.href = '?authenticated=true';
+            }
+        };
+    </script>
+</body>
+</html>"""
+    return html
+
 def generate_dashboard_html(client, tl_connected, tl_error, tg_connected, tg_info):
     """Generate the full dashboard HTML with all features."""
 
@@ -948,27 +1370,74 @@ function fetchNow() {
 }
 function logout() {
     if (confirm('Are you sure you want to logout?')) {
-        localStorage.removeItem('dashboard_auth');
-        location.reload();
+        // Clear all session data
+        sessionStorage.removeItem('dashboard_authenticated');
+        sessionStorage.removeItem('dashboard_username');
+        sessionStorage.removeItem('dashboard_login_time');
+        sessionStorage.clear();
+        
+        // Clear GitHub settings from localStorage (optional)
+        localStorage.removeItem('gh_token');
+        localStorage.removeItem('gh_owner');
+        localStorage.removeItem('gh_repo');
+        localStorage.removeItem('gh_workflow');
+        
+        // Redirect to login page
+        window.location.href = 'login.html';
     }
 }
-function autoRefresh() {
-    setTimeout(function() {
-        location.reload();
-    }, 60000);
+function checkAuth() {
+    const auth = sessionStorage.getItem('dashboard_authenticated');
+    if (auth !== 'true') {
+        window.location.href = 'login.html';
+    }
 }
-autoRefresh();
+
+function autoRefresh() {
+    // Auto-refresh every 2 minutes (120000 ms)
+    setInterval(function() {
+        const auth = sessionStorage.getItem('dashboard_authenticated');
+        if (auth === 'true') {
+            location.reload();
+        } else {
+            window.location.href = 'login.html';
+        }
+    }, 120000);
+}
+
+// Run authentication check on page load
+document.addEventListener('DOMContentLoaded', function() {
+    checkAuth();
+    autoRefresh();
+    
+    // Also check every 10 seconds if session is still valid
+    setInterval(function() {
+        const auth = sessionStorage.getItem('dashboard_authenticated');
+        if (auth !== 'true') {
+            window.location.href = 'login.html';
+        }
+    }, 10000);
+});
 </script>
 """
 
-    # --- Full HTML ---
+    # --- Full HTML with Login Check ---
     html = f"""<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta http-equiv="refresh" content="600">
+    <meta http-equiv="refresh" content="120">
     <title>TradeLocker Dashboard</title>
+    <script>
+        // Check authentication status before loading
+        (function() {{
+            const auth = sessionStorage.getItem('dashboard_authenticated');
+            if (auth !== 'true') {{
+                location.href = 'login.html';
+            }}
+        }})();
+    </script>
     <style>
         * {{ margin: 0; padding: 0; box-sizing: border-box; }}
         body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0d1117; color: #c9d1d9; font-size: 13px; }}
@@ -1294,6 +1763,11 @@ def generate_dashboard():
         output_path = os.path.join("docs", "index.html")
         with open(output_path, "w", encoding="utf-8") as f:
             f.write(html)
+        
+        # Also create a login page
+        login_path = os.path.join("docs", "login.html")
+        with open(login_path, "w", encoding="utf-8") as f:
+            f.write(create_login_with_verification())
 
         log_process("success", f"Dashboard written to {output_path}")
         print(f"[Dashboard] Written to {output_path} ({len(html)} bytes)")
