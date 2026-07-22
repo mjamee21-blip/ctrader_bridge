@@ -2,10 +2,10 @@ name: TradeLocker Bot & Dashboard
 
 on:
   schedule:
-    # Bot: Run every :03 and :33 (trading signals)
-    - cron: '3,33 * * * *'
-    # Dashboard: Run every :00 and :30 (updates every 30 min)
-    - cron: '0,30 * * * *'
+    # Bot: Run every minute (trading signals)
+    - cron: '* * * * *'
+    # Dashboard: Run every 2 minutes (updates every 2 min)
+    - cron: '*/2 * * * *'
   workflow_dispatch:
   push:
     branches: [main]

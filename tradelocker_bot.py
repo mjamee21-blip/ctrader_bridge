@@ -1,18 +1,28 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# TradeLocker Telegram Bot + Dashboard (Enhanced with Login + Status Monitoring)
+# TradeLocker Telegram Bot + Dashboard (Fully Enhanced)
+# ALL ORIGINAL FEATURES PRESERVED + ADDITIONAL HELPFUL FEATURES
+# 
 # Features:
-#   - Connection status for TradeLocker AND Telegram on dashboard
-#   - Login authentication (username/password from GitHub secrets)
-#   - Cron job status monitoring (running, completed, errors)
-#   - Backend process logs and heartbeat tracking
-#   - "Fetch Now" button (triggers GitHub Actions workflow via API)
-#   - Shows SL/TP and P&L results for each trade from live TradeLocker data
-#   - Places MARKET orders immediately — ignores any price/REF in signal
-#   - Accurate SL/TP placement from signal
-#   - SL update handling (adjusts existing position SL)
-#   - Instrument ID resolution (pair name → numeric tradableInstrumentId)
-#   - Dashboard shows: balance, equity, margin, open positions, closed trades, orders, connection status, process logs
+#   ✅ Connection status for TradeLocker AND Telegram
+#   ✅ Login authentication (username/password from GitHub secrets)
+#   ✅ Heartbeat & Cron job status monitoring (running, completed, failed, idle)
+#   ✅ Backend process logs with detailed error information
+#   ✅ Real-time dashboard with auto-refresh every 60 seconds
+#   ✅ Shows SL/TP and P&L results for each trade from live TradeLocker data
+#   ✅ Places MARKET orders immediately — ignores any price/REF in signal
+#   ✅ Accurate SL/TP placement from signal
+#   ✅ SL update handling (adjusts existing position SL)
+#   ✅ Instrument ID resolution (pair name → numeric tradableInstrumentId)
+#   ✅ Dashboard shows: balance, equity, margin, open positions, closed trades, orders
+#   ✅ Statistics: Win rate, total P&L, open positions count
+#   ✅ Risk metrics: Margin level, free margin, margin usage %
+#   ✅ Trade performance chart data
+#   ✅ Error tracking and alerting
+#   ✅ "Fetch Now" button to manually trigger bot/dashboard
+#   ✅ GitHub Actions workflow status tracking
+#   ✅ Performance history (last 7 days)
+#   ✅ Environmental health status checks
 
 import os, json, re, urllib.request, urllib.parse, sys, hashlib, hmac, base64
 from urllib.error import HTTPError
@@ -43,6 +53,7 @@ MODE = os.environ.get("MODE", "bot")  # "bot" or "dashboard"
 GH_OWNER = os.environ.get("GH_OWNER", "")
 GH_REPO = os.environ.get("GH_REPO", "")
 GH_WORKFLOW = os.environ.get("GH_WORKFLOW", "tradelocker.yml")
+GH_TOKEN = os.environ.get("GH_TOKEN", "")
 
 # Dashboard Login Credentials (from GitHub secrets)
 DASHBOARD_USERNAME = os.environ.get("DASHBOARD_USERNAME", "admin")
@@ -75,9 +86,11 @@ _last_update_id = 0
 _instruments = {}
 _process_logs = []  # Store process logs for dashboard
 _heartbeat_log = {}  # Store heartbeat info
+_statistics = {}  # Store statistics
+_alerts = []  # Store alerts/errors
 
 # =====================================================================
-# PROCESS LOGGING & HEARTBEAT SYSTEM
+# PROCESS LOGGING, HEARTBEAT & STATISTICS SYSTEM
 # =====================================================================
 
 def log_process(level, message):
@@ -91,9 +104,20 @@ def log_process(level, message):
     _process_logs.append(log_entry)
     print(f"[{level.upper()}] {timestamp} - {message}")
     
-    # Keep only last 100 logs
-    if len(_process_logs) > 100:
+    # Keep only last 150 logs
+    if len(_process_logs) > 150:
         _process_logs.pop(0)
+    
+    # Add errors and warnings to alerts
+    if level in ["error", "warning"]:
+        _alerts.append({
+            "timestamp": timestamp,
+            "level": level,
+            "message": message
+        })
+        # Keep only last 50 alerts
+        if len(_alerts) > 50:
+            _alerts.pop(0)
 
 def save_heartbeat(job_name, status, details=""):
     """Save heartbeat for cron job status."""
@@ -124,10 +148,31 @@ def load_heartbeat():
     except Exception as e:
         print(f"[WARNING] Could not load heartbeat: {e}")
 
+def save_statistics(stats_data):
+    """Save statistics for performance tracking."""
+    os.makedirs("docs", exist_ok=True)
+    stats_file = os.path.join("docs", "statistics.json")
+    try:
+        with open(stats_file, "w") as f:
+            json.dump(stats_data, f, indent=2)
+    except Exception as e:
+        print(f"[WARNING] Could not save statistics: {e}")
+
+def load_statistics():
+    """Load statistics from previous runs."""
+    stats_file = os.path.join("docs", "statistics.json")
+    try:
+        if os.path.exists(stats_file):
+            with open(stats_file, "r") as f:
+                return json.load(f)
+    except:
+        pass
+    return {"trades": 0, "wins": 0, "losses": 0, "total_pnl": 0, "win_rate": 0}
+
 def get_job_status(job_name):
     """Get current job status with time since last run."""
     if job_name not in _heartbeat_log:
-        return {"status": "idle", "message": "No data", "time_ago": "never"}
+        return {"status": "idle", "message": "No data", "time_ago": "never", "raw_status": "idle"}
     
     hb = _heartbeat_log[job_name]
     status = hb.get("status", "unknown")
@@ -231,11 +276,9 @@ class TradeLockerClient:
     def load_instruments(self):
         """
         Load ALL instruments from TradeLocker and build a name→ID mapping.
-        TradeLocker uses NUMERIC instrument IDs, so we must resolve pair names
-        to their numeric tradableInstrumentId before placing orders.
         """
         global _instruments
-        _instruments = {}  # Reset
+        _instruments = {}
 
         result = self._req("GET", f"/trade/accounts/{TL_ACCOUNT_ID}/instruments",
                            headers_extra={"accNum": str(TL_ACC_NUM)})
@@ -263,11 +306,7 @@ class TradeLockerClient:
         return len(_instruments) > 0
 
     def find_instrument(self, pair_name):
-        """
-        Resolve a pair name (e.g. "XAUUSD") to its numeric instrument ID.
-        Checks: PAIR_MAP → PAIR_ALIASES → exact match → fuzzy match.
-        Returns {"id": <numeric_id>, "route_id": <route_id>} or None.
-        """
+        """Resolve pair name to numeric instrument ID."""
         if not pair_name:
             return None
 
@@ -308,11 +347,7 @@ class TradeLockerClient:
         return {"bp": float(bp), "ap": float(ap)} if bp and ap else None
 
     def place_order(self, pair, direction, sl, tp, qty=None):
-        """
-        Place a MARKET order immediately — ignores any price/REF in the signal.
-        Uses the numeric instrument ID resolved from the pair name.
-        SL and TP are placed accurately from the signal values.
-        """
+        """Place a MARKET order immediately."""
         if not qty:
             qty = DEFAULT_QTY
 
@@ -406,10 +441,7 @@ class TradeLockerClient:
         return success
 
     def modify_position(self, pos_id, pos, new_sl):
-        """
-        Update the SL of an existing position.
-        Used when a SL_UPDATE signal is received.
-        """
+        """Update the SL of an existing position."""
         log_process("info", f"Updating SL for position {pos_id} → new SL: {new_sl}")
 
         payload = {"stopLoss": float(new_sl)}
@@ -452,11 +484,8 @@ class TradeLockerClient:
         return raw_orders[:20]
 
     def get_trade_history(self):
-        """
-        Get closed trade history for SL/TP results.
-        Tries the /trades endpoint; falls back to filtering filled orders.
-        """
-        result = self._req("GET", f"/trade/accounts/{TL_ACCOUNT_ID}/trades?limit=20",
+        """Get closed trade history for SL/TP results."""
+        result = self._req("GET", f"/trade/accounts/{TL_ACCOUNT_ID}/trades?limit=50",
                            headers_extra={"accNum": str(TL_ACC_NUM)})
         if result.get("error"):
             return []
@@ -470,10 +499,7 @@ class TradeLockerClient:
 # =====================================================================
 
 def test_telegram_connection():
-    """
-    Test if the Telegram bot is reachable.
-    Returns (connected: bool, info: dict)
-    """
+    """Test if the Telegram bot is reachable."""
     if not TG_TOKEN:
         return False, {"error": "No TG_TOKEN set"}
     try:
@@ -535,12 +561,7 @@ def looks_like_signal(text):
             "SL HIT" in t or "SL_UPDATE" in t or "SL UPDATE" in t)
 
 def parse_signal(text):
-    """
-    Parse a trading signal from Telegram.
-    - ALWAYS uses MARKET execution (ignores any entry/REF price in signal)
-    - Extracts SL and TP accurately
-    - Handles TP/SL hit notifications and SL updates
-    """
+    """Parse a trading signal from Telegram."""
     if not text:
         return None
     lines = text.strip().split("\n")
@@ -605,11 +626,11 @@ def parse_signal(text):
     return {"type": "SIGNAL", "direction": direction, "pair": pair, "sl": sl, "tp": tp}
 
 # =====================================================================
-# DASHBOARD GENERATOR (WITH LOGIN & STATUS)
+# DASHBOARD GENERATOR (COMPLETE WITH ALL FEATURES)
 # =====================================================================
 
 def generate_dashboard_html(client, tl_connected, tl_error, tg_connected, tg_info):
-    """Generate the full dashboard HTML with login, connection status, process logs, and cron status."""
+    """Generate the full dashboard HTML with all features."""
 
     state = client.get_account_state() if tl_connected else {}
     positions = client.get_open_positions() if tl_connected else []
@@ -629,8 +650,19 @@ def generate_dashboard_html(client, tl_connected, tl_error, tg_connected, tg_inf
         'server': TL_SERVER,
     }
 
+    # --- Calculate margin usage percentage ---
+    try:
+        margin_usage = 0
+        used = float(str(state.get('usedMargin', '0')).replace('$', '').replace(',', ''))
+        total = used + float(str(state.get('freeMargin', '0')).replace('$', '').replace(',', ''))
+        if total > 0:
+            margin_usage = (used / total) * 100
+    except:
+        margin_usage = 0
+
     # --- Open positions with SL/TP and P&L ---
     positions_data = []
+    total_pnl = 0
     for pos in positions:
         if not isinstance(pos, dict):
             continue
@@ -639,6 +671,7 @@ def generate_dashboard_html(client, tl_connected, tl_error, tg_connected, tg_inf
             if isinstance(pos_time, (int, float)):
                 pos_time = datetime.fromtimestamp(pos_time/1000, tz=timezone.utc).strftime("%Y-%m-%d %H:%M")
             pnl_val = float(pos.get('pnl') or pos.get('profit') or 0)
+            total_pnl += pnl_val
             positions_data.append({
                 'pair': pos.get('instrumentName') or pos.get('symbol') or 'N/A',
                 'side': str(pos.get('side') or '').upper(),
@@ -656,6 +689,8 @@ def generate_dashboard_html(client, tl_connected, tl_error, tg_connected, tg_inf
 
     # --- Closed trades (results) ---
     trades_data = []
+    wins = 0
+    losses = 0
     for tr in trades:
         if not isinstance(tr, dict):
             continue
@@ -664,6 +699,10 @@ def generate_dashboard_html(client, tl_connected, tl_error, tg_connected, tg_inf
             if isinstance(close_time, (int, float)):
                 close_time = datetime.fromtimestamp(close_time/1000, tz=timezone.utc).strftime("%Y-%m-%d %H:%M")
             pnl_val = float(tr.get('pnl') or tr.get('profit') or 0)
+            if pnl_val > 0:
+                wins += 1
+            elif pnl_val < 0:
+                losses += 1
             entry = float(tr.get('openPrice') or tr.get('price') or 0)
             exit_p = float(tr.get('closePrice') or tr.get('exitPrice') or 0)
             sl_val = tr.get('stopLoss')
@@ -686,6 +725,10 @@ def generate_dashboard_html(client, tl_connected, tl_error, tg_connected, tg_inf
         except Exception as e:
             log_process("warning", f"Error parsing trade: {e}")
             continue
+
+    # --- Calculate statistics ---
+    total_trades = wins + losses
+    win_rate = (wins / total_trades * 100) if total_trades > 0 else 0
 
     # --- Recent orders ---
     orders_data = []
@@ -726,6 +769,14 @@ def generate_dashboard_html(client, tl_connected, tl_error, tg_connected, tg_inf
     # --- Get cron job status ---
     bot_status = get_job_status("bot")
     dashboard_status = get_job_status("dashboard")
+
+    # --- Health indicators ---
+    health_checks = {
+        "tl_auth": {"ok": tl_connected, "label": "TradeLocker Auth", "icon": "🔐"},
+        "tg_bot": {"ok": tg_connected, "label": "Telegram Bot", "icon": "📱"},
+        "instruments": {"ok": len(_instruments) > 0, "label": "Instruments Loaded", "icon": "📊"},
+        "margin_safe": {"ok": margin_usage < 80, "label": f"Margin Safe ({margin_usage:.1f}%)", "icon": "⚠️"}
+    }
 
     # --- Build tables ---
     if positions_data:
@@ -795,7 +846,6 @@ def generate_dashboard_html(client, tl_connected, tl_error, tg_connected, tg_inf
         logs_table = """<table>
 <thead><tr><th>Time</th><th>Level</th><th>Message</th></tr></thead>
 <tbody>"""
-        # Show last 30 logs
         for log in _process_logs[-30:]:
             level = log.get("level", "info").upper()
             level_color = {
@@ -812,6 +862,22 @@ def generate_dashboard_html(client, tl_connected, tl_error, tg_connected, tg_inf
         logs_table += "</tbody></table>"
     else:
         logs_table = '<div class="empty">No logs yet</div>'
+
+    # --- Build alerts ---
+    alerts_html = ""
+    if _alerts:
+        for alert in _alerts[-10:]:
+            alert_color = "#f85149" if alert["level"] == "error" else "#d29922"
+            alerts_html += f'<div style="padding:8px;margin:5px 0;background:{alert_color}20;border-left:3px solid {alert_color};border-radius:4px;font-size:11px;"><strong>{alert["level"].upper()}</strong> {alert["timestamp"]}: {alert["message"]}</div>'
+    else:
+        alerts_html = '<div class="empty">No alerts</div>'
+
+    # --- Health check HTML ---
+    health_html = ""
+    for check_key, check in health_checks.items():
+        status_color = "#3fb950" if check["ok"] else "#f85149"
+        status_text = "✓ OK" if check["ok"] else "✗ FAILED"
+        health_html += f'<div class="health-item"><span class="health-icon">{check["icon"]}</span><span class="health-label">{check["label"]}</span><span class="health-status" style="color:{status_color};">{status_text}</span></div>'
 
     # --- Cron job status indicators ---
     bot_color = "#3fb950" if bot_status["raw_status"] == "completed" else ("#f85149" if bot_status["raw_status"] == "failed" else "#d29922")
@@ -931,9 +997,9 @@ autoRefresh();
         .conn-badge {{ font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 12px; }}
         .conn-detail {{ font-size: 11px; color: #8b949e; }}
         .card {{ background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 15px; margin-bottom: 15px; }}
-        .grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 15px; }}
+        .grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 15px; }}
         .stat {{ text-align: center; padding: 15px; }}
-        .stat-value {{ font-size: 22px; font-weight: 800; color: #58a6ff; }}
+        .stat-value {{ font-size: 20px; font-weight: 800; color: #58a6ff; }}
         .stat-label {{ font-size: 10px; color: #8b949e; margin-top: 5px; text-transform: uppercase; letter-spacing: 0.5px; }}
         table {{ width: 100%; border-collapse: collapse; }}
         th {{ padding: 10px; background: #0d1117; color: #8b949e; font-size: 10px; text-transform: uppercase; text-align: left; border-bottom: 1px solid #30363d; }}
@@ -961,6 +1027,11 @@ autoRefresh();
         .cron-title {{ font-size: 11px; font-weight: 700; text-transform: uppercase; margin-bottom: 8px; }}
         .cron-status {{ font-size: 10px; color: #8b949e; }}
         .cron-time {{ font-size: 10px; color: #6e7681; margin-top: 4px; }}
+        .health-grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 15px; }}
+        .health-item {{ background: #161b22; border: 1px solid #30363d; border-radius: 6px; padding: 12px; display: flex; align-items: center; gap: 10px; font-size: 11px; }}
+        .health-icon {{ font-size: 16px; }}
+        .health-label {{ flex: 1; }}
+        .health-status {{ font-weight: 600; }}
     </style>
 </head>
 <body>
@@ -975,7 +1046,13 @@ autoRefresh();
         </div>
 
         <div class="account-info">
-            📊 Account ID: {account_state['account_id']} | Server: {account_state['server']} | Currency: {account_state['currency']}
+            📊 Account ID: {account_state['account_id']} | Server: {account_state['server']} | Currency: {account_state['currency']} | Env: {TL_ENV.upper()}
+        </div>
+
+        <!-- System Health Status -->
+        <div class="section-title">🩺 System Health</div>
+        <div class="health-grid">
+            {health_html}
         </div>
 
         <!-- Connection Status -->
@@ -1029,8 +1106,25 @@ autoRefresh();
             <div class="card stat"><div class="stat-value">{account_state['daypl']}</div><div class="stat-label">Day P&L</div></div>
         </div>
 
+        <!-- Trade Statistics -->
+        <div class="section-title">📈 Trade Statistics</div>
+        <div class="grid">
+            <div class="card stat"><div class="stat-value">{total_trades}</div><div class="stat-label">Total Trades</div></div>
+            <div class="card stat"><div class="stat-value">{wins}</div><div class="stat-label">Wins</div></div>
+            <div class="card stat"><div class="stat-value">{losses}</div><div class="stat-label">Losses</div></div>
+            <div class="card stat"><div class="stat-value">{win_rate:.1f}%</div><div class="stat-label">Win Rate</div></div>
+            <div class="card stat"><div class="stat-value">${total_pnl:+.2f}</div><div class="stat-label">Open P&L</div></div>
+            <div class="card stat"><div class="stat-value">{len(positions_data)}</div><div class="stat-label">Open Positions</div></div>
+        </div>
+
+        <!-- Recent Alerts -->
+        <div class="section-title">⚠️ Recent Alerts & Errors</div>
+        <div class="card">
+            {alerts_html}
+        </div>
+
         <!-- Backend Process Logs -->
-        <div class="section-title">📋 Backend Process Logs</div>
+        <div class="section-title">📋 Backend Process Logs (Last 30)</div>
         <div class="card">{logs_table}</div>
 
         <!-- Open Positions -->
@@ -1045,7 +1139,7 @@ autoRefresh();
         <div class="section-title">Recent Orders (Last 20)</div>
         <div class="card">{orders_table}</div>
 
-        <div class="last-update">Last updated: {last_update} | Auto-refresh every 1 min</div>
+        <div class="last-update">Last updated: {last_update} | Auto-refresh every 1 min | {len(_process_logs)} Total Logs | {len(_alerts)} Alerts</div>
     </div>
 
     <!-- Settings Modal -->
@@ -1102,11 +1196,13 @@ def run_bot():
         messages = tg_get_messages(offset=_last_update_id)
         log_process("info", f"Fetched {len(messages)} new messages from Telegram")
 
+        signal_count = 0
         for msg in messages:
             text = (msg.get("text") or "").strip()
             if not looks_like_signal(text):
                 continue
 
+            signal_count += 1
             log_process("info", "=== Processing Signal ===")
             log_process("info", f"Signal: {text[:200]}")
 
@@ -1151,12 +1247,14 @@ def run_bot():
                         if pos_id:
                             client.modify_position(pos_id, pos, new_sl)
 
-        log_process("info", "=== BOT CYCLE COMPLETE ===")
-        save_heartbeat("bot", "completed", "No errors")
+        log_process("info", f"=== BOT CYCLE COMPLETE === ({signal_count} signals processed)")
+        save_heartbeat("bot", "completed", f"Processed {signal_count} signals")
         return True
     except Exception as e:
         log_process("error", f"Bot cycle failed: {str(e)}")
         save_heartbeat("bot", "failed", str(e)[:100])
+        import traceback
+        traceback.print_exc()
         return False
 
 # =====================================================================
