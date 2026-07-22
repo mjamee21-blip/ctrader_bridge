@@ -2,7 +2,7 @@ name: Telegram Trades to TradeLocker
 
 on:
   schedule:
-    - cron: '3,33 * * * *'
+    - cron: '* * * * *'
   workflow_dispatch:
 
 jobs:
