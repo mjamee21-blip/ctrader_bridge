@@ -25,7 +25,7 @@ TL_ENV = os.environ.get("TL_ENV", "demo")
 TG_TOKEN = os.environ.get("TG_TOKEN", "")
 TG_CHAT = os.environ.get("TG_CHAT", "")
 TL_PAIR_MAP_JSON = os.environ.get("TL_PAIR_MAP", "{}")
-DEFAULT_QTY = float(os.environ.get("TL_DEFAULT_QTY", "0.10").strip()) if os.environ.get("TL_DEFAULT_QTY", "").strip() else 0.10
+DEFAULT_QTY = float(os.environ.get("TL_DEFAULT_QTY", "1.0").strip()) if os.environ.get("TL_DEFAULT_QTY", "").strip() else 1.0
 MODE = os.environ.get("MODE", "bot")  # "bot" or "dashboard"
 
 try:
