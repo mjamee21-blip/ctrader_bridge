@@ -2,43 +2,19 @@ name: TradeLocker Bot & Dashboard
 
 on:
   schedule:
-    # Bot: Run every : every 1 min UTC (trading signals)
-    - cron: '* * * * *'
-    # Dashboard: Run every : every 2 mins UTC (updates every 2 min)
-    - cron: '*/2 * * * *'
+    - cron: '3,33 * * * *'
   workflow_dispatch:
-  push:
-    branches: [main]
-
-# Allow the workflow to push to the repo and deploy to GitHub Pages
-permissions:
-  contents: write
-  pages: write
-  id-token: write
-
-# Prevent concurrent deployments
-concurrency:
-  group: pages
-  cancel-in-progress: false
 
 jobs:
-  # =================================================================
-  # JOB 1: Trading Bot (reads Telegram signals, places market orders)
-  # =================================================================
   bot:
     runs-on: ubuntu-latest
     name: Execute Trading Bot
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.ref }}
-
+      - uses: actions/checkout@v4
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
-
       - name: Run Trading Bot
         env:
           MODE: bot
@@ -54,25 +30,20 @@ jobs:
           TL_DEFAULT_QTY: ${{ secrets.TL_DEFAULT_QTY }}
         run: python3 tradelocker_bot.py
 
-  # =================================================================
-  # JOB 2: Dashboard Generator + GitHub Pages Deployment
-  # =================================================================
   dashboard:
     runs-on: ubuntu-latest
-    name: Update & Deploy Dashboard
-    needs: bot
+    name: Update Dashboard
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.ref }}
-
+      - uses: actions/checkout@v4
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
-
-      - name: Generate Dashboard HTML
+      - name: Generate Dashboard
         env:
           MODE: dashboard
           TL_EMAIL: ${{ secrets.TL_EMAIL }}
@@ -81,26 +52,10 @@ jobs:
           TL_ACCOUNT_ID: ${{ secrets.TL_ACCOUNT_ID }}
           TL_ACC_NUM: ${{ secrets.TL_ACC_NUM }}
           TL_ENV: ${{ secrets.TL_ENV }}
-          TG_TOKEN: ${{ secrets.TG_TOKEN }}
-          GH_OWNER: ${{ secrets.GH_OWNER }}
-          GH_REPO: ${{ secrets.GH_REPO }}
-          GH_WORKFLOW: ${{ secrets.GH_WORKFLOW }}
         run: python3 tradelocker_bot.py
-
-      - name: Commit dashboard to main branch
-        run: |
-          git config --global user.email "bot@github.com"
-          git config --global user.name "Dashboard Bot"
-          git add docs/index.html || true
-          git commit -m "Update dashboard $(date -u '+%Y-%m-%d %H:%M UTC')" || true
-          git push || true
-
-      - name: Deploy to GitHub Pages (gh-pages branch)
-        uses: peaceiris/actions-gh-pages@v3
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./docs
-          publish_branch: gh-pages
           force_orphan: true
-          user_name: 'github-actions[bot]'
-          user_email: 'github-actions[bot]@users.noreply.github.com'
