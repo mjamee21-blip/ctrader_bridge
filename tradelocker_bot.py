@@ -24,14 +24,19 @@ TL_ACC_NUM = int(os.environ.get("TL_ACC_NUM", "1")) if os.environ.get("TL_ACC_NU
 TL_ENV = os.environ.get("TL_ENV", "demo")
 TG_TOKEN = os.environ.get("TG_TOKEN", "")
 TG_CHAT = os.environ.get("TG_CHAT", "")
-TL_PAIR_MAP_JSON = os.environ.get("TL_PAIR_MAP", "{}")
-DEFAULT_QTY = float(os.environ.get("TL_DEFAULT_QTY", "1.0").strip()) if os.environ.get("TL_DEFAULT_QTY", "").strip() else 1.0
-MODE = os.environ.get("MODE", "bot")
+TL_PAIR_MAP_JSON = os.environ.get("TL_PAIR_MAP", "{}").strip()
+if TL_PAIR_MAP_JSON.startswith("'") and TL_PAIR_MAP_JSON.endswith("'"):
+    TL_PAIR_MAP_JSON = TL_PAIR_MAP_JSON[1:-1].strip()
 
 try:
     PAIR_MAP = json.loads(TL_PAIR_MAP_JSON)
+    if not isinstance(PAIR_MAP, dict):
+        PAIR_MAP = {}
 except:
     PAIR_MAP = {}
+
+DEFAULT_QTY = float(os.environ.get("TL_DEFAULT_QTY", "1.0").strip()) if os.environ.get("TL_DEFAULT_QTY", "").strip() else 1.0
+MODE = os.environ.get("MODE", "bot")
 
 TL_BASE = "https://live.tradelocker.com" if TL_ENV.lower() == "live" else "https://demo.tradelocker.com"
 _last_update_id = 0
@@ -47,7 +52,7 @@ _system_status = {
     "dashboard": {"last_update": None, "status": "unknown"},
     "cron": {"last_run": None, "last_status": "unknown", "next_run": None, "total_runs": 0, "successful_runs": 0, "failed_runs": 0},
     "instruments": {"loaded": False, "count": 0, "last_loaded": None, "error": None},
-    "pair_mapping": {"configured": False, "mappings": {}, "count": 0},
+    "pair_mapping": {"configured": len(PAIR_MAP) > 0, "mappings": PAIR_MAP, "count": len(PAIR_MAP)},
     "trades": {"total": 0, "successful": 0, "failed": 0, "last_trade": None},
     "script_start": datetime.now(timezone.utc).isoformat(),
 }
@@ -94,7 +99,12 @@ class TradeLockerClient:
             with urllib.request.urlopen(req, timeout=timeout) as resp:
                 content = resp.read().decode().strip()
                 latency = int((time.time() - start_time) * 1000)
-                result = json.loads(content) if content else {}
+                try:
+                    result = json.loads(content) if content else {}
+                except:
+                    result = {"raw": content}
+                if not isinstance(result, dict):
+                    result = {"data": result}
                 result["_latency_ms"] = latency
                 return result
         except HTTPError as e:
@@ -148,21 +158,21 @@ class TradeLockerClient:
         result = self._req("GET", f"/trade/accounts/{TL_ACCOUNT_ID}/instruments", headers_extra={"accNum": str(TL_ACC_NUM)})
         latency = result.get("_latency_ms", 0)
         
-        if result.get("error"):
+        if not isinstance(result, dict) or result.get("error"):
             _system_status["instruments"] = {
                 "loaded": False, "count": 0,
                 "last_loaded": datetime.now(timezone.utc).isoformat(),
-                "error": result.get("error")
+                "error": result.get("error") if isinstance(result, dict) else "invalid_response"
             }
-            log_event("instruments", "load_failed", {"error": result.get("error"), "latency_ms": latency}, "error")
+            log_event("instruments", "load_failed", {"error": _system_status["instruments"]["error"], "latency_ms": latency}, "error")
             return False
         
         data = result.get("d", result)
-        if data is None:
-            data = result
         if not isinstance(data, dict):
             data = result
         instruments = data.get("instruments") or data.get("data") or data.get("items") or []
+        if not isinstance(instruments, list):
+            instruments = []
         _instruments = {}
         
         for inst in instruments:
@@ -172,7 +182,7 @@ class TradeLockerClient:
             inst_id = inst.get("tradableInstrumentId") or inst.get("id") or ""
             route_id = None
             for route in (inst.get("routes") or []):
-                if route.get("type") == "TRADE":
+                if isinstance(route, dict) and route.get("type") == "TRADE":
                     route_id = route.get("id")
                     break
             if name:
@@ -309,20 +319,19 @@ class TradeLockerClient:
     
     def get_open_positions(self):
         result = self._req("GET", f"/trade/accounts/{TL_ACCOUNT_ID}/positions", headers_extra={"accNum": str(TL_ACC_NUM)})
-        if result.get("error"):
+        if not isinstance(result, dict) or result.get("error"):
             return []
         data = result.get("d", result)
-        if data is None:
-            data = result
-        if not isinstance(data, dict):
-            return []
         if isinstance(data, list):
             return data
-        return data.get("positions") or data.get("data") or data.get("items") or []
+        if not isinstance(data, dict):
+            return []
+        positions = data.get("positions") or data.get("data") or data.get("items") or []
+        return positions if isinstance(positions, list) else []
     
     def close_position(self, pos_id):
         result = self._req("DELETE", f"/trade/accounts/{TL_ACCOUNT_ID}/positions/{pos_id}", headers_extra={"accNum": str(TL_ACC_NUM)})
-        success = not result.get("error")
+        success = isinstance(result, dict) and not result.get("error")
         log_event("trade", "close_position", {"pos_id": pos_id, "success": success}, "success" if success else "error")
         return success
     
@@ -342,28 +351,34 @@ class TradeLockerClient:
                     payload["takeProfit"] = tp
         
         result = self._req("PUT", f"/trade/accounts/{TL_ACCOUNT_ID}/positions/{pos_id}", body=payload, headers_extra={"accNum": str(TL_ACC_NUM)})
-        if result.get("error"):
+        if not isinstance(result, dict) or result.get("error"):
             result = self._req("PATCH", f"/trade/accounts/{TL_ACCOUNT_ID}/positions/{pos_id}", body=payload, headers_extra={"accNum": str(TL_ACC_NUM)})
-        success = not result.get("error")
+        success = isinstance(result, dict) and not result.get("error")
         log_event("trade", "modify_sl", {"pos_id": pos_id, "new_sl": new_sl, "success": success}, "success" if success else "error")
         return success
     
     def get_account_state(self):
         result = self._req("GET", f"/trade/accounts/{TL_ACCOUNT_ID}/state", headers_extra={"accNum": str(TL_ACC_NUM)})
+        if not isinstance(result, dict) or result.get("error"):
+            return {}
         data = result.get("d", result)
-        if data is None:
-            data = result
-        return data if isinstance(data, dict) else {}
+        if isinstance(data, dict):
+            return data
+        return {}
     
     def get_orders(self):
         result = self._req("GET", f"/trade/accounts/{TL_ACCOUNT_ID}/orders?limit=50", headers_extra={"accNum": str(TL_ACC_NUM)})
+        if not isinstance(result, dict) or result.get("error"):
+            return []
         data = result.get("d", result)
-        if data is None:
-            data = result
+        if isinstance(data, list):
+            return data[:20]
         if not isinstance(data, dict):
             return []
-        raw_orders = data if isinstance(data, list) else (data.get("orders") or data.get("data") or data.get("items") or [])
-        return raw_orders[:20]
+        raw_orders = data.get("orders") or data.get("data") or data.get("items") or []
+        if isinstance(raw_orders, list):
+            return raw_orders[:20]
+        return []
 
 # =====================================================================
 # SIGNAL PARSER
