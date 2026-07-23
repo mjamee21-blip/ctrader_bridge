@@ -586,13 +586,33 @@ class TradeLockerClient:
             log_process("warning", f"get_account_state error: {result.get('error')}")
             return {}
         
-        data = _extract_data(result, "state", "account", "data", "d")
-        if not isinstance(data, dict):
-            log_process("warning", f"get_account_state: unexpected data type: {type(data).__name__}")
-            return {}
+        # The API may nest data like: {"d": {"accountDetailsData": {balance, equity, ...}}}
+        # or: {"d": {"state": {balance, ...}}}
+        # We need to find the innermost dict with actual account data
         
-        # Log the actual keys we received for debugging
-        log_process("info", f"get_account_state: keys={list(data.keys())}")
+        # Step 1: Get the first level of data
+        data = _extract_data(result, "d", "data", "result")
+        if not isinstance(data, dict):
+            data = result
+        
+        log_process("info", f"get_account_state: level1_keys={list(data.keys())}")
+        
+        # Step 2: Try to go one level deeper to find actual account data
+        for key in ["accountDetailsData", "state", "account", "accountState", "details"]:
+            if key in data and isinstance(data[key], dict):
+                inner = data[key]
+                log_process("info", f"get_account_state: found '{key}' with keys={list(inner.keys())}")
+                return inner
+        
+        # If no nested dict found, use the level1 data itself
+        # (but if it only has 'accountDetailsData' as a key, extract that)
+        if len(data) == 1:
+            single_key = list(data.keys())[0]
+            if isinstance(data[single_key], dict):
+                log_process("info", f"get_account_state: extracted single key '{single_key}' with keys={list(data[single_key].keys())}")
+                return data[single_key]
+        
+        log_process("info", f"get_account_state: using top-level data with keys={list(data.keys())}")
         return data
 
     def get_orders(self):
@@ -610,13 +630,19 @@ class TradeLockerClient:
 
     def get_trade_history(self):
         """Get closed trade history for SL/TP results."""
+        # Try trades endpoint first, fall back to closedPositions
         result = self._req("GET", f"/trade/accounts/{TL_ACCOUNT_ID}/trades?limit=50",
                            headers_extra={"accNum": str(TL_ACC_NUM)})
         if result.get("error"):
-            log_process("warning", f"get_trade_history error: {result.get('error')}")
-            return []
+            log_process("info", f"trades endpoint not available ({result.get('error')}), trying closedPositions...")
+            # Try alternative endpoint for closed positions
+            result = self._req("GET", f"/trade/accounts/{TL_ACCOUNT_ID}/closedPositions?limit=50",
+                               headers_extra={"accNum": str(TL_ACC_NUM)})
+            if result.get("error"):
+                log_process("warning", f"get_trade_history error: {result.get('error')}")
+                return []
         
-        trades = _extract_list(result, "trades", "data", "items")
+        trades = _extract_list(result, "trades", "closedPositions", "data", "items")
         log_process("info", f"get_trade_history: got {len(trades)} trades")
         return trades
 
@@ -1262,10 +1288,53 @@ def generate_dashboard_html(client, tl_connected, tl_error, tg_connected, tg_inf
     # --- Open positions with SL/TP and P&L ---
     positions_data = []
     total_pnl = 0
+
+    # Debug: log raw positions data structure
+    if positions:
+        first_type = type(positions[0]).__name__
+        log_process("info", f"Positions: {len(positions)} items, first item type={first_type}")
+        if isinstance(positions[0], dict):
+            log_process("info", f"First position keys: {list(positions[0].keys())}")
+            log_process("info", f"First position sample: {json.dumps(positions[0], default=str)[:500]}")
+        elif isinstance(positions[0], list):
+            # Positions might be nested: [[pos1], [pos2], ...]
+            log_process("info", f"Positions appear to be nested lists, flattening...")
+            flat = []
+            for item in positions:
+                if isinstance(item, list):
+                    flat.extend(item)
+                else:
+                    flat.append(item)
+            positions = flat
+            log_process("info", f"Flattened to {len(positions)} positions")
+            if positions and isinstance(positions[0], dict):
+                log_process("info", f"First position keys: {list(positions[0].keys())}")
+                log_process("info", f"First position sample: {json.dumps(positions[0], default=str)[:500]}")
+        elif isinstance(positions[0], str):
+            # Positions might be JSON strings
+            log_process("info", f"Positions appear to be JSON strings, parsing...")
+            flat = []
+            for item in positions:
+                if isinstance(item, str):
+                    try:
+                        parsed = json.loads(item)
+                        if isinstance(parsed, list):
+                            flat.extend(parsed)
+                        elif isinstance(parsed, dict):
+                            flat.append(parsed)
+                    except:
+                        pass
+                else:
+                    flat.append(item)
+            positions = flat
+            log_process("info", f"Parsed to {len(positions)} positions")
+
     for pos in positions:
         if not isinstance(pos, dict):
+            log_process("warning", f"Skipping non-dict position item: type={type(pos).__name__}")
             continue
         try:
+
             pos_time = pos.get('openTime') or pos.get('open_time') or pos.get('created') or ''
             if isinstance(pos_time, (int, float)):
                 pos_time = datetime.fromtimestamp(pos_time/1000, tz=timezone.utc).strftime("%Y-%m-%d %H:%M")
