@@ -579,34 +579,44 @@ class TradeLockerClient:
         log_process("info", f"get_open_positions: parsed {len(positions)} positions")
         return positions
     
+    def _safe_array_float(self, val):
+        """Safely convert an array element to float, handling 'key-undefined' and other invalid values."""
+        if val is None or val == '' or val == 'key-undefined':
+            return None
+        try:
+            return float(val)
+        except (ValueError, TypeError):
+            return None
+
     def _array_to_position_dict(self, arr):
         """Convert a position array to a dict with named fields."""
         try:
             if len(arr) < 6:
                 return None
+            
             pos = {}
             pos['positionId'] = str(arr[0]) if arr[0] is not None else None
             pos['tradableInstrumentId'] = arr[1]
             pos['routeId'] = arr[2]
             pos['side'] = str(arr[3]).upper() if arr[3] else None
-            pos['qty'] = float(arr[4]) if arr[4] is not None else None
-            pos['openPrice'] = float(arr[5]) if arr[5] is not None else None
-            pos['stopLoss'] = float(arr[6]) if arr[6] is not None and arr[6] != '' else None
-            pos['takeProfit'] = float(arr[7]) if arr[7] is not None and arr[7] != '' else None
+            pos['qty'] = self._safe_array_float(arr[4])
+            pos['openPrice'] = self._safe_array_float(arr[5])
+            pos['stopLoss'] = self._safe_array_float(arr[6])
+            pos['takeProfit'] = self._safe_array_float(arr[7])
             pos['openTime'] = arr[8] if len(arr) > 8 and arr[8] is not None else None
-            pos['floatingPL'] = float(arr[9]) if len(arr) > 9 and arr[9] is not None else 0.0
+            pos['floatingPL'] = self._safe_array_float(arr[9]) if len(arr) > 9 else 0.0
             
-            # Additional fields if array is longer
+            # Additional fields if array is longer (handle 'key-undefined' and other invalid values)
             if len(arr) > 10:
-                pos['closePrice'] = float(arr[10]) if arr[10] is not None else None
+                pos['closePrice'] = self._safe_array_float(arr[10])
             if len(arr) > 11:
-                pos['swap'] = float(arr[11]) if arr[11] is not None else None
+                pos['swap'] = self._safe_array_float(arr[11])
             if len(arr) > 12:
-                pos['commission'] = float(arr[12]) if arr[12] is not None else None
+                pos['commission'] = self._safe_array_float(arr[12])
             if len(arr) > 13:
-                pos['closedAt'] = arr[13] if arr[13] is not None else None
+                pos['closedAt'] = arr[13] if arr[13] is not None and arr[13] != 'key-undefined' else None
             if len(arr) > 14:
-                pos['instrumentId'] = arr[14] if arr[14] is not None else None
+                pos['instrumentId'] = arr[14] if arr[14] is not None and arr[14] != 'key-undefined' else None
             
             return pos
         except Exception as e:

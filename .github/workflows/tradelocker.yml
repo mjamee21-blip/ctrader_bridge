@@ -46,6 +46,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Update Dashboard
     needs: bot
+    if: always()
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -74,10 +75,10 @@ jobs:
           DASHBOARD_PASSWORD: ${{ secrets.DASHBOARD_PASSWORD }}
         run: python3 tradelocker_bot.py
 
-      - name: Commit and push
+      - name: Commit and push dashboard
         run: |
           git config --global user.email "bot@github.com"
           git config --global user.name "Dashboard Bot"
           git add docs/ || true
           git commit -m "Dashboard update $(date -u '+%Y-%m-%d %H:%M UTC')" || true
-          git push || true
+          git push origin main || true
