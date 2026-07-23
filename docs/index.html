@@ -3,7 +3,9 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta http-equiv="refresh" content="120">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>TradeLocker Dashboard</title>
     <script>
         // Check authentication status before loading
@@ -77,6 +79,7 @@
         .health-icon { font-size: 16px; }
         .health-label { flex: 1; }
         .health-status { font-weight: 600; }
+        .build-version { font-size: 9px; color: #6e7681; }
     </style>
 </head>
 <body>
@@ -92,6 +95,7 @@
 
         <div class="account-info">
             📊 Account ID: 1834063 | Server: HEROFX | Currency: USD | Env: DEMO
+            <span class="build-version">| Build: 20260723182055</span>
         </div>
 
         <!-- System Health Status -->
@@ -135,7 +139,7 @@
                     <span class="heartbeat running"></span>Dashboard
                 </div>
                 <div class="cron-status">RUNNING</div>
-                <div class="cron-time">2s ago</div>
+                <div class="cron-time">1s ago</div>
                 <div style="font-size:10px;color:#8b949e;margin-top:6px;">Generating dashboard...</div>
             </div>
         </div>
@@ -173,23 +177,23 @@
         <div class="card"><table>
 <thead><tr><th>Time</th><th>Level</th><th>Message</th></tr></thead>
 <tbody><tr>
-<td class="time">2026-07-23 17:55:47 UTC</td>
+<td class="time">2026-07-23 18:20:55 UTC</td>
 <td style="color:#58a6ff;font-weight:600;">INFO</td>
 <td>=== DASHBOARD GENERATION STARTED ===</td>
 </tr><tr>
-<td class="time">2026-07-23 17:55:48 UTC</td>
+<td class="time">2026-07-23 18:20:55 UTC</td>
 <td style="color:#3fb950;font-weight:600;">SUCCESS</td>
 <td>TradeLocker authenticated on HEROFX</td>
 </tr><tr>
-<td class="time">2026-07-23 17:55:48 UTC</td>
+<td class="time">2026-07-23 18:20:55 UTC</td>
 <td style="color:#3fb950;font-weight:600;">SUCCESS</td>
 <td>TradeLocker: CONNECTED</td>
 </tr><tr>
-<td class="time">2026-07-23 17:55:48 UTC</td>
+<td class="time">2026-07-23 18:20:55 UTC</td>
 <td style="color:#58a6ff;font-weight:600;">INFO</td>
 <td>Loaded 172 instruments from TradeLocker</td>
 </tr><tr>
-<td class="time">2026-07-23 17:55:48 UTC</td>
+<td class="time">2026-07-23 18:20:56 UTC</td>
 <td style="color:#3fb950;font-weight:600;">SUCCESS</td>
 <td>Telegram: CONNECTED (@Forexunitedbot)</td>
 </tr></tbody></table></div>
@@ -206,7 +210,7 @@
         <div class="section-title">Recent Orders (Last 20)</div>
         <div class="card"><div class="empty">No recent orders</div></div>
 
-        <div class="last-update">Last updated: 2026-07-23 17:55:49 UTC | Auto-refresh every 1 min | 5 Total Logs | 0 Alerts</div>
+        <div class="last-update">Last updated: 2026-07-23 18:20:56 UTC | Auto-refresh every 1 min | 5 Total Logs | 0 Alerts | Build: 20260723182055</div>
     </div>
 
     <!-- Settings Modal -->
@@ -320,7 +324,7 @@ function checkAuth() {
 }
 
 function autoRefresh() {
-    // Auto-refresh every 2 minutes (120000 ms)
+    // Auto-refresh every 60 seconds (60000 ms)
     setInterval(function() {
         const auth = sessionStorage.getItem('dashboard_authenticated');
         if (auth === 'true') {
@@ -328,7 +332,7 @@ function autoRefresh() {
         } else {
             window.location.href = 'login.html';
         }
-    }, 120000);
+    }, 60000);
 }
 
 // Run authentication check on page load
