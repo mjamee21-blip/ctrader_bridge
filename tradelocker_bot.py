@@ -539,73 +539,79 @@ class TradeLockerClient:
         
         log_process("info", f"get_open_positions: result_type={type(result).__name__}, result_keys={list(result.keys()) if isinstance(result, dict) else 'N/A'}")
         
-        # Get the data wrapper
-        data = result.get("d", result)
+        # Get the data wrapper (d key)
+        data = result.get("d", result) if isinstance(result, dict) else result
         if isinstance(data, dict):
             log_process("info", f"get_open_positions: d_keys={list(data.keys())}")
-            
-            # Positions might be a dict (positionId -> data)
-            pos_data = data.get("positions") or data.get("data") or data.get("items")
-            
-            if isinstance(pos_data, dict):
-                # Positions returned as dict with position IDs as keys
-                positions = []
-                for pos_id, pos_obj in pos_data.items():
-                    if isinstance(pos_obj, dict):
-                        # Add positionId to the object if not present
-                        if "positionId" not in pos_obj and "id" not in pos_obj:
-                            pos_obj["positionId"] = pos_id
-                        positions.append(pos_obj)
-                    elif isinstance(pos_obj, str) and pos_obj.strip().startswith("{"):
-                        try:
-                            parsed = json.loads(pos_obj)
-                            if isinstance(parsed, dict):
-                                if "positionId" not in parsed:
-                                    parsed["positionId"] = pos_id
-                                positions.append(parsed)
-                        except:
-                            pass
-                log_process("info", f"get_open_positions: found {len(positions)} positions from dict")
-                return positions
-            
-            elif isinstance(pos_data, list):
-                return self._parse_position_list(pos_data)
-        
-        # If data is a list directly
-        if isinstance(data, list):
-            return self._parse_position_list(data)
-        
-        return []
-    
-    def _parse_position_list(self, items):
-        """Parse a list of position items that might be in various formats."""
-        positions = []
-        log_process("info", f"_parse_position_list: {len(items)} items")
-        
-        for item in items:
-            if isinstance(item, dict):
-                positions.append(item)
-            elif isinstance(item, str):
-                # Try to parse as JSON
-                try:
-                    parsed = json.loads(item)
-                    if isinstance(parsed, dict):
-                        positions.append(parsed)
-                    elif isinstance(parsed, list):
-                        positions.extend(parsed)
-                except:
-                    # Could be a position ID - try to get full data
-                    log_process("info", f"  position string (not JSON): {item[:100]}")
-            elif item is not None:
-                log_process("info", f"  position item type={type(item).__name__}: {str(item)[:100]}")
-        
-        if positions:
-            log_process("info", f"get_open_positions: parsed {len(positions)} positions, first keys={list(positions[0].keys())}")
-            log_process("info", f"get_open_positions: first pos sample={json.dumps(positions[0], default=str)[:400]}")
+            positions_raw = data.get("positions") or data.get("data") or data.get("items")
         else:
-            log_process("warning", f"get_open_positions: no valid positions found from {len(items)} items")
+            positions_raw = data if isinstance(data, list) else []
         
+        if not isinstance(positions_raw, list):
+            log_process("warning", f"get_open_positions: positions_raw is {type(positions_raw).__name__}, not a list")
+            return []
+        
+        log_process("info", f"get_open_positions: got {len(positions_raw)} raw items")
+        
+        # Positions come as arrays with positional values, not dicts!
+        # Example: ['432345564228709291', '4662', '898485', 'buy', '0.1', '0.81471', None, None, '1784758397661', '26.9...']
+        # Index mapping:
+        #   0 = positionId
+        #   1 = tradableInstrumentId  
+        #   2 = routeId
+        #   3 = side (buy/sell)
+        #   4 = quantity
+        #   5 = openPrice
+        #   6 = stopLoss
+        #   7 = takeProfit
+        #   8 = openTime (milliseconds)
+        #   9 = floatingPL
+        positions = []
+        for i, item in enumerate(positions_raw):
+            if isinstance(item, list):
+                pos = self._array_to_position_dict(item)
+                if pos:
+                    positions.append(pos)
+                    if i < 1:
+                        log_process("info", f"get_open_positions: first pos as dict keys={list(pos.keys())}")
+                        log_process("info", f"get_open_positions: first pos={json.dumps(pos, default=str)[:400]}")
+        
+        log_process("info", f"get_open_positions: parsed {len(positions)} positions")
         return positions
+    
+    def _array_to_position_dict(self, arr):
+        """Convert a position array to a dict with named fields."""
+        try:
+            if len(arr) < 6:
+                return None
+            pos = {}
+            pos['positionId'] = str(arr[0]) if arr[0] is not None else None
+            pos['tradableInstrumentId'] = arr[1]
+            pos['routeId'] = arr[2]
+            pos['side'] = str(arr[3]).upper() if arr[3] else None
+            pos['qty'] = float(arr[4]) if arr[4] is not None else None
+            pos['openPrice'] = float(arr[5]) if arr[5] is not None else None
+            pos['stopLoss'] = float(arr[6]) if arr[6] is not None and arr[6] != '' else None
+            pos['takeProfit'] = float(arr[7]) if arr[7] is not None and arr[7] != '' else None
+            pos['openTime'] = arr[8] if len(arr) > 8 and arr[8] is not None else None
+            pos['floatingPL'] = float(arr[9]) if len(arr) > 9 and arr[9] is not None else 0.0
+            
+            # Additional fields if array is longer
+            if len(arr) > 10:
+                pos['closePrice'] = float(arr[10]) if arr[10] is not None else None
+            if len(arr) > 11:
+                pos['swap'] = float(arr[11]) if arr[11] is not None else None
+            if len(arr) > 12:
+                pos['commission'] = float(arr[12]) if arr[12] is not None else None
+            if len(arr) > 13:
+                pos['closedAt'] = arr[13] if arr[13] is not None else None
+            if len(arr) > 14:
+                pos['instrumentId'] = arr[14] if arr[14] is not None else None
+            
+            return pos
+        except Exception as e:
+            log_process("warning", f"_array_to_position_dict failed: {e}, arr={arr}")
+            return None
 
     def close_position(self, pos_id):
         """Close an open position by ID."""
@@ -652,34 +658,73 @@ class TradeLockerClient:
             log_process("warning", f"get_account_state error: {result.get('error')}")
             return {}
         
-        # The API may nest data like: {"d": {"accountDetailsData": {balance, equity, ...}}}
-        # or: {"d": {"state": {balance, ...}}}
-        # We need to find the innermost dict with actual account data
+        # The API returns: {"d": {"accountDetailsData": [balance, equity, free_margin, ...]}}
+        # accountDetailsData is an ARRAY with positional values
         
-        # Step 1: Get the first level of data
-        data = _extract_data(result, "d", "data", "result")
-        if not isinstance(data, dict):
-            data = result
+        log_process("info", f"get_account_state: result_keys={list(result.keys()) if isinstance(result, dict) else 'N/A'}")
         
-        log_process("info", f"get_account_state: level1_keys={list(data.keys())}")
+        # Step 1: Get the 'd' wrapper
+        d = result.get("d", result) if isinstance(result, dict) else result
+        log_process("info", f"get_account_state: d_keys={list(d.keys()) if isinstance(d, dict) else type(d).__name__}")
         
-        # Step 2: Try to go one level deeper to find actual account data
-        for key in ["accountDetailsData", "state", "account", "accountState", "details"]:
-            if key in data and isinstance(data[key], dict):
-                inner = data[key]
-                log_process("info", f"get_account_state: found '{key}' with keys={list(inner.keys())}")
-                return inner
+        # Step 2: Find the account data - try 'accountDetailsData' first
+        acc_data = None
+        for key in ["accountDetailsData", "state", "account", "accountState", "data"]:
+            if isinstance(d, dict) and key in d:
+                acc_data = d[key]
+                break
         
-        # If no nested dict found, use the level1 data itself
-        # (but if it only has 'accountDetailsData' as a key, extract that)
-        if len(data) == 1:
-            single_key = list(data.keys())[0]
-            if isinstance(data[single_key], dict):
-                log_process("info", f"get_account_state: extracted single key '{single_key}' with keys={list(data[single_key].keys())}")
-                return data[single_key]
+        if acc_data is None and isinstance(d, dict):
+            # Use d itself
+            acc_data = d
         
-        log_process("info", f"get_account_state: using top-level data with keys={list(data.keys())}")
-        return data
+        if isinstance(acc_data, list):
+            # Convert array to dict with named fields
+            # Index mapping for accountDetailsData array:
+            #   0  = balance
+            #   1  = equity
+            #   2  = freeMargin
+            #   3  = ?
+            #   4  = balance (duplicate)
+            #   5  = ?
+            #   6  = freeMargin (duplicate)
+            #   7  = ?
+            #   8  = ?
+            #   9  = usedMargin
+            #   10 = usedMargin (duplicate)
+            #   11 = marginLevel (percentage)
+            #   12 = ?
+            #   13 = ?
+            #   14 = ?
+            #   15 = usedMargin (duplicate)
+            #   16 = freeMargin (duplicate)
+            #   17 = ?
+            #   18 = ?
+            #   19 = ?
+            #   20 = ?
+            #   21 = ?
+            #   22 = dayPL
+            #   23 = dayPL (duplicate)
+            #   24 = openPositionsCount
+            #   25 = ?
+            state = {
+                'balance': acc_data[0] if len(acc_data) > 0 else None,
+                'equity': acc_data[1] if len(acc_data) > 1 else None,
+                'freeMargin': acc_data[2] if len(acc_data) > 2 else None,
+                'usedMargin': acc_data[9] if len(acc_data) > 9 else None,
+                'marginLevel': acc_data[11] if len(acc_data) > 11 else None,
+                'dayPL': acc_data[22] if len(acc_data) > 22 else None,
+                'openPositions': acc_data[24] if len(acc_data) > 24 else None,
+            }
+            log_process("info", f"get_account_state: parsed array with {len(acc_data)} elements -> {state}")
+            return state
+        
+        if isinstance(acc_data, dict):
+            log_process("info", f"get_account_state: acc_data_keys={list(acc_data.keys())}")
+            return acc_data
+        
+        log_process("warning", f"get_account_state: unexpected type {type(acc_data).__name__}")
+        return {}
 
     def get_orders(self):
         """Get recent order history (up to 20)."""
@@ -1316,6 +1361,11 @@ def generate_dashboard_html(client, tl_connected, tl_error, tg_connected, tg_inf
     if positions and isinstance(positions[0], dict):
         log_process("info", f"First position keys: {list(positions[0].keys())}")
         log_process("info", f"First position: {json.dumps(positions[0], default=str)[:500]}")
+    
+    # Debug: orders raw data
+    if orders and isinstance(orders[0], dict):
+        log_process("info", f"First order keys: {list(orders[0].keys())}")
+        log_process("info", f"First order: {json.dumps(orders[0], default=str)[:500]}")
 
     # --- Account state with flexible field resolution ---
     # Dump all state keys/values for debugging
@@ -1414,12 +1464,26 @@ def generate_dashboard_html(client, tl_connected, tl_error, tg_connected, tg_inf
 
     for pos in positions:
         if not isinstance(pos, dict):
-            log_process("warning", f"Skipping non-dict position item: type={type(pos).__name__}")
             continue
         try:
 
+            # Resolve instrument ID to name
+            inst_id = str(pos.get('tradableInstrumentId') or pos.get('instrumentId') or pos.get('instrument_id') or '')
+            pair_name = pos.get('instrumentName') or pos.get('symbol') or pos.get('name') or ''
+            # _instruments maps name -> {id, route_id}, so we need reverse lookup
+            if not pair_name and inst_id:
+                for inst_name, inst_info in _instruments.items():
+                    if str(inst_info.get('id')) == inst_id:
+                        pair_name = inst_name
+                        break
+            if not pair_name and inst_id:
+                pair_name = str(inst_id)
+            
             pos_time = pos.get('openTime') or pos.get('open_time') or pos.get('created') or ''
-            if isinstance(pos_time, (int, float)):
+            if pos_time and isinstance(pos_time, str) and pos_time.isdigit() and len(pos_time) > 10:
+                # String timestamp in milliseconds
+                pos_time = datetime.fromtimestamp(int(pos_time)/1000, tz=timezone.utc).strftime("%Y-%m-%d %H:%M")
+            elif isinstance(pos_time, (int, float)):
                 pos_time = datetime.fromtimestamp(pos_time/1000, tz=timezone.utc).strftime("%Y-%m-%d %H:%M")
             
             # Flexible field resolution for P&L
@@ -1429,10 +1493,10 @@ def generate_dashboard_html(client, tl_connected, tl_error, tg_connected, tg_inf
             total_pnl += pnl_val
             
             positions_data.append({
-                'pair': pos.get('instrumentName') or pos.get('symbol') or pos.get('name') or pos.get('instrument_name') or 'N/A',
+                'pair': pair_name or 'N/A',
                 'side': str(pos.get('side') or pos.get('direction') or '').upper(),
                 'qty': pos.get('qty') or pos.get('quantity') or pos.get('size') or pos.get('volume') or 'N/A',
-                'price': pos.get('price') or pos.get('openPrice') or pos.get('open_price') or pos.get('avgPrice') or 'N/A',
+                'price': pos.get('openPrice') or pos.get('price') or pos.get('open_price') or pos.get('avgPrice') or 'N/A',
                 'sl': pos.get('stopLoss') or pos.get('sl') or pos.get('stop_loss') or '—',
                 'tp': pos.get('takeProfit') or pos.get('tp') or pos.get('take_profit') or '—',
                 'pnl': f"{pnl_val:+.2f}",
