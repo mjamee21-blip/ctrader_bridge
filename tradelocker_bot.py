@@ -573,8 +573,7 @@ class TradeLockerClient:
                 if pos:
                     positions.append(pos)
                     if i < 1:
-                        log_process("info", f"get_open_positions: first pos as dict keys={list(pos.keys())}")
-                        log_process("info", f"get_open_positions: first pos={json.dumps(pos, default=str)[:400]}")
+                        log_process("info", f"get_open_positions: first pos side={pos.get('side')} qty={pos.get('qty')} price={pos.get('openPrice')}")
         
         log_process("info", f"get_open_positions: parsed {len(positions)} positions")
         return positions
@@ -737,17 +736,106 @@ class TradeLockerClient:
         return {}
 
     def get_orders(self):
-        """Get recent order history (up to 20)."""
-        result = self._req("GET", f"/trade/accounts/{TL_ACCOUNT_ID}/orders?limit=50",
-                           headers_extra={"accNum": str(TL_ACC_NUM)})
+        """Get recent open orders (including SL/TP pending orders)."""
+        # Try both endpoint paths
+        for endpoint in [
+            f"/trade/accounts/{TL_ACCOUNT_ID}/orders?limit=50",
+            f"/trade/account/{TL_ACCOUNT_ID}/orders?limit=50",
+        ]:
+            result = self._req("GET", endpoint,
+                               headers_extra={"accNum": str(TL_ACC_NUM)})
+            
+            if result.get("error"):
+                log_process("info", f"get_orders {endpoint} error: {result.get('error')}")
+                continue
+            
+            log_process("info", f"get_orders {endpoint}: result_keys={list(result.keys()) if isinstance(result, dict) else 'N/A'}")
+            
+            # Get the data wrapper
+            data = result.get("d", result) if isinstance(result, dict) else result
+            if isinstance(data, dict):
+                log_process("info", f"get_orders: d_keys={list(data.keys())}")
+                orders_raw = data.get("orders") or data.get("data") or data.get("items")
+            elif isinstance(data, list):
+                orders_raw = data
+            else:
+                orders_raw = []
+            
+            if isinstance(orders_raw, list):
+                log_process("info", f"get_orders: found {len(orders_raw)} raw orders")
+                
+                # Debug: dump first 2 raw orders
+                for i, item in enumerate(orders_raw[:2]):
+                    log_process("info", f"  orders_raw[{i}]: type={type(item).__name__}, value={str(item)[:300]}")
+                
+                # Parse orders - they might be arrays or dicts
+                parsed_orders = []
+                for item in orders_raw:
+                    if isinstance(item, dict):
+                        parsed_orders.append(item)
+                    elif isinstance(item, list) and len(item) >= 5:
+                        # Parse as array format similar to positions
+                        order = {
+                            'orderId': str(item[0]) if item[0] is not None else None,
+                            'type': str(item[1]).upper() if len(item) > 1 and item[1] else None,
+                            'side': str(item[2]).upper() if len(item) > 2 and item[2] else None,
+                            'qty': self._safe_array_float(item[3]) if len(item) > 3 else None,
+                            'price': self._safe_array_float(item[4]) if len(item) > 4 else None,
+                            'stopLoss': self._safe_array_float(item[5]) if len(item) > 5 and item[5] else None,
+                            'takeProfit': self._safe_array_float(item[6]) if len(item) > 6 and item[6] else None,
+                            'status': str(item[7]) if len(item) > 7 and item[7] else 'PENDING',
+                            'instrumentId': item[8] if len(item) > 8 else None,
+                            'positionId': str(item[9]) if len(item) > 9 and item[9] else None,
+                        }
+                        # Additional fields
+                        if len(item) > 10:
+                            order['routeId'] = item[10] if item[10] != 'key-undefined' else None
+                        if len(item) > 11:
+                            order['time'] = item[11] if item[11] else None
+                        
+                        parsed_orders.append(order)
+                        log_process("info", f"  parsed order: type={order['type']} side={order['side']} price={order['price']} SL={order['stopLoss']} TP={order['takeProfit']}")
+                
+                log_process("info", f"get_orders: parsed {len(parsed_orders)} orders from {len(orders_raw)} raw items")
+                return parsed_orders[:50]
+            
+            log_process("info", f"get_orders: orders_raw is {type(orders_raw).__name__}")
         
-        if result.get("error"):
-            log_process("warning", f"get_orders error: {result.get('error')}")
-            return []
+        log_process("warning", "get_orders: no orders found from any endpoint")
+        return []
+
+    def get_orders_history(self):
+        """Get order history including SL/TP orders."""
+        for endpoint in [
+            f"/trade/accounts/{TL_ACCOUNT_ID}/ordersHistory?limit=100",
+            f"/trade/account/{TL_ACCOUNT_ID}/ordersHistory?limit=100",
+        ]:
+            result = self._req("GET", endpoint,
+                               headers_extra={"accNum": str(TL_ACC_NUM)})
+            
+            if result.get("error"):
+                log_process("info", f"ordersHistory {endpoint}: {result.get('error')}")
+                continue
+            
+            log_process("info", f"ordersHistory {endpoint}: result_keys={list(result.keys()) if isinstance(result, dict) else 'N/A'}")
+            
+            # Get data wrapper
+            data = result.get("d", result) if isinstance(result, dict) else result
+            if isinstance(data, dict):
+                log_process("info", f"ordersHistory: d_keys={list(data.keys())}")
+                orders_raw = data.get("ordersHistory") or data.get("orders") or data.get("data") or data.get("items")
+            elif isinstance(data, list):
+                orders_raw = data
+            else:
+                orders_raw = []
+            
+            if isinstance(orders_raw, list):
+                log_process("info", f"ordersHistory: found {len(orders_raw)} items")
+                for i, item in enumerate(orders_raw[:2]):
+                    log_process("info", f"  history[{i}]: type={type(item).__name__}, value={str(item)[:300]}")
+                return orders_raw[:50]
         
-        orders = _extract_list(result, "orders", "data", "items")
-        log_process("info", f"get_orders: got {len(orders)} orders")
-        return orders[:20]
+        return []
 
     def get_trade_history(self):
         """Get closed trade history for SL/TP results."""
@@ -1367,10 +1455,71 @@ def generate_dashboard_html(client, tl_connected, tl_error, tg_connected, tg_inf
     log_process("info", f"Dashboard data: state_keys={list(state.keys()) if state else 'EMPTY'}, "
                          f"positions={len(positions)}, orders={len(orders)}, trades={len(trades)}")
     
-    # Debug: dump first position keys for debugging
+    # Also fetch orders history as fallback for SL/TP data
+    if not orders:
+        history = client.get_orders_history()
+        if history:
+            log_process("info", f"Got {len(history)} items from ordersHistory, scanning for SL/TP...")
+            for item in history:
+                if isinstance(item, dict):
+                    order_type = str(item.get('type') or '').upper()
+                    if 'STOP' in order_type or 'SL' in order_type:
+                        log_process("info", f"  Found SL order: {json.dumps(item, default=str)[:200]}")
+                    elif 'TAKE' in order_type or 'TP' in order_type:
+                        log_process("info", f"  Found TP order: {json.dumps(item, default=str)[:200]}")
+                elif isinstance(item, list):
+                    log_process("info", f"  History item (array): {item[:10]}...")
+    
+    # --- Match SL/TP orders to positions ---
+    # TradeLocker stores SL/TP as separate pending orders linked to positions
+    # Build a lookup: positionId -> {sl: price, tp: price}
+    sl_tp_map = {}
+    for order in orders:
+        if not isinstance(order, dict):
+            continue
+        order_type = str(order.get('type') or '').upper()
+        order_side = str(order.get('side') or '').upper()
+        pos_id = str(order.get('positionId') or order.get('tradeId') or '')
+        
+        if not pos_id or pos_id == 'None':
+            continue
+        
+        # Check if this is a SL/TP order
+        if order_type in ('STOP', 'STOP_LOSS', 'STOP_LOSS_LIMIT'):
+            if pos_id not in sl_tp_map:
+                sl_tp_map[pos_id] = {}
+            sl_tp_map[pos_id]['sl'] = order.get('price') or order.get('stopPrice')
+        elif order_type in ('LIMIT', 'TAKE_PROFIT', 'TAKE_PROFIT_LIMIT'):
+            if pos_id not in sl_tp_map:
+                sl_tp_map[pos_id] = {}
+            sl_tp_map[pos_id]['tp'] = order.get('price') or order.get('stopPrice')
+        
+        # Also check for orders that have explicit SL/TP prices
+        if order.get('stopLoss') and order.get('positionId'):
+            pid = str(order.get('positionId', ''))
+            if pid not in sl_tp_map:
+                sl_tp_map[pid] = {}
+            sl_tp_map[pid]['sl'] = order.get('stopLoss')
+        if order.get('takeProfit') and order.get('positionId'):
+            pid = str(order.get('positionId', ''))
+            if pid not in sl_tp_map:
+                sl_tp_map[pid] = {}
+            sl_tp_map[pid]['tp'] = order.get('takeProfit')
+    
+    if sl_tp_map:
+        log_process("info", f"Found SL/TP data for {len(sl_tp_map)} positions: {json.dumps(sl_tp_map)[:500]}")
+    else:
+        log_process("info", "No SL/TP orders found matching positions. Orders raw dump follows:")
+        for i, o in enumerate(orders[:5]):
+            log_process("info", f"  order[{i}]: type={type(o).__name__}, val={json.dumps(o, default=str)[:300]}")
+        log_process("info", "Position IDs for matching reference:")
+        for i, p in enumerate(positions[:5]):
+            if isinstance(p, dict):
+                log_process("info", f"  pos[{i}]: positionId={p.get('positionId')} instId={p.get('tradableInstrumentId')}")
+    
+    # Log position summary
     if positions and isinstance(positions[0], dict):
-        log_process("info", f"First position keys: {list(positions[0].keys())}")
-        log_process("info", f"First position: {json.dumps(positions[0], default=str)[:500]}")
+        log_process("info", f"Positions summary: {len(positions)} open, first={positions[0].get('side')} {positions[0].get('pair', positions[0].get('tradableInstrumentId'))} @ {positions[0].get('openPrice')}")
     
     # Debug: orders raw data
     if orders and isinstance(orders[0], dict):
@@ -1379,7 +1528,7 @@ def generate_dashboard_html(client, tl_connected, tl_error, tg_connected, tg_inf
 
     # --- Account state with flexible field resolution ---
     # Dump all state keys/values for debugging
-    log_process("info", f"Account state raw: {json.dumps(state, default=str)[:500] if state else 'EMPTY'}")
+    log_process("info", f"Account state: balance={state.get('balance')}, equity={state.get('equity')}, margin_level={state.get('marginLevel')}%")
     
     balance_raw = _resolve_field(state, "balance", "accountBalance", "Balance", "totalBalance", "equity", 
                                   "totalBalanceInAccountCurrency", "accountBalanceInAccountCurrency", 
@@ -1434,14 +1583,11 @@ def generate_dashboard_html(client, tl_connected, tl_error, tg_connected, tg_inf
 
     # Debug: log raw positions data structure
     if positions:
-        first_type = type(positions[0]).__name__
-        log_process("info", f"Positions: {len(positions)} items, first item type={first_type}")
+        log_process("info", f"Positions: {len(positions)} items, first type={type(positions[0]).__name__}")
         if isinstance(positions[0], dict):
-            log_process("info", f"First position keys: {list(positions[0].keys())}")
-            log_process("info", f"First position sample: {json.dumps(positions[0], default=str)[:500]}")
+            log_process("info", f"Position keys: {list(positions[0].keys())}")
         elif isinstance(positions[0], list):
             # Positions might be nested: [[pos1], [pos2], ...]
-            log_process("info", f"Positions appear to be nested lists, flattening...")
             flat = []
             for item in positions:
                 if isinstance(item, list):
@@ -1451,8 +1597,7 @@ def generate_dashboard_html(client, tl_connected, tl_error, tg_connected, tg_inf
             positions = flat
             log_process("info", f"Flattened to {len(positions)} positions")
             if positions and isinstance(positions[0], dict):
-                log_process("info", f"First position keys: {list(positions[0].keys())}")
-                log_process("info", f"First position sample: {json.dumps(positions[0], default=str)[:500]}")
+                log_process("info", f"Position keys: {list(positions[0].keys())}")
         elif isinstance(positions[0], str):
             # Positions might be JSON strings
             log_process("info", f"Positions appear to be JSON strings, parsing...")
@@ -1502,13 +1647,25 @@ def generate_dashboard_html(client, tl_connected, tl_error, tg_connected, tg_inf
                                   pos.get('current_pnl') or pos.get('unrealizedPL') or pos.get('unrealizedPnL'))
             total_pnl += pnl_val
             
+            # Resolve SL/TP - first try from position data, then from orders
+            pos_id = str(pos.get('positionId') or '')
+            sl_val = pos.get('stopLoss') or pos.get('sl') or pos.get('stop_loss')
+            tp_val = pos.get('takeProfit') or pos.get('tp') or pos.get('take_profit')
+            
+            # If not in position, look up from orders
+            if (not sl_val or not tp_val) and pos_id and pos_id in sl_tp_map:
+                if not sl_val and sl_tp_map[pos_id].get('sl'):
+                    sl_val = sl_tp_map[pos_id]['sl']
+                if not tp_val and sl_tp_map[pos_id].get('tp'):
+                    tp_val = sl_tp_map[pos_id]['tp']
+            
             positions_data.append({
                 'pair': pair_name or 'N/A',
                 'side': str(pos.get('side') or pos.get('direction') or '').upper(),
                 'qty': pos.get('qty') or pos.get('quantity') or pos.get('size') or pos.get('volume') or 'N/A',
                 'price': pos.get('openPrice') or pos.get('price') or pos.get('open_price') or pos.get('avgPrice') or 'N/A',
-                'sl': pos.get('stopLoss') or pos.get('sl') or pos.get('stop_loss') or '—',
-                'tp': pos.get('takeProfit') or pos.get('tp') or pos.get('take_profit') or '—',
+                'sl': sl_val if sl_val else '—',
+                'tp': tp_val if tp_val else '—',
                 'pnl': f"{pnl_val:+.2f}",
                 'pnl_value': pnl_val,
                 'time': pos_time
@@ -2018,19 +2175,6 @@ document.addEventListener('DOMContentLoaded', function() {
         <!-- Recent Orders -->
         <div class="section-title">Recent Orders (Last 20)</div>
         <div class="card">{orders_table}</div>
-
-        <!-- API Debug Panel -->
-        <div class="section-title">🔍 API Debug (Raw Data)</div>
-        <div class="card" style="font-family:monospace;font-size:10px;max-height:300px;overflow:auto;white-space:pre-wrap;word-break:break-all;">
-<strong>State keys:</strong> {list(state.keys()) if state else 'EMPTY'}
-<strong>State data:</strong> {json.dumps(state, default=str)[:1000] if state else 'EMPTY'}
-<strong>Positions:</strong> {len(positions)} items
-<strong>First position sample:</strong> {json.dumps(positions[0], default=str)[:500] if positions else 'NONE'}
-<strong>Orders:</strong> {len(orders)} items
-<strong>Trades:</strong> {len(trades)} items
-<strong>Balance resolved:</strong> {balance_raw}
-<strong>Equity resolved:</strong> {equity_raw}
-        </div>
 
         <div class="last-update">Last updated: {last_update} | Auto-refresh every 60s | {len(_process_logs)} Total Logs | {len(_alerts)} Alerts | Build: {_BUILD_VERSION}</div>
     </div>
