@@ -736,106 +736,115 @@ class TradeLockerClient:
         return {}
 
     def get_orders(self):
-        """Get recent open orders (including SL/TP pending orders)."""
-        # Try both endpoint paths
+        """Get pending orders (includes SL/TP as separate stop/limit orders)."""
+        all_orders = []
+        
+        # Try multiple endpoint variations for open/pending orders
         for endpoint in [
-            f"/trade/accounts/{TL_ACCOUNT_ID}/orders?limit=50",
-            f"/trade/account/{TL_ACCOUNT_ID}/orders?limit=50",
+            f"/trade/accounts/{TL_ACCOUNT_ID}/orders?limit=100",
+            f"/trade/account/{TL_ACCOUNT_ID}/orders?limit=100",
+            f"/trade/accounts/{TL_ACCOUNT_ID}/pendingOrders?limit=100",
         ]:
             result = self._req("GET", endpoint,
                                headers_extra={"accNum": str(TL_ACC_NUM)})
             
             if result.get("error"):
-                log_process("info", f"get_orders {endpoint} error: {result.get('error')}")
                 continue
             
-            log_process("info", f"get_orders {endpoint}: result_keys={list(result.keys()) if isinstance(result, dict) else 'N/A'}")
-            
-            # Get the data wrapper
             data = result.get("d", result) if isinstance(result, dict) else result
             if isinstance(data, dict):
-                log_process("info", f"get_orders: d_keys={list(data.keys())}")
-                orders_raw = data.get("orders") or data.get("data") or data.get("items")
+                orders_raw = data.get("orders") or data.get("data") or data.get("items") or data.get("pendingOrders")
             elif isinstance(data, list):
                 orders_raw = data
             else:
-                orders_raw = []
+                continue
             
             if isinstance(orders_raw, list):
-                log_process("info", f"get_orders: found {len(orders_raw)} raw orders")
-                
-                # Debug: dump first 2 raw orders
-                for i, item in enumerate(orders_raw[:2]):
-                    log_process("info", f"  orders_raw[{i}]: type={type(item).__name__}, value={str(item)[:300]}")
-                
-                # Parse orders - they might be arrays or dicts
-                parsed_orders = []
                 for item in orders_raw:
                     if isinstance(item, dict):
-                        parsed_orders.append(item)
+                        all_orders.append(item)
                     elif isinstance(item, list) and len(item) >= 5:
-                        # Parse as array format similar to positions
-                        order = {
-                            'orderId': str(item[0]) if item[0] is not None else None,
-                            'type': str(item[1]).upper() if len(item) > 1 and item[1] else None,
-                            'side': str(item[2]).upper() if len(item) > 2 and item[2] else None,
-                            'qty': self._safe_array_float(item[3]) if len(item) > 3 else None,
-                            'price': self._safe_array_float(item[4]) if len(item) > 4 else None,
-                            'stopLoss': self._safe_array_float(item[5]) if len(item) > 5 and item[5] else None,
-                            'takeProfit': self._safe_array_float(item[6]) if len(item) > 6 and item[6] else None,
-                            'status': str(item[7]) if len(item) > 7 and item[7] else 'PENDING',
-                            'instrumentId': item[8] if len(item) > 8 else None,
-                            'positionId': str(item[9]) if len(item) > 9 and item[9] else None,
-                        }
-                        # Additional fields
-                        if len(item) > 10:
-                            order['routeId'] = item[10] if item[10] != 'key-undefined' else None
-                        if len(item) > 11:
-                            order['time'] = item[11] if item[11] else None
-                        
-                        parsed_orders.append(order)
-                        log_process("info", f"  parsed order: type={order['type']} side={order['side']} price={order['price']} SL={order['stopLoss']} TP={order['takeProfit']}")
-                
-                log_process("info", f"get_orders: parsed {len(parsed_orders)} orders from {len(orders_raw)} raw items")
-                return parsed_orders[:50]
-            
-            log_process("info", f"get_orders: orders_raw is {type(orders_raw).__name__}")
+                        order = self._parse_order_array(item)
+                        if order:
+                            all_orders.append(order)
         
-        log_process("warning", "get_orders: no orders found from any endpoint")
-        return []
+        # Also try ordersHistory as fallback for SL/TP orders
+        history = self.get_orders_history()
+        for item in history:
+            if isinstance(item, dict):
+                all_orders.append(item)
+            elif isinstance(item, list) and len(item) >= 5:
+                order = self._parse_order_array(item)
+                if order:
+                    all_orders.append(order)
+        
+        log_process("info", f"get_orders: found {len(all_orders)} total orders (open + history)")
+        return all_orders[:100]
+    
+    def _parse_order_array(self, arr):
+        """Parse an order from array format.
+        
+        From order history logs, the format is:
+        [orderId, instrumentId, routeId, qty, side, type, status, filledQty, openPrice, closePrice, ...]
+        """
+        try:
+            order = {
+                'orderId': str(arr[0]) if arr[0] is not None else None,
+                'instrumentId': arr[1] if len(arr) > 1 else None,
+                'routeId': arr[2] if len(arr) > 2 else None,
+                'qty': self._safe_array_float(arr[3]) if len(arr) > 3 else None,
+                'side': str(arr[4]).upper() if len(arr) > 4 and arr[4] else None,
+                'type': str(arr[5]).lower() if len(arr) > 5 and arr[5] else 'market',
+                'status': str(arr[6]).upper() if len(arr) > 6 and arr[6] else 'PENDING',
+                'filledQty': self._safe_array_float(arr[7]) if len(arr) > 7 else None,
+                'openPrice': self._safe_array_float(arr[8]) if len(arr) > 8 else None,
+                'closePrice': self._safe_array_float(arr[9]) if len(arr) > 9 else None,
+            }
+            
+            # Additional fields that may contain SL/TP
+            if len(arr) > 10:
+                order['stopLoss'] = self._safe_array_float(arr[10])
+            if len(arr) > 11:
+                order['takeProfit'] = self._safe_array_float(arr[11])
+            if len(arr) > 12:
+                order['positionId'] = str(arr[12]) if arr[12] is not None and arr[12] != 'key-undefined' else None
+            if len(arr) > 13:
+                order['timestamp'] = arr[13] if arr[13] else None
+            
+            return order
+        except Exception as e:
+            log_process("warning", f"_parse_order_array failed: {e}, arr={arr}")
+            return None
 
     def get_orders_history(self):
         """Get order history including SL/TP orders."""
+        all_history = []
+        
         for endpoint in [
-            f"/trade/accounts/{TL_ACCOUNT_ID}/ordersHistory?limit=100",
-            f"/trade/account/{TL_ACCOUNT_ID}/ordersHistory?limit=100",
+            f"/trade/accounts/{TL_ACCOUNT_ID}/ordersHistory?limit=200",
+            f"/trade/account/{TL_ACCOUNT_ID}/ordersHistory?limit=200",
+            f"/trade/accounts/{TL_ACCOUNT_ID}/orders/history?limit=200",
         ]:
             result = self._req("GET", endpoint,
                                headers_extra={"accNum": str(TL_ACC_NUM)})
             
             if result.get("error"):
-                log_process("info", f"ordersHistory {endpoint}: {result.get('error')}")
                 continue
             
-            log_process("info", f"ordersHistory {endpoint}: result_keys={list(result.keys()) if isinstance(result, dict) else 'N/A'}")
-            
-            # Get data wrapper
             data = result.get("d", result) if isinstance(result, dict) else result
             if isinstance(data, dict):
-                log_process("info", f"ordersHistory: d_keys={list(data.keys())}")
                 orders_raw = data.get("ordersHistory") or data.get("orders") or data.get("data") or data.get("items")
             elif isinstance(data, list):
                 orders_raw = data
             else:
-                orders_raw = []
+                continue
             
             if isinstance(orders_raw, list):
-                log_process("info", f"ordersHistory: found {len(orders_raw)} items")
-                for i, item in enumerate(orders_raw[:2]):
-                    log_process("info", f"  history[{i}]: type={type(item).__name__}, value={str(item)[:300]}")
-                return orders_raw[:50]
+                all_history.extend(orders_raw)
+                log_process("info", f"ordersHistory: found {len(orders_raw)} orders")
+                break  # Only need one successful endpoint
         
-        return []
+        return all_history
 
     def get_trade_history(self):
         """Get closed trade history for SL/TP results."""
@@ -843,16 +852,15 @@ class TradeLockerClient:
         result = self._req("GET", f"/trade/accounts/{TL_ACCOUNT_ID}/trades?limit=50",
                            headers_extra={"accNum": str(TL_ACC_NUM)})
         if result.get("error"):
-            log_process("info", f"trades endpoint not available ({result.get('error')}), trying closedPositions...")
             # Try alternative endpoint for closed positions
             result = self._req("GET", f"/trade/accounts/{TL_ACCOUNT_ID}/closedPositions?limit=50",
                                headers_extra={"accNum": str(TL_ACC_NUM)})
-            if result.get("error"):
-                log_process("warning", f"get_trade_history error: {result.get('error')}")
-                return []
+        
+        if result.get("error"):
+            # Trade history not available via REST API - this is normal for some accounts
+            return []
         
         trades = _extract_list(result, "trades", "closedPositions", "data", "items")
-        log_process("info", f"get_trade_history: got {len(trades)} trades")
         return trades
 
 # =====================================================================
@@ -1459,16 +1467,7 @@ def generate_dashboard_html(client, tl_connected, tl_error, tg_connected, tg_inf
     if not orders:
         history = client.get_orders_history()
         if history:
-            log_process("info", f"Got {len(history)} items from ordersHistory, scanning for SL/TP...")
-            for item in history:
-                if isinstance(item, dict):
-                    order_type = str(item.get('type') or '').upper()
-                    if 'STOP' in order_type or 'SL' in order_type:
-                        log_process("info", f"  Found SL order: {json.dumps(item, default=str)[:200]}")
-                    elif 'TAKE' in order_type or 'TP' in order_type:
-                        log_process("info", f"  Found TP order: {json.dumps(item, default=str)[:200]}")
-                elif isinstance(item, list):
-                    log_process("info", f"  History item (array): {item[:10]}...")
+            log_process("info", f"Got {len(history)} items from ordersHistory")
     
     # --- Match SL/TP orders to positions ---
     # TradeLocker stores SL/TP as separate pending orders linked to positions
@@ -1478,57 +1477,44 @@ def generate_dashboard_html(client, tl_connected, tl_error, tg_connected, tg_inf
         if not isinstance(order, dict):
             continue
         order_type = str(order.get('type') or '').upper()
-        order_side = str(order.get('side') or '').upper()
         pos_id = str(order.get('positionId') or order.get('tradeId') or '')
         
         if not pos_id or pos_id == 'None':
             continue
         
-        # Check if this is a SL/TP order
-        if order_type in ('STOP', 'STOP_LOSS', 'STOP_LOSS_LIMIT'):
-            if pos_id not in sl_tp_map:
-                sl_tp_map[pos_id] = {}
-            sl_tp_map[pos_id]['sl'] = order.get('price') or order.get('stopPrice')
-        elif order_type in ('LIMIT', 'TAKE_PROFIT', 'TAKE_PROFIT_LIMIT'):
-            if pos_id not in sl_tp_map:
-                sl_tp_map[pos_id] = {}
-            sl_tp_map[pos_id]['tp'] = order.get('price') or order.get('stopPrice')
+        # Check explicit SL/TP fields
+        if order.get('stopLoss'):
+            sl_tp_map.setdefault(pos_id, {})['sl'] = order['stopLoss']
+        if order.get('takeProfit'):
+            sl_tp_map.setdefault(pos_id, {})['tp'] = order['takeProfit']
         
-        # Also check for orders that have explicit SL/TP prices
-        if order.get('stopLoss') and order.get('positionId'):
-            pid = str(order.get('positionId', ''))
-            if pid not in sl_tp_map:
-                sl_tp_map[pid] = {}
-            sl_tp_map[pid]['sl'] = order.get('stopLoss')
-        if order.get('takeProfit') and order.get('positionId'):
-            pid = str(order.get('positionId', ''))
-            if pid not in sl_tp_map:
-                sl_tp_map[pid] = {}
-            sl_tp_map[pid]['tp'] = order.get('takeProfit')
+        # Check if order type indicates SL/TP
+        if 'STOP' in order_type:
+            sl_tp_map.setdefault(pos_id, {})['sl'] = order.get('price') or order.get('stopPrice')
+        elif 'TAKE' in order_type:
+            sl_tp_map.setdefault(pos_id, {})['tp'] = order.get('price') or order.get('stopPrice')
+    
+    # Filter out positions from the orders list for display (only show non-filled orders)
+    display_orders = [o for o in orders if isinstance(o, dict) and 
+                      str(o.get('status', '')).upper() not in ('FILLED', 'CANCELLED', 'REJECTED')]
     
     if sl_tp_map:
-        log_process("info", f"Found SL/TP data for {len(sl_tp_map)} positions: {json.dumps(sl_tp_map)[:500]}")
+        log_process("info", f"Found SL/TP data for {len(sl_tp_map)} positions")
     else:
-        log_process("info", "No SL/TP orders found matching positions. Orders raw dump follows:")
-        for i, o in enumerate(orders[:5]):
-            log_process("info", f"  order[{i}]: type={type(o).__name__}, val={json.dumps(o, default=str)[:300]}")
-        log_process("info", "Position IDs for matching reference:")
-        for i, p in enumerate(positions[:5]):
-            if isinstance(p, dict):
-                log_process("info", f"  pos[{i}]: positionId={p.get('positionId')} instId={p.get('tradableInstrumentId')}")
+        log_process("info", "No SL/TP data available via REST API (TradeLocker limitation)")
     
     # Log position summary
     if positions and isinstance(positions[0], dict):
         log_process("info", f"Positions summary: {len(positions)} open, first={positions[0].get('side')} {positions[0].get('pair', positions[0].get('tradableInstrumentId'))} @ {positions[0].get('openPrice')}")
     
-    # Debug: orders raw data
-    if orders and isinstance(orders[0], dict):
-        log_process("info", f"First order keys: {list(orders[0].keys())}")
-        log_process("info", f"First order: {json.dumps(orders[0], default=str)[:500]}")
+    # Log order summary
+    if orders:
+        pending_count = len([o for o in orders if isinstance(o, dict) and str(o.get('status', '')).upper() not in ('FILLED', 'CANCELLED', 'REJECTED')])
+        log_process("info", f"Orders: {len(orders)} total, {pending_count} pending")
 
     # --- Account state with flexible field resolution ---
     # Dump all state keys/values for debugging
-    log_process("info", f"Account state: balance={state.get('balance')}, equity={state.get('equity')}, margin_level={state.get('marginLevel')}%")
+    log_process("info", f"Account: balance={state.get('balance')}, equity={state.get('equity')}, margin_level={state.get('marginLevel')}%")
     
     balance_raw = _resolve_field(state, "balance", "accountBalance", "Balance", "totalBalance", "equity", 
                                   "totalBalanceInAccountCurrency", "accountBalanceInAccountCurrency", 
@@ -1581,7 +1567,6 @@ def generate_dashboard_html(client, tl_connected, tl_error, tg_connected, tg_inf
     positions_data = []
     total_pnl = 0
 
-    # Debug: log raw positions data structure
     if positions:
         log_process("info", f"Positions: {len(positions)} items, first type={type(positions[0]).__name__}")
         if isinstance(positions[0], dict):
@@ -1647,7 +1632,7 @@ def generate_dashboard_html(client, tl_connected, tl_error, tg_connected, tg_inf
                                   pos.get('current_pnl') or pos.get('unrealizedPL') or pos.get('unrealizedPnL'))
             total_pnl += pnl_val
             
-            # Resolve SL/TP - first try from position data, then from orders
+            # Resolve SL/TP - first try from position data, then from orders map
             pos_id = str(pos.get('positionId') or '')
             sl_val = pos.get('stopLoss') or pos.get('sl') or pos.get('stop_loss')
             tp_val = pos.get('takeProfit') or pos.get('tp') or pos.get('take_profit')
@@ -1659,13 +1644,17 @@ def generate_dashboard_html(client, tl_connected, tl_error, tg_connected, tg_inf
                 if not tp_val and sl_tp_map[pos_id].get('tp'):
                     tp_val = sl_tp_map[pos_id]['tp']
             
+            # Convert to display format
+            sl_display = f"{sl_val:.5f}" if sl_val else '—'
+            tp_display = f"{tp_val:.5f}" if tp_val else '—'
+            
             positions_data.append({
                 'pair': pair_name or 'N/A',
                 'side': str(pos.get('side') or pos.get('direction') or '').upper(),
                 'qty': pos.get('qty') or pos.get('quantity') or pos.get('size') or pos.get('volume') or 'N/A',
                 'price': pos.get('openPrice') or pos.get('price') or pos.get('open_price') or pos.get('avgPrice') or 'N/A',
-                'sl': sl_val if sl_val else '—',
-                'tp': tp_val if tp_val else '—',
+                'sl': sl_display,
+                'tp': tp_display,
                 'pnl': f"{pnl_val:+.2f}",
                 'pnl_value': pnl_val,
                 'time': pos_time
@@ -1720,24 +1709,51 @@ def generate_dashboard_html(client, tl_connected, tl_error, tg_connected, tg_inf
     total_trades = wins + losses
     win_rate = (wins / total_trades * 100) if total_trades > 0 else 0
 
-    # --- Recent orders ---
+    # --- Recent orders (only pending/active, not filled) ---
     orders_data = []
+    seen_order_ids = set()
     for order in orders:
         if not isinstance(order, dict):
             continue
         try:
-            order_time = order.get('modifiedAt') or order.get('modified_at') or order.get('placedAt') or order.get('placed_at') or order.get('created') or order.get('createdAt') or ''
+            status = str(order.get('status') or '').upper()
+            # Only show pending orders (SL/TP), not filled market orders
+            if status in ('FILLED', 'CANCELLED', 'REJECTED', 'EXECUTED'):
+                continue
+            
+            order_id = str(order.get('orderId') or order.get('id') or '')[:12]
+            if order_id in seen_order_ids:
+                continue
+            seen_order_ids.add(order_id)
+            
+            # Resolve instrument ID to name
+            inst_id = str(order.get('instrumentId') or '')
+            pair_name = order.get('instrumentName') or order.get('symbol') or order.get('name') or ''
+            if not pair_name and inst_id:
+                for inst_name, inst_info in _instruments.items():
+                    if str(inst_info.get('id')) == inst_id:
+                        pair_name = inst_name
+                        break
+            if not pair_name and inst_id:
+                pair_name = f"ID:{inst_id}"
+            
+            order_time = order.get('timestamp') or order.get('modifiedAt') or order.get('placedAt') or order.get('created') or ''
             if isinstance(order_time, (int, float)):
                 order_time = datetime.fromtimestamp(order_time/1000, tz=timezone.utc).strftime("%Y-%m-%d %H:%M")
+            elif isinstance(order_time, str) and order_time.isdigit() and len(order_time) > 10:
+                order_time = datetime.fromtimestamp(int(order_time)/1000, tz=timezone.utc).strftime("%Y-%m-%d %H:%M")
+            
+            order_type = str(order.get('type') or 'N/A').upper()
+            
             orders_data.append({
-                'id': str(order.get('orderId') or order.get('order_id') or order.get('id') or '')[:12],
-                'pair': order.get('instrumentName') or order.get('symbol') or order.get('name') or 'N/A',
-                'side': str(order.get('side') or order.get('direction') or '').upper(),
-                'type': order.get('type') or order.get('orderType') or 'N/A',
-                'qty': order.get('qty') or order.get('quantity') or order.get('size') or 'N/A',
-                'price': order.get('price') or order.get('avgPrice') or order.get('avg_price') or 'N/A',
-                'status': order.get('status') or order.get('state') or 'N/A',
-                'time': order_time
+                'id': order_id,
+                'pair': pair_name or 'N/A',
+                'side': str(order.get('side') or '').upper() or 'N/A',
+                'type': order_type,
+                'qty': order.get('qty') or 'N/A',
+                'price': order.get('price') or order.get('stopPrice') or 'N/A',
+                'status': status or 'PENDING',
+                'time': order_time or '—'
             })
         except Exception as e:
             log_process("warning", f"Error parsing order: {e}")
