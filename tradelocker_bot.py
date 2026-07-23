@@ -226,6 +226,96 @@ def verify_credentials(username, password):
             password == DASHBOARD_PASSWORD)
 
 # =====================================================================
+# HELPER: Extract list or dict from API response
+# =====================================================================
+
+def _extract_data(result, *keys):
+    """
+    Robustly extract data from TradeLocker API responses.
+    Tries multiple common key paths to find the actual data.
+    """
+    # Direct list/dict
+    if isinstance(result, list):
+        return result
+    if isinstance(result, dict) and result and not keys:
+        return result
+
+    # Try each key in order
+    for key in keys:
+        if key == "list" or key == "items" or key == "positions" or key == "trades" or key == "orders":
+            val = result.get(key)
+            if isinstance(val, list):
+                return val
+        else:
+            val = result.get(key)
+            if val is not None:
+                if isinstance(val, (dict, list)):
+                    return val
+
+    # Try the "d" wrapper key (common in TL API)
+    d = result.get("d")
+    if d is not None:
+        if isinstance(d, (list, dict)):
+            return d
+        # "d" might contain nested data
+        if isinstance(d, dict):
+            for key in keys:
+                val = d.get(key)
+                if isinstance(val, (list, dict)):
+                    return val
+            # Return d itself if no sub-key matched
+            return d
+
+    # Try "data" key
+    data = result.get("data")
+    if data is not None:
+        if isinstance(data, (list, dict)):
+            return data
+
+    # Try "result" key
+    res = result.get("result")
+    if res is not None:
+        if isinstance(res, (list, dict)):
+            return res
+
+    # Try "body" key
+    body = result.get("body")
+    if body is not None:
+        if isinstance(body, str):
+            try:
+                parsed = json.loads(body)
+                if isinstance(parsed, (list, dict)):
+                    return parsed
+            except:
+                pass
+        elif isinstance(body, (list, dict)):
+            return body
+
+    return {}
+
+def _extract_list(result, *keys):
+    """Extract a list from an API response, trying multiple paths."""
+    data = _extract_data(result, *keys)
+    if isinstance(data, list):
+        return data
+    if isinstance(data, dict):
+        # Try to find a list inside the dict
+        for k, v in data.items():
+            if isinstance(v, list):
+                return v
+    return []
+
+def _get_nested(d, *keys, default=None):
+    """Safely get a nested value from a dict."""
+    current = d
+    for key in keys:
+        if isinstance(current, dict):
+            current = current.get(key, default)
+        else:
+            return default
+    return current if current is not None else default
+
+# =====================================================================
 # TRADELOCKER API CLIENT
 # =====================================================================
 
@@ -254,10 +344,13 @@ class TradeLockerClient:
         except HTTPError as e:
             try:
                 err_body = e.read().decode().strip()
+                log_process("warning", f"HTTP {e.code} on {method} {path}: {err_body[:200]}")
                 return {"error": "http_error", "status": e.code, "body": err_body}
             except:
+                log_process("warning", f"HTTP {e.code} on {method} {path}: no body")
                 return {"error": "http_error", "status": e.code}
         except Exception as ex:
+            log_process("warning", f"Request failed on {method} {path}: {str(ex)}")
             return {"error": "request_failed", "details": str(ex)}
 
     def auth(self):
@@ -290,8 +383,7 @@ class TradeLockerClient:
             log_process("warning", f"Failed to load instruments: {result}")
             return False
 
-        data = result.get("d", result)
-        instruments = data.get("instruments") or data.get("data") or data.get("items") or []
+        instruments = _extract_list(result, "instruments", "data", "items")
 
         for inst in instruments:
             if not isinstance(inst, dict):
@@ -344,10 +436,22 @@ class TradeLockerClient:
         result = self._req("GET", f"/trade/quotes{qs}", headers_extra={"accNum": str(TL_ACC_NUM)})
         if result.get("error"):
             return None
-        d = result.get("d", result)
-        quotes = d.get("quotes") if isinstance(d, dict) else None
-        q = (quotes[0] if isinstance(quotes, list) and quotes else d)
-        bp, ap = q.get("bp") or q.get("bid"), q.get("ap") or q.get("ask")
+        d = _extract_data(result, "quotes")
+        if isinstance(d, list) and d:
+            q = d[0]
+        elif isinstance(d, dict):
+            q = d
+        else:
+            q = _extract_data(result, "d")
+            if isinstance(q, dict):
+                pass
+            elif isinstance(q, list) and q:
+                q = q[0]
+            else:
+                return None
+        
+        bp = q.get("bp") or q.get("bid")
+        ap = q.get("ap") or q.get("ask")
         return {"bp": float(bp), "ap": float(ap)} if bp and ap else None
 
     def place_order(self, pair, direction, sl, tp, qty=None):
@@ -430,11 +534,12 @@ class TradeLockerClient:
         result = self._req("GET", f"/trade/accounts/{TL_ACCOUNT_ID}/positions",
                            headers_extra={"accNum": str(TL_ACC_NUM)})
         if result.get("error"):
+            log_process("warning", f"get_open_positions error: {result.get('error')}")
             return []
-        data = result.get("d", result)
-        if isinstance(data, list):
-            return data
-        return data.get("positions") or data.get("data") or data.get("items") or []
+        
+        positions = _extract_list(result, "positions", "data", "items")
+        log_process("info", f"get_open_positions: got {len(positions)} positions")
+        return positions
 
     def close_position(self, pos_id):
         """Close an open position by ID."""
@@ -476,27 +581,44 @@ class TradeLockerClient:
         """Get account balance, equity, margin, etc."""
         result = self._req("GET", f"/trade/accounts/{TL_ACCOUNT_ID}/state",
                            headers_extra={"accNum": str(TL_ACC_NUM)})
-        data = result.get("d", result)
-        return data if isinstance(data, dict) else {}
+        
+        if result.get("error"):
+            log_process("warning", f"get_account_state error: {result.get('error')}")
+            return {}
+        
+        data = _extract_data(result, "state", "account", "data", "d")
+        if not isinstance(data, dict):
+            log_process("warning", f"get_account_state: unexpected data type: {type(data).__name__}")
+            return {}
+        
+        # Log the actual keys we received for debugging
+        log_process("info", f"get_account_state: keys={list(data.keys())}")
+        return data
 
     def get_orders(self):
         """Get recent order history (up to 20)."""
         result = self._req("GET", f"/trade/accounts/{TL_ACCOUNT_ID}/orders?limit=50",
                            headers_extra={"accNum": str(TL_ACC_NUM)})
-        data = result.get("d", result)
-        raw_orders = data if isinstance(data, list) else (data.get("orders") or data.get("data") or data.get("items") or [])
-        return raw_orders[:20]
+        
+        if result.get("error"):
+            log_process("warning", f"get_orders error: {result.get('error')}")
+            return []
+        
+        orders = _extract_list(result, "orders", "data", "items")
+        log_process("info", f"get_orders: got {len(orders)} orders")
+        return orders[:20]
 
     def get_trade_history(self):
         """Get closed trade history for SL/TP results."""
         result = self._req("GET", f"/trade/accounts/{TL_ACCOUNT_ID}/trades?limit=50",
                            headers_extra={"accNum": str(TL_ACC_NUM)})
         if result.get("error"):
+            log_process("warning", f"get_trade_history error: {result.get('error')}")
             return []
-        data = result.get("d", result)
-        if isinstance(data, list):
-            return data
-        return data.get("trades") or data.get("data") or data.get("items") or []
+        
+        trades = _extract_list(result, "trades", "data", "items")
+        log_process("info", f"get_trade_history: got {len(trades)} trades")
+        return trades
 
 # =====================================================================
 # TELEGRAM
@@ -1049,6 +1171,44 @@ def generate_login_html():
 </html>"""
     return html
 
+# =====================================================================
+# FLEXIBLE FIELD RESOLVER FOR TRADELOCKER API
+# =====================================================================
+
+def _resolve_field(data, *candidates, default="N/A"):
+    """
+    Try multiple possible field names to extract a value from the API response.
+    Returns the first non-None value found.
+    """
+    if not isinstance(data, dict):
+        return default
+    for key in candidates:
+        val = data.get(key)
+        if val is not None and val != "":
+            return val
+    return default
+
+def _safe_float(val, default=0):
+    """Safely convert a value to float."""
+    if val is None or val == "N/A":
+        return default
+    try:
+        return float(str(val).replace('$', '').replace(',', ''))
+    except:
+        return default
+
+def _safe_currency(val):
+    """Format a value as currency."""
+    try:
+        f = float(str(val).replace('$', '').replace(',', ''))
+        return f"${f:,.2f}"
+    except:
+        return f"${val}"
+
+# =====================================================================
+# DASHBOARD GENERATOR
+# =====================================================================
+
 def generate_dashboard_html(client, tl_connected, tl_error, tg_connected, tg_info):
     """Generate the full dashboard HTML with all features."""
 
@@ -1057,15 +1217,33 @@ def generate_dashboard_html(client, tl_connected, tl_error, tg_connected, tg_inf
     orders = client.get_orders() if tl_connected else []
     trades = client.get_trade_history() if tl_connected else []
 
-    # --- Account state ---
+    log_process("info", f"Dashboard data: state_keys={list(state.keys()) if state else 'EMPTY'}, "
+                         f"positions={len(positions)}, orders={len(orders)}, trades={len(trades)}")
+
+    # --- Account state with flexible field resolution ---
+    balance_raw = _resolve_field(state, "balance", "accountBalance", "Balance", "totalBalance", "equity")
+    equity_raw = _resolve_field(state, "equity", "Equity", "accountEquity")
+    margin_raw = _resolve_field(state, "usedMargin", "margin", "used_margin", "Margin")
+    free_margin_raw = _resolve_field(state, "freeMargin", "free_margin", "FreeMargin", "availableMargin")
+    margin_level_raw = _resolve_field(state, "marginLevel", "margin_level", "MarginLevel")
+    daypl_raw = _resolve_field(state, "dayPL", "dayPl", "dailyPnL", "dailyPL", "day_pl", "pnl", "dailyProfitLoss")
+    currency_raw = _resolve_field(state, "currency", "accountCurrency", "Currency", default="USD")
+
+    # If balance is still N/A but we have some numeric-looking keys, try to find them
+    if balance_raw == "N/A" and isinstance(state, dict):
+        for k, v in state.items():
+            if k.lower() in ("balance", "accountbalance", "totalbalance", "totalbalanceinaccountcurrency") and v is not None:
+                balance_raw = v
+                break
+
     account_state = {
-        'balance': f"${state.get('accountBalance', 'N/A')}",
-        'equity': f"${state.get('equity', 'N/A')}",
-        'margin': f"${state.get('usedMargin', 'N/A')}",
-        'free_margin': f"${state.get('freeMargin', 'N/A')}",
-        'margin_level': f"{state.get('marginLevel', 'N/A')}%",
-        'currency': state.get('currency', 'USD'),
-        'daypl': f"${state.get('dayPL', '0')}",
+        'balance': _safe_currency(balance_raw) if balance_raw != "N/A" else "N/A",
+        'equity': _safe_currency(equity_raw) if equity_raw != "N/A" else "N/A",
+        'margin': _safe_currency(margin_raw) if margin_raw != "N/A" else "N/A",
+        'free_margin': _safe_currency(free_margin_raw) if free_margin_raw != "N/A" else "N/A",
+        'margin_level': f"{margin_level_raw}%" if margin_level_raw != "N/A" else "N/A%",
+        'currency': str(currency_raw),
+        'daypl': _safe_currency(daypl_raw) if daypl_raw != "N/A" else "$0",
         'account_id': TL_ACCOUNT_ID,
         'server': TL_SERVER,
     }
@@ -1073,8 +1251,9 @@ def generate_dashboard_html(client, tl_connected, tl_error, tg_connected, tg_inf
     # --- Calculate margin usage percentage ---
     try:
         margin_usage = 0
-        used = float(str(state.get('usedMargin', '0')).replace('$', '').replace(',', ''))
-        total = used + float(str(state.get('freeMargin', '0')).replace('$', '').replace(',', ''))
+        used = _safe_float(margin_raw)
+        free = _safe_float(free_margin_raw)
+        total = used + free
         if total > 0:
             margin_usage = (used / total) * 100
     except:
@@ -1087,18 +1266,23 @@ def generate_dashboard_html(client, tl_connected, tl_error, tg_connected, tg_inf
         if not isinstance(pos, dict):
             continue
         try:
-            pos_time = pos.get('openTime', '')
+            pos_time = pos.get('openTime') or pos.get('open_time') or pos.get('created') or ''
             if isinstance(pos_time, (int, float)):
                 pos_time = datetime.fromtimestamp(pos_time/1000, tz=timezone.utc).strftime("%Y-%m-%d %H:%M")
-            pnl_val = float(pos.get('pnl') or pos.get('profit') or 0)
+            
+            # Flexible field resolution for P&L
+            pnl_val = _safe_float(pos.get('pnl') or pos.get('profit') or pos.get('floatingPL') or 
+                                  pos.get('floatingPnL') or pos.get('pl') or pos.get('currentPL') or 
+                                  pos.get('current_pnl') or pos.get('unrealizedPL') or pos.get('unrealizedPnL'))
             total_pnl += pnl_val
+            
             positions_data.append({
-                'pair': pos.get('instrumentName') or pos.get('symbol') or 'N/A',
-                'side': str(pos.get('side') or '').upper(),
-                'qty': pos.get('qty'),
-                'price': pos.get('price') or pos.get('openPrice') or 'N/A',
-                'sl': pos.get('stopLoss') or pos.get('sl') or '—',
-                'tp': pos.get('takeProfit') or pos.get('tp') or '—',
+                'pair': pos.get('instrumentName') or pos.get('symbol') or pos.get('name') or pos.get('instrument_name') or 'N/A',
+                'side': str(pos.get('side') or pos.get('direction') or '').upper(),
+                'qty': pos.get('qty') or pos.get('quantity') or pos.get('size') or pos.get('volume') or 'N/A',
+                'price': pos.get('price') or pos.get('openPrice') or pos.get('open_price') or pos.get('avgPrice') or 'N/A',
+                'sl': pos.get('stopLoss') or pos.get('sl') or pos.get('stop_loss') or '—',
+                'tp': pos.get('takeProfit') or pos.get('tp') or pos.get('take_profit') or '—',
                 'pnl': f"{pnl_val:+.2f}",
                 'pnl_value': pnl_val,
                 'time': pos_time
@@ -1115,26 +1299,29 @@ def generate_dashboard_html(client, tl_connected, tl_error, tg_connected, tg_inf
         if not isinstance(tr, dict):
             continue
         try:
-            close_time = tr.get('closeTime') or tr.get('closedAt') or ''
+            close_time = tr.get('closeTime') or tr.get('close_time') or tr.get('closedAt') or tr.get('closed_at') or tr.get('closedTime') or ''
             if isinstance(close_time, (int, float)):
                 close_time = datetime.fromtimestamp(close_time/1000, tz=timezone.utc).strftime("%Y-%m-%d %H:%M")
-            pnl_val = float(tr.get('pnl') or tr.get('profit') or 0)
+            
+            pnl_val = _safe_float(tr.get('pnl') or tr.get('profit') or tr.get('realizedPL') or 
+                                  tr.get('realizedPnL') or tr.get('pl') or tr.get('realized_pnl'))
             if pnl_val > 0:
                 wins += 1
             elif pnl_val < 0:
                 losses += 1
-            entry = float(tr.get('openPrice') or tr.get('price') or 0)
-            exit_p = float(tr.get('closePrice') or tr.get('exitPrice') or 0)
-            sl_val = tr.get('stopLoss')
-            tp_val = tr.get('takeProfit')
+            
+            entry = _safe_float(tr.get('openPrice') or tr.get('open_price') or tr.get('price') or tr.get('avgOpenPrice'))
+            exit_p = _safe_float(tr.get('closePrice') or tr.get('close_price') or tr.get('exitPrice') or tr.get('avgClosePrice'))
+            sl_val = tr.get('stopLoss') or tr.get('sl')
+            tp_val = tr.get('takeProfit') or tr.get('tp')
             result_label = "Closed"
-            if sl_val and abs(exit_p - float(sl_val)) < 0.01:
+            if sl_val is not None and abs(exit_p - _safe_float(sl_val)) < 0.01:
                 result_label = "🔴 SL Hit"
-            elif tp_val and abs(exit_p - float(tp_val)) < 0.01:
+            elif tp_val is not None and abs(exit_p - _safe_float(tp_val)) < 0.01:
                 result_label = "🟢 TP Hit"
             trades_data.append({
-                'pair': tr.get('instrumentName') or tr.get('symbol') or 'N/A',
-                'side': str(tr.get('side') or '').upper(),
+                'pair': tr.get('instrumentName') or tr.get('symbol') or tr.get('name') or 'N/A',
+                'side': str(tr.get('side') or tr.get('direction') or '').upper(),
                 'entry': entry,
                 'exit': exit_p,
                 'pnl': f"{pnl_val:+.2f}",
@@ -1156,17 +1343,17 @@ def generate_dashboard_html(client, tl_connected, tl_error, tg_connected, tg_inf
         if not isinstance(order, dict):
             continue
         try:
-            order_time = order.get('modifiedAt') or order.get('placedAt') or ''
+            order_time = order.get('modifiedAt') or order.get('modified_at') or order.get('placedAt') or order.get('placed_at') or order.get('created') or order.get('createdAt') or ''
             if isinstance(order_time, (int, float)):
                 order_time = datetime.fromtimestamp(order_time/1000, tz=timezone.utc).strftime("%Y-%m-%d %H:%M")
             orders_data.append({
-                'id': str(order.get('orderId') or order.get('id') or '')[:12],
-                'pair': order.get('instrumentName') or order.get('symbol') or 'N/A',
-                'side': str(order.get('side') or '').upper(),
-                'type': order.get('type') or 'N/A',
-                'qty': order.get('qty'),
-                'price': order.get('price') or order.get('avgPrice') or 'N/A',
-                'status': order.get('status') or 'N/A',
+                'id': str(order.get('orderId') or order.get('order_id') or order.get('id') or '')[:12],
+                'pair': order.get('instrumentName') or order.get('symbol') or order.get('name') or 'N/A',
+                'side': str(order.get('side') or order.get('direction') or '').upper(),
+                'type': order.get('type') or order.get('orderType') or 'N/A',
+                'qty': order.get('qty') or order.get('quantity') or order.get('size') or 'N/A',
+                'price': order.get('price') or order.get('avgPrice') or order.get('avg_price') or 'N/A',
+                'status': order.get('status') or order.get('state') or 'N/A',
                 'time': order_time
             })
         except Exception as e:
@@ -1373,19 +1560,14 @@ function fetchNow() {
 }
 function logout() {
     if (confirm('Are you sure you want to logout?')) {
-        // Clear all session data
         sessionStorage.removeItem('dashboard_authenticated');
         sessionStorage.removeItem('dashboard_username');
         sessionStorage.removeItem('dashboard_login_time');
         sessionStorage.clear();
-        
-        // Clear GitHub settings from localStorage (optional)
         localStorage.removeItem('gh_token');
         localStorage.removeItem('gh_owner');
         localStorage.removeItem('gh_repo');
         localStorage.removeItem('gh_workflow');
-        
-        // Redirect to login page
         window.location.href = 'login.html';
     }
 }
@@ -1397,7 +1579,6 @@ function checkAuth() {
 }
 
 function autoRefresh() {
-    // Auto-refresh every 60 seconds (60000 ms)
     setInterval(function() {
         const auth = sessionStorage.getItem('dashboard_authenticated');
         if (auth === 'true') {
@@ -1408,12 +1589,9 @@ function autoRefresh() {
     }, 60000);
 }
 
-// Run authentication check on page load
 document.addEventListener('DOMContentLoaded', function() {
     checkAuth();
     autoRefresh();
-    
-    // Also check every 10 seconds if session is still valid
     setInterval(function() {
         const auth = sessionStorage.getItem('dashboard_authenticated');
         if (auth !== 'true') {
@@ -1435,7 +1613,6 @@ document.addEventListener('DOMContentLoaded', function() {
     <meta http-equiv="Expires" content="0">
     <title>TradeLocker Dashboard</title>
     <script>
-        // Check authentication status before loading
         (function() {{
             const auth = sessionStorage.getItem('dashboard_authenticated');
             if (auth !== 'true') {{
@@ -1507,6 +1684,7 @@ document.addEventListener('DOMContentLoaded', function() {
         .health-label {{ flex: 1; }}
         .health-status {{ font-weight: 600; }}
         .build-version {{ font-size: 9px; color: #6e7681; }}
+        .api-debug {{ font-size: 9px; color: #6e7681; background: #0d1117; padding: 8px; border-radius: 4px; font-family: monospace; margin-top: 10px; word-break: break-all; }}
     </style>
 </head>
 <body>
@@ -1615,7 +1793,7 @@ document.addEventListener('DOMContentLoaded', function() {
         <div class="section-title">Recent Orders (Last 20)</div>
         <div class="card">{orders_table}</div>
 
-        <div class="last-update">Last updated: {last_update} | Auto-refresh every 1 min | {len(_process_logs)} Total Logs | {len(_alerts)} Alerts | Build: {_BUILD_VERSION}</div>
+        <div class="last-update">Last updated: {last_update} | Auto-refresh every 60s | {len(_process_logs)} Total Logs | {len(_alerts)} Alerts | Build: {_BUILD_VERSION}</div>
     </div>
 
     <!-- Settings Modal -->
