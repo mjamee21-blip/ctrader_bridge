@@ -537,8 +537,74 @@ class TradeLockerClient:
             log_process("warning", f"get_open_positions error: {result.get('error')}")
             return []
         
-        positions = _extract_list(result, "positions", "data", "items")
-        log_process("info", f"get_open_positions: got {len(positions)} positions")
+        log_process("info", f"get_open_positions: result_type={type(result).__name__}, result_keys={list(result.keys()) if isinstance(result, dict) else 'N/A'}")
+        
+        # Get the data wrapper
+        data = result.get("d", result)
+        if isinstance(data, dict):
+            log_process("info", f"get_open_positions: d_keys={list(data.keys())}")
+            
+            # Positions might be a dict (positionId -> data)
+            pos_data = data.get("positions") or data.get("data") or data.get("items")
+            
+            if isinstance(pos_data, dict):
+                # Positions returned as dict with position IDs as keys
+                positions = []
+                for pos_id, pos_obj in pos_data.items():
+                    if isinstance(pos_obj, dict):
+                        # Add positionId to the object if not present
+                        if "positionId" not in pos_obj and "id" not in pos_obj:
+                            pos_obj["positionId"] = pos_id
+                        positions.append(pos_obj)
+                    elif isinstance(pos_obj, str) and pos_obj.strip().startswith("{"):
+                        try:
+                            parsed = json.loads(pos_obj)
+                            if isinstance(parsed, dict):
+                                if "positionId" not in parsed:
+                                    parsed["positionId"] = pos_id
+                                positions.append(parsed)
+                        except:
+                            pass
+                log_process("info", f"get_open_positions: found {len(positions)} positions from dict")
+                return positions
+            
+            elif isinstance(pos_data, list):
+                return self._parse_position_list(pos_data)
+        
+        # If data is a list directly
+        if isinstance(data, list):
+            return self._parse_position_list(data)
+        
+        return []
+    
+    def _parse_position_list(self, items):
+        """Parse a list of position items that might be in various formats."""
+        positions = []
+        log_process("info", f"_parse_position_list: {len(items)} items")
+        
+        for item in items:
+            if isinstance(item, dict):
+                positions.append(item)
+            elif isinstance(item, str):
+                # Try to parse as JSON
+                try:
+                    parsed = json.loads(item)
+                    if isinstance(parsed, dict):
+                        positions.append(parsed)
+                    elif isinstance(parsed, list):
+                        positions.extend(parsed)
+                except:
+                    # Could be a position ID - try to get full data
+                    log_process("info", f"  position string (not JSON): {item[:100]}")
+            elif item is not None:
+                log_process("info", f"  position item type={type(item).__name__}: {str(item)[:100]}")
+        
+        if positions:
+            log_process("info", f"get_open_positions: parsed {len(positions)} positions, first keys={list(positions[0].keys())}")
+            log_process("info", f"get_open_positions: first pos sample={json.dumps(positions[0], default=str)[:400]}")
+        else:
+            log_process("warning", f"get_open_positions: no valid positions found from {len(items)} items")
+        
         return positions
 
     def close_position(self, pos_id):
@@ -1245,15 +1311,32 @@ def generate_dashboard_html(client, tl_connected, tl_error, tg_connected, tg_inf
 
     log_process("info", f"Dashboard data: state_keys={list(state.keys()) if state else 'EMPTY'}, "
                          f"positions={len(positions)}, orders={len(orders)}, trades={len(trades)}")
+    
+    # Debug: dump first position keys for debugging
+    if positions and isinstance(positions[0], dict):
+        log_process("info", f"First position keys: {list(positions[0].keys())}")
+        log_process("info", f"First position: {json.dumps(positions[0], default=str)[:500]}")
 
     # --- Account state with flexible field resolution ---
-    balance_raw = _resolve_field(state, "balance", "accountBalance", "Balance", "totalBalance", "equity")
-    equity_raw = _resolve_field(state, "equity", "Equity", "accountEquity")
-    margin_raw = _resolve_field(state, "usedMargin", "margin", "used_margin", "Margin")
-    free_margin_raw = _resolve_field(state, "freeMargin", "free_margin", "FreeMargin", "availableMargin")
-    margin_level_raw = _resolve_field(state, "marginLevel", "margin_level", "MarginLevel")
-    daypl_raw = _resolve_field(state, "dayPL", "dayPl", "dailyPnL", "dailyPL", "day_pl", "pnl", "dailyProfitLoss")
-    currency_raw = _resolve_field(state, "currency", "accountCurrency", "Currency", default="USD")
+    # Dump all state keys/values for debugging
+    log_process("info", f"Account state raw: {json.dumps(state, default=str)[:500] if state else 'EMPTY'}")
+    
+    balance_raw = _resolve_field(state, "balance", "accountBalance", "Balance", "totalBalance", "equity", 
+                                  "totalBalanceInAccountCurrency", "accountBalanceInAccountCurrency", 
+                                  "balanceInAccountCurrency", "cashBalance", "availableBalance")
+    equity_raw = _resolve_field(state, "equity", "Equity", "accountEquity", "equityValue", 
+                                 "totalEquity", "equityInAccountCurrency", "currentEquity")
+    margin_raw = _resolve_field(state, "usedMargin", "margin", "used_margin", "Margin", 
+                                 "marginInAccountCurrency", "usedMarginInAccountCurrency", "initialMargin")
+    free_margin_raw = _resolve_field(state, "freeMargin", "free_margin", "FreeMargin", "availableMargin", 
+                                      "freeMarginInAccountCurrency", "availableFunds", "freeEquity")
+    margin_level_raw = _resolve_field(state, "marginLevel", "margin_level", "MarginLevel", 
+                                       "marginLevelPercent", "marginCallLevel")
+    daypl_raw = _resolve_field(state, "dayPL", "dayPl", "dailyPnL", "dailyPL", "day_pl", "pnl", 
+                                "dailyProfitLoss", "todayPL", "todayPnL", "unrealizedPL", "unrealizedPnL",
+                                "floatingPL", "floatingPnL")
+    currency_raw = _resolve_field(state, "currency", "accountCurrency", "Currency", 
+                                   "accountCurrencyCode", "baseCurrency", "settlementCurrency", default="USD")
 
     # If balance is still N/A but we have some numeric-looking keys, try to find them
     if balance_raw == "N/A" and isinstance(state, dict):
@@ -1861,6 +1944,19 @@ document.addEventListener('DOMContentLoaded', function() {
         <!-- Recent Orders -->
         <div class="section-title">Recent Orders (Last 20)</div>
         <div class="card">{orders_table}</div>
+
+        <!-- API Debug Panel -->
+        <div class="section-title">🔍 API Debug (Raw Data)</div>
+        <div class="card" style="font-family:monospace;font-size:10px;max-height:300px;overflow:auto;white-space:pre-wrap;word-break:break-all;">
+<strong>State keys:</strong> {list(state.keys()) if state else 'EMPTY'}
+<strong>State data:</strong> {json.dumps(state, default=str)[:1000] if state else 'EMPTY'}
+<strong>Positions:</strong> {len(positions)} items
+<strong>First position sample:</strong> {json.dumps(positions[0], default=str)[:500] if positions else 'NONE'}
+<strong>Orders:</strong> {len(orders)} items
+<strong>Trades:</strong> {len(trades)} items
+<strong>Balance resolved:</strong> {balance_raw}
+<strong>Equity resolved:</strong> {equity_raw}
+        </div>
 
         <div class="last-update">Last updated: {last_update} | Auto-refresh every 60s | {len(_process_logs)} Total Logs | {len(_alerts)} Alerts | Build: {_BUILD_VERSION}</div>
     </div>
