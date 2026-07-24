@@ -10,10 +10,6 @@ permissions:
   pages: write
   id-token: write
 
-concurrency:
-  group: ctrader
-  cancel-in-progress: false
-
 jobs:
   bot:
     runs-on: ubuntu-latest
