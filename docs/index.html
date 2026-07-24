@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>TradeLocker Dashboard</title>
+    <title>cTrader Dashboard</title>
     <script>
         (function() {
             const auth = sessionStorage.getItem('dashboard_authenticated');
@@ -357,9 +357,9 @@
             <label>GitHub Username / Owner</label>
             <input type="text" id="gh_owner" placeholder="mjamee21-blip">
             <label>Repository Name</label>
-            <input type="text" id="gh_repo" placeholder="tradelocker_bridge">
+            <input type="text" id="gh_repo" placeholder="ctrader_bridge">
             <label>Workflow Filename</label>
-            <input type="text" id="gh_workflow" value="tradelocker.yml">
+            <input type="text" id="gh_workflow" value="ctrader.yml">
             <div class="modal-actions">
                 <button class="btn btn-settings" onclick="closeSettings()">Cancel</button>
                 <button class="btn btn-fetch" onclick="saveSettings()">Save</button>
@@ -374,7 +374,7 @@ function getGH() {
         token: localStorage.getItem('gh_token') || '',
         owner: localStorage.getItem('gh_owner') || '',
         repo: localStorage.getItem('gh_repo') || '',
-        workflow: localStorage.getItem('gh_workflow') || 'tradelocker.yml'
+        workflow: localStorage.getItem('gh_workflow') || 'ctrader.yml'
     };
 }
 function openSettings() {
