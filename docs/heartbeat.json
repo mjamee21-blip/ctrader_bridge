@@ -1,6 +1,7 @@
 {
-  "job": "bot",
-  "status": "completed",
-  "message": "Bot cycle finished",
-  "timestamp": "2026-07-24 21:44:07 UTC"
+  "bot": {
+    "status": "failed",
+    "timestamp": "2026-07-24T22:06:09.813776+00:00",
+    "details": "Missing credentials"
+  }
 }
