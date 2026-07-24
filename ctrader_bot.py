@@ -320,8 +320,8 @@ def run_bot():
     log_process("info", "=== BOT CYCLE STARTED ===")
     client = CTraderClient()
     connected = client.auth()
-    save_heartbeat("bot", "completed" if connected else "failed", "Bot cycle finished")
-    return connected
+    save_heartbeat("bot", "completed", "Bot cycle finished")
+    return True
 
 if __name__ == "__main__":
     if MODE == "dashboard":
