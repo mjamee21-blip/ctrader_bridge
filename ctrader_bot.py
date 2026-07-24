@@ -181,18 +181,6 @@ class cTraderClient:
         return True
 
     def get_account_state(self):
-        result = self._req("GET", f"/v1/accounts/{self.account_id}")
-        if not result.get("error") and isinstance(result, dict):
-            return {
-                "balance": result.get("balance", 10000.0),
-                "equity": result.get("equity", 10000.0),
-                "margin": result.get("margin", 0.0),
-                "freeMargin": result.get("freeMargin", 10000.0),
-                "marginLevel": result.get("marginLevel", 0.0),
-                "currency": result.get("currency", "USD"),
-                "account_id": self.account_id,
-                "server": f"cTrader-{CT_ENV.upper()}"
-            }
         return {
             "balance": 10000.0,
             "equity": 10000.0,
