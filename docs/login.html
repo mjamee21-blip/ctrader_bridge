@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>TradeLocker Dashboard - Login</title>
+    <title>cTrader Dashboard - Login</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
@@ -138,7 +138,7 @@
     <div class="login-container">
         <div class="login-header">
             <h1>🚀 Dashboard</h1>
-            <p>TradeLocker Bot Control Panel</p>
+            <p>cTrader Bot Control Panel</p>
         </div>
 
         <div class="error-message" id="errorMsg"></div>
@@ -200,7 +200,7 @@
 
                 // Redirect to dashboard after a brief delay
                 setTimeout(function() {
-                    window.location.href = 'index.html?v=20260723213542';
+                    window.location.href = 'index.html?v=20260724201731';
                 }, 1000);
             } else {
                 errorMsg.textContent = '❌ Invalid username or password';
@@ -214,7 +214,7 @@
         window.addEventListener('load', function() {
             const auth = sessionStorage.getItem('dashboard_authenticated');
             if (auth === 'true') {
-                window.location.href = 'index.html?v=20260723213542';
+                window.location.href = 'index.html?v=20260724201731';
             }
             document.getElementById('username').focus();
         });

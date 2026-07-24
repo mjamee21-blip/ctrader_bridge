@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
     <title>cTrader Dashboard</title>
     <script>
         (function() {
@@ -85,7 +84,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🚀 TradeLocker Dashboard</h1>
+            <h1>🚀 cTrader Dashboard</h1>
             <div class="header-actions">
                 <button class="btn btn-settings" onclick="openSettings()" title="GitHub Settings">⚙️</button>
                 <button id="fetchBtn" class="btn btn-fetch" onclick="fetchNow()">🔄 Fetch Now</button>
@@ -94,14 +93,14 @@
         </div>
 
         <div class="account-info">
-            📊 Account ID: 1834063 | Server: HEROFX | Currency: USD | Env: DEMO
-            <span class="build-version">| Build: 20260723213542</span>
+            📊 Account ID: 0 | Server:  | Currency: USD | Env: 
+            <span class="build-version">| Build: 20260724201731</span>
         </div>
 
         <!-- System Health Status -->
         <div class="section-title">🩺 System Health</div>
         <div class="health-grid">
-            <div class="health-item"><span class="health-icon">🔐</span><span class="health-label">TradeLocker Auth</span><span class="health-status" style="color:#3fb950;">✓ OK</span></div><div class="health-item"><span class="health-icon">📱</span><span class="health-label">Telegram Bot</span><span class="health-status" style="color:#3fb950;">✓ OK</span></div><div class="health-item"><span class="health-icon">📊</span><span class="health-label">Instruments Loaded</span><span class="health-status" style="color:#3fb950;">✓ OK</span></div><div class="health-item"><span class="health-icon">⚠️</span><span class="health-label">Margin Safe (0.9%)</span><span class="health-status" style="color:#3fb950;">✓ OK</span></div>
+            <div class="health-item"><span class="health-icon">🔐</span><span class="health-label">cTrader Auth</span><span class="health-status" style="color:#f85149;">✗ FAILED</span></div><div class="health-item"><span class="health-icon">📱</span><span class="health-label">Telegram Bot</span><span class="health-status" style="color:#3fb950;">✓ OK</span></div><div class="health-item"><span class="health-icon">📊</span><span class="health-label">Instruments Loaded</span><span class="health-status" style="color:#f85149;">✗ FAILED</span></div><div class="health-item"><span class="health-icon">⚠️</span><span class="health-label">Margin Safe (0.0%)</span><span class="health-status" style="color:#3fb950;">✓ OK</span></div>
         </div>
 
         <!-- Connection Status -->
@@ -109,10 +108,10 @@
         <div class="conn-grid">
             <div class="conn-card">
                 <div class="conn-header">
-                    <span class="conn-title">📊 TradeLocker</span>
-                    <span class="conn-badge" style="background:#3fb95020;color:#3fb950;">✓ Connected</span>
+                    <span class="conn-title">📊 cTrader</span>
+                    <span class="conn-badge" style="background:#f8514920;color:#f85149;">✗ Disconnected</span>
                 </div>
-                <div class="conn-detail">Server: HEROFX | Env: demo</div>
+                <div class="conn-detail">Failed to authenticate. Check TL_EMAIL, TL_PASSWORD, TL_SERVER secrets.</div>
             </div>
             <div class="conn-card">
                 <div class="conn-header">
@@ -139,7 +138,7 @@
                     <span class="heartbeat running"></span>Dashboard
                 </div>
                 <div class="cron-status">RUNNING</div>
-                <div class="cron-time">2s ago</div>
+                <div class="cron-time">0s ago</div>
                 <div style="font-size:10px;color:#8b949e;margin-top:6px;">Generating dashboard...</div>
             </div>
         </div>
@@ -147,12 +146,12 @@
         <!-- Account Overview -->
         <div class="section-title">Account Overview</div>
         <div class="grid">
-            <div class="card stat"><div class="stat-value">$11,399.13</div><div class="stat-label">Balance</div></div>
-            <div class="card stat"><div class="stat-value">$11,569.60</div><div class="stat-label">Equity</div></div>
-            <div class="card stat"><div class="stat-value">$102.74</div><div class="stat-label">Used Margin</div></div>
-            <div class="card stat"><div class="stat-value">$11,296.39</div><div class="stat-label">Free Margin</div></div>
-            <div class="card stat"><div class="stat-value">100.0%</div><div class="stat-label">Margin Level</div></div>
-            <div class="card stat"><div class="stat-value">$170.47</div><div class="stat-label">Day P&L</div></div>
+            <div class="card stat"><div class="stat-value">N/A</div><div class="stat-label">Balance</div></div>
+            <div class="card stat"><div class="stat-value">N/A</div><div class="stat-label">Equity</div></div>
+            <div class="card stat"><div class="stat-value">N/A</div><div class="stat-label">Used Margin</div></div>
+            <div class="card stat"><div class="stat-value">N/A</div><div class="stat-label">Free Margin</div></div>
+            <div class="card stat"><div class="stat-value">N/A%</div><div class="stat-label">Margin Level</div></div>
+            <div class="card stat"><div class="stat-value">$0</div><div class="stat-label">Day P&L</div></div>
         </div>
 
         <!-- Trade Statistics -->
@@ -162,14 +161,14 @@
             <div class="card stat"><div class="stat-value">0</div><div class="stat-label">Wins</div></div>
             <div class="card stat"><div class="stat-value">0</div><div class="stat-label">Losses</div></div>
             <div class="card stat"><div class="stat-value">0.0%</div><div class="stat-label">Win Rate</div></div>
-            <div class="card stat"><div class="stat-value">$+170.45</div><div class="stat-label">Open P&L</div></div>
-            <div class="card stat"><div class="stat-value">5</div><div class="stat-label">Open Positions</div></div>
+            <div class="card stat"><div class="stat-value">$+0.00</div><div class="stat-label">Open P&L</div></div>
+            <div class="card stat"><div class="stat-value">0</div><div class="stat-label">Open Positions</div></div>
         </div>
 
         <!-- Recent Alerts -->
         <div class="section-title">⚠️ Recent Alerts & Errors</div>
         <div class="card">
-            <div style="padding:8px;margin:5px 0;background:#d2992220;border-left:3px solid #d29922;border-radius:4px;font-size:11px;"><strong>WARNING</strong> 2026-07-23 21:35:43 UTC: HTTP 404 on GET /trade/account/1834063/orders?limit=100: {"timestamp":"2026-07-23T21:35:43.507Z","status":404,"error":"Not Found","path":"/clientapi/v1/account/1834063/orders"}</div><div style="padding:8px;margin:5px 0;background:#d2992220;border-left:3px solid #d29922;border-radius:4px;font-size:11px;"><strong>WARNING</strong> 2026-07-23 21:35:43 UTC: HTTP 404 on GET /trade/accounts/1834063/pendingOrders?limit=100: {"timestamp":"2026-07-23T21:35:43.615Z","status":404,"error":"Not Found","path":"/clientapi/v1/accounts/1834063/pendingOrders"}</div><div style="padding:8px;margin:5px 0;background:#d2992220;border-left:3px solid #d29922;border-radius:4px;font-size:11px;"><strong>WARNING</strong> 2026-07-23 21:35:44 UTC: HTTP 404 on GET /trade/accounts/1834063/trades?limit=50: {"timestamp":"2026-07-23T21:35:44.362Z","status":404,"error":"Not Found","path":"/clientapi/v1/accounts/1834063/trades"}</div><div style="padding:8px;margin:5px 0;background:#d2992220;border-left:3px solid #d29922;border-radius:4px;font-size:11px;"><strong>WARNING</strong> 2026-07-23 21:35:44 UTC: HTTP 404 on GET /trade/accounts/1834063/closedPositions?limit=50: {"timestamp":"2026-07-23T21:35:44.475Z","status":404,"error":"Not Found","path":"/clientapi/v1/accounts/1834063/closedPositions"}</div>
+            <div style="padding:8px;margin:5px 0;background:#f8514920;border-left:3px solid #f85149;border-radius:4px;font-size:11px;"><strong>ERROR</strong> 2026-07-24 20:17:31 UTC: TL_EMAIL or TL_PASSWORD not set</div><div style="padding:8px;margin:5px 0;background:#d2992220;border-left:3px solid #d29922;border-radius:4px;font-size:11px;"><strong>WARNING</strong> 2026-07-24 20:17:31 UTC: cTrader: DISCONNECTED — Failed to authenticate. Check TL_EMAIL, TL_PASSWORD, TL_SERVER secrets.</div>
         </div>
 
         <!-- Backend Process Logs -->
@@ -177,161 +176,34 @@
         <div class="card"><table>
 <thead><tr><th>Time</th><th>Level</th><th>Message</th></tr></thead>
 <tbody><tr>
-<td class="time">2026-07-23 21:35:42 UTC</td>
+<td class="time">2026-07-24 20:17:31 UTC</td>
 <td style="color:#58a6ff;font-weight:600;">INFO</td>
 <td>=== DASHBOARD GENERATION STARTED ===</td>
 </tr><tr>
-<td class="time">2026-07-23 21:35:42 UTC</td>
-<td style="color:#3fb950;font-weight:600;">SUCCESS</td>
-<td>TradeLocker authenticated on HEROFX</td>
+<td class="time">2026-07-24 20:17:31 UTC</td>
+<td style="color:#f85149;font-weight:600;">ERROR</td>
+<td>TL_EMAIL or TL_PASSWORD not set</td>
 </tr><tr>
-<td class="time">2026-07-23 21:35:42 UTC</td>
-<td style="color:#3fb950;font-weight:600;">SUCCESS</td>
-<td>TradeLocker: CONNECTED</td>
+<td class="time">2026-07-24 20:17:31 UTC</td>
+<td style="color:#d29922;font-weight:600;">WARNING</td>
+<td>cTrader: DISCONNECTED — Failed to authenticate. Check TL_EMAIL, TL_PASSWORD, TL_SERVER secrets.</td>
 </tr><tr>
-<td class="time">2026-07-23 21:35:42 UTC</td>
-<td style="color:#58a6ff;font-weight:600;">INFO</td>
-<td>Loaded 172 instruments from TradeLocker</td>
-</tr><tr>
-<td class="time">2026-07-23 21:35:43 UTC</td>
+<td class="time">2026-07-24 20:17:31 UTC</td>
 <td style="color:#3fb950;font-weight:600;">SUCCESS</td>
 <td>Telegram: CONNECTED (@Forexunitedbot)</td>
 </tr><tr>
-<td class="time">2026-07-23 21:35:43 UTC</td>
+<td class="time">2026-07-24 20:17:31 UTC</td>
 <td style="color:#58a6ff;font-weight:600;">INFO</td>
-<td>get_account_state: result_keys=['d', 's']</td>
+<td>Dashboard data: state_keys=EMPTY, positions=0, orders=0, trades=0</td>
 </tr><tr>
-<td class="time">2026-07-23 21:35:43 UTC</td>
+<td class="time">2026-07-24 20:17:31 UTC</td>
 <td style="color:#58a6ff;font-weight:600;">INFO</td>
-<td>get_account_state: d_keys=['accountDetailsData']</td>
-</tr><tr>
-<td class="time">2026-07-23 21:35:43 UTC</td>
-<td style="color:#58a6ff;font-weight:600;">INFO</td>
-<td>get_account_state: parsed array with 26 elements -> {'balance': 11399.13, 'equity': 11569.59715806, 'freeMargin': 11296.392573022003, 'usedMargin': 102.737426977996, 'marginLevel': 100.0, 'dayPL': 170.46715806, 'openPositions': 5}</td>
-</tr><tr>
-<td class="time">2026-07-23 21:35:43 UTC</td>
-<td style="color:#58a6ff;font-weight:600;">INFO</td>
-<td>get_open_positions: result_type=dict, result_keys=['d', 's']</td>
-</tr><tr>
-<td class="time">2026-07-23 21:35:43 UTC</td>
-<td style="color:#58a6ff;font-weight:600;">INFO</td>
-<td>get_open_positions: d_keys=['positions']</td>
-</tr><tr>
-<td class="time">2026-07-23 21:35:43 UTC</td>
-<td style="color:#58a6ff;font-weight:600;">INFO</td>
-<td>get_open_positions: got 5 raw items</td>
-</tr><tr>
-<td class="time">2026-07-23 21:35:43 UTC</td>
-<td style="color:#58a6ff;font-weight:600;">INFO</td>
-<td>get_open_positions: first pos side=BUY qty=0.1 price=0.81471</td>
-</tr><tr>
-<td class="time">2026-07-23 21:35:43 UTC</td>
-<td style="color:#58a6ff;font-weight:600;">INFO</td>
-<td>get_open_positions: parsed 5 positions</td>
-</tr><tr>
-<td class="time">2026-07-23 21:35:43 UTC</td>
-<td style="color:#d29922;font-weight:600;">WARNING</td>
-<td>HTTP 404 on GET /trade/account/1834063/orders?limit=100: {"timestamp":"2026-07-23T21:35:43.507Z","status":404,"error":"Not Found","path":"/clientapi/v1/account/1834063/orders"}</td>
-</tr><tr>
-<td class="time">2026-07-23 21:35:43 UTC</td>
-<td style="color:#d29922;font-weight:600;">WARNING</td>
-<td>HTTP 404 on GET /trade/accounts/1834063/pendingOrders?limit=100: {"timestamp":"2026-07-23T21:35:43.615Z","status":404,"error":"Not Found","path":"/clientapi/v1/accounts/1834063/pendingOrders"}</td>
-</tr><tr>
-<td class="time">2026-07-23 21:35:44 UTC</td>
-<td style="color:#58a6ff;font-weight:600;">INFO</td>
-<td>ordersHistory: found 432 orders</td>
-</tr><tr>
-<td class="time">2026-07-23 21:35:44 UTC</td>
-<td style="color:#58a6ff;font-weight:600;">INFO</td>
-<td>get_orders: found 432 total orders (open + history)</td>
-</tr><tr>
-<td class="time">2026-07-23 21:35:44 UTC</td>
-<td style="color:#d29922;font-weight:600;">WARNING</td>
-<td>HTTP 404 on GET /trade/accounts/1834063/trades?limit=50: {"timestamp":"2026-07-23T21:35:44.362Z","status":404,"error":"Not Found","path":"/clientapi/v1/accounts/1834063/trades"}</td>
-</tr><tr>
-<td class="time">2026-07-23 21:35:44 UTC</td>
-<td style="color:#d29922;font-weight:600;">WARNING</td>
-<td>HTTP 404 on GET /trade/accounts/1834063/closedPositions?limit=50: {"timestamp":"2026-07-23T21:35:44.475Z","status":404,"error":"Not Found","path":"/clientapi/v1/accounts/1834063/closedPositions"}</td>
-</tr><tr>
-<td class="time">2026-07-23 21:35:44 UTC</td>
-<td style="color:#58a6ff;font-weight:600;">INFO</td>
-<td>Dashboard data: state_keys=['balance', 'equity', 'freeMargin', 'usedMargin', 'marginLevel', 'dayPL', 'openPositions'], positions=5, orders=100, trades=0</td>
-</tr><tr>
-<td class="time">2026-07-23 21:35:44 UTC</td>
-<td style="color:#58a6ff;font-weight:600;">INFO</td>
-<td>No SL/TP data available via REST API (TradeLocker limitation)</td>
-</tr><tr>
-<td class="time">2026-07-23 21:35:44 UTC</td>
-<td style="color:#58a6ff;font-weight:600;">INFO</td>
-<td>Positions summary: 5 open, first=BUY 4662 @ 0.81471</td>
-</tr><tr>
-<td class="time">2026-07-23 21:35:44 UTC</td>
-<td style="color:#58a6ff;font-weight:600;">INFO</td>
-<td>Orders: 100 total, 0 pending</td>
-</tr><tr>
-<td class="time">2026-07-23 21:35:44 UTC</td>
-<td style="color:#58a6ff;font-weight:600;">INFO</td>
-<td>Account: balance=11399.13, equity=11569.59715806, margin_level=100.0%</td>
-</tr><tr>
-<td class="time">2026-07-23 21:35:44 UTC</td>
-<td style="color:#58a6ff;font-weight:600;">INFO</td>
-<td>Positions: 5 items, first type=dict</td>
-</tr><tr>
-<td class="time">2026-07-23 21:35:44 UTC</td>
-<td style="color:#58a6ff;font-weight:600;">INFO</td>
-<td>Position keys: ['positionId', 'tradableInstrumentId', 'routeId', 'side', 'qty', 'openPrice', 'stopLoss', 'takeProfit', 'openTime', 'floatingPL', 'closePrice']</td>
+<td>Account: balance=None, equity=None, margin_level=None%</td>
 </tr></tbody></table></div>
 
         <!-- Open Positions -->
-        <div class="section-title">Open Positions (5) — Live SL/TP & P&L</div>
-        <div class="card"><table>
-<thead><tr><th>Pair</th><th>Side</th><th>Qty</th><th>Entry Price</th><th>Stop Loss</th><th>Take Profit</th><th>P&L</th><th>Open Time</th></tr></thead>
-<tbody><tr>
-<td class="pair">USDCHF</td>
-<td class="buy">BUY</td>
-<td>0.1</td>
-<td>0.81471</td>
-<td class="sl">—</td>
-<td class="tp">—</td>
-<td style="color:#3fb950;font-weight:600;">+22.89</td>
-<td class="time">2026-07-22 22:13</td>
-</tr><tr>
-<td class="pair">EURJPY</td>
-<td class="buy">BUY</td>
-<td>0.1</td>
-<td>186.083</td>
-<td class="sl">—</td>
-<td class="tp">—</td>
-<td style="color:#3fb950;font-weight:600;">+19.34</td>
-<td class="time">2026-07-22 22:13</td>
-</tr><tr>
-<td class="pair">USDJPY</td>
-<td class="buy">BUY</td>
-<td>0.1</td>
-<td>163.121</td>
-<td class="sl">—</td>
-<td class="tp">—</td>
-<td style="color:#3fb950;font-weight:600;">+42.72</td>
-<td class="time">2026-07-22 22:13</td>
-</tr><tr>
-<td class="pair">USDJPY</td>
-<td class="buy">BUY</td>
-<td>0.1</td>
-<td>163.121</td>
-<td class="sl">—</td>
-<td class="tp">—</td>
-<td style="color:#3fb950;font-weight:600;">+42.72</td>
-<td class="time">2026-07-22 22:13</td>
-</tr><tr>
-<td class="pair">USDJPY</td>
-<td class="buy">BUY</td>
-<td>0.1</td>
-<td>163.12</td>
-<td class="sl">—</td>
-<td class="tp">—</td>
-<td style="color:#3fb950;font-weight:600;">+42.78</td>
-<td class="time">2026-07-22 22:13</td>
-</tr></tbody></table></div>
+        <div class="section-title">Open Positions (0) — Live SL/TP & P&L</div>
+        <div class="card"><div class="empty">No open positions</div></div>
 
         <!-- Closed Trades (Results) -->
         <div class="section-title">Closed Trades (0) — Results</div>
@@ -341,7 +213,7 @@
         <div class="section-title">Recent Orders (Last 20)</div>
         <div class="card"><div class="empty">No recent orders</div></div>
 
-        <div class="last-update">Last updated: 2026-07-23 21:35:44 UTC | Auto-refresh every 60s | 26 Total Logs | 4 Alerts | Build: 20260723213542</div>
+        <div class="last-update">Last updated: 2026-07-24 20:17:31 UTC | Auto-refresh every 60s | 6 Total Logs | 2 Alerts | Build: 20260724201731</div>
     </div>
 
     <!-- Settings Modal -->
