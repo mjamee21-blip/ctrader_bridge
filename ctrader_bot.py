@@ -82,7 +82,7 @@ PAIR_ALIASES = {
     "AUS200": "AUS200", "ASX": "AUS200",
 }
 
-TL_BASE = "https://live.ctrader.com" if TL_ENV.lower() == "live" else "https://demo.ctrader.com"
+CTRADER_BASE = os.environ.get("CTRADER_BASE_URL", "") or ("https://live.tradelocker.com" if CTRADER_ENV.lower() == "live" else "https://demo.tradelocker.com")
 _last_update_id = 0
 _instruments = {}
 _process_logs = []  # Store process logs for dashboard
