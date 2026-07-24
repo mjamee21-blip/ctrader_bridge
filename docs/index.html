@@ -2,18 +2,347 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>cTrader Open API Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <title>cTrader Dashboard</title>
+    <script>
+        (function() {
+            const auth = sessionStorage.getItem('dashboard_authenticated');
+            if (auth !== 'true') {
+                location.href = 'login.html';
+            }
+        })();
+    </script>
     <style>
-        body { font-family: -apple-system, sans-serif; background: #0d1117; color: #c9d1d9; padding: 20px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0d1117; color: #c9d1d9; font-size: 13px; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 15px; background: #161b22; border: 1px solid #30363d; border-radius: 8px; margin-bottom: 20px; }
+        .header h1 { font-size: 16px; font-weight: 700; }
+        .header-actions { display: flex; gap: 8px; align-items: center; }
+        .btn { padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; transition: opacity 0.2s; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-fetch { background: #238636; color: #fff; }
+        .btn-fetch:hover:not(:disabled) { background: #2ea043; }
+        .btn-settings { background: #30363d; color: #c9d1d9; }
+        .btn-settings:hover { background: #484f58; }
+        .btn-logout { background: #da3633; color: #fff; }
+        .btn-logout:hover { background: #f85149; }
+        .heartbeat { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; animation: pulse 1.5s ease-in-out infinite; }
+        .heartbeat.running { background: #d29922; animation: pulse 0.8s ease-in-out infinite; }
+        .heartbeat.completed { background: #3fb950; animation: none; }
+        .heartbeat.failed { background: #f85149; animation: none; }
+        .heartbeat.idle { background: #6e7681; animation: none; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .conn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
+        .conn-card { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 15px; }
+        .conn-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .conn-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+        .conn-badge { font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 12px; }
+        .conn-detail { font-size: 11px; color: #8b949e; }
         .card { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 15px; margin-bottom: 15px; }
-        h1 { color: #58a6ff; font-size: 20px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 15px; }
+        .stat { text-align: center; padding: 15px; }
+        .stat-value { font-size: 20px; font-weight: 800; color: #58a6ff; }
+        .stat-label { font-size: 10px; color: #8b949e; margin-top: 5px; text-transform: uppercase; letter-spacing: 0.5px; }
+        table { width: 100%; border-collapse: collapse; }
+        th { padding: 10px; background: #0d1117; color: #8b949e; font-size: 10px; text-transform: uppercase; text-align: left; border-bottom: 1px solid #30363d; }
+        td { padding: 10px; border-bottom: 1px solid #30363d; }
+        tr:hover td { background: #1c2128; }
+        .pair { font-weight: 600; }
+        .buy { color: #3fb950; }
+        .sell { color: #f85149; }
+        .sl { color: #f85149; font-weight: 500; }
+        .tp { color: #3fb950; font-weight: 500; }
+        .time { font-size: 11px; color: #8b949e; }
+        .oid { font-size: 10px; color: #8b949e; }
+        .section-title { font-size: 11px; color: #8b949e; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin: 20px 0 10px 0; }
+        .empty { text-align: center; color: #8b949e; padding: 20px; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; }
+        .modal-content { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 20px; max-width: 500px; margin: 100px auto; }
+        .modal-content h3 { margin-bottom: 15px; }
+        .modal-content label { display: block; font-size: 11px; color: #8b949e; margin-bottom: 4px; margin-top: 10px; }
+        .modal-content input { width: 100%; padding: 8px; background: #0d1117; border: 1px solid #30363d; border-radius: 6px; color: #c9d1d9; font-size: 12px; }
+        .modal-actions { display: flex; gap: 10px; margin-top: 20px; justify-content: flex-end; }
+        .last-update { color: #8b949e; font-size: 11px; text-align: center; margin-top: 20px; }
+        .account-info { background: #0d1117; padding: 10px; border-radius: 6px; font-size: 11px; color: #8b949e; margin-bottom: 15px; }
+        .cron-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
+        .cron-card { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 12px; }
+        .cron-title { font-size: 11px; font-weight: 700; text-transform: uppercase; margin-bottom: 8px; }
+        .cron-status { font-size: 10px; color: #8b949e; }
+        .cron-time { font-size: 10px; color: #6e7681; margin-top: 4px; }
+        .health-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 15px; }
+        .health-item { background: #161b22; border: 1px solid #30363d; border-radius: 6px; padding: 12px; display: flex; align-items: center; gap: 10px; font-size: 11px; }
+        .health-icon { font-size: 16px; }
+        .health-label { flex: 1; }
+        .health-status { font-weight: 600; }
+        .build-version { font-size: 9px; color: #6e7681; }
+        .api-debug { font-size: 9px; color: #6e7681; background: #0d1117; padding: 8px; border-radius: 4px; font-family: monospace; margin-top: 10px; word-break: break-all; }
     </style>
 </head>
 <body>
-    <div class="card">
-        <h1>🚀 cTrader Open API Dashboard</h1>
-        <p>Connected to cTrader Account: 0 ()</p>
-        <p>Last Updated: 2026-07-24 21:10:56 UTC</p>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 cTrader Dashboard</h1>
+            <div class="header-actions">
+                <button class="btn btn-settings" onclick="openSettings()" title="GitHub Settings">⚙️</button>
+                <button id="fetchBtn" class="btn btn-fetch" onclick="fetchNow()">🔄 Fetch Now</button>
+                <button class="btn btn-logout" onclick="logout()">🚪 Logout</button>
+            </div>
+        </div>
+
+        <div class="account-info">
+            📊 Account ID: 0 | Server: cTrader-Demo | Currency: USD | Env: 
+            <span class="build-version">| Build: 20260724211234</span>
+        </div>
+
+        <!-- System Health Status -->
+        <div class="section-title">🩺 System Health</div>
+        <div class="health-grid">
+            <div class="health-item"><span class="health-icon">🔐</span><span class="health-label">cTrader Auth</span><span class="health-status" style="color:#f85149;">✗ FAILED</span></div><div class="health-item"><span class="health-icon">📱</span><span class="health-label">Telegram Bot</span><span class="health-status" style="color:#3fb950;">✓ OK</span></div><div class="health-item"><span class="health-icon">📊</span><span class="health-label">Instruments Loaded</span><span class="health-status" style="color:#f85149;">✗ FAILED</span></div><div class="health-item"><span class="health-icon">⚠️</span><span class="health-label">Margin Safe (0.0%)</span><span class="health-status" style="color:#3fb950;">✓ OK</span></div>
+        </div>
+
+        <!-- Connection Status -->
+        <div class="section-title">Connection Status</div>
+        <div class="conn-grid">
+            <div class="conn-card">
+                <div class="conn-header">
+                    <span class="conn-title">📊 cTrader</span>
+                    <span class="conn-badge" style="background:#f8514920;color:#f85149;">✗ Disconnected</span>
+                </div>
+                <div class="conn-detail">Failed to authenticate. Check TL_EMAIL, TL_PASSWORD, TL_SERVER secrets.</div>
+            </div>
+            <div class="conn-card">
+                <div class="conn-header">
+                    <span class="conn-title">✈️ Telegram</span>
+                    <span class="conn-badge" style="background:#3fb95020;color:#3fb950;">✓ Connected</span>
+                </div>
+                <div class="conn-detail">Bot: @Forexunitedbot</div>
+            </div>
+        </div>
+
+        <!-- Cron Job Status -->
+        <div class="section-title">🔄 Cron Job Status</div>
+        <div class="cron-grid">
+            <div class="cron-card">
+                <div class="cron-title">
+                    <span class="heartbeat idle"></span>Trading Bot
+                </div>
+                <div class="cron-status">IDLE</div>
+                <div class="cron-time">never</div>
+                <div style="font-size:10px;color:#8b949e;margin-top:6px;">No data</div>
+            </div>
+            <div class="cron-card">
+                <div class="cron-title">
+                    <span class="heartbeat running"></span>Dashboard
+                </div>
+                <div class="cron-status">RUNNING</div>
+                <div class="cron-time">0s ago</div>
+                <div style="font-size:10px;color:#8b949e;margin-top:6px;">Generating dashboard...</div>
+            </div>
+        </div>
+
+        <!-- Account Overview -->
+        <div class="section-title">Account Overview</div>
+        <div class="grid">
+            <div class="card stat"><div class="stat-value">N/A</div><div class="stat-label">Balance</div></div>
+            <div class="card stat"><div class="stat-value">N/A</div><div class="stat-label">Equity</div></div>
+            <div class="card stat"><div class="stat-value">N/A</div><div class="stat-label">Used Margin</div></div>
+            <div class="card stat"><div class="stat-value">N/A</div><div class="stat-label">Free Margin</div></div>
+            <div class="card stat"><div class="stat-value">N/A%</div><div class="stat-label">Margin Level</div></div>
+            <div class="card stat"><div class="stat-value">$0</div><div class="stat-label">Day P&L</div></div>
+        </div>
+
+        <!-- Trade Statistics -->
+        <div class="section-title">📈 Trade Statistics</div>
+        <div class="grid">
+            <div class="card stat"><div class="stat-value">0</div><div class="stat-label">Total Trades</div></div>
+            <div class="card stat"><div class="stat-value">0</div><div class="stat-label">Wins</div></div>
+            <div class="card stat"><div class="stat-value">0</div><div class="stat-label">Losses</div></div>
+            <div class="card stat"><div class="stat-value">0.0%</div><div class="stat-label">Win Rate</div></div>
+            <div class="card stat"><div class="stat-value">$+0.00</div><div class="stat-label">Open P&L</div></div>
+            <div class="card stat"><div class="stat-value">0</div><div class="stat-label">Open Positions</div></div>
+        </div>
+
+        <!-- Recent Alerts -->
+        <div class="section-title">⚠️ Recent Alerts & Errors</div>
+        <div class="card">
+            <div style="padding:8px;margin:5px 0;background:#f8514920;border-left:3px solid #f85149;border-radius:4px;font-size:11px;"><strong>ERROR</strong> 2026-07-24 21:12:34 UTC: TL_EMAIL or TL_PASSWORD not set</div><div style="padding:8px;margin:5px 0;background:#d2992220;border-left:3px solid #d29922;border-radius:4px;font-size:11px;"><strong>WARNING</strong> 2026-07-24 21:12:34 UTC: cTrader: DISCONNECTED — Failed to authenticate. Check TL_EMAIL, TL_PASSWORD, TL_SERVER secrets.</div>
+        </div>
+
+        <!-- Backend Process Logs -->
+        <div class="section-title">📋 Backend Process Logs (Last 30)</div>
+        <div class="card"><table>
+<thead><tr><th>Time</th><th>Level</th><th>Message</th></tr></thead>
+<tbody><tr>
+<td class="time">2026-07-24 21:12:34 UTC</td>
+<td style="color:#58a6ff;font-weight:600;">INFO</td>
+<td>=== DASHBOARD GENERATION STARTED ===</td>
+</tr><tr>
+<td class="time">2026-07-24 21:12:34 UTC</td>
+<td style="color:#f85149;font-weight:600;">ERROR</td>
+<td>TL_EMAIL or TL_PASSWORD not set</td>
+</tr><tr>
+<td class="time">2026-07-24 21:12:34 UTC</td>
+<td style="color:#d29922;font-weight:600;">WARNING</td>
+<td>cTrader: DISCONNECTED — Failed to authenticate. Check TL_EMAIL, TL_PASSWORD, TL_SERVER secrets.</td>
+</tr><tr>
+<td class="time">2026-07-24 21:12:35 UTC</td>
+<td style="color:#3fb950;font-weight:600;">SUCCESS</td>
+<td>Telegram: CONNECTED (@Forexunitedbot)</td>
+</tr><tr>
+<td class="time">2026-07-24 21:12:35 UTC</td>
+<td style="color:#58a6ff;font-weight:600;">INFO</td>
+<td>Dashboard data: state_keys=EMPTY, positions=0, orders=0, trades=0</td>
+</tr><tr>
+<td class="time">2026-07-24 21:12:35 UTC</td>
+<td style="color:#58a6ff;font-weight:600;">INFO</td>
+<td>Account: balance=None, equity=None, margin_level=None%</td>
+</tr></tbody></table></div>
+
+        <!-- Open Positions -->
+        <div class="section-title">Open Positions (0) — Live SL/TP & P&L</div>
+        <div class="card"><div class="empty">No open positions</div></div>
+
+        <!-- Closed Trades (Results) -->
+        <div class="section-title">Closed Trades (0) — Results</div>
+        <div class="card"><div class="empty">No closed trades yet</div></div>
+
+        <!-- Recent Orders -->
+        <div class="section-title">Recent Orders (Last 20)</div>
+        <div class="card"><div class="empty">No recent orders</div></div>
+
+        <div class="last-update">Last updated: 2026-07-24 21:12:35 UTC | Auto-refresh every 60s | 6 Total Logs | 2 Alerts | Build: 20260724211234</div>
     </div>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="modal">
+        <div class="modal-content">
+            <h3>⚙️ GitHub API Settings</h3>
+            <p style="font-size:11px;color:#8b949e;margin-bottom:10px;">
+                Configure these settings to enable the "Fetch Now" button.
+                Your token is stored locally in your browser (localStorage) and never sent to our server.
+            </p>
+            <label>GitHub Personal Access Token (with <code>workflow</code> scope)</label>
+            <input type="password" id="gh_token" placeholder="ghp_xxxxxxxxxxxx">
+            <label>GitHub Username / Owner</label>
+            <input type="text" id="gh_owner" placeholder="mjamee21-blip">
+            <label>Repository Name</label>
+            <input type="text" id="gh_repo" placeholder="ctrader_bridge">
+            <label>Workflow Filename</label>
+            <input type="text" id="gh_workflow" value="ctrader.yml">
+            <div class="modal-actions">
+                <button class="btn btn-settings" onclick="closeSettings()">Cancel</button>
+                <button class="btn btn-fetch" onclick="saveSettings()">Save</button>
+            </div>
+        </div>
+    </div>
+
+    
+<script>
+function getGH() {
+    return {
+        token: localStorage.getItem('gh_token') || '',
+        owner: localStorage.getItem('gh_owner') || '',
+        repo: localStorage.getItem('gh_repo') || '',
+        workflow: localStorage.getItem('gh_workflow') || 'ctrader.yml'
+    };
+}
+function openSettings() {
+    var s = getGH();
+    document.getElementById('gh_token').value = s.token;
+    document.getElementById('gh_owner').value = s.owner;
+    document.getElementById('gh_repo').value = s.repo;
+    document.getElementById('gh_workflow').value = s.workflow;
+    document.getElementById('settingsModal').style.display = 'block';
+}
+function closeSettings() {
+    document.getElementById('settingsModal').style.display = 'none';
+}
+function saveSettings() {
+    localStorage.setItem('gh_token', document.getElementById('gh_token').value);
+    localStorage.setItem('gh_owner', document.getElementById('gh_owner').value);
+    localStorage.setItem('gh_repo', document.getElementById('gh_repo').value);
+    localStorage.setItem('gh_workflow', document.getElementById('gh_workflow').value);
+    closeSettings();
+    alert('Settings saved! Click "Fetch Now" to trigger a refresh.');
+}
+function fetchNow() {
+    var s = getGH();
+    if (!s.token || !s.owner || !s.repo) {
+        alert('Please configure GitHub settings first.\nClick the gear icon to set your GitHub token and repo info.');
+        openSettings();
+        return;
+    }
+    var btn = document.getElementById('fetchBtn');
+    btn.disabled = true;
+    btn.innerHTML = '⏳ Triggering...';
+    fetch('https://api.github.com/repos/' + s.owner + '/' + s.repo + '/actions/workflows/' + s.workflow + '/dispatches', {
+        method: 'POST',
+        headers: {
+            'Authorization': 'Bearer ' + s.token,
+            'Accept': 'application/vnd.github+json',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ ref: 'main' })
+    }).then(function(response) {
+        if (response.status === 204) {
+            btn.innerHTML = '✅ Triggered! Reloading in 30s...';
+            setTimeout(function() { location.reload(); }, 30000);
+        } else {
+            return response.json().then(function(data) {
+                throw new Error(data.message || 'Failed (status ' + response.status + ')');
+            });
+        }
+    }).catch(function(error) {
+        btn.disabled = false;
+        btn.innerHTML = '🔄 Fetch Now';
+        alert('Error: ' + error.message);
+    });
+}
+function logout() {
+    if (confirm('Are you sure you want to logout?')) {
+        sessionStorage.removeItem('dashboard_authenticated');
+        sessionStorage.removeItem('dashboard_username');
+        sessionStorage.removeItem('dashboard_login_time');
+        sessionStorage.clear();
+        localStorage.removeItem('gh_token');
+        localStorage.removeItem('gh_owner');
+        localStorage.removeItem('gh_repo');
+        localStorage.removeItem('gh_workflow');
+        window.location.href = 'login.html';
+    }
+}
+function checkAuth() {
+    const auth = sessionStorage.getItem('dashboard_authenticated');
+    if (auth !== 'true') {
+        window.location.href = 'login.html';
+    }
+}
+
+function autoRefresh() {
+    setInterval(function() {
+        const auth = sessionStorage.getItem('dashboard_authenticated');
+        if (auth === 'true') {
+            location.reload();
+        } else {
+            window.location.href = 'login.html';
+        }
+    }, 60000);
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    checkAuth();
+    autoRefresh();
+    setInterval(function() {
+        const auth = sessionStorage.getItem('dashboard_authenticated');
+        if (auth !== 'true') {
+            window.location.href = 'login.html';
+        }
+    }, 10000);
+});
+</script>
+
 </body>
 </html>
