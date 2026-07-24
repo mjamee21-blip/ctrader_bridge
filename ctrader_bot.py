@@ -38,16 +38,16 @@ except:
 # =====================================================================
 # CONFIG FROM GITHUB SECRETS
 # =====================================================================
-TL_EMAIL = os.environ.get("TL_EMAIL", "")
-TL_PASSWORD = os.environ.get("TL_PASSWORD", "")
-TL_SERVER = os.environ.get("TL_SERVER", "cTrader-Demo")
-TL_ACCOUNT_ID = int(os.environ.get("TL_ACCOUNT_ID", "0")) if os.environ.get("TL_ACCOUNT_ID", "0").strip() else 0
-TL_ACC_NUM = int(os.environ.get("TL_ACC_NUM", "1")) if os.environ.get("TL_ACC_NUM", "1").strip() else 1
-TL_ENV = os.environ.get("TL_ENV", "demo")
+TL_EMAIL = os.environ.get("CTRADER_EMAIL", os.environ.get("TL_EMAIL", ""))
+TL_PASSWORD = os.environ.get("CTRADER_PASSWORD", os.environ.get("TL_PASSWORD", ""))
+TL_SERVER = os.environ.get("CTRADER_SERVER", os.environ.get("TL_SERVER", "cTrader-Demo"))
+TL_ACCOUNT_ID = int(os.environ.get("CTRADER_ACCOUNT_ID", os.environ.get("TL_ACCOUNT_ID", "0")) or "0")
+TL_ACC_NUM = int(os.environ.get("CTRADER_ACC_NUM", os.environ.get("TL_ACC_NUM", "1")) or "1")
+TL_ENV = os.environ.get("CTRADER_ENV", os.environ.get("TL_ENV", "demo"))
 TG_TOKEN = os.environ.get("TG_TOKEN", "")
 TG_CHAT = os.environ.get("TG_CHAT", "")
-TL_PAIR_MAP_JSON = os.environ.get("TL_PAIR_MAP", "{}")
-DEFAULT_QTY = float(os.environ.get("TL_DEFAULT_QTY", "1.0").strip()) if os.environ.get("TL_DEFAULT_QTY", "").strip() else 1.0
+TL_PAIR_MAP_JSON = os.environ.get("CTRADER_PAIR_MAP", os.environ.get("TL_PAIR_MAP", "{}"))
+DEFAULT_QTY = float(os.environ.get("CTRADER_DEFAULT_QTY", os.environ.get("TL_DEFAULT_QTY", "1.0")) or "1.0")
 MODE = os.environ.get("MODE", "bot")  # "bot" or "dashboard"
 
 # GitHub info for the "Fetch Now" button
