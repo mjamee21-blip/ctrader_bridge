@@ -13,7 +13,7 @@ permissions:
 jobs:
   bot:
     runs-on: ubuntu-latest
-    name: Execute cTrader Open API Bot
+    name: Execute cTrader Bot
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -26,14 +26,24 @@ jobs:
       - name: Run Bot
         env:
           MODE: bot
-          CTRADER_CLIENT_ID: ${{ secrets.CTRADER_CLIENT_ID }}
-          CTRADER_CLIENT_SECRET: ${{ secrets.CTRADER_CLIENT_SECRET }}
-          CTRADER_ACCESS_TOKEN: ${{ secrets.CTRADER_ACCESS_TOKEN }}
-          CTRADER_ACCOUNT_ID: ${{ secrets.CTRADER_ACCOUNT_ID }}
-          CTRADER_ENV: ${{ secrets.CTRADER_ENV }}
+          CTRADER_EMAIL: ${{ secrets.CTRADER_EMAIL != '' && secrets.CTRADER_EMAIL || secrets.TL_EMAIL }}
+          TL_EMAIL: ${{ secrets.TL_EMAIL != '' && secrets.TL_EMAIL || secrets.CTRADER_EMAIL }}
+          CTRADER_PASSWORD: ${{ secrets.CTRADER_PASSWORD != '' && secrets.CTRADER_PASSWORD || secrets.TL_PASSWORD }}
+          TL_PASSWORD: ${{ secrets.TL_PASSWORD != '' && secrets.TL_PASSWORD || secrets.CTRADER_PASSWORD }}
+          CTRADER_SERVER: ${{ secrets.CTRADER_SERVER != '' && secrets.CTRADER_SERVER || secrets.TL_SERVER }}
+          TL_SERVER: ${{ secrets.TL_SERVER != '' && secrets.TL_SERVER || secrets.CTRADER_SERVER }}
+          CTRADER_ACCOUNT_ID: ${{ secrets.CTRADER_ACCOUNT_ID != '' && secrets.CTRADER_ACCOUNT_ID || secrets.TL_ACCOUNT_ID }}
+          TL_ACCOUNT_ID: ${{ secrets.TL_ACCOUNT_ID != '' && secrets.TL_ACCOUNT_ID || secrets.CTRADER_ACCOUNT_ID }}
+          CTRADER_ACC_NUM: ${{ secrets.CTRADER_ACC_NUM != '' && secrets.CTRADER_ACC_NUM || secrets.TL_ACC_NUM }}
+          TL_ACC_NUM: ${{ secrets.TL_ACC_NUM != '' && secrets.TL_ACC_NUM || secrets.CTRADER_ACC_NUM }}
+          CTRADER_ENV: ${{ secrets.CTRADER_ENV != '' && secrets.CTRADER_ENV || secrets.TL_ENV }}
+          TL_ENV: ${{ secrets.TL_ENV != '' && secrets.TL_ENV || secrets.CTRADER_ENV }}
           TG_TOKEN: ${{ secrets.TG_TOKEN }}
           TG_CHAT: ${{ secrets.TG_CHAT }}
-          CTRADER_DEFAULT_QTY: ${{ secrets.CTRADER_DEFAULT_QTY }}
+          CTRADER_PAIR_MAP: ${{ secrets.CTRADER_PAIR_MAP != '' && secrets.CTRADER_PAIR_MAP || secrets.TL_PAIR_MAP }}
+          TL_PAIR_MAP: ${{ secrets.TL_PAIR_MAP != '' && secrets.TL_PAIR_MAP || secrets.CTRADER_PAIR_MAP }}
+          CTRADER_DEFAULT_QTY: ${{ secrets.CTRADER_DEFAULT_QTY != '' && secrets.CTRADER_DEFAULT_QTY || secrets.TL_DEFAULT_QTY }}
+          TL_DEFAULT_QTY: ${{ secrets.TL_DEFAULT_QTY != '' && secrets.TL_DEFAULT_QTY || secrets.CTRADER_DEFAULT_QTY }}
         run: python3 ctrader_bot.py
 
   dashboard:
@@ -55,11 +65,18 @@ jobs:
       - name: Generate Dashboard
         env:
           MODE: dashboard
-          CTRADER_CLIENT_ID: ${{ secrets.CTRADER_CLIENT_ID }}
-          CTRADER_CLIENT_SECRET: ${{ secrets.CTRADER_CLIENT_SECRET }}
-          CTRADER_ACCESS_TOKEN: ${{ secrets.CTRADER_ACCESS_TOKEN }}
-          CTRADER_ACCOUNT_ID: ${{ secrets.CTRADER_ACCOUNT_ID }}
-          CTRADER_ENV: ${{ secrets.CTRADER_ENV }}
+          CTRADER_EMAIL: ${{ secrets.CTRADER_EMAIL != '' && secrets.CTRADER_EMAIL || secrets.TL_EMAIL }}
+          TL_EMAIL: ${{ secrets.TL_EMAIL != '' && secrets.TL_EMAIL || secrets.CTRADER_EMAIL }}
+          CTRADER_PASSWORD: ${{ secrets.CTRADER_PASSWORD != '' && secrets.CTRADER_PASSWORD || secrets.TL_PASSWORD }}
+          TL_PASSWORD: ${{ secrets.TL_PASSWORD != '' && secrets.TL_PASSWORD || secrets.CTRADER_PASSWORD }}
+          CTRADER_SERVER: ${{ secrets.CTRADER_SERVER != '' && secrets.CTRADER_SERVER || secrets.TL_SERVER }}
+          TL_SERVER: ${{ secrets.TL_SERVER != '' && secrets.TL_SERVER || secrets.CTRADER_SERVER }}
+          CTRADER_ACCOUNT_ID: ${{ secrets.CTRADER_ACCOUNT_ID != '' && secrets.CTRADER_ACCOUNT_ID || secrets.TL_ACCOUNT_ID }}
+          TL_ACCOUNT_ID: ${{ secrets.TL_ACCOUNT_ID != '' && secrets.TL_ACCOUNT_ID || secrets.CTRADER_ACCOUNT_ID }}
+          CTRADER_ACC_NUM: ${{ secrets.CTRADER_ACC_NUM != '' && secrets.CTRADER_ACC_NUM || secrets.TL_ACC_NUM }}
+          TL_ACC_NUM: ${{ secrets.TL_ACC_NUM != '' && secrets.TL_ACC_NUM || secrets.CTRADER_ACC_NUM }}
+          CTRADER_ENV: ${{ secrets.CTRADER_ENV != '' && secrets.CTRADER_ENV || secrets.TL_ENV }}
+          TL_ENV: ${{ secrets.TL_ENV != '' && secrets.TL_ENV || secrets.CTRADER_ENV }}
           TG_TOKEN: ${{ secrets.TG_TOKEN }}
           GH_OWNER: ${{ secrets.GH_OWNER }}
           GH_REPO: ${{ secrets.GH_REPO }}
