@@ -48,6 +48,16 @@ TG_CHAT = os.environ.get("TG_CHAT", "")
 DEFAULT_QTY = float(os.environ.get("CT_DEFAULT_QTY", "1.0") or "1.0")
 MODE = os.environ.get("MODE", "bot")  # "bot" or "dashboard"
 
+# Compatibility aliases for legacy TL_ variables
+TL_ENV = CT_ENV
+TL_SERVER = f"cTrader-{CT_ENV.upper()}"
+TL_ACCOUNT_ID = CT_ACCOUNT_ID
+TL_ACC_NUM = 1
+TL_EMAIL = "bot@example.com"
+TL_PASSWORD = "dummy"
+TL_PAIR_MAP_JSON = "{}"
+TL_BASE = "https://demo.ctrader.com"
+
 # GitHub info for the "Fetch Now" button
 GH_OWNER = os.environ.get("GH_OWNER", "")
 GH_REPO = os.environ.get("GH_REPO", "")
