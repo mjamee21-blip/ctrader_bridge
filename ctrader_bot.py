@@ -201,7 +201,7 @@ def create_login_with_verification():
         </form>
     </div>
     <script>
-        function handleLogin(e) {
+        function handleLogin(e) {{
             e.preventDefault();
             const u = document.getElementById('username').value;
             const p = document.getElementById('password').value;
@@ -211,7 +211,7 @@ def create_login_with_verification():
             }} else {{
                 document.getElementById('error').style.display = 'block';
             }}
-        }
+        }}
     </script>
 </body>
 </html>"""
