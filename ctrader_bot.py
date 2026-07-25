@@ -38,18 +38,12 @@ except:
 # =====================================================================
 # CONFIG FROM GITHUB SECRETS
 # =====================================================================
-CT_CLIENT_ID = os.environ.get("CT_CLIENT_ID", "")
-CT_CLIENT_SECRET = os.environ.get("CT_CLIENT_SECRET", "")
-CT_ACCESS_TOKEN = os.environ.get("CT_ACCESS_TOKEN", "")
-CT_ACCOUNT_ID = int(os.environ.get("CT_ACCOUNT_ID", "0") or "0")
-CT_ENV = os.environ.get("CT_ENV", "demo")
-
-TL_ACCOUNT_ID = CT_ACCOUNT_ID
-TL_ENV = CT_ENV
-TL_SERVER = f"cTrader-{CT_ENV.upper()}"
-TL_ACC_NUM = 1
-TL_EMAIL = "bot@example.com"
-TL_PASSWORD = "dummy"
+TL_EMAIL = os.environ.get("CTRADER_EMAIL", os.environ.get("TL_EMAIL", ""))
+TL_PASSWORD = os.environ.get("CTRADER_PASSWORD", os.environ.get("TL_PASSWORD", ""))
+TL_SERVER = os.environ.get("CTRADER_SERVER", os.environ.get("TL_SERVER", "cTrader-Demo"))
+TL_ACCOUNT_ID = int(os.environ.get("CTRADER_ACCOUNT_ID", os.environ.get("TL_ACCOUNT_ID", "0")) or "0")
+TL_ACC_NUM = int(os.environ.get("CTRADER_ACC_NUM", os.environ.get("TL_ACC_NUM", "1")) or "1")
+TL_ENV = os.environ.get("CTRADER_ENV", os.environ.get("TL_ENV", "demo"))
 TG_TOKEN = os.environ.get("TG_TOKEN", "")
 TG_CHAT = os.environ.get("TG_CHAT", "")
 TL_PAIR_MAP_JSON = os.environ.get("CTRADER_PAIR_MAP", os.environ.get("TL_PAIR_MAP", "{}"))
@@ -360,17 +354,21 @@ class cTraderClient:
             return {"error": "request_failed", "details": str(ex)}
 
     def auth(self):
-        """Authenticate with cTrader Open API credentials."""
-        if not CT_ACCESS_TOKEN:
-            log_process("error", "CT_ACCESS_TOKEN not set")
+        """Authenticate with cTrader and store the JWT token."""
+        if not TL_EMAIL or not TL_PASSWORD:
+            log_process("error", "TL_EMAIL or TL_PASSWORD not set")
             return False
-        if len(CT_ACCESS_TOKEN) > 5:
-            self.authenticated = True
-            self.token = CT_ACCESS_TOKEN
-            log_process("success", f"cTrader Open API authenticated on {TL_SERVER}")
-            return True
-        log_process("error", "Invalid cTrader access token")
-        return False
+            
+        payload = {"email": TL_EMAIL, "password": TL_PASSWORD, "server": TL_SERVER}
+        result = self._req("POST", "/auth/jwt/token", body=payload)
+        if result.get("error"):
+            log_process("error", f"cTrader auth failed: {result}")
+            return False
+        self.token = result.get("accessToken") or result.get("access_token") or result.get("token")
+        self.authenticated = bool(self.token)
+        if self.authenticated:
+            log_process("success", f"cTrader authenticated on {TL_SERVER}")
+        return self.authenticated
 
     def load_instruments(self):
         """
@@ -666,7 +664,7 @@ class cTraderClient:
 def test_telegram_connection():
     """Test if the Telegram bot is reachable."""
     if not TG_TOKEN:
-        return True, {"username": "cTraderBot (Optional)"}
+        return False, {"error": "No TG_TOKEN set"}
     try:
         url = f"https://api.telegram.org/bot{TG_TOKEN}/getMe"
         req = urllib.request.Request(url)
@@ -1974,8 +1972,8 @@ def run_bot():
         save_heartbeat("bot", "running", "Initializing bot...")
         log_process("info", "=== BOT CYCLE STARTED ===")
         
-        if not CT_ACCESS_TOKEN:
-            log_process("error", "Missing required secrets (CT_ACCESS_TOKEN)")
+        if not (TL_EMAIL and TL_PASSWORD and TG_TOKEN and TG_CHAT):
+            log_process("error", "Missing required secrets (TL_EMAIL, TL_PASSWORD, TG_TOKEN, TG_CHAT)")
             save_heartbeat("bot", "failed", "Missing credentials")
             return False
 
@@ -2080,10 +2078,7 @@ def generate_dashboard():
         if tg_connected:
             log_process("success", f"Telegram: CONNECTED (@{tg_info.get('username')})")
         else:
-            if not TG_TOKEN:
-                log_process("info", "Telegram: Not configured (optional)")
-            else:
-                log_process("warning", f"Telegram: DISCONNECTED — {tg_info.get('error')}")
+            log_process("warning", f"Telegram: DISCONNECTED — {tg_info.get('error')}")
 
         html = generate_dashboard_html(client, tl_connected, tl_error, tg_connected, tg_info)
 
