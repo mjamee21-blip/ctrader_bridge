@@ -1,7 +1,7 @@
 name: cTrader Bot & Dashboard
 
 on:
-  workflow_dispatch:
+  workflow_dispatch
 
 permissions:
   contents: write
@@ -10,7 +10,7 @@ jobs:
   execute:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
       
       - name: Setup Python 3.11
@@ -19,9 +19,9 @@ jobs:
           python-version: '3.11'
       
       - name: Install dependencies
-        run: pip install requests ctrader-open-api twisted protobuf
+        run: pip install requests
       
-      - name: Run Trading Bot Cycle
+      - name: Run Bot
         env:
           MODE: bot
           CT_CLIENT_ID: ${{ secrets.CT_CLIENT_ID }}
@@ -36,7 +36,7 @@ jobs:
           DASHBOARD_PASSWORD: ${{ secrets.DASHBOARD_PASSWORD }}
         run: python3 ctrader_bot.py
       
-      - name: Generate Dashboard HTML
+      - name: Generate Dashboard
         env:
           MODE: dashboard
           CT_CLIENT_ID: ${{ secrets.CT_CLIENT_ID }}
@@ -51,7 +51,7 @@ jobs:
           DASHBOARD_PASSWORD: ${{ secrets.DASHBOARD_PASSWORD }}
         run: python3 ctrader_bot.py
       
-      - name: Commit and Push Dashboard
+      - name: Commit changes
         run: |
           git config --global user.email "bot@github.com"
           git config --global user.name "Dashboard Bot"
