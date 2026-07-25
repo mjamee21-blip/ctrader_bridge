@@ -364,7 +364,7 @@ class cTraderClient:
                                 
                             if sig_type == "SIGNAL":
                                 direction = sig.get("direction", "BUY").upper()
-                                qty = sig.get("qty") or DEFAULT_QTY
+                                qty = sig.get("qty") or (0.10 if "BTC" in (norm_pair or pair).upper() else 0.01)
                                 sl = sig.get("sl")
                                 tp = sig.get("tp")
                                 log_process("info", f"Sending ProtoOANewOrderReq: {direction} {norm_pair or pair} (SymbolID: {sym_id}) | Vol: {int(float(qty) * 100000)}...")
@@ -918,7 +918,8 @@ def parse_signal(text):
             try: tp = float(m.group(1))
             except: pass
 
-    return {"type": "SIGNAL", "direction": direction, "pair": pair, "sl": sl, "tp": tp}
+    qty = 0.10 if "BTC" in pair else 0.01
+    return {"type": "SIGNAL", "direction": direction, "pair": pair, "sl": sl, "tp": tp, "qty": qty}
 
 def reclassify_stored_telegram_messages():
     """Re-evaluate stored historical Telegram messages against current chat filter rules."""
