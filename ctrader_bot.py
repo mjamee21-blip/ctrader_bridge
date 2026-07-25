@@ -469,7 +469,14 @@ class cTraderClient:
                 
             elif payload_type == ProtoOAErrorRes().payloadType:
                 err = Protobuf.extract(message)
-                log_process("error", f"cTrader Server returned error: {getattr(err, 'errorCode', '')} - {getattr(err, 'description', '')}")
+                err_code = getattr(err, 'errorCode', '')
+                err_desc = getattr(err, 'description', '')
+                log_process("error", f"cTrader Server returned error: {err_code} - {err_desc}")
+                if "AUTH_FAILURE" in str(err_code) or "CLIENT_ID" in str(err_code):
+                    log_process("error", "🛑 Please check your GitHub Secrets CT_CLIENT_ID and CT_CLIENT_SECRET against your Open API app!")
+                sync_status["finished"] = True
+                if reactor.running:
+                    reactor.callLater(0.2, reactor.stop)
 
         def connected(c):
             log_process("info", "TCP Connected. Sending application authentication...")
@@ -687,7 +694,16 @@ def tg_get_messages(offset=0):
                     continue
 
                 target = str(TG_CHAT).lstrip("@").strip()
-                is_match = not TG_CHAT or TG_CHAT == "ANY" or target == chat_uname or target == chat_id or target == chat_title
+                clean_target = target.lstrip("-").replace("100", "", 1) if (target.startswith("-100") or target.startswith("100")) else target.lstrip("-")
+                clean_chat = chat_id.lstrip("-").replace("100", "", 1) if (chat_id.startswith("-100") or chat_id.startswith("100")) else chat_id.lstrip("-")
+                
+                is_match = (
+                    not TG_CHAT or TG_CHAT == "ANY" or 
+                    target == chat_uname or target == chat_id or target == chat_title or
+                    chat_id.lstrip("-") == target.lstrip("-") or
+                    clean_chat == clean_target or
+                    (target and (target.lower() in chat_title.lower() or target.lower() in chat_uname.lower()))
+                )
                 
                 timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
                 classification = "TEXT (No action)"
@@ -701,6 +717,8 @@ def tg_get_messages(offset=0):
                     log_process("info", f"Telegram msg from [{chat_title} | ID:{chat_id}] ignored because TG_CHAT is set to '{TG_CHAT}'.")
                 else:
                     messages.append({"text": text})
+                    if "⚡" in classification:
+                        log_process("success", f"Matched signal from [{chat_title}] -> {classification}")
                 
                 _telegram_messages.append({
                     "timestamp": timestamp,
