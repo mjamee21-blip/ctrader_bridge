@@ -411,7 +411,7 @@ class cTraderClient:
                 if not sync_status["finished"]:
                     sync_status["finished"] = True
                     log_process("success", "Complete Account & Position Data synchronized via TCP Protobuf!")
-                    delay_close = 1.5 if pending_signals else 0.3
+                    delay_close = 5.0 if pending_signals else 0.3
                     if reactor.running:
                         reactor.callLater(delay_close, reactor.stop)
         
