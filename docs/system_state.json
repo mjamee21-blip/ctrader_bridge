@@ -1,136 +1,6 @@
 {
   "logs": [
     {
-      "timestamp": "2026-07-25 19:21:02 UTC",
-      "level": "info",
-      "message": "cTrader TCP connection disconnected safely."
-    },
-    {
-      "timestamp": "2026-07-25 19:21:03 UTC",
-      "level": "success",
-      "message": "Telegram Bot verified successfully! (@Forexunitedbot) | Chat Target: 1003257960170"
-    },
-    {
-      "timestamp": "2026-07-25 19:21:03 UTC",
-      "level": "success",
-      "message": "Telegram Connected (@Forexunitedbot)"
-    },
-    {
-      "timestamp": "2026-07-25 19:21:03 UTC",
-      "level": "success",
-      "message": "Dashboard index.html and login.html updated successfully!"
-    },
-    {
-      "timestamp": "2026-07-25 19:22:31 UTC",
-      "level": "info",
-      "message": "=== TRADING BOT CYCLE STARTED ==="
-    },
-    {
-      "timestamp": "2026-07-25 19:22:31 UTC",
-      "level": "success",
-      "message": "\u2705 All 10 GitHub repository secrets detected successfully!"
-    },
-    {
-      "timestamp": "2026-07-25 19:22:31 UTC",
-      "level": "info",
-      "message": "\ud83d\udd12 cTrader OAuth Config: Client ID present | Account ID: 10627083 | Env: DEMO"
-    },
-    {
-      "timestamp": "2026-07-25 19:22:31 UTC",
-      "level": "info",
-      "message": "\ud83d\udcf1 Telegram Config: Token present | Chat Target: -1003257960170"
-    },
-    {
-      "timestamp": "2026-07-25 19:22:32 UTC",
-      "level": "info",
-      "message": "Connecting to cTrader Open API (DEMO TCP Server)..."
-    },
-    {
-      "timestamp": "2026-07-25 19:22:32 UTC",
-      "level": "info",
-      "message": "TCP Connected. Sending application authentication..."
-    },
-    {
-      "timestamp": "2026-07-25 19:22:33 UTC",
-      "level": "error",
-      "message": "cTrader Server returned error: CH_CLIENT_AUTH_FAILURE - clientId or clientSecret is incorrect"
-    },
-    {
-      "timestamp": "2026-07-25 19:22:33 UTC",
-      "level": "error",
-      "message": "\ud83d\uded1 Please check your GitHub Secrets CT_CLIENT_ID and CT_CLIENT_SECRET against your Open API app!"
-    },
-    {
-      "timestamp": "2026-07-25 19:22:33 UTC",
-      "level": "info",
-      "message": "cTrader TCP connection disconnected safely."
-    },
-    {
-      "timestamp": "2026-07-25 19:22:34 UTC",
-      "level": "success",
-      "message": "Telegram Bot verified successfully! (@Forexunitedbot) | Chat Target: -1003257960170"
-    },
-    {
-      "timestamp": "2026-07-25 19:22:38 UTC",
-      "level": "info",
-      "message": "Fetched 0 new messages from Telegram."
-    },
-    {
-      "timestamp": "2026-07-25 19:22:38 UTC",
-      "level": "success",
-      "message": "Bot cycle finished. Processed 0 trading signals."
-    },
-    {
-      "timestamp": "2026-07-25 19:22:39 UTC",
-      "level": "info",
-      "message": "=== DASHBOARD GENERATION STARTED ==="
-    },
-    {
-      "timestamp": "2026-07-25 19:22:39 UTC",
-      "level": "success",
-      "message": "\u2705 All 10 GitHub repository secrets detected successfully!"
-    },
-    {
-      "timestamp": "2026-07-25 19:22:39 UTC",
-      "level": "info",
-      "message": "\ud83d\udd12 cTrader OAuth Config: Client ID present | Account ID: 10627083 | Env: DEMO"
-    },
-    {
-      "timestamp": "2026-07-25 19:22:39 UTC",
-      "level": "info",
-      "message": "\ud83d\udcf1 Telegram Config: Token present | Chat Target: -1003257960170"
-    },
-    {
-      "timestamp": "2026-07-25 19:22:39 UTC",
-      "level": "info",
-      "message": "Connecting to cTrader Open API (DEMO TCP Server)..."
-    },
-    {
-      "timestamp": "2026-07-25 19:22:39 UTC",
-      "level": "info",
-      "message": "TCP Connected. Sending application authentication..."
-    },
-    {
-      "timestamp": "2026-07-25 19:22:41 UTC",
-      "level": "error",
-      "message": "cTrader Server returned error: CH_CLIENT_AUTH_FAILURE - clientId or clientSecret is incorrect"
-    },
-    {
-      "timestamp": "2026-07-25 19:22:41 UTC",
-      "level": "error",
-      "message": "\ud83d\uded1 Please check your GitHub Secrets CT_CLIENT_ID and CT_CLIENT_SECRET against your Open API app!"
-    },
-    {
-      "timestamp": "2026-07-25 19:22:41 UTC",
-      "level": "info",
-      "message": "cTrader TCP connection disconnected safely."
-    },
-    {
-      "timestamp": "2026-07-25 19:22:41 UTC",
-      "level": "success",
-      "message": "Telegram Bot verified successfully! (@Forexunitedbot) | Chat Target: -1003257960170"
-    },
-    {
       "timestamp": "2026-07-25 19:22:41 UTC",
       "level": "success",
       "message": "Telegram Connected (@Forexunitedbot)"
@@ -749,19 +619,139 @@
       "timestamp": "2026-07-25 19:32:44 UTC",
       "level": "success",
       "message": "Dashboard index.html and login.html updated successfully!"
+    },
+    {
+      "timestamp": "2026-07-25 19:34:33 UTC",
+      "level": "info",
+      "message": "=== TRADING BOT CYCLE STARTED ==="
+    },
+    {
+      "timestamp": "2026-07-25 19:34:33 UTC",
+      "level": "success",
+      "message": "\u2705 All 10 GitHub repository secrets detected successfully!"
+    },
+    {
+      "timestamp": "2026-07-25 19:34:33 UTC",
+      "level": "info",
+      "message": "\ud83d\udd12 Diagnostics -> Client ID: 337***NU (len: 56) | Secret: ner***Bn (len: 50) | AccessToken: nkE***BA (len: 43)"
+    },
+    {
+      "timestamp": "2026-07-25 19:34:33 UTC",
+      "level": "info",
+      "message": "\ud83d\udcca cTrader Target Account: 10627083 | Server Environment: DEMO"
+    },
+    {
+      "timestamp": "2026-07-25 19:34:33 UTC",
+      "level": "info",
+      "message": "\ud83d\udcf1 Telegram Config: Token present | Chat Target: -1003257960170"
+    },
+    {
+      "timestamp": "2026-07-25 19:34:33 UTC",
+      "level": "info",
+      "message": "Connecting to cTrader Open API (DEMO TCP Server)..."
+    },
+    {
+      "timestamp": "2026-07-25 19:34:33 UTC",
+      "level": "info",
+      "message": "TCP Connected. Sending application authentication..."
+    },
+    {
+      "timestamp": "2026-07-25 19:34:35 UTC",
+      "level": "info",
+      "message": "Application authorized. Sending account authorization..."
+    },
+    {
+      "timestamp": "2026-07-25 19:34:36 UTC",
+      "level": "error",
+      "message": "cTrader Server returned error: CH_CTID_TRADER_ACCOUNT_NOT_FOUND - Unable to find cTID trader account with id=10627083"
+    },
+    {
+      "timestamp": "2026-07-25 19:34:36 UTC",
+      "level": "info",
+      "message": "cTrader TCP connection disconnected safely."
+    },
+    {
+      "timestamp": "2026-07-25 19:34:36 UTC",
+      "level": "success",
+      "message": "Telegram Bot verified successfully! (@Forexunitedbot) | Chat Target: -1003257960170"
+    },
+    {
+      "timestamp": "2026-07-25 19:34:40 UTC",
+      "level": "info",
+      "message": "Fetched 0 new messages from Telegram."
+    },
+    {
+      "timestamp": "2026-07-25 19:34:40 UTC",
+      "level": "success",
+      "message": "Bot cycle finished. Processed 0 trading signals."
+    },
+    {
+      "timestamp": "2026-07-25 19:34:41 UTC",
+      "level": "info",
+      "message": "=== DASHBOARD GENERATION STARTED ==="
+    },
+    {
+      "timestamp": "2026-07-25 19:34:41 UTC",
+      "level": "success",
+      "message": "\u2705 All 10 GitHub repository secrets detected successfully!"
+    },
+    {
+      "timestamp": "2026-07-25 19:34:41 UTC",
+      "level": "info",
+      "message": "\ud83d\udd12 Diagnostics -> Client ID: 337***NU (len: 56) | Secret: ner***Bn (len: 50) | AccessToken: nkE***BA (len: 43)"
+    },
+    {
+      "timestamp": "2026-07-25 19:34:41 UTC",
+      "level": "info",
+      "message": "\ud83d\udcca cTrader Target Account: 10627083 | Server Environment: DEMO"
+    },
+    {
+      "timestamp": "2026-07-25 19:34:41 UTC",
+      "level": "info",
+      "message": "\ud83d\udcf1 Telegram Config: Token present | Chat Target: -1003257960170"
+    },
+    {
+      "timestamp": "2026-07-25 19:34:41 UTC",
+      "level": "info",
+      "message": "Connecting to cTrader Open API (DEMO TCP Server)..."
+    },
+    {
+      "timestamp": "2026-07-25 19:34:41 UTC",
+      "level": "info",
+      "message": "TCP Connected. Sending application authentication..."
+    },
+    {
+      "timestamp": "2026-07-25 19:34:42 UTC",
+      "level": "info",
+      "message": "Application authorized. Sending account authorization..."
+    },
+    {
+      "timestamp": "2026-07-25 19:34:43 UTC",
+      "level": "error",
+      "message": "cTrader Server returned error: CH_CTID_TRADER_ACCOUNT_NOT_FOUND - Unable to find cTID trader account with id=10627083"
+    },
+    {
+      "timestamp": "2026-07-25 19:34:44 UTC",
+      "level": "info",
+      "message": "cTrader TCP connection disconnected safely."
+    },
+    {
+      "timestamp": "2026-07-25 19:34:44 UTC",
+      "level": "success",
+      "message": "Telegram Bot verified successfully! (@Forexunitedbot) | Chat Target: -1003257960170"
+    },
+    {
+      "timestamp": "2026-07-25 19:34:44 UTC",
+      "level": "success",
+      "message": "Telegram Connected (@Forexunitedbot)"
+    },
+    {
+      "timestamp": "2026-07-25 19:34:44 UTC",
+      "level": "success",
+      "message": "Dashboard index.html and login.html updated successfully!"
     }
   ],
   "alerts": [
-    {
-      "timestamp": "2026-07-25 19:06:58 UTC",
-      "level": "error",
-      "message": "cTrader Server returned error: CH_CLIENT_AUTH_FAILURE - clientId or clientSecret is incorrect"
-    },
-    {
-      "timestamp": "2026-07-25 19:07:02 UTC",
-      "level": "error",
-      "message": "cTrader Server returned error: CH_CLIENT_AUTH_FAILURE - clientId or clientSecret is incorrect"
-    },
     {
       "timestamp": "2026-07-25 19:07:03 UTC",
       "level": "warning",
@@ -999,6 +989,16 @@
     },
     {
       "timestamp": "2026-07-25 19:32:44 UTC",
+      "level": "error",
+      "message": "cTrader Server returned error: CH_CTID_TRADER_ACCOUNT_NOT_FOUND - Unable to find cTID trader account with id=10627083"
+    },
+    {
+      "timestamp": "2026-07-25 19:34:36 UTC",
+      "level": "error",
+      "message": "cTrader Server returned error: CH_CTID_TRADER_ACCOUNT_NOT_FOUND - Unable to find cTID trader account with id=10627083"
+    },
+    {
+      "timestamp": "2026-07-25 19:34:43 UTC",
       "level": "error",
       "message": "cTrader Server returned error: CH_CTID_TRADER_ACCOUNT_NOT_FOUND - Unable to find cTID trader account with id=10627083"
     }
