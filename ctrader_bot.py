@@ -277,7 +277,7 @@ def check_secrets_status():
 # =====================================================================
 def refresh_access_token_if_needed():
     """Use CL_REFRESH_TOKEN to renew CT_ACCESS_TOKEN when appropriate."""
-    global CT_ACCESS_TOKEN
+    global CT_ACCESS_TOKEN, CL_REFRESH_TOKEN
     if not (CT_CLIENT_ID and CT_CLIENT_SECRET and CL_REFRESH_TOKEN):
         return False
     try:
@@ -290,9 +290,14 @@ def refresh_access_token_if_needed():
         with urllib.request.urlopen(req, timeout=12) as resp:
             data = json.loads(resp.read().decode())
             new_token = data.get("accessToken") or data.get("access_token")
+            new_refresh = data.get("refreshToken") or data.get("refresh_token")
             if new_token:
                 CT_ACCESS_TOKEN = new_token
-                log_process("success", "Refreshed cTrader access token successfully via CL_REFRESH_TOKEN!")
+                if new_refresh:
+                    CL_REFRESH_TOKEN = new_refresh
+                    log_process("success", f"Refreshed cTrader tokens successfully! New Refresh Token: {new_refresh[:10]}...")
+                else:
+                    log_process("success", "Refreshed cTrader access token successfully via CL_REFRESH_TOKEN!")
                 return True
     except HTTPError as e:
         log_process("info", f"Token refresh skipped (HTTP {e.code}) — using current CT_ACCESS_TOKEN.")
