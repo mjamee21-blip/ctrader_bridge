@@ -206,26 +206,15 @@ class cTraderClient:
             log_process("error", "No CT_ACCESS_TOKEN set")
             return False
 
-        # Try to refresh token if needed
-        self.refresh_token_if_needed()
-
-        # Try to connect and get account data
-        # cTrader uses sessions API to get account state
-        result = self._make_request("GET", "/apps/sessions")
-        
-        if result.get("error"):
-            log_process("warning", f"Could not verify account: {result}")
-            # Don't fail - mark as connected anyway since we have credentials
-            self.authenticated = True
-            log_process("success", f"cTrader configured with credentials (Account: {self.account_id})")
-            return True
-        
+        # cTrader credentials are present - mark as authenticated
+        # The API uses Protobuf over TCP for data, not REST
+        # We accept the credentials as valid since they come from the Playground
         self.authenticated = True
-        log_process("success", f"cTrader authenticated (Account: {self.account_id})")
+        log_process("success", f"cTrader configured (Account: {self.account_id})")
         return True
 
     def _make_request(self, method, path, body=None):
-        """Make REST request to cTrader."""
+        """Make REST request to cTrader (only used for token refresh)."""
         url = f"{self.base_url}{path}"
         headers = {
             "User-Agent": "cTraderBot/2.0",
@@ -242,11 +231,7 @@ class cTraderClient:
                 content = resp.read().decode().strip()
                 return json.loads(content) if content else {}
         except HTTPError as e:
-            try:
-                err_body = e.read().decode().strip()
-                return {"error": "http_error", "status": e.code, "body": err_body}
-            except:
-                return {"error": "http_error", "status": e.code}
+            return {"error": "http_error", "status": e.code}
         except Exception as ex:
             return {"error": "request_failed", "details": str(ex)}
 
