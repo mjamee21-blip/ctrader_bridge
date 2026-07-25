@@ -1225,7 +1225,7 @@ def run_bot():
     save_heartbeat("bot", "running", "Checking secrets and starting cycle...")
     log_process("info", "=== TRADING BOT CYCLE STARTED ===")
     check_secrets_status()
-    refresh_access_token_if_needed()
+    # refresh_access_token_if_needed() removed to prevent premature refresh token rotation (handled on auth error)
 
     pending_signals = []
     tg_conn, _ = test_telegram_connection()
@@ -1270,7 +1270,7 @@ def run_dashboard():
     log_process("info", "=== DASHBOARD GENERATION STARTED ===")
     
     check_secrets_status()
-    refresh_access_token_if_needed()
+    # refresh_access_token_if_needed() removed to prevent premature refresh token rotation (handled on auth error)
 
     client = cTraderClient()
     ct_connected = client.verify_auth_and_fetch_data()
