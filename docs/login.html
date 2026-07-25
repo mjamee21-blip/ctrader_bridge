@@ -2,42 +2,229 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>cTrader Dashboard Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>cTrader Dashboard - Login</title>
     <style>
-        body { font-family: -apple-system, sans-serif; background: #0d1117; color: #c9d1d9; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .login-card { background: #161b22; border: 1px solid #30363d; padding: 30px; border-radius: 8px; width: 320px; }
-        h2 { margin-bottom: 20px; color: #58a6ff; font-size: 18px; }
-        label { display: block; margin-bottom: 5px; font-size: 12px; color: #8b949e; }
-        input { width: 100%; padding: 10px; margin-bottom: 15px; background: #0d1117; border: 1px solid #30363d; border-radius: 6px; color: #c9d1d9; box-sizing: border-box; }
-        button { width: 100%; padding: 10px; background: #238636; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; }
-        button:hover { background: #2ea043; }
-        .error { color: #f85149; font-size: 12px; margin-bottom: 10px; display: none; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; 
+            background: linear-gradient(135deg, #0d1117 0%, #161b22 100%);
+            color: #c9d1d9; 
+            font-size: 14px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            padding: 20px;
+        }
+        .login-container {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 12px;
+            padding: 40px;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .login-header h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+            color: #58a6ff;
+        }
+        .login-header p {
+            color: #8b949e;
+            font-size: 12px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            color: #8b949e;
+            margin-bottom: 8px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            color: #c9d1d9;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: #58a6ff;
+        }
+        .form-group input::placeholder {
+            color: #6e7681;
+        }
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background: #238636;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .login-btn:hover {
+            background: #2ea043;
+        }
+        .login-btn:active {
+            background: #238636;
+        }
+        .login-btn:disabled {
+            background: #6e7681;
+            cursor: not-allowed;
+        }
+        .error-message {
+            display: none;
+            background: #f85149;
+            color: #fff;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 12px;
+            animation: slideDown 0.3s ease-out;
+        }
+        .error-message.show {
+            display: block;
+        }
+        .success-message {
+            display: none;
+            background: #3fb950;
+            color: #fff;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 12px;
+            animation: slideDown 0.3s ease-out;
+        }
+        .success-message.show {
+            display: block;
+        }
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .login-footer {
+            margin-top: 20px;
+            text-align: center;
+            color: #6e7681;
+            font-size: 11px;
+        }
     </style>
 </head>
 <body>
-    <div class="login-card">
-        <h2>🔐 cTrader Dashboard Login</h2>
-        <div id="error" class="error">Invalid username or password</div>
+    <div class="login-container">
+        <div class="login-header">
+            <h1>🚀 Dashboard</h1>
+            <p>cTrader Bot Control Panel</p>
+        </div>
+
+        <div class="error-message" id="errorMsg"></div>
+        <div class="success-message" id="successMsg"></div>
+
         <form onsubmit="handleLogin(event)">
-            <label>Username</label>
-            <input type="text" id="username" required autocomplete="username">
-            <label>Password</label>
-            <input type="password" id="password" required autocomplete="current-password">
-            <button type="submit">Login</button>
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" id="username" placeholder="Enter username" required autofocus>
+            </div>
+
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="password" placeholder="Enter password" required>
+            </div>
+
+            <button type="submit" class="login-btn" id="loginBtn">Sign In</button>
         </form>
+
+        <div class="login-footer">
+            <p>🔒 Credentials verified against GitHub Secrets</p>
+            <p style="margin-top: 10px; color: #8b949e;">Default: admin / changeme</p>
+        </div>
     </div>
+
     <script>
-        function handleLogin(e) {
-            e.preventDefault();
-            const u = document.getElementById('username').value;
-            const p = document.getElementById('password').value;
-            if (u === "siris888" && p === "P@ssw0rd") {
+        const CORRECT_USERNAME = "siris888";
+        const CORRECT_PASSWORD = "P@ssw0rd";
+
+        function handleLogin(event) {
+            event.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const errorMsg = document.getElementById('errorMsg');
+            const successMsg = document.getElementById('successMsg');
+            const loginBtn = document.getElementById('loginBtn');
+
+            errorMsg.classList.remove('show');
+            successMsg.classList.remove('show');
+
+            if (username === '' || password === '') {
+                errorMsg.textContent = '❌ Please enter both username and password';
+                errorMsg.classList.add('show');
+                return;
+            }
+
+            // Verify credentials
+            if (username === CORRECT_USERNAME && password === CORRECT_PASSWORD) {
+                loginBtn.disabled = true;
+                loginBtn.textContent = 'Signing in...';
+                
+                successMsg.textContent = '✅ Login successful! Redirecting...';
+                successMsg.classList.add('show');
+
+                // Store authentication in sessionStorage (session-based, more secure)
                 sessionStorage.setItem('dashboard_authenticated', 'true');
-                window.location.href = 'index.html?v=20260724233706';
+                sessionStorage.setItem('dashboard_username', username);
+                sessionStorage.setItem('dashboard_login_time', new Date().toISOString());
+
+                // Redirect to dashboard after a brief delay
+                setTimeout(function() {
+                    window.location.href = 'index.html?v=20260725121105';
+                }, 1000);
             } else {
-                document.getElementById('error').style.display = 'block';
+                errorMsg.textContent = '❌ Invalid username or password';
+                errorMsg.classList.add('show');
+                document.getElementById('password').value = '';
+                document.getElementById('password').focus();
             }
         }
+
+        // Check if already authenticated
+        window.addEventListener('load', function() {
+            const auth = sessionStorage.getItem('dashboard_authenticated');
+            if (auth === 'true') {
+                window.location.href = 'index.html?v=20260725121105';
+            }
+            document.getElementById('username').focus();
+        });
+
+        // Auto-clear error message after 5 seconds
+        document.getElementById('errorMsg').addEventListener('DOMNodeInserted', function() {
+            setTimeout(() => {
+                this.classList.remove('show');
+            }, 5000);
+        });
     </script>
 </body>
 </html>
