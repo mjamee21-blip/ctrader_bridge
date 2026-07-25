@@ -13,7 +13,7 @@ permissions:
 jobs:
   bot:
     runs-on: ubuntu-latest
-    name: Execute cTrader Open API Bot
+    name: Execute cTrader Bot
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -24,7 +24,7 @@ jobs:
           python-version: '3.11'
 
       - name: Install dependencies
-        run: pip install websockets requests
+        run: pip install requests
 
       - name: Run Bot
         env:
@@ -34,6 +34,7 @@ jobs:
           CT_ACCESS_TOKEN: ${{ secrets.CT_ACCESS_TOKEN }}
           CT_ACCOUNT_ID: ${{ secrets.CT_ACCOUNT_ID }}
           CT_ENV: ${{ secrets.CT_ENV }}
+          CL_REFRESH_TOKEN: ${{ secrets.CL_REFRESH_TOKEN }}
           TG_TOKEN: ${{ secrets.TG_TOKEN }}
           TG_CHAT: ${{ secrets.TG_CHAT }}
           DASHBOARD_USERNAME: ${{ secrets.DASHBOARD_USERNAME }}
@@ -57,7 +58,7 @@ jobs:
           python-version: '3.11'
 
       - name: Install dependencies
-        run: pip install websockets requests
+        run: pip install requests
 
       - name: Generate Dashboard
         env:
@@ -67,10 +68,9 @@ jobs:
           CT_ACCESS_TOKEN: ${{ secrets.CT_ACCESS_TOKEN }}
           CT_ACCOUNT_ID: ${{ secrets.CT_ACCOUNT_ID }}
           CT_ENV: ${{ secrets.CT_ENV }}
+          CL_REFRESH_TOKEN: ${{ secrets.CL_REFRESH_TOKEN }}
           TG_TOKEN: ${{ secrets.TG_TOKEN }}
-          GH_OWNER: ${{ secrets.GH_OWNER }}
-          GH_REPO: ${{ secrets.GH_REPO }}
-          GH_WORKFLOW: ${{ secrets.GH_WORKFLOW }}
+          TG_CHAT: ${{ secrets.TG_CHAT }}
           DASHBOARD_USERNAME: ${{ secrets.DASHBOARD_USERNAME }}
           DASHBOARD_PASSWORD: ${{ secrets.DASHBOARD_PASSWORD }}
         run: python3 ctrader_bot.py
