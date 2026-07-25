@@ -108,6 +108,31 @@ def load_heartbeat():
     except:
         pass
 
+def save_process_logs():
+    """Save process logs to file so dashboard can see bot logs."""
+    os.makedirs("docs", exist_ok=True)
+    try:
+        log_file = os.path.join("docs", "process_logs.json")
+        with open(log_file, "w") as f:
+            json.dump(_process_logs[-50:], f, indent=2)
+    except Exception as e:
+        print(f"[WARNING] Could not save process logs: {e}")
+
+def load_process_logs():
+    """Load process logs from previous run."""
+    global _process_logs
+    try:
+        log_file = os.path.join("docs", "process_logs.json")
+        if os.path.exists(log_file):
+            with open(log_file, "r") as f:
+                loaded = json.load(f)
+                if loaded:
+                    _process_logs = loaded + _process_logs
+                    if len(_process_logs) > 150:
+                        _process_logs = _process_logs[-150:]
+    except:
+        pass
+
 def get_job_status(job_name):
     if job_name not in _heartbeat_log:
         return {"status": "idle", "message": "No data", "time_ago": "never", "raw_status": "idle"}
@@ -944,6 +969,10 @@ def run_bot():
     5. Log everything to the dashboard
     """
     try:
+        print("=" * 60)
+        print("CTRADER BOT STARTING")
+        print("=" * 60)
+        
         save_heartbeat("bot", "running", "Initializing...")
         log_process("info", "=== CTRADER BOT CYCLE STARTED ===")
 
@@ -960,17 +989,21 @@ def run_bot():
         client.load_instruments()
         
         # Step 3: Check for Telegram signals
+        print(f"\n[TELEGRAM] TG_TOKEN: {'SET' if TG_TOKEN else 'NOT SET'}")
+        print(f"[TELEGRAM] TG_CHAT: {TG_CHAT if TG_CHAT else 'NOT SET (accepting all)'}")
+        
         if not TG_TOKEN:
             log_process("info", "Telegram not configured - no signals to process")
             save_heartbeat("bot", "completed", "No Telegram configured")
             return True
 
         # Step 4: Fetch new messages from Telegram
-        log_process("info", f"Telegram config: TG_TOKEN={'***' if TG_TOKEN else 'NOT SET'}, TG_CHAT={TG_CHAT if TG_CHAT else 'NOT SET (accepting all)'}")
         messages = tg_get_messages(offset=_last_update_id)
-        log_process("info", f"Fetched {len(messages)} signal messages from Telegram")
+        print(f"[TELEGRAM] Messages fetched: {len(messages)}")
+        log_process("info", f"Telegram: Fetched {len(messages)} messages")
         
         if len(messages) == 0:
+            print("[TELEGRAM] No new signals found in this cycle")
             log_process("info", "No new signals found in this cycle")
 
         signal_count = 0
@@ -1029,6 +1062,7 @@ def run_bot():
 
         log_process("info", f"=== CTRADER BOT CYCLE COMPLETE === ({signal_count} signal(s) processed)")
         save_heartbeat("bot", "completed", f"Processed {signal_count} signal(s)")
+        save_process_logs()  # Save logs for dashboard to pick up
         return True
         
     except Exception as e:
@@ -1045,6 +1079,10 @@ def run_bot():
 def generate_dashboard():
     try:
         load_heartbeat()
+        
+        # Load bot logs from file if they exist (from previous bot run)
+        load_process_logs()
+        
         save_heartbeat("dashboard", "running", "Generating...")
         log_process("info", "=== DASHBOARD STARTED ===")
 
@@ -1070,6 +1108,7 @@ def generate_dashboard():
             f.write(create_login_html())
 
         log_process("success", "Dashboard written to docs/")
+        save_process_logs()  # Save logs for persistence
         save_heartbeat("dashboard", "completed", "Success")
         return True
     except Exception as e:
