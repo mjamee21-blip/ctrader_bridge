@@ -1,201 +1,6 @@
 {
   "logs": [
     {
-      "timestamp": "2026-07-25 18:58:46 UTC",
-      "level": "info",
-      "message": "Telegram msg from [Alpha Markets International Forex & Bitcoin Signals | ID:-1003257960170] ignored because TG_CHAT is set to '1003257960170'."
-    },
-    {
-      "timestamp": "2026-07-25 18:58:46 UTC",
-      "level": "info",
-      "message": "Telegram msg from [Alpha Markets International Forex & Bitcoin Signals | ID:-1003257960170] ignored because TG_CHAT is set to '1003257960170'."
-    },
-    {
-      "timestamp": "2026-07-25 18:58:46 UTC",
-      "level": "info",
-      "message": "Telegram msg from [Alpha Markets International Forex & Bitcoin Signals | ID:-1003257960170] ignored because TG_CHAT is set to '1003257960170'."
-    },
-    {
-      "timestamp": "2026-07-25 18:58:46 UTC",
-      "level": "info",
-      "message": "Telegram msg from [Alpha Markets International Forex & Bitcoin Signals | ID:-1003257960170] ignored because TG_CHAT is set to '1003257960170'."
-    },
-    {
-      "timestamp": "2026-07-25 18:58:46 UTC",
-      "level": "info",
-      "message": "Fetched 0 new messages from Telegram."
-    },
-    {
-      "timestamp": "2026-07-25 18:58:46 UTC",
-      "level": "success",
-      "message": "Bot cycle finished. Processed 0 trading signals."
-    },
-    {
-      "timestamp": "2026-07-25 18:58:46 UTC",
-      "level": "info",
-      "message": "=== DASHBOARD GENERATION STARTED ==="
-    },
-    {
-      "timestamp": "2026-07-25 18:58:46 UTC",
-      "level": "success",
-      "message": "\u2705 All 10 GitHub repository secrets detected successfully!"
-    },
-    {
-      "timestamp": "2026-07-25 18:58:46 UTC",
-      "level": "info",
-      "message": "\ud83d\udd12 cTrader OAuth Config: Client ID present | Account ID: 10627083 | Env: DEMO"
-    },
-    {
-      "timestamp": "2026-07-25 18:58:46 UTC",
-      "level": "info",
-      "message": "\ud83d\udcf1 Telegram Config: Token present | Chat Target: 1003257960170"
-    },
-    {
-      "timestamp": "2026-07-25 18:58:47 UTC",
-      "level": "info",
-      "message": "Connecting to cTrader Open API (DEMO TCP Server)..."
-    },
-    {
-      "timestamp": "2026-07-25 18:58:47 UTC",
-      "level": "info",
-      "message": "TCP Connected. Sending application authentication..."
-    },
-    {
-      "timestamp": "2026-07-25 18:58:48 UTC",
-      "level": "error",
-      "message": "cTrader Server returned error: CH_CLIENT_AUTH_FAILURE - clientId or clientSecret is incorrect"
-    },
-    {
-      "timestamp": "2026-07-25 18:58:48 UTC",
-      "level": "info",
-      "message": "cTrader TCP connection disconnected safely."
-    },
-    {
-      "timestamp": "2026-07-25 18:58:51 UTC",
-      "level": "info",
-      "message": "TCP Connected. Sending application authentication..."
-    },
-    {
-      "timestamp": "2026-07-25 18:58:52 UTC",
-      "level": "error",
-      "message": "cTrader Server returned error: CH_CLIENT_AUTH_FAILURE - clientId or clientSecret is incorrect"
-    },
-    {
-      "timestamp": "2026-07-25 18:58:52 UTC",
-      "level": "info",
-      "message": "cTrader TCP connection disconnected safely."
-    },
-    {
-      "timestamp": "2026-07-25 18:58:54 UTC",
-      "level": "info",
-      "message": "TCP Connected. Sending application authentication..."
-    },
-    {
-      "timestamp": "2026-07-25 18:58:55 UTC",
-      "level": "error",
-      "message": "cTrader Server returned error: CH_CLIENT_AUTH_FAILURE - clientId or clientSecret is incorrect"
-    },
-    {
-      "timestamp": "2026-07-25 18:58:55 UTC",
-      "level": "info",
-      "message": "cTrader TCP connection disconnected safely."
-    },
-    {
-      "timestamp": "2026-07-25 18:58:58 UTC",
-      "level": "info",
-      "message": "TCP Connected. Sending application authentication..."
-    },
-    {
-      "timestamp": "2026-07-25 18:58:59 UTC",
-      "level": "error",
-      "message": "cTrader Server returned error: CH_CLIENT_AUTH_FAILURE - clientId or clientSecret is incorrect"
-    },
-    {
-      "timestamp": "2026-07-25 18:58:59 UTC",
-      "level": "info",
-      "message": "cTrader TCP connection disconnected safely."
-    },
-    {
-      "timestamp": "2026-07-25 18:58:59 UTC",
-      "level": "warning",
-      "message": "TCP sync timeout reached (Trd:False, Rec:False, Sym:False)."
-    },
-    {
-      "timestamp": "2026-07-25 18:59:00 UTC",
-      "level": "success",
-      "message": "Telegram Bot verified successfully! (@Forexunitedbot) | Chat Target: 1003257960170"
-    },
-    {
-      "timestamp": "2026-07-25 18:59:00 UTC",
-      "level": "success",
-      "message": "Telegram Connected (@Forexunitedbot)"
-    },
-    {
-      "timestamp": "2026-07-25 18:59:00 UTC",
-      "level": "success",
-      "message": "Dashboard index.html and login.html updated successfully!"
-    },
-    {
-      "timestamp": "2026-07-25 19:01:21 UTC",
-      "level": "info",
-      "message": "=== TRADING BOT CYCLE STARTED ==="
-    },
-    {
-      "timestamp": "2026-07-25 19:01:21 UTC",
-      "level": "success",
-      "message": "\u2705 All 10 GitHub repository secrets detected successfully!"
-    },
-    {
-      "timestamp": "2026-07-25 19:01:21 UTC",
-      "level": "info",
-      "message": "\ud83d\udd12 cTrader OAuth Config: Client ID present | Account ID: 10627083 | Env: DEMO"
-    },
-    {
-      "timestamp": "2026-07-25 19:01:21 UTC",
-      "level": "info",
-      "message": "\ud83d\udcf1 Telegram Config: Token present | Chat Target: 1003257960170"
-    },
-    {
-      "timestamp": "2026-07-25 19:01:22 UTC",
-      "level": "info",
-      "message": "Connecting to cTrader Open API (DEMO TCP Server)..."
-    },
-    {
-      "timestamp": "2026-07-25 19:01:22 UTC",
-      "level": "info",
-      "message": "TCP Connected. Sending application authentication..."
-    },
-    {
-      "timestamp": "2026-07-25 19:01:23 UTC",
-      "level": "error",
-      "message": "cTrader Server returned error: CH_CLIENT_AUTH_FAILURE - clientId or clientSecret is incorrect"
-    },
-    {
-      "timestamp": "2026-07-25 19:01:23 UTC",
-      "level": "info",
-      "message": "cTrader TCP connection disconnected safely."
-    },
-    {
-      "timestamp": "2026-07-25 19:01:26 UTC",
-      "level": "info",
-      "message": "TCP Connected. Sending application authentication..."
-    },
-    {
-      "timestamp": "2026-07-25 19:01:27 UTC",
-      "level": "error",
-      "message": "cTrader Server returned error: CH_CLIENT_AUTH_FAILURE - clientId or clientSecret is incorrect"
-    },
-    {
-      "timestamp": "2026-07-25 19:01:27 UTC",
-      "level": "info",
-      "message": "cTrader TCP connection disconnected safely."
-    },
-    {
-      "timestamp": "2026-07-25 19:01:29 UTC",
-      "level": "info",
-      "message": "TCP Connected. Sending application authentication..."
-    },
-    {
       "timestamp": "2026-07-25 19:01:30 UTC",
       "level": "error",
       "message": "cTrader Server returned error: CH_CLIENT_AUTH_FAILURE - clientId or clientSecret is incorrect"
@@ -749,6 +554,201 @@
       "timestamp": "2026-07-25 19:05:00 UTC",
       "level": "success",
       "message": "Dashboard index.html and login.html updated successfully!"
+    },
+    {
+      "timestamp": "2026-07-25 19:06:33 UTC",
+      "level": "info",
+      "message": "=== TRADING BOT CYCLE STARTED ==="
+    },
+    {
+      "timestamp": "2026-07-25 19:06:33 UTC",
+      "level": "success",
+      "message": "\u2705 All 10 GitHub repository secrets detected successfully!"
+    },
+    {
+      "timestamp": "2026-07-25 19:06:33 UTC",
+      "level": "info",
+      "message": "\ud83d\udd12 cTrader OAuth Config: Client ID present | Account ID: 10627083 | Env: DEMO"
+    },
+    {
+      "timestamp": "2026-07-25 19:06:33 UTC",
+      "level": "info",
+      "message": "\ud83d\udcf1 Telegram Config: Token present | Chat Target: 1003257960170"
+    },
+    {
+      "timestamp": "2026-07-25 19:06:33 UTC",
+      "level": "info",
+      "message": "Connecting to cTrader Open API (DEMO TCP Server)..."
+    },
+    {
+      "timestamp": "2026-07-25 19:06:34 UTC",
+      "level": "info",
+      "message": "TCP Connected. Sending application authentication..."
+    },
+    {
+      "timestamp": "2026-07-25 19:06:35 UTC",
+      "level": "error",
+      "message": "cTrader Server returned error: CH_CLIENT_AUTH_FAILURE - clientId or clientSecret is incorrect"
+    },
+    {
+      "timestamp": "2026-07-25 19:06:35 UTC",
+      "level": "info",
+      "message": "cTrader TCP connection disconnected safely."
+    },
+    {
+      "timestamp": "2026-07-25 19:06:37 UTC",
+      "level": "info",
+      "message": "TCP Connected. Sending application authentication..."
+    },
+    {
+      "timestamp": "2026-07-25 19:06:38 UTC",
+      "level": "error",
+      "message": "cTrader Server returned error: CH_CLIENT_AUTH_FAILURE - clientId or clientSecret is incorrect"
+    },
+    {
+      "timestamp": "2026-07-25 19:06:38 UTC",
+      "level": "info",
+      "message": "cTrader TCP connection disconnected safely."
+    },
+    {
+      "timestamp": "2026-07-25 19:06:40 UTC",
+      "level": "info",
+      "message": "TCP Connected. Sending application authentication..."
+    },
+    {
+      "timestamp": "2026-07-25 19:06:41 UTC",
+      "level": "error",
+      "message": "cTrader Server returned error: CH_CLIENT_AUTH_FAILURE - clientId or clientSecret is incorrect"
+    },
+    {
+      "timestamp": "2026-07-25 19:06:41 UTC",
+      "level": "info",
+      "message": "cTrader TCP connection disconnected safely."
+    },
+    {
+      "timestamp": "2026-07-25 19:06:45 UTC",
+      "level": "warning",
+      "message": "TCP sync timeout reached (Trd:False, Rec:False, Sym:False)."
+    },
+    {
+      "timestamp": "2026-07-25 19:06:46 UTC",
+      "level": "success",
+      "message": "Telegram Bot verified successfully! (@Forexunitedbot) | Chat Target: 1003257960170"
+    },
+    {
+      "timestamp": "2026-07-25 19:06:50 UTC",
+      "level": "info",
+      "message": "Fetched 0 new messages from Telegram."
+    },
+    {
+      "timestamp": "2026-07-25 19:06:50 UTC",
+      "level": "success",
+      "message": "Bot cycle finished. Processed 0 trading signals."
+    },
+    {
+      "timestamp": "2026-07-25 19:06:50 UTC",
+      "level": "info",
+      "message": "=== DASHBOARD GENERATION STARTED ==="
+    },
+    {
+      "timestamp": "2026-07-25 19:06:50 UTC",
+      "level": "success",
+      "message": "\u2705 All 10 GitHub repository secrets detected successfully!"
+    },
+    {
+      "timestamp": "2026-07-25 19:06:50 UTC",
+      "level": "info",
+      "message": "\ud83d\udd12 cTrader OAuth Config: Client ID present | Account ID: 10627083 | Env: DEMO"
+    },
+    {
+      "timestamp": "2026-07-25 19:06:50 UTC",
+      "level": "info",
+      "message": "\ud83d\udcf1 Telegram Config: Token present | Chat Target: 1003257960170"
+    },
+    {
+      "timestamp": "2026-07-25 19:06:51 UTC",
+      "level": "info",
+      "message": "Connecting to cTrader Open API (DEMO TCP Server)..."
+    },
+    {
+      "timestamp": "2026-07-25 19:06:51 UTC",
+      "level": "info",
+      "message": "TCP Connected. Sending application authentication..."
+    },
+    {
+      "timestamp": "2026-07-25 19:06:52 UTC",
+      "level": "error",
+      "message": "cTrader Server returned error: CH_CLIENT_AUTH_FAILURE - clientId or clientSecret is incorrect"
+    },
+    {
+      "timestamp": "2026-07-25 19:06:52 UTC",
+      "level": "info",
+      "message": "cTrader TCP connection disconnected safely."
+    },
+    {
+      "timestamp": "2026-07-25 19:06:54 UTC",
+      "level": "info",
+      "message": "TCP Connected. Sending application authentication..."
+    },
+    {
+      "timestamp": "2026-07-25 19:06:55 UTC",
+      "level": "error",
+      "message": "cTrader Server returned error: CH_CLIENT_AUTH_FAILURE - clientId or clientSecret is incorrect"
+    },
+    {
+      "timestamp": "2026-07-25 19:06:55 UTC",
+      "level": "info",
+      "message": "cTrader TCP connection disconnected safely."
+    },
+    {
+      "timestamp": "2026-07-25 19:06:57 UTC",
+      "level": "info",
+      "message": "TCP Connected. Sending application authentication..."
+    },
+    {
+      "timestamp": "2026-07-25 19:06:58 UTC",
+      "level": "error",
+      "message": "cTrader Server returned error: CH_CLIENT_AUTH_FAILURE - clientId or clientSecret is incorrect"
+    },
+    {
+      "timestamp": "2026-07-25 19:06:58 UTC",
+      "level": "info",
+      "message": "cTrader TCP connection disconnected safely."
+    },
+    {
+      "timestamp": "2026-07-25 19:07:01 UTC",
+      "level": "info",
+      "message": "TCP Connected. Sending application authentication..."
+    },
+    {
+      "timestamp": "2026-07-25 19:07:02 UTC",
+      "level": "error",
+      "message": "cTrader Server returned error: CH_CLIENT_AUTH_FAILURE - clientId or clientSecret is incorrect"
+    },
+    {
+      "timestamp": "2026-07-25 19:07:02 UTC",
+      "level": "info",
+      "message": "cTrader TCP connection disconnected safely."
+    },
+    {
+      "timestamp": "2026-07-25 19:07:03 UTC",
+      "level": "warning",
+      "message": "TCP sync timeout reached (Trd:False, Rec:False, Sym:False)."
+    },
+    {
+      "timestamp": "2026-07-25 19:07:03 UTC",
+      "level": "success",
+      "message": "Telegram Bot verified successfully! (@Forexunitedbot) | Chat Target: 1003257960170"
+    },
+    {
+      "timestamp": "2026-07-25 19:07:03 UTC",
+      "level": "success",
+      "message": "Telegram Connected (@Forexunitedbot)"
+    },
+    {
+      "timestamp": "2026-07-25 19:07:03 UTC",
+      "level": "success",
+      "message": "Dashboard index.html and login.html updated successfully!"
     }
   ],
   "alerts": [
@@ -939,6 +939,51 @@
     },
     {
       "timestamp": "2026-07-25 19:05:00 UTC",
+      "level": "warning",
+      "message": "TCP sync timeout reached (Trd:False, Rec:False, Sym:False)."
+    },
+    {
+      "timestamp": "2026-07-25 19:06:35 UTC",
+      "level": "error",
+      "message": "cTrader Server returned error: CH_CLIENT_AUTH_FAILURE - clientId or clientSecret is incorrect"
+    },
+    {
+      "timestamp": "2026-07-25 19:06:38 UTC",
+      "level": "error",
+      "message": "cTrader Server returned error: CH_CLIENT_AUTH_FAILURE - clientId or clientSecret is incorrect"
+    },
+    {
+      "timestamp": "2026-07-25 19:06:41 UTC",
+      "level": "error",
+      "message": "cTrader Server returned error: CH_CLIENT_AUTH_FAILURE - clientId or clientSecret is incorrect"
+    },
+    {
+      "timestamp": "2026-07-25 19:06:45 UTC",
+      "level": "warning",
+      "message": "TCP sync timeout reached (Trd:False, Rec:False, Sym:False)."
+    },
+    {
+      "timestamp": "2026-07-25 19:06:52 UTC",
+      "level": "error",
+      "message": "cTrader Server returned error: CH_CLIENT_AUTH_FAILURE - clientId or clientSecret is incorrect"
+    },
+    {
+      "timestamp": "2026-07-25 19:06:55 UTC",
+      "level": "error",
+      "message": "cTrader Server returned error: CH_CLIENT_AUTH_FAILURE - clientId or clientSecret is incorrect"
+    },
+    {
+      "timestamp": "2026-07-25 19:06:58 UTC",
+      "level": "error",
+      "message": "cTrader Server returned error: CH_CLIENT_AUTH_FAILURE - clientId or clientSecret is incorrect"
+    },
+    {
+      "timestamp": "2026-07-25 19:07:02 UTC",
+      "level": "error",
+      "message": "cTrader Server returned error: CH_CLIENT_AUTH_FAILURE - clientId or clientSecret is incorrect"
+    },
+    {
+      "timestamp": "2026-07-25 19:07:03 UTC",
       "level": "warning",
       "message": "TCP sync timeout reached (Trd:False, Rec:False, Sym:False)."
     }
