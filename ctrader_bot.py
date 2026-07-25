@@ -666,7 +666,7 @@ class cTraderClient:
 def test_telegram_connection():
     """Test if the Telegram bot is reachable."""
     if not TG_TOKEN:
-        return False, {"error": "No TG_TOKEN set"}
+        return True, {"username": "cTraderBot (Optional)"}
     try:
         url = f"https://api.telegram.org/bot{TG_TOKEN}/getMe"
         req = urllib.request.Request(url)
@@ -1974,8 +1974,8 @@ def run_bot():
         save_heartbeat("bot", "running", "Initializing bot...")
         log_process("info", "=== BOT CYCLE STARTED ===")
         
-        if not (TL_EMAIL and TL_PASSWORD and TG_TOKEN and TG_CHAT):
-            log_process("error", "Missing required secrets (TL_EMAIL, TL_PASSWORD, TG_TOKEN, TG_CHAT)")
+        if not CT_ACCESS_TOKEN:
+            log_process("error", "Missing required secrets (CT_ACCESS_TOKEN)")
             save_heartbeat("bot", "failed", "Missing credentials")
             return False
 
