@@ -2080,7 +2080,10 @@ def generate_dashboard():
         if tg_connected:
             log_process("success", f"Telegram: CONNECTED (@{tg_info.get('username')})")
         else:
-            log_process("warning", f"Telegram: DISCONNECTED — {tg_info.get('error')}")
+            if not TG_TOKEN:
+                log_process("info", "Telegram: Not configured (optional)")
+            else:
+                log_process("warning", f"Telegram: DISCONNECTED — {tg_info.get('error')}")
 
         html = generate_dashboard_html(client, tl_connected, tl_error, tg_connected, tg_info)
 
