@@ -273,14 +273,16 @@ class cTraderClient:
         return None
 
     def get_account_info(self):
-        """Get account info - returns demo data if API unavailable."""
+        """Get account info from cTrader.
+        Note: For real account data, cTrader Open API requires Protobuf/TCP connection.
+        These are placeholder values showing the account is configured."""
         return {
-            "balance": 50000.00,
-            "equity": 50000.00,
-            "freeMargin": 50000.00,
-            "usedMargin": 0.00,
-            "marginLevel": 0.0,
-            "dayPL": 0.0,
+            "balance": 0,
+            "equity": 0,
+            "freeMargin": 0,
+            "usedMargin": 0,
+            "marginLevel": 0,
+            "dayPL": 0,
             "currency": "USD",
         }
 
