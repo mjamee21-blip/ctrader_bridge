@@ -323,33 +323,92 @@ class cTraderClient:
         self.orders = []
         self.trades = []
 
-    def verify_auth_and_fetch_data(self):
-        """Connect to cTrader Open API v2, authenticate, and sync data."""
-        if not (CT_CLIENT_ID and CT_CLIENT_SECRET and CT_ACCESS_TOKEN and self.account_id_num):
-            log_process("error", "cTrader OAuth configuration incomplete (check CT_CLIENT_ID, SECRET, ACCESS_TOKEN, ACCOUNT_ID).")
+    def verify_auth_and_fetch_data(self, pending_signals=None):
+        """Connect to cTrader Open API v2, authenticate, sync data, and dispatch pending trade commands."""
+        if not (CT_CLIENT_ID and CT_CLIENT_SECRET and CT_ACCESS_TOKEN):
+            log_process("error", "cTrader OAuth configuration incomplete (check CT_CLIENT_ID, SECRET, ACCESS_TOKEN).")
             return False
 
         if HAS_PROTOBUF:
-            return self._sync_via_protobuf()
+            return self._sync_via_protobuf(pending_signals=pending_signals or [])
         else:
             return self._sync_via_rest_fallback()
 
-    def _sync_via_protobuf(self):
-        """Official Spotware Protobuf TCP Communication."""
+    def _sync_via_protobuf(self, pending_signals=None):
+        """Official Spotware Protobuf TCP Communication & Signal Dispatcher."""
         log_process("info", f"Connecting to cTrader Open API ({CT_ENV.upper()} TCP Server)...")
         host = EndPoints.PROTOBUF_LIVE_HOST if CT_ENV == "live" else EndPoints.PROTOBUF_DEMO_HOST
         port = EndPoints.PROTOBUF_PORT
         
         client = ProtoClient(host, port, TcpProtocol)
-        sync_status = {"trader": False, "reconcile": False, "symbols": False, "finished": False}
+        sync_status = {"trader": False, "reconcile": False, "symbols": False, "orders_dispatched": False, "finished": False}
         
-        def check_sync_completed():
+        def check_sync_completed(c_ref):
             if sync_status["trader"] and sync_status["reconcile"] and sync_status["symbols"]:
+                if not sync_status["orders_dispatched"]:
+                    sync_status["orders_dispatched"] = True
+                    if pending_signals:
+                        log_process("info", f"⚡ Executing {len(pending_signals)} pending trading command(s) over live TCP stream...")
+                        for sig in pending_signals:
+                            sig_type = sig.get("type")
+                            pair = sig.get("pair")
+                            norm_pair, sym_id = self.normalize_symbol_for_ctrader(pair)
+                            if not sym_id:
+                                log_process("warning", f"Could not map symbol '{pair}' for trade execution.")
+                                continue
+                                
+                            if sig_type == "SIGNAL":
+                                direction = sig.get("direction", "BUY").upper()
+                                qty = sig.get("qty") or DEFAULT_QTY
+                                sl = sig.get("sl")
+                                tp = sig.get("tp")
+                                log_process("info", f"Sending ProtoOANewOrderReq: {direction} {norm_pair or pair} (SymbolID: {sym_id}) | Vol: {int(float(qty) * 100000)}...")
+                                ord_req = ProtoOANewOrderReq()
+                                ord_req.ctidTraderAccountId = self.account_id_num
+                                ord_req.symbolId = int(sym_id)
+                                ord_req.orderType = ProtoOAOrderType.MARKET
+                                ord_req.tradeSide = ProtoOATradeSide.BUY if direction == "BUY" else ProtoOATradeSide.SELL
+                                ord_req.volume = int(float(qty) * 100000)
+                                if sl is not None:
+                                    try: ord_req.stopLoss = float(sl)
+                                    except: pass
+                                if tp is not None:
+                                    try: ord_req.takeProfit = float(tp)
+                                    except: pass
+                                c_ref.send(ord_req).addErrback(lambda f: log_process("error", f"Order Dispatch Error: {f}"))
+                                
+                            elif sig_type == "TPSL_HIT":
+                                res_reason = sig.get("result", "TP")
+                                log_process("info", f"Processing {res_reason} HIT -> Scanning positions for {norm_pair or pair} (ID:{sym_id})...")
+                                matches = [p for p in self.positions if p.get("pair") == norm_pair or str(p.get("symbol_id")) == str(sym_id)]
+                                for pos_obj in matches:
+                                    pos_id_val = pos_obj.get("position_id")
+                                    vol_val = pos_obj.get("raw_volume") or 100000
+                                    close_req = ProtoOAClosePositionReq()
+                                    close_req.ctidTraderAccountId = self.account_id_num
+                                    close_req.positionId = int(pos_id_val)
+                                    close_req.volume = int(vol_val)
+                                    log_process("info", f"Sending ProtoOAClosePositionReq for position #{pos_id_val}...")
+                                    c_ref.send(close_req).addErrback(lambda f: log_process("error", f"Close Dispatch Error: {f}"))
+                                    
+                            elif sig_type == "SL_UPDATE":
+                                new_sl_val = sig.get("new_sl")
+                                matches = [p for p in self.positions if p.get("pair") == norm_pair or str(p.get("symbol_id")) == str(sym_id)]
+                                for pos_obj in matches:
+                                    pos_id_val = pos_obj.get("position_id")
+                                    amend_req = ProtoOAAmendPositionSLTPReq()
+                                    amend_req.ctidTraderAccountId = self.account_id_num
+                                    amend_req.positionId = int(pos_id_val)
+                                    amend_req.stopLoss = float(new_sl_val)
+                                    log_process("info", f"Sending ProtoOAAmendPositionSLTPReq for position #{pos_id_val} -> New SL: {new_sl_val}...")
+                                    c_ref.send(amend_req).addErrback(lambda f: log_process("error", f"Amend Dispatch Error: {f}"))
+                    
                 if not sync_status["finished"]:
                     sync_status["finished"] = True
                     log_process("success", "Complete Account & Position Data synchronized via TCP Protobuf!")
+                    delay_close = 1.5 if pending_signals else 0.3
                     if reactor.running:
-                        reactor.callLater(0.3, reactor.stop)
+                        reactor.callLater(delay_close, reactor.stop)
         
         def on_error(failure):
             err_str = str(failure)
@@ -367,11 +426,60 @@ class cTraderClient:
                 return
                 
             if payload_type == ProtoOAApplicationAuthRes().payloadType:
-                log_process("info", "Application authorized. Sending account authorization...")
-                req = ProtoOAAccountAuthReq()
-                req.ctidTraderAccountId = self.account_id_num
+                log_process("info", "Application authorized. Discovering authorized cTID accounts for access token...")
+                req = ProtoOAGetAccountListByAccessTokenReq()
                 req.accessToken = CT_ACCESS_TOKEN
                 c.send(req).addErrback(on_error)
+                
+            elif payload_type == ProtoOAGetAccountListByAccessTokenRes().payloadType:
+                res = Protobuf.extract(message)
+                accounts = getattr(res, "ctidTraderAccount", [])
+                log_process("info", f"📋 cTrader token returned {len(accounts)} linked account(s).")
+                
+                selected_account_id = None
+                is_target_live = (CT_ENV == "live")
+                
+                acc_descriptions = []
+                for acc in accounts:
+                    acc_id = getattr(acc, "ctidTraderAccountId", None)
+                    acc_login = getattr(acc, "traderLogin", "N/A")
+                    acc_live = getattr(acc, "isLive", False)
+                    acc_type_str = "LIVE" if acc_live else "DEMO"
+                    acc_descriptions.append(f"ID:{acc_id} (Login:{acc_login} | {acc_type_str})")
+                    
+                    if self.account_id_num and (str(self.account_id_num) == str(acc_id) or str(self.account_id_num) == str(acc_login)):
+                        selected_account_id = int(acc_id)
+                        
+                if acc_descriptions:
+                    log_process("info", f"Discovered Accounts -> {', '.join(acc_descriptions)}")
+                else:
+                    log_process("warning", "No authorized trading accounts returned by Spotware for this access token!")
+                
+                if selected_account_id is None and accounts:
+                    for acc in accounts:
+                        acc_id = getattr(acc, "ctidTraderAccountId", None)
+                        acc_live = getattr(acc, "isLive", False)
+                        if acc_live == is_target_live and acc_id:
+                            selected_account_id = int(acc_id)
+                            log_process("warning", f"Account '{self.account_id_num}' not matched directly — auto-selecting {acc_type_str} account ID: {selected_account_id}")
+                            break
+                    if selected_account_id is None and accounts:
+                        selected_account_id = int(getattr(accounts[0], "ctidTraderAccountId"))
+                        log_process("warning", f"Defaulting to first available account ID: {selected_account_id}")
+                
+                if selected_account_id:
+                    self.account_id_num = selected_account_id
+                    self.account_state['account_id'] = str(selected_account_id)
+                    log_process("info", f"Sending Account Authorization for cTID Account {self.account_id_num}...")
+                    auth_req = ProtoOAAccountAuthReq()
+                    auth_req.ctidTraderAccountId = self.account_id_num
+                    auth_req.accessToken = CT_ACCESS_TOKEN
+                    c.send(auth_req).addErrback(on_error)
+                else:
+                    log_process("error", "🛑 No valid cTID account ID available to authorize!")
+                    sync_status["finished"] = True
+                    if reactor.running:
+                        reactor.callLater(0.2, reactor.stop)
                 
             elif payload_type == ProtoOAAccountAuthRes().payloadType:
                 self.authenticated = True
@@ -402,7 +510,7 @@ class cTraderClient:
                 self.account_state['free_margin'] = _safe_currency(balance_val)
                 log_process("info", f"Synced Trader State -> Live Balance: {self.account_state['balance']}")
                 sync_status["trader"] = True
-                check_sync_completed()
+                check_sync_completed(c)
                 
             elif payload_type == ProtoOASymbolsListRes().payloadType:
                 res = Protobuf.extract(message)
@@ -422,7 +530,7 @@ class cTraderClient:
                             p["pair"] = name
                             break
                 sync_status["symbols"] = True
-                check_sync_completed()
+                check_sync_completed(c)
                             
             elif payload_type == ProtoOAReconcileRes().payloadType:
                 res = Protobuf.extract(message)
@@ -474,7 +582,10 @@ class cTraderClient:
                     self.account_state['margin_level'] = "0.0% (No risk)"
                 
                 sync_status["reconcile"] = True
-                check_sync_completed()
+                check_sync_completed(c)
+                
+            elif payload_type == ProtoOAExecutionEvent().payloadType:
+                log_process("success", f"🎯 cTrader confirmed execution event from server!")
                 
             elif payload_type == ProtoOAErrorRes().payloadType:
                 err = Protobuf.extract(message)
@@ -1116,37 +1227,34 @@ def run_bot():
     check_secrets_status()
     refresh_access_token_if_needed()
 
+    pending_signals = []
+    tg_conn, _ = test_telegram_connection()
+    if tg_conn and TG_TOKEN:
+        msgs = tg_get_messages(offset=_last_update_id)
+        log_process("info", f"Fetched {len(msgs)} new messages from Telegram.")
+        for msg in msgs:
+            txt = msg.get("text", "").strip()
+            if not looks_like_signal(txt): continue
+            log_process("info", f"Signal identified in queue: {txt[:120]}...")
+            parsed = parse_signal(txt)
+            if parsed:
+                pending_signals.append(parsed)
+
     client = cTraderClient()
-    connected = client.verify_auth_and_fetch_data()
+    connected = client.verify_auth_and_fetch_data(pending_signals=pending_signals)
 
     if not connected and not CT_ACCESS_TOKEN:
         save_heartbeat("bot", "failed", "Missing CT_ACCESS_TOKEN")
         log_process("error", "Bot cycle aborted — missing authentication credentials.")
         return False
 
-    tg_conn, _ = test_telegram_connection()
-    if tg_conn and TG_TOKEN:
-        msgs = tg_get_messages(offset=_last_update_id)
-        log_process("info", f"Fetched {len(msgs)} new messages from Telegram.")
-        count = 0
-        for msg in msgs:
-            txt = msg.get("text", "").strip()
-            if not looks_like_signal(txt): continue
-            count += 1
-            log_process("info", f"Signal identified: {txt[:120]}...")
-            parsed = parse_signal(txt)
-            if parsed:
-                if parsed["type"] == "SIGNAL":
-                    client.place_order(parsed["pair"], parsed["direction"], parsed["sl"], parsed["tp"])
-                elif parsed["type"] == "TPSL_HIT":
-                    client.close_position_by_pair(parsed["pair"], reason=f"{parsed['result']} HIT")
-                elif parsed["type"] == "SL_UPDATE":
-                    client.modify_position_by_pair(parsed["pair"], new_sl=parsed["new_sl"])
-        log_process("success", f"Bot cycle finished. Processed {count} trading signals.")
-        save_heartbeat("bot", "completed", f"Processed {count} signals successfully")
+    count = len(pending_signals)
+    if count > 0:
+        log_process("success", f"Bot cycle finished. Dispatched {count} trading command(s) to cTrader server.")
+        save_heartbeat("bot", "completed", f"Dispatched {count} trading command(s)")
     else:
-        log_process("info", "Telegram connection idle or checking signals via external schedule.")
-        save_heartbeat("bot", "completed", "Cycle completed successfully")
+        log_process("info", "No new executable trade signals found in current cycle.")
+        save_heartbeat("bot", "completed", "Cycle completed successfully (0 new signals)")
     
     save_system_state()
     return True
