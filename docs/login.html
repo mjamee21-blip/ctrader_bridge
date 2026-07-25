@@ -40,13 +40,13 @@
             const p = document.getElementById('password').value;
             if (u === CORRECT_USERNAME && p === CORRECT_PASSWORD) {
                 sessionStorage.setItem('dashboard_authenticated', 'true');
-                window.location.href = 'index.html?v=20260725171227';
+                window.location.href = 'index.html?v=20260725171429';
             } else {
                 document.getElementById('errorMsg').textContent = '❌ Invalid username or password';
                 document.getElementById('errorMsg').classList.add('show');
             }
         }
-        if (sessionStorage.getItem('dashboard_authenticated') === 'true') window.location.href = 'index.html?v=20260725171227';
+        if (sessionStorage.getItem('dashboard_authenticated') === 'true') window.location.href = 'index.html?v=20260725171429';
     </script>
 </body>
 </html>
