@@ -70,7 +70,6 @@ _instruments = {}
 _process_logs = []
 _heartbeat_log = {}
 _alerts = []
-_signals_received = []  # Store received signals for dashboard display
 _BUILD_VERSION = datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S")
 
 # =====================================================================
@@ -88,47 +87,6 @@ def log_process(level, message):
         _alerts.append({"timestamp": timestamp, "level": level, "message": message})
         if len(_alerts) > 50:
             _alerts.pop(0)
-
-def save_last_update_id():
-    """Save the last Telegram update ID to persist between runs."""
-    os.makedirs("docs", exist_ok=True)
-    try:
-        with open(os.path.join("docs", "last_update.json"), "w") as f:
-            json.dump({"last_update_id": _last_update_id}, f)
-    except Exception as e:
-        print(f"[WARNING] Could not save update ID: {e}")
-
-def load_last_update_id():
-    """Load the last Telegram update ID from previous run."""
-    global _last_update_id
-    try:
-        fpath = os.path.join("docs", "last_update.json")
-        if os.path.exists(fpath):
-            with open(fpath, "r") as f:
-                data = json.load(f)
-                _last_update_id = data.get("last_update_id", 0)
-    except:
-        pass
-
-def save_signals():
-    """Save received signals for dashboard display."""
-    os.makedirs("docs", exist_ok=True)
-    try:
-        with open(os.path.join("docs", "signals.json"), "w") as f:
-            json.dump(_signals_received[-50:], f, indent=2)
-    except Exception as e:
-        print(f"[WARNING] Could not save signals: {e}")
-
-def load_signals():
-    """Load previously received signals."""
-    global _signals_received
-    try:
-        fpath = os.path.join("docs", "signals.json")
-        if os.path.exists(fpath):
-            with open(fpath, "r") as f:
-                _signals_received = json.load(f)
-    except:
-        pass
 
 def save_heartbeat(job_name, status, details=""):
     timestamp = datetime.now(timezone.utc).isoformat()
@@ -420,73 +378,66 @@ def test_telegram_connection():
     except Exception as e:
         return False, {"error": str(e)}
 
-def tg_get_messages(offset=None, fetch_all=False):
+def tg_get_messages(offset=0):
     """
-    Fetch messages from Telegram.
+    Fetch new messages from Telegram.
     
-    Args:
-        offset: Starting update_id offset (None = use saved last_update_id)
-        fetch_all: If True, fetch all available messages (ignoring last_update_id)
+    TG_CHAT can be:
+    - A username: @mychannel
+    - A numeric chat ID: -1001234567890
+    - "ANY" to accept all chats
+    - Empty to accept all chats (default behavior)
     """
     global _last_update_id
-    
-    if offset is None:
-        offset = _last_update_id
-    
-    # If fetch_all is True, get ALL recent messages (for dashboard display)
-    if fetch_all:
-        offset = 0
-    
     try:
-        url = f"https://api.telegram.org/bot{TG_TOKEN}/getUpdates?offset={offset+1}&timeout=5&limit=100"
+        url = f"https://api.telegram.org/bot{TG_TOKEN}/getUpdates?offset={offset+1}&timeout=3&limit=100"
         req = urllib.request.Request(url)
-        with urllib.request.urlopen(req, timeout=20) as resp:
+        with urllib.request.urlopen(req, timeout=15) as resp:
             result = json.loads(resp.read().decode())
+            
             if not result.get("ok"):
                 log_process("warning", f"Telegram API error: {result}")
                 return []
             
-            messages = []
-            new_count = 0
+            updates = result.get("result", [])
+            log_process("info", f"Telegram: Received {len(updates)} updates")
             
-            for upd in result.get("result", []):
+            messages = []
+            for upd in updates:
                 uid = upd.get("update_id", 0)
-                
-                # Track highest update_id
                 if uid > _last_update_id:
                     _last_update_id = uid
-                    new_count += 1
                 
-                msg = upd.get("message") or upd.get("channel_post") or {}
+                # Get message from either private chat or channel
+                msg = upd.get("message") or upd.get("channel_post") or upd.get("edited_message") or {}
                 chat = msg.get("chat", {})
                 chat_id = str(chat.get("id", ""))
                 chat_uname = chat.get("username", "")
                 chat_title = chat.get("title", "")
-                target = str(TG_CHAT).lstrip("@")
+                chat_type = chat.get("type", "")
                 
-                # Match by chat ID, username, or title
-                if TG_CHAT != "ANY" and target != chat_uname and target != chat_id and target != chat_title:
-                    continue
+                # Log what we found for debugging
+                log_process("info", f"Telegram: Found message in chat: id={chat_id}, username=@{chat_uname}, title={chat_title}, type={chat_type}")
+                
+                # Filter by TG_CHAT if configured
+                target = str(TG_CHAT).strip().lstrip("@")
+                
+                if TG_CHAT and TG_CHAT != "ANY" and target:
+                    # Match by username or chat ID
+                    if target != chat_uname and target != chat_id and f"@{chat_uname}" != TG_CHAT and chat_title != target:
+                        continue
                 
                 text = msg.get("text") or msg.get("caption") or ""
-                date = msg.get("date", 0)
-                msg_time = datetime.fromtimestamp(date, tz=timezone.utc).strftime("%Y-%m-%d %H:%M UTC") if date else ""
-                
                 if text:
-                    messages.append({
-                        "text": text,
-                        "time": msg_time,
-                        "chat": chat_title or chat_uname or chat_id,
-                        "update_id": uid,
-                    })
-            
-            if new_count > 0:
-                save_last_update_id()
-                log_process("info", f"Telegram: {new_count} new message(s), {len(messages)} total fetched")
+                    messages.append({"text": text, "chat_id": chat_id, "chat_title": chat_title})
+                    log_process("info", f"Telegram: Message accepted: {text[:100]}...")
             
             return messages
+            
     except Exception as ex:
         log_process("warning", f"Error fetching Telegram messages: {ex}")
+        import traceback
+        traceback.print_exc()
         return []
 
 # =====================================================================
@@ -621,43 +572,6 @@ def parse_signal(text):
 # =====================================================================
 # DASHBOARD GENERATOR
 # =====================================================================
-
-def build_signals_table():
-    """Build HTML table of received Telegram signals."""
-    if not _signals_received:
-        return '<div class="empty">No signals received yet. Send a signal to your Telegram channel!</div>'
-    
-    rows = ""
-    for s in reversed(_signals_received[-20:]):
-        action_color = {
-            "ORDER_PLACED": "#3fb950",
-            "ORDER_FAILED": "#f85149",
-            "POSITION_CLOSED": "#58a6ff",
-            "SL_UPDATED": "#d29922",
-            "PARSE_FAILED": "#f85149",
-            "pending": "#6e7681",
-        }.get(s.get("action", ""), "#8b949e")
-        
-        action_icon = {
-            "ORDER_PLACED": "✅",
-            "ORDER_FAILED": "❌",
-            "POSITION_CLOSED": "🔒",
-            "SL_UPDATED": "✏️",
-            "PARSE_FAILED": "⚠️",
-            "pending": "⏳",
-        }.get(s.get("action", ""), "❓")
-        
-        rows += f'''<tr>
-            <td style="font-size:10px;color:#8b949e;">{s.get("timestamp", "")}</td>
-            <td style="font-size:11px;">{s.get("text", "")[:100]}</td>
-            <td style="font-weight:600;color:{action_color};">{action_icon} {s.get("action", "")}</td>
-            <td style="font-size:11px;">{s.get("details", "")}</td>
-        </tr>'''
-    
-    return f'''<table>
-        <thead><tr><th>Time</th><th>Signal Text</th><th>Status</th><th>Details</th></tr></thead>
-        <tbody>{rows}</tbody>
-    </table>'''
 
 def generate_dashboard_html(client, tl_connected, tl_error, tg_connected, tg_info):
     account_info = client.get_account_info() if tl_connected else {}
@@ -942,8 +856,6 @@ def generate_dashboard_html(client, tl_connected, tl_error, tg_connected, tg_inf
         </div>
         <div class="section-title">Recent Alerts</div>
         <div class="card">{alerts_html}</div>
-        <div class="section-title">📡 Telegram Signals Received (Last 20)</div>
-        <div class="card">{build_signals_table()}</div>
         <div class="section-title">Process Logs (Last 30)</div>
         <div class="card">{logs_table}</div>
         <div class="section-title">Open Positions</div>
@@ -1047,19 +959,19 @@ def run_bot():
         # Step 2: Load instruments from cTrader
         client.load_instruments()
         
-        # Step 3: Load saved state
-        load_last_update_id()
-        load_signals()
-        
-        # Step 4: Check for Telegram signals
+        # Step 3: Check for Telegram signals
         if not TG_TOKEN:
             log_process("info", "Telegram not configured - no signals to process")
             save_heartbeat("bot", "completed", "No Telegram configured")
             return True
 
-        # Step 5: Fetch new messages from Telegram
-        messages = tg_get_messages()
-        log_process("info", f"Fetched {len(messages)} messages from Telegram (last_update_id={_last_update_id})")
+        # Step 4: Fetch new messages from Telegram
+        log_process("info", f"Telegram config: TG_TOKEN={'***' if TG_TOKEN else 'NOT SET'}, TG_CHAT={TG_CHAT if TG_CHAT else 'NOT SET (accepting all)'}")
+        messages = tg_get_messages(offset=_last_update_id)
+        log_process("info", f"Fetched {len(messages)} signal messages from Telegram")
+        
+        if len(messages) == 0:
+            log_process("info", "No new signals found in this cycle")
 
         signal_count = 0
         for msg in messages:
@@ -1080,15 +992,7 @@ def run_bot():
                 log_process("warning", "Could not parse signal format")
                 continue
             
-            # Step 6: Record signal for dashboard (whether valid or not)
-            signal_record = {
-                "timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC"),
-                "text": text[:500],
-                "parsed": str(parsed) if parsed else "Could not parse",
-                "action": "pending",
-            }
-            
-            # Step 7: Handle based on signal type
+            # Step 6: Handle based on signal type
             if parsed["type"] == "SIGNAL":
                 # BUY or SELL signal → Place order on cTrader
                 log_process("info", f"ACTION: New trade order")
@@ -1096,15 +1000,12 @@ def run_bot():
                 log_process("info", f"  Pair:      {parsed['pair']}")
                 log_process("info", f"  Stop Loss: {parsed['sl']}")
                 log_process("info", f"  Take Profit: {parsed['tp']}")
-                
-                result = client.place_order(
+                client.place_order(
                     pair=parsed["pair"], 
                     direction=parsed["direction"], 
                     sl=parsed["sl"], 
                     tp=parsed["tp"]
                 )
-                signal_record["action"] = "ORDER_PLACED" if result else "ORDER_FAILED"
-                signal_record["details"] = f"{parsed['direction']} {parsed['pair']} SL:{parsed['sl']} TP:{parsed['tp']}"
                 
             elif parsed["type"] == "TPSL_HIT":
                 # TP or SL hit → Close position on cTrader
@@ -1113,8 +1014,6 @@ def run_bot():
                 for pos in positions:
                     if isinstance(pos, dict) and pos.get("id"):
                         client.close_position(pos["id"])
-                signal_record["action"] = "POSITION_CLOSED"
-                signal_record["details"] = f"{parsed['result']} HIT on {parsed['pair']}"
                         
             elif parsed["type"] == "SL_UPDATE":
                 # Update Stop Loss on cTrader
@@ -1125,21 +1024,7 @@ def run_bot():
                 for pos in positions:
                     if isinstance(pos, dict) and pos.get("id"):
                         client.modify_position(pos["id"], parsed["new_sl"])
-                signal_record["action"] = "SL_UPDATED"
-                signal_record["details"] = f"{parsed['pair']} SL → {parsed['new_sl']}"
-            
-            else:
-                signal_record["action"] = "PARSE_FAILED"
-                signal_record["details"] = "Could not determine signal type"
 
-            # Add to signals list (keep last 50)
-            _signals_received.append(signal_record)
-            if len(_signals_received) > 50:
-                _signals_received.pop(0)
-            
-            # Save signals to file
-            save_signals()
-            
             log_process("info", "=" * 50)
 
         log_process("info", f"=== CTRADER BOT CYCLE COMPLETE === ({signal_count} signal(s) processed)")
@@ -1160,7 +1045,6 @@ def run_bot():
 def generate_dashboard():
     try:
         load_heartbeat()
-        load_signals()  # Load previously received signals
         save_heartbeat("dashboard", "running", "Generating...")
         log_process("info", "=== DASHBOARD STARTED ===")
 
