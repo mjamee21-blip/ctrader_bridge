@@ -127,7 +127,7 @@
             if (username === CORRECT_USERNAME && password === CORRECT_PASSWORD) {
                 sessionStorage.setItem('dashboard_authenticated', 'true');
                 sessionStorage.setItem('dashboard_username', username);
-                window.location.href = 'index.html?v=20260725133104';
+                window.location.href = 'index.html?v=20260725133237';
             } else {
                 errorMsg.textContent = '❌ Invalid username or password';
                 errorMsg.classList.add('show');
@@ -136,7 +136,7 @@
         }
 
         if (sessionStorage.getItem('dashboard_authenticated') === 'true') {
-            window.location.href = 'index.html?v=20260725133104';
+            window.location.href = 'index.html?v=20260725133237';
         }
     </script>
 </body>
