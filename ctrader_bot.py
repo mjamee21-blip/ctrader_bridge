@@ -49,18 +49,21 @@ except ImportError:
 # =====================================================================
 # CONFIG FROM GITHUB REPOSITORY SECRETS (ALL 10 SECRETS MAPPED)
 # =====================================================================
-CT_CLIENT_ID = os.environ.get("CT_CLIENT_ID", "").strip()
-CT_CLIENT_SECRET = os.environ.get("CT_CLIENT_SECRET", "").strip()
-CT_ACCESS_TOKEN = os.environ.get("CT_ACCESS_TOKEN", "").strip()
-CL_REFRESH_TOKEN = os.environ.get("CL_REFRESH_TOKEN", "").strip()
-CT_ACCOUNT_ID = os.environ.get("CT_ACCOUNT_ID", "").strip()
-CT_ENV = os.environ.get("CT_ENV", "demo").strip().lower()
+def _clean_sec(val):
+    return str(val or "").strip().strip('"').strip("'").strip()
 
-TG_TOKEN = os.environ.get("TG_TOKEN", "").strip()
-TG_CHAT = os.environ.get("TG_CHAT", "").strip()
+CT_CLIENT_ID = _clean_sec(os.environ.get("CT_CLIENT_ID", ""))
+CT_CLIENT_SECRET = _clean_sec(os.environ.get("CT_CLIENT_SECRET", ""))
+CT_ACCESS_TOKEN = _clean_sec(os.environ.get("CT_ACCESS_TOKEN", ""))
+CL_REFRESH_TOKEN = _clean_sec(os.environ.get("CL_REFRESH_TOKEN", ""))
+CT_ACCOUNT_ID = _clean_sec(os.environ.get("CT_ACCOUNT_ID", ""))
+CT_ENV = _clean_sec(os.environ.get("CT_ENV", "demo")).lower()
 
-DASHBOARD_USERNAME = os.environ.get("DASHBOARD_USERNAME", "admin").strip()
-DASHBOARD_PASSWORD = os.environ.get("DASHBOARD_PASSWORD", "changeme").strip()
+TG_TOKEN = _clean_sec(os.environ.get("TG_TOKEN", ""))
+TG_CHAT = _clean_sec(os.environ.get("TG_CHAT", ""))
+
+DASHBOARD_USERNAME = _clean_sec(os.environ.get("DASHBOARD_USERNAME", "admin"))
+DASHBOARD_PASSWORD = _clean_sec(os.environ.get("DASHBOARD_PASSWORD", "changeme"))
 
 # Optional configurations
 CTRADER_PAIR_MAP_JSON = os.environ.get("CTRADER_PAIR_MAP", "{}")
@@ -240,6 +243,11 @@ def _safe_currency(val):
     except:
         return f"${val}"
 
+def _mask_token(val):
+    if not val or len(val) < 6:
+        return f"[Invalid/Too Short (len: {len(val)})]"
+    return f"{val[:3]}***{val[-2:]} (len: {len(val)})"
+
 def check_secrets_status():
     """Verify that all 10 GitHub repository secrets are properly set."""
     secrets_check = {
@@ -259,7 +267,8 @@ def check_secrets_status():
         log_process("warning", f"Missing or empty GitHub Secrets: {', '.join(missing)}")
     else:
         log_process("success", "✅ All 10 GitHub repository secrets detected successfully!")
-        log_process("info", f"🔒 cTrader OAuth Config: Client ID present | Account ID: {CT_ACCOUNT_ID} | Env: {CT_ENV.upper()}")
+        log_process("info", f"🔒 Diagnostics -> Client ID: {_mask_token(CT_CLIENT_ID)} | Secret: {_mask_token(CT_CLIENT_SECRET)} | AccessToken: {_mask_token(CT_ACCESS_TOKEN)}")
+        log_process("info", f"📊 cTrader Target Account: {CT_ACCOUNT_ID} | Server Environment: {CT_ENV.upper()}")
         log_process("info", f"📱 Telegram Config: Token present | Chat Target: {TG_CHAT}")
     return len(missing) == 0
 
@@ -795,6 +804,24 @@ def parse_signal(text):
 
     return {"type": "SIGNAL", "direction": direction, "pair": pair, "sl": sl, "tp": tp}
 
+def reclassify_stored_telegram_messages():
+    """Re-evaluate stored historical Telegram messages against current chat filter rules."""
+    global _telegram_messages
+    updated = False
+    for tm in _telegram_messages:
+        if "⚠️ Ignored" in tm.get("status", ""):
+            text = tm.get("text", "")
+            if looks_like_signal(text):
+                parsed_test = parse_signal(text)
+                if parsed_test:
+                    tm["status"] = f"⚡ {parsed_test['type']} ({parsed_test.get('pair', 'N/A')})"
+                    updated = True
+            else:
+                tm["status"] = "TEXT (No action)"
+                updated = True
+    if updated:
+        save_system_state()
+
 # =====================================================================
 # DASHBOARD HTML GENERATOR
 # =====================================================================
@@ -1083,6 +1110,7 @@ def generate_login_html():
 # =====================================================================
 def run_bot():
     load_system_state()
+    reclassify_stored_telegram_messages()
     save_heartbeat("bot", "running", "Checking secrets and starting cycle...")
     log_process("info", "=== TRADING BOT CYCLE STARTED ===")
     check_secrets_status()
@@ -1128,6 +1156,7 @@ def run_bot():
 # =====================================================================
 def run_dashboard():
     load_system_state()
+    reclassify_stored_telegram_messages()
     load_heartbeat()
     save_heartbeat("dashboard", "running", "Synchronizing account state & HTML...")
     log_process("info", "=== DASHBOARD GENERATION STARTED ===")
