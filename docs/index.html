@@ -3,48 +3,55 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>cTrader Dashboard</title>
+    <title>cTrader Dashboard Control Panel</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0d1117; color: #c9d1d9; font-size: 13px; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0d1117; color: #c9d1d9; font-size: 13px; line-height: 1.5; }
         .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
-        .header { display: flex; justify-content: space-between; align-items: center; padding: 15px; background: #161b22; border: 1px solid #30363d; border-radius: 8px; margin-bottom: 20px; }
-        .header h1 { font-size: 16px; font-weight: 700; }
-        .btn { padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; }
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; background: #161b22; border: 1px solid #30363d; border-radius: 8px; margin-bottom: 20px; }
+        .header h1 { font-size: 18px; font-weight: 700; color: #58a6ff; }
+        .btn { padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; text-decoration: none; display: inline-block; }
+        .btn-refresh { background: #238636; color: #fff; margin-right: 8px; }
+        .btn-refresh:hover { background: #2ea043; }
         .btn-logout { background: #da3633; color: #fff; }
-        .conn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
-        .conn-card { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 15px; }
+        .btn-logout:hover { background: #f85149; }
+        .section-title { font-size: 12px; color: #8b949e; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin: 24px 0 10px 0; }
+        .card { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 16px; margin-bottom: 16px; }
+        .health-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 16px; }
+        .health-item { background: #161b22; border: 1px solid #30363d; border-radius: 6px; padding: 12px 16px; display: flex; align-items: center; gap: 12px; }
+        .health-icon { font-size: 18px; }
+        .health-label { flex: 1; font-weight: 600; }
+        .conn-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; margin-bottom: 16px; }
+        .conn-card { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 16px; }
         .conn-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-        .conn-title { font-size: 12px; font-weight: 700; text-transform: uppercase; }
+        .conn-title { font-size: 13px; font-weight: 700; }
         .conn-badge { font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 12px; }
         .conn-detail { font-size: 11px; color: #8b949e; }
-        .card { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 15px; margin-bottom: 15px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 15px; }
-        .stat { text-align: center; padding: 15px; }
-        .stat-value { font-size: 20px; font-weight: 800; color: #58a6ff; }
-        .stat-label { font-size: 10px; color: #8b949e; margin-top: 5px; text-transform: uppercase; }
+        .cron-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; margin-bottom: 16px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 15px; margin-bottom: 16px; }
+        .stat { text-align: center; padding: 16px; }
+        .stat-value { font-size: 22px; font-weight: 800; color: #58a6ff; }
+        .stat-label { font-size: 11px; color: #8b949e; margin-top: 6px; text-transform: uppercase; }
         table { width: 100%; border-collapse: collapse; }
-        th { padding: 10px; background: #0d1117; color: #8b949e; font-size: 10px; text-transform: uppercase; text-align: left; border-bottom: 1px solid #30363d; }
-        td { padding: 10px; border-bottom: 1px solid #30363d; }
+        th { padding: 10px 12px; background: #0d1117; color: #8b949e; font-size: 11px; text-transform: uppercase; text-align: left; border-bottom: 1px solid #30363d; }
+        td { padding: 10px 12px; border-bottom: 1px solid #30363d; font-size: 12px; }
         tr:hover td { background: #1c2128; }
-        .pair { font-weight: 600; }
-        .buy { color: #3fb950; }
-        .sell { color: #f85149; }
-        .sl { color: #f85149; }
-        .tp { color: #3fb950; }
-        .section-title { font-size: 11px; color: #8b949e; font-weight: 600; text-transform: uppercase; margin: 20px 0 10px 0; }
-        .empty { text-align: center; color: #8b949e; padding: 20px; }
-        .health-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 15px; }
-        .health-item { background: #161b22; border: 1px solid #30363d; border-radius: 6px; padding: 12px; display: flex; align-items: center; gap: 10px; font-size: 11px; }
-        .health-icon { font-size: 16px; }
-        .health-label { flex: 1; }
-        .health-status { font-weight: 600; }
-        .cron-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
-        .cron-card { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 12px; }
+        .pair { font-weight: 600; color: #fff; }
+        .buy { color: #3fb950; font-weight: 600; }
+        .sell { color: #f85149; font-weight: 600; }
+        .time { font-size: 11px; color: #8b949e; white-space: nowrap; }
+        .empty { text-align: center; color: #8b949e; padding: 24px; font-style: italic; }
     </style>
     <script>
-        function logout() { sessionStorage.clear(); window.location.href = 'login.html'; }
-        function checkAuth() { if (sessionStorage.getItem('dashboard_authenticated') !== 'true') window.location.href = 'login.html'; }
+        function checkAuth() {
+            if (sessionStorage.getItem('dashboard_authenticated') !== 'true') {
+                window.location.href = 'login.html';
+            }
+        }
+        function logout() {
+            sessionStorage.clear();
+            window.location.href = 'login.html';
+        }
         checkAuth();
         setInterval(() => location.reload(), 60000);
     </script>
@@ -52,73 +59,125 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🚀 cTrader Dashboard</h1>
-            <button class="btn btn-logout" onclick="logout()">🚪 Logout</button>
+            <h1>🚀 cTrader Dashboard Control Panel</h1>
+            <div>
+                <button class="btn btn-refresh" onclick="location.reload()">🔄 Refresh</button>
+                <button class="btn btn-logout" onclick="logout()">🚪 Logout</button>
+            </div>
         </div>
-        <div style="background: #0d1117; padding: 10px; border-radius: 6px; font-size: 11px; color: #8b949e; margin-bottom: 15px;">
-            Account ID: 10627083 | Server: DEMO | Currency: USD | Build: 20260725185629
+
+        <div style="background: #161b22; border: 1px solid #30363d; padding: 12px 16px; border-radius: 6px; font-size: 12px; margin-bottom: 20px;">
+            <strong style="color:#58a6ff;">📊 cTrader Account:</strong> 10627083 | <strong style="color:#58a6ff;">Server:</strong> DEMO | <strong style="color:#58a6ff;">Currency:</strong> USD | <strong style="color:#58a6ff;">Build:</strong> 20260725185846
         </div>
-        <div class="section-title">🩺 System Health</div>
-        <div class="health-grid"><div class="health-item"><span class="health-icon">🔐</span><span class="health-label">cTrader Auth</span><span class="health-status" style="color:#3fb950;">✓ OK</span></div><div class="health-item"><span class="health-icon">📱</span><span class="health-label">Telegram Bot</span><span class="health-status" style="color:#3fb950;">✓ OK</span></div><div class="health-item"><span class="health-icon">📊</span><span class="health-label">Instruments</span><span class="health-status" style="color:#3fb950;">✓ OK</span></div><div class="health-item"><span class="health-icon">⚠️</span><span class="health-label">Margin (0.0%)</span><span class="health-status" style="color:#3fb950;">✓ OK</span></div></div>
+
+        <div class="section-title">🩺 System Health & Secrets Check</div>
+        <div class="health-grid"><div class="health-item"><span class="health-icon">🔐</span><span class="health-label">cTrader OAuth</span><span style="color:#f85149;font-weight:700;">✗ FAILED</span></div><div class="health-item"><span class="health-icon">📱</span><span class="health-label">Telegram Bot</span><span style="color:#3fb950;font-weight:700;">✓ OK</span></div><div class="health-item"><span class="health-icon">🔑</span><span class="health-label">API Secrets Set</span><span style="color:#3fb950;font-weight:700;">✓ OK</span></div><div class="health-item"><span class="health-icon">⚡</span><span class="health-label">System Healthy</span><span style="color:#3fb950;font-weight:700;">✓ OK</span></div></div>
+
         <div class="section-title">Connection Status</div>
         <div class="conn-grid">
             <div class="conn-card">
                 <div class="conn-header">
-                    <span class="conn-title">cTrader</span>
-                    <span class="conn-badge" style="background:#3fb95020;color:#3fb950;">✓ Configured</span>
+                    <span class="conn-title">📊 cTrader Open API v2</span>
+                    <span class="conn-badge" style="background:#f8514920;color:#f85149;">✗ Disconnected</span>
                 </div>
-                <div class="conn-detail">Account: 10627083 | Env: demo</div>
+                <div class="conn-detail">Authentication check noted (Open API Protobuf/OAuth)</div>
             </div>
             <div class="conn-card">
                 <div class="conn-header">
-                    <span class="conn-title">Telegram</span>
+                    <span class="conn-title">✈️ Telegram Signal Receiver</span>
                     <span class="conn-badge" style="background:#3fb95020;color:#3fb950;">✓ Connected</span>
                 </div>
                 <div class="conn-detail">Bot: @Forexunitedbot</div>
             </div>
         </div>
-        <div class="section-title">Cron Job Status</div>
+
+        <div class="section-title">Cron Job Execution Status</div>
         <div class="cron-grid">
-            <div class="cron-card">
-                <div style="font-weight:700;text-transform:uppercase;margin-bottom:8px;font-size:11px;">Trading Bot</div>
-                <div style="font-size:10px;color:#8b949e;">COMPLETED (0s ago)</div>
-                <div style="font-size:10px;color:#8b949e;margin-top:6px;">Processed 0 signal(s)</div>
+            <div class="conn-card">
+                <div class="conn-header">
+                    <span class="conn-title">🤖 Trading Bot Cycle</span>
+                    <span style="font-size:11px;color:#8b949e;">13s ago</span>
+                </div>
+                <div style="font-weight:700;color:#3fb950;font-size:12px;">COMPLETED</div>
+                <div class="conn-detail" style="margin-top:4px;">Processed 0 signals successfully</div>
             </div>
-            <div class="cron-card">
-                <div style="font-weight:700;text-transform:uppercase;margin-bottom:8px;font-size:11px;">Dashboard</div>
-                <div style="font-size:10px;color:#8b949e;">RUNNING (0s ago)</div>
-                <div style="font-size:10px;color:#8b949e;margin-top:6px;">Generating...</div>
+            <div class="conn-card">
+                <div class="conn-header">
+                    <span class="conn-title">📈 Dashboard Updater</span>
+                    <span style="font-size:11px;color:#8b949e;">13s ago</span>
+                </div>
+                <div style="font-weight:700;color:#8b949e;font-size:12px;">RUNNING</div>
+                <div class="conn-detail" style="margin-top:4px;">Synchronizing account state & HTML...</div>
             </div>
         </div>
+
         <div class="section-title">Account Overview</div>
         <div class="grid">
-            <div class="card stat"><div class="stat-value">$Connected</div><div class="stat-label">Balance</div></div>
-            <div class="card stat"><div class="stat-value">$via TCP</div><div class="stat-label">Equity</div></div>
-            <div class="card stat"><div class="stat-value">$cTrader</div><div class="stat-label">Used Margin</div></div>
-            <div class="card stat"><div class="stat-value">$Protobuf</div><div class="stat-label">Free Margin</div></div>
-            <div class="card stat"><div class="stat-value">API%</div><div class="stat-label">Margin Level</div></div>
-            <div class="card stat"><div class="stat-value">$Live</div><div class="stat-label">Day P&L</div></div>
+            <div class="card stat"><div class="stat-value">N/A</div><div class="stat-label">Balance</div></div>
+            <div class="card stat"><div class="stat-value">N/A</div><div class="stat-label">Equity</div></div>
+            <div class="card stat"><div class="stat-value">$0.00</div><div class="stat-label">Used Margin</div></div>
+            <div class="card stat"><div class="stat-value">N/A</div><div class="stat-label">Free Margin</div></div>
+            <div class="card stat"><div class="stat-value">0.0%</div><div class="stat-label">Margin Level</div></div>
+            <div class="card stat"><div class="stat-value">$0.00</div><div class="stat-label">Day P&L</div></div>
         </div>
+
         <div class="section-title">Trade Statistics</div>
         <div class="grid">
-            <div class="card stat"><div class="stat-value">0</div><div class="stat-label">Trades</div></div>
+            <div class="card stat"><div class="stat-value">0</div><div class="stat-label">Total Trades</div></div>
             <div class="card stat"><div class="stat-value">0</div><div class="stat-label">Wins</div></div>
             <div class="card stat"><div class="stat-value">0</div><div class="stat-label">Losses</div></div>
             <div class="card stat"><div class="stat-value">0.0%</div><div class="stat-label">Win Rate</div></div>
             <div class="card stat"><div class="stat-value">$+0.00</div><div class="stat-label">Open P&L</div></div>
-            <div class="card stat"><div class="stat-value">0</div><div class="stat-label">Positions</div></div>
+            <div class="card stat"><div class="stat-value">0</div><div class="stat-label">Open Positions</div></div>
         </div>
-        <div class="section-title">Recent Alerts</div>
-        <div class="card"><div class="empty">No alerts</div></div>
-        <div class="section-title">Process Logs (Last 30)</div>
-        <div class="card"><table><thead><tr><th>Time</th><th>Level</th><th>Message</th></tr></thead><tbody><tr><td class="time">2026-07-25 18:56:29 UTC</td><td style="color:#58a6ff">INFO</td><td>=== DASHBOARD STARTED ===</td></tr><tr><td class="time">2026-07-25 18:56:29 UTC</td><td style="color:#3fb950">SUCCESS</td><td>cTrader configured (Account: 10627083)</td></tr><tr><td class="time">2026-07-25 18:56:29 UTC</td><td style="color:#58a6ff">INFO</td><td>Loaded 27 instruments for cTrader</td></tr><tr><td class="time">2026-07-25 18:56:29 UTC</td><td style="color:#3fb950">SUCCESS</td><td>Telegram: CONNECTED (@Forexunitedbot)</td></tr></tbody></table></div>
-        <div class="section-title">Open Positions</div>
-        <div class="card"><div class="empty">No open positions</div></div>
-        <div class="section-title">Closed Trades</div>
-        <div class="card"><div class="empty">No closed trades</div></div>
-        <div class="section-title">Pending Orders</div>
-        <div class="card"><div class="empty">No pending orders</div></div>
-        <div style="text-align:center;color:#8b949e;font-size:11px;margin-top:30px;">Last updated: 2026-07-25 18:56:29 UTC | Auto-refresh: 60s | Build 20260725185629</div>
+
+        <div class="section-title">📱 Recent Telegram Messages & Signal History (Last 20)</div>
+        <div class="card" style="overflow-x:auto;"><table><thead><tr><th>Time</th><th>Chat Source</th><th>Signal Status</th><th>Message Content</th></tr></thead><tbody><tr><td class="time">2026-07-25 18:58:46 UTC</td><td>Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)</td><td style="color:#d29922;font-weight:700;">⚠️ Ignored (Chat filter: 1003257960170)</td><td>Buy BTC now</td></tr><tr><td class="time">2026-07-25 18:58:46 UTC</td><td>Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)</td><td style="color:#d29922;font-weight:700;">⚠️ Ignored (Chat filter: 1003257960170)</td><td>🟢 BUY BTC/USD
+
+Entry: MARKET (Ref: 64160.81)
+SL: 64283.06
+TP: 63999.26
+RR: 1:1.00
+
+Signals are news-filtered and system-link compatible.
+
+Users may us</td></tr><tr><td class="time">2026-07-25 18:58:46 UTC</td><td>Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)</td><td style="color:#d29922;font-weight:700;">⚠️ Ignored (Chat filter: 1003257960170)</td><td>🟢 BUY BTC/USD
+
+Entry: MARKET (Ref: 64160.81)
+SL: 64283.06
+TP: 63999.26
+RR: 1:1.00</td></tr><tr><td class="time">2026-07-25 18:58:46 UTC</td><td>Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)</td><td style="color:#d29922;font-weight:700;">⚠️ Ignored (Chat filter: 1003257960170)</td><td>BUY BTC/USD
+
+Entry: MARKET (Ref: 64160.81)
+SL: 64283.06
+TP: 63999.26
+RR: 1:1.00</td></tr><tr><td class="time">2026-07-25 18:58:46 UTC</td><td>Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)</td><td style="color:#d29922;font-weight:700;">⚠️ Ignored (Chat filter: 1003257960170)</td><td>🟢 BUY BTC/USD
+
+Entry: MARKET (Ref: 64160.81)
+SL: 64283.06
+TP: 63999.26
+RR: 1:1.00</td></tr><tr><td class="time">2026-07-25 18:58:46 UTC</td><td>Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)</td><td style="color:#d29922;font-weight:700;">⚠️ Ignored (Chat filter: 1003257960170)</td><td>BUY BTC/USD
+
+Entry: MARKET (Ref: 64160.81)
+SL: 64283.06
+TP: 63999.26
+RR: 1:1.00</td></tr></tbody></table></div>
+
+        <div class="section-title">⚠️ Recent Alerts & System Notifications</div>
+        <div class="card"><div style="padding:8px;margin:6px 0;background:#f8514920;border-left:3px solid #f85149;border-radius:4px;font-size:12px;"><strong>ERROR</strong> 2026-07-25 18:58:35 UTC: cTrader Server returned error: CH_CLIENT_AUTH_FAILURE - clientId or clientSecret is incorrect</div><div style="padding:8px;margin:6px 0;background:#f8514920;border-left:3px solid #f85149;border-radius:4px;font-size:12px;"><strong>ERROR</strong> 2026-07-25 18:58:37 UTC: cTrader Server returned error: CH_CLIENT_AUTH_FAILURE - clientId or clientSecret is incorrect</div><div style="padding:8px;margin:6px 0;background:#f8514920;border-left:3px solid #f85149;border-radius:4px;font-size:12px;"><strong>ERROR</strong> 2026-07-25 18:58:41 UTC: cTrader Server returned error: CH_CLIENT_AUTH_FAILURE - clientId or clientSecret is incorrect</div><div style="padding:8px;margin:6px 0;background:#d2992220;border-left:3px solid #d29922;border-radius:4px;font-size:12px;"><strong>WARNING</strong> 2026-07-25 18:58:45 UTC: TCP sync timeout reached (Trd:False, Rec:False, Sym:False).</div><div style="padding:8px;margin:6px 0;background:#f8514920;border-left:3px solid #f85149;border-radius:4px;font-size:12px;"><strong>ERROR</strong> 2026-07-25 18:58:48 UTC: cTrader Server returned error: CH_CLIENT_AUTH_FAILURE - clientId or clientSecret is incorrect</div><div style="padding:8px;margin:6px 0;background:#f8514920;border-left:3px solid #f85149;border-radius:4px;font-size:12px;"><strong>ERROR</strong> 2026-07-25 18:58:52 UTC: cTrader Server returned error: CH_CLIENT_AUTH_FAILURE - clientId or clientSecret is incorrect</div><div style="padding:8px;margin:6px 0;background:#f8514920;border-left:3px solid #f85149;border-radius:4px;font-size:12px;"><strong>ERROR</strong> 2026-07-25 18:58:55 UTC: cTrader Server returned error: CH_CLIENT_AUTH_FAILURE - clientId or clientSecret is incorrect</div><div style="padding:8px;margin:6px 0;background:#f8514920;border-left:3px solid #f85149;border-radius:4px;font-size:12px;"><strong>ERROR</strong> 2026-07-25 18:58:59 UTC: cTrader Server returned error: CH_CLIENT_AUTH_FAILURE - clientId or clientSecret is incorrect</div><div style="padding:8px;margin:6px 0;background:#d2992220;border-left:3px solid #d29922;border-radius:4px;font-size:12px;"><strong>WARNING</strong> 2026-07-25 18:58:59 UTC: TCP sync timeout reached (Trd:False, Rec:False, Sym:False).</div></div>
+
+        <div class="section-title">📋 Backend Process Logs (Last 30 Events)</div>
+        <div class="card" style="overflow-x:auto;"><table><thead><tr><th>Time</th><th>Level</th><th>Message</th></tr></thead><tbody><tr><td class="time">2026-07-25 18:58:45 UTC</td><td style="color:#d29922;font-weight:700;">WARNING</td><td>TCP sync timeout reached (Trd:False, Rec:False, Sym:False).</td></tr><tr><td class="time">2026-07-25 18:58:46 UTC</td><td style="color:#3fb950;font-weight:700;">SUCCESS</td><td>Telegram Bot verified successfully! (@Forexunitedbot) | Chat Target: 1003257960170</td></tr><tr><td class="time">2026-07-25 18:58:46 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td>Telegram msg from [Alpha Markets International Forex & Bitcoin Signals | ID:-1003257960170] ignored because TG_CHAT is set to '1003257960170'.</td></tr><tr><td class="time">2026-07-25 18:58:46 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td>Telegram msg from [Alpha Markets International Forex & Bitcoin Signals | ID:-1003257960170] ignored because TG_CHAT is set to '1003257960170'.</td></tr><tr><td class="time">2026-07-25 18:58:46 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td>Telegram msg from [Alpha Markets International Forex & Bitcoin Signals | ID:-1003257960170] ignored because TG_CHAT is set to '1003257960170'.</td></tr><tr><td class="time">2026-07-25 18:58:46 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td>Telegram msg from [Alpha Markets International Forex & Bitcoin Signals | ID:-1003257960170] ignored because TG_CHAT is set to '1003257960170'.</td></tr><tr><td class="time">2026-07-25 18:58:46 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td>Telegram msg from [Alpha Markets International Forex & Bitcoin Signals | ID:-1003257960170] ignored because TG_CHAT is set to '1003257960170'.</td></tr><tr><td class="time">2026-07-25 18:58:46 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td>Telegram msg from [Alpha Markets International Forex & Bitcoin Signals | ID:-1003257960170] ignored because TG_CHAT is set to '1003257960170'.</td></tr><tr><td class="time">2026-07-25 18:58:46 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td>Fetched 0 new messages from Telegram.</td></tr><tr><td class="time">2026-07-25 18:58:46 UTC</td><td style="color:#3fb950;font-weight:700;">SUCCESS</td><td>Bot cycle finished. Processed 0 trading signals.</td></tr><tr><td class="time">2026-07-25 18:58:46 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td>=== DASHBOARD GENERATION STARTED ===</td></tr><tr><td class="time">2026-07-25 18:58:46 UTC</td><td style="color:#3fb950;font-weight:700;">SUCCESS</td><td>✅ All 10 GitHub repository secrets detected successfully!</td></tr><tr><td class="time">2026-07-25 18:58:46 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td>🔒 cTrader OAuth Config: Client ID present | Account ID: 10627083 | Env: DEMO</td></tr><tr><td class="time">2026-07-25 18:58:46 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td>📱 Telegram Config: Token present | Chat Target: 1003257960170</td></tr><tr><td class="time">2026-07-25 18:58:47 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td>Connecting to cTrader Open API (DEMO TCP Server)...</td></tr><tr><td class="time">2026-07-25 18:58:47 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td>TCP Connected. Sending application authentication...</td></tr><tr><td class="time">2026-07-25 18:58:48 UTC</td><td style="color:#f85149;font-weight:700;">ERROR</td><td>cTrader Server returned error: CH_CLIENT_AUTH_FAILURE - clientId or clientSecret is incorrect</td></tr><tr><td class="time">2026-07-25 18:58:48 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td>cTrader TCP connection disconnected safely.</td></tr><tr><td class="time">2026-07-25 18:58:51 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td>TCP Connected. Sending application authentication...</td></tr><tr><td class="time">2026-07-25 18:58:52 UTC</td><td style="color:#f85149;font-weight:700;">ERROR</td><td>cTrader Server returned error: CH_CLIENT_AUTH_FAILURE - clientId or clientSecret is incorrect</td></tr><tr><td class="time">2026-07-25 18:58:52 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td>cTrader TCP connection disconnected safely.</td></tr><tr><td class="time">2026-07-25 18:58:54 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td>TCP Connected. Sending application authentication...</td></tr><tr><td class="time">2026-07-25 18:58:55 UTC</td><td style="color:#f85149;font-weight:700;">ERROR</td><td>cTrader Server returned error: CH_CLIENT_AUTH_FAILURE - clientId or clientSecret is incorrect</td></tr><tr><td class="time">2026-07-25 18:58:55 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td>cTrader TCP connection disconnected safely.</td></tr><tr><td class="time">2026-07-25 18:58:58 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td>TCP Connected. Sending application authentication...</td></tr><tr><td class="time">2026-07-25 18:58:59 UTC</td><td style="color:#f85149;font-weight:700;">ERROR</td><td>cTrader Server returned error: CH_CLIENT_AUTH_FAILURE - clientId or clientSecret is incorrect</td></tr><tr><td class="time">2026-07-25 18:58:59 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td>cTrader TCP connection disconnected safely.</td></tr><tr><td class="time">2026-07-25 18:58:59 UTC</td><td style="color:#d29922;font-weight:700;">WARNING</td><td>TCP sync timeout reached (Trd:False, Rec:False, Sym:False).</td></tr><tr><td class="time">2026-07-25 18:59:00 UTC</td><td style="color:#3fb950;font-weight:700;">SUCCESS</td><td>Telegram Bot verified successfully! (@Forexunitedbot) | Chat Target: 1003257960170</td></tr><tr><td class="time">2026-07-25 18:59:00 UTC</td><td style="color:#3fb950;font-weight:700;">SUCCESS</td><td>Telegram Connected (@Forexunitedbot)</td></tr></tbody></table></div>
+
+        <div class="section-title">Open Positions (0)</div>
+        <div class="card" style="overflow-x:auto;"><div class="empty">No open positions currently</div></div>
+
+        <div class="section-title">Closed Trade History (0)</div>
+        <div class="card" style="overflow-x:auto;"><div class="empty">No closed trades recorded yet</div></div>
+
+        <div style="text-align: center; color: #8b949e; font-size: 11px; margin: 30px 0;">
+            cTrader Bot & Dashboard • Auto-refreshing every 60s • Last synchronized: 2026-07-25 18:59:00 UTC
+        </div>
     </div>
 </body>
 </html>
