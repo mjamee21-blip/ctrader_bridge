@@ -1,136 +1,6 @@
 {
   "logs": [
     {
-      "timestamp": "2026-07-25 20:34:43 UTC",
-      "level": "info",
-      "message": "Fetched 0 new messages from Telegram."
-    },
-    {
-      "timestamp": "2026-07-25 20:34:43 UTC",
-      "level": "info",
-      "message": "Connecting to cTrader Open API (DEMO TCP Server)..."
-    },
-    {
-      "timestamp": "2026-07-25 20:34:43 UTC",
-      "level": "info",
-      "message": "TCP Connected. Sending application authentication..."
-    },
-    {
-      "timestamp": "2026-07-25 20:34:44 UTC",
-      "level": "info",
-      "message": "Application authorized. Discovering authorized cTID accounts for access token..."
-    },
-    {
-      "timestamp": "2026-07-25 20:34:45 UTC",
-      "level": "error",
-      "message": "cTrader Server returned error: CH_ACCESS_TOKEN_INVALID - Invalid access token"
-    },
-    {
-      "timestamp": "2026-07-25 20:34:45 UTC",
-      "level": "info",
-      "message": "cTrader TCP connection disconnected safely."
-    },
-    {
-      "timestamp": "2026-07-25 20:34:45 UTC",
-      "level": "info",
-      "message": "No new executable trade signals found in current cycle."
-    },
-    {
-      "timestamp": "2026-07-25 20:34:46 UTC",
-      "level": "info",
-      "message": "=== DASHBOARD GENERATION STARTED ==="
-    },
-    {
-      "timestamp": "2026-07-25 20:34:46 UTC",
-      "level": "success",
-      "message": "\u2705 All 10 GitHub repository secrets detected successfully!"
-    },
-    {
-      "timestamp": "2026-07-25 20:34:46 UTC",
-      "level": "info",
-      "message": "\ud83d\udd12 Diagnostics -> Client ID: 337***NU (len: 56) | Secret: ner***Bn (len: 50) | AccessToken: wba***FA (len: 43)"
-    },
-    {
-      "timestamp": "2026-07-25 20:34:46 UTC",
-      "level": "info",
-      "message": "\ud83d\udcca cTrader Target Account: 1117964 | Server Environment: DEMO"
-    },
-    {
-      "timestamp": "2026-07-25 20:34:46 UTC",
-      "level": "info",
-      "message": "\ud83d\udcf1 Telegram Config: Token present | Chat Target: -1003257960170"
-    },
-    {
-      "timestamp": "2026-07-25 20:34:46 UTC",
-      "level": "info",
-      "message": "Connecting to cTrader Open API (DEMO TCP Server)..."
-    },
-    {
-      "timestamp": "2026-07-25 20:34:46 UTC",
-      "level": "info",
-      "message": "TCP Connected. Sending application authentication..."
-    },
-    {
-      "timestamp": "2026-07-25 20:34:47 UTC",
-      "level": "info",
-      "message": "Application authorized. Discovering authorized cTID accounts for access token..."
-    },
-    {
-      "timestamp": "2026-07-25 20:34:48 UTC",
-      "level": "error",
-      "message": "cTrader Server returned error: CH_ACCESS_TOKEN_INVALID - Invalid access token"
-    },
-    {
-      "timestamp": "2026-07-25 20:34:49 UTC",
-      "level": "info",
-      "message": "cTrader TCP connection disconnected safely."
-    },
-    {
-      "timestamp": "2026-07-25 20:34:49 UTC",
-      "level": "success",
-      "message": "Telegram Bot verified successfully! (@Forexunitedbot) | Chat Target: -1003257960170"
-    },
-    {
-      "timestamp": "2026-07-25 20:34:49 UTC",
-      "level": "success",
-      "message": "Telegram Connected (@Forexunitedbot)"
-    },
-    {
-      "timestamp": "2026-07-25 20:34:49 UTC",
-      "level": "success",
-      "message": "Dashboard index.html and login.html updated successfully!"
-    },
-    {
-      "timestamp": "2026-07-25 20:36:35 UTC",
-      "level": "info",
-      "message": "=== TRADING BOT CYCLE STARTED ==="
-    },
-    {
-      "timestamp": "2026-07-25 20:36:35 UTC",
-      "level": "success",
-      "message": "\u2705 All 10 GitHub repository secrets detected successfully!"
-    },
-    {
-      "timestamp": "2026-07-25 20:36:35 UTC",
-      "level": "info",
-      "message": "\ud83d\udd12 Diagnostics -> Client ID: 337***NU (len: 56) | Secret: ner***Bn (len: 50) | AccessToken: wba***FA (len: 43)"
-    },
-    {
-      "timestamp": "2026-07-25 20:36:35 UTC",
-      "level": "info",
-      "message": "\ud83d\udcca cTrader Target Account: 1117964 | Server Environment: DEMO"
-    },
-    {
-      "timestamp": "2026-07-25 20:36:35 UTC",
-      "level": "info",
-      "message": "\ud83d\udcf1 Telegram Config: Token present | Chat Target: -1003257960170"
-    },
-    {
-      "timestamp": "2026-07-25 20:36:36 UTC",
-      "level": "success",
-      "message": "Telegram Bot verified successfully! (@Forexunitedbot) | Chat Target: -1003257960170"
-    },
-    {
       "timestamp": "2026-07-25 20:36:41 UTC",
       "level": "info",
       "message": "Fetched 0 new messages from Telegram."
@@ -749,19 +619,139 @@
       "timestamp": "2026-07-25 20:44:46 UTC",
       "level": "success",
       "message": "Dashboard index.html and login.html updated successfully!"
+    },
+    {
+      "timestamp": "2026-07-25 20:46:33 UTC",
+      "level": "info",
+      "message": "=== TRADING BOT CYCLE STARTED ==="
+    },
+    {
+      "timestamp": "2026-07-25 20:46:33 UTC",
+      "level": "success",
+      "message": "\u2705 All 10 GitHub repository secrets detected successfully!"
+    },
+    {
+      "timestamp": "2026-07-25 20:46:33 UTC",
+      "level": "info",
+      "message": "\ud83d\udd12 Diagnostics -> Client ID: 337***NU (len: 56) | Secret: ner***Bn (len: 50) | AccessToken: wba***FA (len: 43)"
+    },
+    {
+      "timestamp": "2026-07-25 20:46:33 UTC",
+      "level": "info",
+      "message": "\ud83d\udcca cTrader Target Account: 1117964 | Server Environment: DEMO"
+    },
+    {
+      "timestamp": "2026-07-25 20:46:33 UTC",
+      "level": "info",
+      "message": "\ud83d\udcf1 Telegram Config: Token present | Chat Target: -1003257960170"
+    },
+    {
+      "timestamp": "2026-07-25 20:46:34 UTC",
+      "level": "success",
+      "message": "Telegram Bot verified successfully! (@Forexunitedbot) | Chat Target: -1003257960170"
+    },
+    {
+      "timestamp": "2026-07-25 20:46:38 UTC",
+      "level": "info",
+      "message": "Fetched 0 new messages from Telegram."
+    },
+    {
+      "timestamp": "2026-07-25 20:46:38 UTC",
+      "level": "info",
+      "message": "Connecting to cTrader Open API (DEMO TCP Server)..."
+    },
+    {
+      "timestamp": "2026-07-25 20:46:39 UTC",
+      "level": "info",
+      "message": "TCP Connected. Sending application authentication..."
+    },
+    {
+      "timestamp": "2026-07-25 20:46:40 UTC",
+      "level": "info",
+      "message": "Application authorized. Discovering authorized cTID accounts for access token..."
+    },
+    {
+      "timestamp": "2026-07-25 20:46:41 UTC",
+      "level": "error",
+      "message": "cTrader Server returned error: CH_ACCESS_TOKEN_INVALID - Invalid access token"
+    },
+    {
+      "timestamp": "2026-07-25 20:46:41 UTC",
+      "level": "info",
+      "message": "cTrader TCP connection disconnected safely."
+    },
+    {
+      "timestamp": "2026-07-25 20:46:41 UTC",
+      "level": "info",
+      "message": "No new executable trade signals found in current cycle."
+    },
+    {
+      "timestamp": "2026-07-25 20:46:41 UTC",
+      "level": "info",
+      "message": "=== DASHBOARD GENERATION STARTED ==="
+    },
+    {
+      "timestamp": "2026-07-25 20:46:41 UTC",
+      "level": "success",
+      "message": "\u2705 All 10 GitHub repository secrets detected successfully!"
+    },
+    {
+      "timestamp": "2026-07-25 20:46:41 UTC",
+      "level": "info",
+      "message": "\ud83d\udd12 Diagnostics -> Client ID: 337***NU (len: 56) | Secret: ner***Bn (len: 50) | AccessToken: wba***FA (len: 43)"
+    },
+    {
+      "timestamp": "2026-07-25 20:46:41 UTC",
+      "level": "info",
+      "message": "\ud83d\udcca cTrader Target Account: 1117964 | Server Environment: DEMO"
+    },
+    {
+      "timestamp": "2026-07-25 20:46:41 UTC",
+      "level": "info",
+      "message": "\ud83d\udcf1 Telegram Config: Token present | Chat Target: -1003257960170"
+    },
+    {
+      "timestamp": "2026-07-25 20:46:42 UTC",
+      "level": "info",
+      "message": "Connecting to cTrader Open API (DEMO TCP Server)..."
+    },
+    {
+      "timestamp": "2026-07-25 20:46:42 UTC",
+      "level": "info",
+      "message": "TCP Connected. Sending application authentication..."
+    },
+    {
+      "timestamp": "2026-07-25 20:46:43 UTC",
+      "level": "info",
+      "message": "Application authorized. Discovering authorized cTID accounts for access token..."
+    },
+    {
+      "timestamp": "2026-07-25 20:46:44 UTC",
+      "level": "error",
+      "message": "cTrader Server returned error: CH_ACCESS_TOKEN_INVALID - Invalid access token"
+    },
+    {
+      "timestamp": "2026-07-25 20:46:44 UTC",
+      "level": "info",
+      "message": "cTrader TCP connection disconnected safely."
+    },
+    {
+      "timestamp": "2026-07-25 20:46:45 UTC",
+      "level": "success",
+      "message": "Telegram Bot verified successfully! (@Forexunitedbot) | Chat Target: -1003257960170"
+    },
+    {
+      "timestamp": "2026-07-25 20:46:45 UTC",
+      "level": "success",
+      "message": "Telegram Connected (@Forexunitedbot)"
+    },
+    {
+      "timestamp": "2026-07-25 20:46:45 UTC",
+      "level": "success",
+      "message": "Dashboard index.html and login.html updated successfully!"
     }
   ],
   "alerts": [
-    {
-      "timestamp": "2026-07-25 19:54:43 UTC",
-      "level": "error",
-      "message": "cTrader Server returned error: CH_ACCESS_TOKEN_INVALID - Invalid access token"
-    },
-    {
-      "timestamp": "2026-07-25 19:56:44 UTC",
-      "level": "error",
-      "message": "cTrader Server returned error: CH_ACCESS_TOKEN_INVALID - Invalid access token"
-    },
     {
       "timestamp": "2026-07-25 19:58:39 UTC",
       "level": "error",
@@ -999,6 +989,16 @@
     },
     {
       "timestamp": "2026-07-25 20:44:45 UTC",
+      "level": "error",
+      "message": "cTrader Server returned error: CH_ACCESS_TOKEN_INVALID - Invalid access token"
+    },
+    {
+      "timestamp": "2026-07-25 20:46:41 UTC",
+      "level": "error",
+      "message": "cTrader Server returned error: CH_ACCESS_TOKEN_INVALID - Invalid access token"
+    },
+    {
+      "timestamp": "2026-07-25 20:46:44 UTC",
       "level": "error",
       "message": "cTrader Server returned error: CH_ACCESS_TOKEN_INVALID - Invalid access token"
     }
