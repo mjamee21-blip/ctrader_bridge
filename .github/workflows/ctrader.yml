@@ -7,25 +7,22 @@ on:
 
 permissions:
   contents: write
-  pages: write
-  id-token: write
 
 jobs:
-  bot:
+  execute:
     runs-on: ubuntu-latest
-    name: Execute cTrader Bot
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Setup Python
+      
+      - name: Setup Python 3.11
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
-
+      
       - name: Install dependencies
         run: pip install requests
-
+      
       - name: Run Bot
         env:
           MODE: bot
@@ -40,26 +37,7 @@ jobs:
           DASHBOARD_USERNAME: ${{ secrets.DASHBOARD_USERNAME }}
           DASHBOARD_PASSWORD: ${{ secrets.DASHBOARD_PASSWORD }}
         run: python3 ctrader_bot.py
-
-  dashboard:
-    runs-on: ubuntu-latest
-    name: Update Dashboard
-    needs: bot
-    if: always()
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Setup Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
-
-      - name: Install dependencies
-        run: pip install requests
-
+      
       - name: Generate Dashboard
         env:
           MODE: dashboard
@@ -74,11 +52,11 @@ jobs:
           DASHBOARD_USERNAME: ${{ secrets.DASHBOARD_USERNAME }}
           DASHBOARD_PASSWORD: ${{ secrets.DASHBOARD_PASSWORD }}
         run: python3 ctrader_bot.py
-
-      - name: Commit and push dashboard
+      
+      - name: Commit changes
         run: |
           git config --global user.email "bot@github.com"
           git config --global user.name "Dashboard Bot"
           git add docs/ || true
-          git commit -m "cTrader Dashboard update $(date -u '+%Y-%m-%d %H:%M UTC')" || true
-          git push origin main || true
+          git commit -m "Dashboard update $(date -u '+%Y-%m-%d %H:%M UTC')" || true
+          git push || true
