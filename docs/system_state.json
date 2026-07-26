@@ -1,46 +1,6 @@
 {
   "logs": [
     {
-      "timestamp": "2026-07-26 01:58:30 UTC",
-      "level": "info",
-      "message": "=== TRADING BOT CYCLE STARTED ==="
-    },
-    {
-      "timestamp": "2026-07-26 01:58:30 UTC",
-      "level": "success",
-      "message": "\u2705 All 10 GitHub repository secrets detected successfully!"
-    },
-    {
-      "timestamp": "2026-07-26 01:58:30 UTC",
-      "level": "info",
-      "message": "\ud83d\udd12 Diagnostics -> Client ID: 337***NU (len: 56) | Secret: ner***Bn (len: 50) | AccessToken: GXG***LM (len: 43)"
-    },
-    {
-      "timestamp": "2026-07-26 01:58:30 UTC",
-      "level": "info",
-      "message": "\ud83d\udcca cTrader Target Account: 2454414 | Server Environment: DEMO"
-    },
-    {
-      "timestamp": "2026-07-26 01:58:30 UTC",
-      "level": "info",
-      "message": "\ud83d\udcf1 Telegram Config: Token present | Chat Target: -1003257960170"
-    },
-    {
-      "timestamp": "2026-07-26 01:58:30 UTC",
-      "level": "success",
-      "message": "Telegram Bot verified successfully! (@Forexunitedbot) | Chat Target: -1003257960170"
-    },
-    {
-      "timestamp": "2026-07-26 01:58:34 UTC",
-      "level": "info",
-      "message": "Fetched 0 new messages from Telegram."
-    },
-    {
-      "timestamp": "2026-07-26 01:58:34 UTC",
-      "level": "info",
-      "message": "Connecting to cTrader Open API (DEMO TCP Server)..."
-    },
-    {
       "timestamp": "2026-07-26 01:58:35 UTC",
       "level": "info",
       "message": "TCP Connected. Sending application authentication..."
@@ -484,6 +444,311 @@
       "timestamp": "2026-07-26 02:01:39 UTC",
       "level": "success",
       "message": "Dashboard index.html and login.html updated successfully!"
+    },
+    {
+      "timestamp": "2026-07-26 02:02:30 UTC",
+      "level": "info",
+      "message": "=== TRADING BOT CYCLE STARTED ==="
+    },
+    {
+      "timestamp": "2026-07-26 02:02:30 UTC",
+      "level": "success",
+      "message": "\u2705 All 10 GitHub repository secrets detected successfully!"
+    },
+    {
+      "timestamp": "2026-07-26 02:02:30 UTC",
+      "level": "info",
+      "message": "\ud83d\udd12 Diagnostics -> Client ID: 337***NU (len: 56) | Secret: ner***Bn (len: 50) | AccessToken: GXG***LM (len: 43)"
+    },
+    {
+      "timestamp": "2026-07-26 02:02:30 UTC",
+      "level": "info",
+      "message": "\ud83d\udcca cTrader Target Account: 2454414 | Server Environment: DEMO"
+    },
+    {
+      "timestamp": "2026-07-26 02:02:30 UTC",
+      "level": "info",
+      "message": "\ud83d\udcf1 Telegram Config: Token present | Chat Target: -1003257960170"
+    },
+    {
+      "timestamp": "2026-07-26 02:02:30 UTC",
+      "level": "success",
+      "message": "Telegram Bot verified successfully! (@Forexunitedbot) | Chat Target: -1003257960170"
+    },
+    {
+      "timestamp": "2026-07-26 02:02:30 UTC",
+      "level": "success",
+      "message": "Matched signal from [Alpha Markets International Forex & Bitcoin Signals] -> \u26a1 SIGNAL (BTCUSD)"
+    },
+    {
+      "timestamp": "2026-07-26 02:02:30 UTC",
+      "level": "success",
+      "message": "Matched signal from [Alpha Markets International Forex & Bitcoin Signals] -> \u26a1 SIGNAL (BTCUSD)"
+    },
+    {
+      "timestamp": "2026-07-26 02:02:30 UTC",
+      "level": "success",
+      "message": "Matched signal from [Alpha Markets International Forex & Bitcoin Signals] -> \u26a1 SIGNAL (BTCUSD)"
+    },
+    {
+      "timestamp": "2026-07-26 02:02:30 UTC",
+      "level": "info",
+      "message": "Fetched 3 new messages from Telegram."
+    },
+    {
+      "timestamp": "2026-07-26 02:02:30 UTC",
+      "level": "info",
+      "message": "Signal identified in queue: \ud83d\udfe2 BUY BTC/USD\n\nEntry: MARKET (Ref: 64160.81)\nSL: 64283.06\nTP: 63999.26\nRR: 1:1.00..."
+    },
+    {
+      "timestamp": "2026-07-26 02:02:30 UTC",
+      "level": "success",
+      "message": "Added to execution queue: {'type': 'SIGNAL', 'direction': 'BUY', 'pair': 'BTCUSD', 'sl': 64283.06, 'tp': 63999.26, 'qty': 0.1}"
+    },
+    {
+      "timestamp": "2026-07-26 02:02:30 UTC",
+      "level": "info",
+      "message": "Signal identified in queue: Buy BTC/USD now..."
+    },
+    {
+      "timestamp": "2026-07-26 02:02:30 UTC",
+      "level": "success",
+      "message": "Added to execution queue: {'type': 'SIGNAL', 'direction': 'BUY', 'pair': 'BTCUSD', 'sl': None, 'tp': None, 'qty': 0.1}"
+    },
+    {
+      "timestamp": "2026-07-26 02:02:30 UTC",
+      "level": "info",
+      "message": "Signal identified in queue: Buy BTCUSD now..."
+    },
+    {
+      "timestamp": "2026-07-26 02:02:30 UTC",
+      "level": "success",
+      "message": "Added to execution queue: {'type': 'SIGNAL', 'direction': 'BUY', 'pair': 'BTCUSD', 'sl': None, 'tp': None, 'qty': 0.1}"
+    },
+    {
+      "timestamp": "2026-07-26 02:02:30 UTC",
+      "level": "info",
+      "message": "Connecting to cTrader Open API (DEMO TCP Server)..."
+    },
+    {
+      "timestamp": "2026-07-26 02:02:31 UTC",
+      "level": "info",
+      "message": "TCP Connected. Sending application authentication..."
+    },
+    {
+      "timestamp": "2026-07-26 02:02:32 UTC",
+      "level": "info",
+      "message": "Application authorized. Discovering authorized cTID accounts for access token..."
+    },
+    {
+      "timestamp": "2026-07-26 02:02:33 UTC",
+      "level": "info",
+      "message": "\ud83d\udccb cTrader token returned 4 linked account(s)."
+    },
+    {
+      "timestamp": "2026-07-26 02:02:33 UTC",
+      "level": "info",
+      "message": "Discovered Accounts -> ID:47951199 (Login:5313108 | DEMO), ID:48013992 (Login:5865538 | DEMO), ID:48029390 (Login:1117964 | DEMO), ID:48038510 (Login:2454414 | DEMO)"
+    },
+    {
+      "timestamp": "2026-07-26 02:02:33 UTC",
+      "level": "info",
+      "message": "Sending Account Authorization for cTID Account 48038510..."
+    },
+    {
+      "timestamp": "2026-07-26 02:02:34 UTC",
+      "level": "success",
+      "message": "cTrader Account 48038510 authorized successfully!"
+    },
+    {
+      "timestamp": "2026-07-26 02:02:35 UTC",
+      "level": "info",
+      "message": "Synced Trader State -> Live Balance: $9,967.98"
+    },
+    {
+      "timestamp": "2026-07-26 02:02:35 UTC",
+      "level": "info",
+      "message": "Reconciliation retrieved: 0 open positions, 0 orders."
+    },
+    {
+      "timestamp": "2026-07-26 02:02:35 UTC",
+      "level": "success",
+      "message": "Loaded 372 instruments from cTrader server!"
+    },
+    {
+      "timestamp": "2026-07-26 02:02:35 UTC",
+      "level": "info",
+      "message": "\u26a1 Executing 3 pending trading command(s) over live TCP stream..."
+    },
+    {
+      "timestamp": "2026-07-26 02:02:35 UTC",
+      "level": "info",
+      "message": "Symbol 'BTCUSD' found exact match in cTrader (ID: 101)"
+    },
+    {
+      "timestamp": "2026-07-26 02:02:35 UTC",
+      "level": "info",
+      "message": "\ud83c\udfaf Sending ProtoOANewOrderReq: BUY BTCUSD (SymbolID: 101) | Vol: 10000..."
+    },
+    {
+      "timestamp": "2026-07-26 02:02:35 UTC",
+      "level": "info",
+      "message": "  \u2514\u2500 Stop Loss set: 64283.06"
+    },
+    {
+      "timestamp": "2026-07-26 02:02:35 UTC",
+      "level": "info",
+      "message": "  \u2514\u2500 Take Profit set: 63999.26"
+    },
+    {
+      "timestamp": "2026-07-26 02:02:35 UTC",
+      "level": "success",
+      "message": "\u2713 Market order queued: BUY 0.1 BTCUSD"
+    },
+    {
+      "timestamp": "2026-07-26 02:02:35 UTC",
+      "level": "info",
+      "message": "Symbol 'BTCUSD' found exact match in cTrader (ID: 101)"
+    },
+    {
+      "timestamp": "2026-07-26 02:02:35 UTC",
+      "level": "info",
+      "message": "\ud83c\udfaf Sending ProtoOANewOrderReq: BUY BTCUSD (SymbolID: 101) | Vol: 10000..."
+    },
+    {
+      "timestamp": "2026-07-26 02:02:35 UTC",
+      "level": "success",
+      "message": "\u2713 Market order queued: BUY 0.1 BTCUSD"
+    },
+    {
+      "timestamp": "2026-07-26 02:02:35 UTC",
+      "level": "info",
+      "message": "Symbol 'BTCUSD' found exact match in cTrader (ID: 101)"
+    },
+    {
+      "timestamp": "2026-07-26 02:02:35 UTC",
+      "level": "info",
+      "message": "\ud83c\udfaf Sending ProtoOANewOrderReq: BUY BTCUSD (SymbolID: 101) | Vol: 10000..."
+    },
+    {
+      "timestamp": "2026-07-26 02:02:35 UTC",
+      "level": "success",
+      "message": "\u2713 Market order queued: BUY 0.1 BTCUSD"
+    },
+    {
+      "timestamp": "2026-07-26 02:02:35 UTC",
+      "level": "success",
+      "message": "Complete Account & Position Data synchronized via TCP Protobuf!"
+    },
+    {
+      "timestamp": "2026-07-26 02:02:45 UTC",
+      "level": "info",
+      "message": "cTrader TCP connection disconnected safely."
+    },
+    {
+      "timestamp": "2026-07-26 02:02:45 UTC",
+      "level": "success",
+      "message": "Bot cycle finished. Dispatched 3 trading command(s) to cTrader server."
+    },
+    {
+      "timestamp": "2026-07-26 02:02:45 UTC",
+      "level": "info",
+      "message": "=== DASHBOARD GENERATION STARTED ==="
+    },
+    {
+      "timestamp": "2026-07-26 02:02:45 UTC",
+      "level": "success",
+      "message": "\u2705 All 10 GitHub repository secrets detected successfully!"
+    },
+    {
+      "timestamp": "2026-07-26 02:02:45 UTC",
+      "level": "info",
+      "message": "\ud83d\udd12 Diagnostics -> Client ID: 337***NU (len: 56) | Secret: ner***Bn (len: 50) | AccessToken: GXG***LM (len: 43)"
+    },
+    {
+      "timestamp": "2026-07-26 02:02:45 UTC",
+      "level": "info",
+      "message": "\ud83d\udcca cTrader Target Account: 2454414 | Server Environment: DEMO"
+    },
+    {
+      "timestamp": "2026-07-26 02:02:45 UTC",
+      "level": "info",
+      "message": "\ud83d\udcf1 Telegram Config: Token present | Chat Target: -1003257960170"
+    },
+    {
+      "timestamp": "2026-07-26 02:02:45 UTC",
+      "level": "info",
+      "message": "Connecting to cTrader Open API (DEMO TCP Server)..."
+    },
+    {
+      "timestamp": "2026-07-26 02:02:49 UTC",
+      "level": "info",
+      "message": "TCP Connected. Sending application authentication..."
+    },
+    {
+      "timestamp": "2026-07-26 02:02:51 UTC",
+      "level": "info",
+      "message": "Application authorized. Discovering authorized cTID accounts for access token..."
+    },
+    {
+      "timestamp": "2026-07-26 02:02:52 UTC",
+      "level": "info",
+      "message": "\ud83d\udccb cTrader token returned 4 linked account(s)."
+    },
+    {
+      "timestamp": "2026-07-26 02:02:52 UTC",
+      "level": "info",
+      "message": "Discovered Accounts -> ID:47951199 (Login:5313108 | DEMO), ID:48013992 (Login:5865538 | DEMO), ID:48029390 (Login:1117964 | DEMO), ID:48038510 (Login:2454414 | DEMO)"
+    },
+    {
+      "timestamp": "2026-07-26 02:02:52 UTC",
+      "level": "info",
+      "message": "Sending Account Authorization for cTID Account 48038510..."
+    },
+    {
+      "timestamp": "2026-07-26 02:02:53 UTC",
+      "level": "success",
+      "message": "cTrader Account 48038510 authorized successfully!"
+    },
+    {
+      "timestamp": "2026-07-26 02:02:54 UTC",
+      "level": "info",
+      "message": "Synced Trader State -> Live Balance: $9,967.98"
+    },
+    {
+      "timestamp": "2026-07-26 02:02:54 UTC",
+      "level": "info",
+      "message": "Reconciliation retrieved: 0 open positions, 0 orders."
+    },
+    {
+      "timestamp": "2026-07-26 02:02:54 UTC",
+      "level": "success",
+      "message": "Loaded 372 instruments from cTrader server!"
+    },
+    {
+      "timestamp": "2026-07-26 02:02:54 UTC",
+      "level": "success",
+      "message": "Complete Account & Position Data synchronized via TCP Protobuf!"
+    },
+    {
+      "timestamp": "2026-07-26 02:02:54 UTC",
+      "level": "info",
+      "message": "cTrader TCP connection disconnected safely."
+    },
+    {
+      "timestamp": "2026-07-26 02:02:54 UTC",
+      "level": "success",
+      "message": "Telegram Bot verified successfully! (@Forexunitedbot) | Chat Target: -1003257960170"
+    },
+    {
+      "timestamp": "2026-07-26 02:02:54 UTC",
+      "level": "success",
+      "message": "Telegram Connected (@Forexunitedbot)"
+    },
+    {
+      "timestamp": "2026-07-26 02:02:54 UTC",
+      "level": "success",
+      "message": "Dashboard index.html and login.html updated successfully!"
     }
   ],
   "alerts": [],
@@ -499,7 +764,25 @@
       "chat": "Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)",
       "text": "\ud83d\udfe2 BUY BTC/USD\n\nEntry: MARKET (Ref: 64160.81)\nSL: 64283.06\nTP: 63999.26\nRR: 1:1.00\n\nSignals are news-filtered and system-link compatible.\n\nUsers may us",
       "status": "\u26a1 SIGNAL (BTCUSD)"
+    },
+    {
+      "timestamp": "2026-07-26 02:02:30 UTC",
+      "chat": "Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)",
+      "text": "\ud83d\udfe2 BUY BTC/USD\n\nEntry: MARKET (Ref: 64160.81)\nSL: 64283.06\nTP: 63999.26\nRR: 1:1.00",
+      "status": "\u26a1 SIGNAL (BTCUSD)"
+    },
+    {
+      "timestamp": "2026-07-26 02:02:30 UTC",
+      "chat": "Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)",
+      "text": "Buy BTC/USD now",
+      "status": "\u26a1 SIGNAL (BTCUSD)"
+    },
+    {
+      "timestamp": "2026-07-26 02:02:30 UTC",
+      "chat": "Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)",
+      "text": "Buy BTCUSD now",
+      "status": "\u26a1 SIGNAL (BTCUSD)"
     }
   ],
-  "last_update_id": 841819788
+  "last_update_id": 841819791
 }
