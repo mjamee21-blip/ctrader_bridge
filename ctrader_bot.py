@@ -101,6 +101,7 @@ _heartbeat_log = {}
 _alerts = []
 _telegram_messages = []
 _BUILD_VERSION = datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S")
+_SCRIPT_VERSION = "v4-FINAL-retry-queue-execution-tracking-robust"
 
 # =====================================================================
 # PERSISTENT SYSTEM STATE STORAGE (SHARES DATA BETWEEN BOT & DASHBOARD)
@@ -1088,21 +1089,33 @@ def generate_dashboard_html(client, ct_connected, ct_error, tg_connected, tg_inf
         trades_table = '<div class="empty">No closed trades recorded yet</div>'
 
     logs_rows = ""
-    for log in _process_logs[-30:]:
+    for log in _process_logs[-100:]:
         lvl = log["level"].upper()
         col = {"INFO": "#58a6ff", "SUCCESS": "#3fb950", "ERROR": "#f85149", "WARNING": "#d29922"}.get(lvl, "#c9d1d9")
-        logs_rows += f'<tr><td class="time">{log["timestamp"]}</td><td style="color:{col};font-weight:700;">{lvl}</td><td>{log["message"]}</td></tr>'
+        msg = str(log["message"]).replace("<", "&lt;").replace(">", "&gt;")
+        logs_rows += f'<tr><td class="time" data-ts="{log["timestamp"]}">{log["timestamp"]}</td><td style="color:{col};font-weight:700;">{lvl}</td><td class="msg-cell">{msg}</td></tr>'
     logs_table = f'<table><thead><tr><th>Time</th><th>Level</th><th>Message</th></tr></thead><tbody>{logs_rows}</tbody></table>' if logs_rows else '<div class="empty">No logs yet</div>'
 
+    # Dedicated full-detail ERRORS & REJECTIONS panel (shows every error/warning with complete text)
+    error_logs = [l for l in _process_logs if l["level"] in ("error", "warning")][-40:]
+    error_rows = ""
+    for log in error_logs:
+        lvl = log["level"].upper()
+        col = "#f85149" if lvl == "ERROR" else "#d29922"
+        msg = str(log["message"]).replace("<", "&lt;").replace(">", "&gt;")
+        error_rows += f'<tr><td class="time" data-ts="{log["timestamp"]}">{log["timestamp"]}</td><td style="color:{col};font-weight:700;">{lvl}</td><td class="msg-cell" style="word-break:break-word;white-space:normal;">{msg}</td></tr>'
+    errors_detail_table = f'<table><thead><tr><th>Time</th><th>Level</th><th>Full Error / Warning Detail</th></tr></thead><tbody>{error_rows}</tbody></table>' if error_rows else '<div class="empty">✅ No errors or warnings recorded</div>'
+
     tg_rows = ""
-    for tm in _telegram_messages[-20:]:
+    for tm in _telegram_messages[-30:]:
         status_col = "#3fb950" if "⚡" in tm["status"] else ("#d29922" if "⚠️" in tm["status"] else "#8b949e")
-        tg_rows += f'<tr><td class="time">{tm["timestamp"]}</td><td>{tm["chat"]}</td><td style="color:{status_col};font-weight:700;">{tm["status"]}</td><td>{tm["text"]}</td></tr>'
+        msg_txt = str(tm["text"]).replace("<", "&lt;").replace(">", "&gt;")
+        tg_rows += f'<tr><td class="time" data-ts="{tm["timestamp"]}">{tm["timestamp"]}</td><td>{tm["chat"]}</td><td style="color:{status_col};font-weight:700;">{tm["status"]}</td><td class="msg-cell">{msg_txt}</td></tr>'
     telegram_table = f'<table><thead><tr><th>Time</th><th>Chat Source</th><th>Signal Status</th><th>Message Content</th></tr></thead><tbody>{tg_rows}</tbody></table>' if tg_rows else '<div class="empty">No Telegram messages received yet (waiting for updates)</div>'
 
     alerts_html = "".join([
-        f'<div style="padding:8px;margin:6px 0;background:{"#f8514920" if a["level"]=="error" else "#d2992220"};border-left:3px solid {"#f85149" if a["level"]=="error" else "#d29922"};border-radius:4px;font-size:12px;"><strong>{a["level"].upper()}</strong> {a["timestamp"]}: {a["message"]}</div>'
-        for a in _alerts[-10:]
+        f'<div style="padding:8px;margin:6px 0;background:{"#f8514920" if a["level"]=="error" else "#d2992220"};border-left:3px solid {"#f85149" if a["level"]=="error" else "#d29922"};border-radius:4px;font-size:12px;"><strong>{a["level"].upper()}</strong> <span data-ts="{a["timestamp"]}">{a["timestamp"]}</span>: {a["message"]}</div>'
+        for a in _alerts[-30:]
     ]) or '<div class="empty">No recent alerts or warnings</div>'
 
     last_update = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
@@ -1149,6 +1162,8 @@ def generate_dashboard_html(client, ct_connected, ct_error, tg_connected, tg_inf
         .buy {{ color: #3fb950; font-weight: 600; }}
         .sell {{ color: #f85149; font-weight: 600; }}
         .time {{ font-size: 11px; color: #8b949e; white-space: nowrap; }}
+        .msg-cell {{ word-break: break-word; white-space: pre-wrap; max-width: 520px; }}
+        .ago {{ display: block; font-size: 10px; color: #58a6ff; font-weight: 600; }}
         .empty {{ text-align: center; color: #8b949e; padding: 24px; font-style: italic; }}
     </style>
     <script>
@@ -1161,8 +1176,63 @@ def generate_dashboard_html(client, ct_connected, ct_error, tg_connected, tg_inf
             sessionStorage.clear();
             window.location.href = 'login.html';
         }}
+        // Live relative-time ("X ago") so timings are always accurate and current
+        function parseTs(s) {{
+            // Expected: "2026-07-26 11:06:44 UTC"
+            try {{
+                let parts = String(s).trim().split(' ');
+                let dp = parts[0].split('-');
+                let tp = parts[1].split(':');
+                return new Date(Date.UTC(+dp[0], +dp[1]-1, +dp[2], +tp[0], +tp[1], +tp[2]));
+            }} catch(e) {{ return null; }}
+        }}
+        function timeAgo(d) {{
+            let sec = Math.floor((Date.now() - d.getTime()) / 1000);
+            if (sec < 0) sec = 0;
+            if (sec < 60) return sec + 's ago';
+            if (sec < 3600) return Math.floor(sec/60) + 'm ago';
+            if (sec < 86400) return Math.floor(sec/3600) + 'h ago';
+            return Math.floor(sec/86400) + 'd ago';
+        }}
+        function refreshAgo() {{
+            document.querySelectorAll('[data-ts]').forEach(function(el) {{
+                let d = parseTs(el.getAttribute('data-ts'));
+                if (!d) return;
+                let existing = el.querySelector('.ago');
+                if (!existing) {{
+                    existing = document.createElement('span');
+                    existing.className = 'ago';
+                    el.appendChild(existing);
+                }}
+                existing.textContent = timeAgo(d);
+            }});
+        }}
+        function updateClock() {{
+            let n = new Date();
+            let pad = (x) => String(x).padStart(2, '0');
+            let clk = document.getElementById('liveClock');
+            if (clk) clk.textContent = n.getUTCFullYear()+'-'+pad(n.getUTCMonth()+1)+'-'+pad(n.getUTCDate())+' '+pad(n.getUTCHours())+':'+pad(n.getUTCMinutes())+':'+pad(n.getUTCSeconds());
+        }}
+        function updatePageAge() {{
+            let el = document.querySelector('span[data-ts]');
+            // pageAge element sits in footer
+            let pg = document.getElementById('pageAge');
+            if (!pg) return;
+            // find the footer generated timestamp
+            let foot = document.querySelectorAll('div[style*="margin: 30px"] span[data-ts]');
+            if (foot.length) {{
+                let d = parseTs(foot[foot.length-1].getAttribute('data-ts'));
+                if (d) pg.textContent = timeAgo(d);
+            }}
+        }}
         checkAuth();
-        setInterval(() => location.reload(), 60000);
+        refreshAgo();
+        updateClock();
+        updatePageAge();
+        setInterval(refreshAgo, 1000);   // update "X ago" every second
+        setInterval(updateClock, 1000);  // update live clock every second
+        setInterval(updatePageAge, 1000);
+        setInterval(() => location.reload(), 60000);  // full refresh every 60s
     </script>
 </head>
 <body>
@@ -1180,7 +1250,7 @@ def generate_dashboard_html(client, ct_connected, ct_error, tg_connected, tg_inf
         </div>
 
         <div style="background: #0d1117; border: 1px solid #30363d; padding: 10px 16px; border-radius: 6px; font-size: 11px; margin-bottom: 20px; color:#8b949e;">
-            <strong style="color:#d29922;">🔧 DIAGNOSTIC:</strong> Telegram offset (last_update_id): <strong style="color:#c9d1d9;">{_last_update_id}</strong> | Pending signals in queue: <strong style="color:#c9d1d9;">{_pending_count}</strong> | Instruments loaded: <strong style="color:#c9d1d9;">{len(_instruments)}</strong> | Code version: <strong style="color:#3fb950;">retry-queue+tracking v3</strong>
+            <strong style="color:#d29922;">🔧 DIAGNOSTIC:</strong> Script version: <strong style="color:#3fb950;">{_SCRIPT_VERSION}</strong> | Telegram offset (last_update_id): <strong style="color:#c9d1d9;">{_last_update_id}</strong> | Pending signals in queue: <strong style="color:#c9d1d9;">{_pending_count}</strong> | Instruments loaded: <strong style="color:#c9d1d9;">{len(_instruments)}</strong>
         </div>
 
         <div class="section-title">🩺 System Health & Secrets Check</div>
@@ -1244,13 +1314,16 @@ def generate_dashboard_html(client, ct_connected, ct_error, tg_connected, tg_inf
             <div class="card stat"><div class="stat-value">{len(positions_data)}</div><div class="stat-label">Open Positions</div></div>
         </div>
 
-        <div class="section-title">📱 Recent Telegram Messages & Signal History (Last 20)</div>
+        <div class="section-title">📱 Recent Telegram Messages & Signal History (Last 30)</div>
         <div class="card" style="overflow-x:auto;">{telegram_table}</div>
 
-        <div class="section-title">⚠️ Recent Alerts & System Notifications</div>
+        <div class="section-title">🚨 Full Errors & Rejections Detail (Last 40)</div>
+        <div class="card" style="overflow-x:auto;">{errors_detail_table}</div>
+
+        <div class="section-title">⚠️ Recent Alerts & System Notifications (Last 30)</div>
         <div class="card">{alerts_html}</div>
 
-        <div class="section-title">📋 Backend Process Logs (Last 30 Events)</div>
+        <div class="section-title">📋 Backend Process Logs (Last 100 Events)</div>
         <div class="card" style="overflow-x:auto;">{logs_table}</div>
 
         <div class="section-title">Open Positions ({len(positions_data)})</div>
@@ -1260,7 +1333,8 @@ def generate_dashboard_html(client, ct_connected, ct_error, tg_connected, tg_inf
         <div class="card" style="overflow-x:auto;">{trades_table}</div>
 
         <div style="text-align: center; color: #8b949e; font-size: 11px; margin: 30px 0;">
-            cTrader Bot & Dashboard • Auto-refreshing every 60s • Last synchronized: {last_update}
+            cTrader Bot &amp; Dashboard • Script {_SCRIPT_VERSION} • Auto-refreshing every 60s • Page generated: <span data-ts="{last_update}">{last_update}</span> (<span id="pageAge"></span>)
+            <br>Time now (UTC): <strong id="liveClock"></strong>
         </div>
     </div>
 </body>
@@ -1324,7 +1398,8 @@ def run_bot():
     load_system_state()
     reclassify_stored_telegram_messages()
     save_heartbeat("bot", "running", "Checking secrets and starting cycle...")
-    log_process("info", "=== TRADING BOT CYCLE STARTED ===")
+    log_process("info", f"=== TRADING BOT CYCLE STARTED === [SCRIPT {_SCRIPT_VERSION}]")
+    log_process("info", f"Telegram current offset (last_update_id) at cycle start = {_last_update_id}")
     check_secrets_status()
 
     # Load any unexecuted signals left over from previous failed cycles (persistent retry queue)
@@ -1414,7 +1489,7 @@ def run_dashboard():
     reclassify_stored_telegram_messages()
     load_heartbeat()
     save_heartbeat("dashboard", "running", "Synchronizing account state & HTML...")
-    log_process("info", "=== DASHBOARD GENERATION STARTED ===")
+    log_process("info", f"=== DASHBOARD GENERATION STARTED === [SCRIPT {_SCRIPT_VERSION}]")
     
     check_secrets_status()
 
