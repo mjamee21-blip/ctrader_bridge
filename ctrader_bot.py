@@ -814,23 +814,63 @@ def test_telegram_connection():
         log_process("error", f"Telegram connection exception: {str(e)}")
         return False, {"error": str(e)}
 
+def load_pending_signals():
+    """Load the persistent retry queue of unexecuted signals from previous failed cycles."""
+    try:
+        path = os.path.join("docs", "pending_signals.json")
+        if os.path.exists(path):
+            with open(path, "r", encoding="utf-8") as f:
+                return json.load(f) or []
+    except Exception as e:
+        print(f"[WARNING] Could not load pending signals: {e}")
+    return []
+
+def save_pending_signals(signals):
+    """Persist the retry queue so signals survive execution failures and process crashes."""
+    os.makedirs("docs", exist_ok=True)
+    path = os.path.join("docs", "pending_signals.json")
+    try:
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(signals, f, indent=2)
+    except Exception as e:
+        print(f"[WARNING] Could not save pending signals: {e}")
+
+def _signal_key(sig):
+    """Build a stable signature for deduplicating signals (e.g. same message re-fetched on retry)."""
+    return "|".join(str(sig.get(k, "")) for k in ["type", "pair", "direction", "sl", "tp", "new_sl", "result"])
+
+def dedupe_signals(signals):
+    seen = set()
+    out = []
+    for s in signals:
+        k = _signal_key(s)
+        if k in seen:
+            continue
+        seen.add(k)
+        out.append(s)
+    return out
+
 def tg_get_messages(offset=0):
-    """Fetch recent messages from configured TG_CHAT and store in persistent history."""
-    global _last_update_id
+    """Fetch recent messages from configured TG_CHAT and store in persistent history.
+    Returns (messages, max_update_id). Does NOT advance the global offset — the
+    caller commits the offset ONLY AFTER successful trade execution, so a signal
+    is never lost to Telegram's delete-on-read behavior if execution fails."""
     if not TG_TOKEN:
-        return []
+        return [], offset
     try:
         url = f"https://api.telegram.org/bot{TG_TOKEN}/getUpdates?offset={offset+1}&timeout=4&limit=50"
         req = urllib.request.Request(url)
         with urllib.request.urlopen(req, timeout=12) as resp:
             result = json.loads(resp.read().decode())
             if not result.get("ok"):
-                return []
+                return [], offset
             messages = []
+            max_uid = offset
+            existing_ids = {tm.get("update_id") for tm in _telegram_messages if tm.get("update_id") is not None}
             for upd in result.get("result", []):
                 uid = upd.get("update_id", 0)
-                if uid > _last_update_id:
-                    _last_update_id = uid
+                if uid > max_uid:
+                    max_uid = uid
                 msg = upd.get("message") or upd.get("channel_post") or {}
                 chat = msg.get("chat", {})
                 chat_id = str(chat.get("id", ""))
@@ -868,20 +908,22 @@ def tg_get_messages(offset=0):
                     if "⚡" in classification:
                         log_process("success", f"Matched signal from [{chat_title}] -> {classification}")
                 
-                _telegram_messages.append({
-                    "timestamp": timestamp,
-                    "chat": f"{chat_title} (ID:{chat_id})",
-                    "text": text[:150],
-                    "status": classification
-                })
-                if len(_telegram_messages) > 50:
-                    _telegram_messages.pop(0)
+                if uid not in existing_ids:
+                    existing_ids.add(uid)
+                    _telegram_messages.append({
+                        "update_id": uid,
+                        "timestamp": timestamp,
+                        "chat": f"{chat_title} (ID:{chat_id})",
+                        "text": text[:150],
+                        "status": classification
+                    })
+                    if len(_telegram_messages) > 50:
+                        _telegram_messages.pop(0)
             
-            save_system_state()
-            return messages
+            return messages, max_uid
     except Exception as ex:
         log_process("warning", f"Telegram getUpdates note: {ex}")
-        return []
+        return [], offset
 
 def looks_like_signal(text):
     if not text: return False
@@ -1249,17 +1291,23 @@ def generate_login_html():
 # BOT MODE EXECUTION
 # =====================================================================
 def run_bot():
+    global _last_update_id
     load_system_state()
     reclassify_stored_telegram_messages()
     save_heartbeat("bot", "running", "Checking secrets and starting cycle...")
     log_process("info", "=== TRADING BOT CYCLE STARTED ===")
     check_secrets_status()
 
-    pending_signals = []
+    # Load any unexecuted signals left over from previous failed cycles (persistent retry queue)
+    pending_signals = load_pending_signals()
+    if pending_signals:
+        log_process("warning", f"♻️ RETRY QUEUE: {len(pending_signals)} unexecuted signal(s) recovered from previous cycle(s).")
+
+    fetched_max_uid = _last_update_id
     tg_conn, _ = test_telegram_connection()
     if tg_conn and TG_TOKEN:
-        msgs = tg_get_messages(offset=_last_update_id)
-        log_process("info", f"Fetched {len(msgs)} new messages from Telegram.")
+        msgs, fetched_max_uid = tg_get_messages(offset=_last_update_id)
+        log_process("info", f"Fetched {len(msgs)} new message(s) from Telegram (highest update_id seen: {fetched_max_uid}).")
         for msg in msgs:
             txt = msg.get("text", "").strip()
             if not looks_like_signal(txt): continue
@@ -1269,19 +1317,35 @@ def run_bot():
                 pending_signals.append(parsed)
                 log_process("success", f"Added to execution queue: {parsed}")
 
+    # Remove duplicate signals (same message re-fetched on retry)
+    pending_signals = dedupe_signals(pending_signals)
+    count = len(pending_signals)
+
     client = cTraderClient()
     connected = client.verify_auth_and_fetch_data(pending_signals=pending_signals)
 
     if not connected and not CT_ACCESS_TOKEN:
-        save_heartbeat("bot", "failed", "Missing CT_ACCESS_TOKEN")
-        log_process("error", "Bot cycle aborted — missing authentication credentials.")
+        # No token at all — KEEP signals for retry, do NOT advance Telegram offset
+        save_pending_signals(pending_signals)
+        save_heartbeat("bot", "failed", "Missing CT_ACCESS_TOKEN — signals retained for retry")
+        log_process("error", "Bot cycle aborted — missing auth credentials. Signals retained for next cycle (offset NOT advanced).")
+        save_system_state()
         return False
 
-    count = len(pending_signals)
-    if count > 0:
-        log_process("success", f"Bot cycle finished. Dispatched {count} trading command(s) to cTrader server.")
+    if count > 0 and connected:
+        # Dispatched successfully -> clear retry queue and commit Telegram offset (acknowledge messages)
+        save_pending_signals([])
+        _last_update_id = fetched_max_uid
+        log_process("success", f"✅ Bot cycle finished. Dispatched {count} trading command(s) to cTrader. Telegram offset committed to {fetched_max_uid} (messages acknowledged).")
         save_heartbeat("bot", "completed", f"Dispatched {count} trading command(s)")
+    elif count > 0 and not connected:
+        # Had signals but dispatch failed -> RETRY next cycle: keep queue, do NOT advance offset
+        save_pending_signals(pending_signals)
+        log_process("warning", f"⚠️ Dispatch FAILED — {count} signal(s) retained in retry queue. Telegram offset NOT advanced (will retry next cycle).")
+        save_heartbeat("bot", "failed", f"Dispatch failed — {count} signal(s) retained for retry")
     else:
+        # No signals at all -> safe to advance offset to acknowledge any seen non-signal messages
+        _last_update_id = fetched_max_uid
         log_process("info", "No new executable trade signals found in current cycle.")
         save_heartbeat("bot", "completed", "Cycle completed successfully (0 new signals)")
     
