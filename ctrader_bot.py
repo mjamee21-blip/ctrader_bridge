@@ -349,7 +349,7 @@ class cTraderClient:
         sync_status = {"trader": False, "reconcile": False, "symbols": False, "orders_dispatched": False, "finished": False}
         
         def check_sync_completed(c_ref):
-            if sync_status["trader"] and sync_status["reconcile"] and sync_status["symbols"]:
+            if sync_status["trader"] and sync_status["symbols"]:
                 if not sync_status["orders_dispatched"]:
                     sync_status["orders_dispatched"] = True
                     if pending_signals:
