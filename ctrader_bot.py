@@ -640,11 +640,15 @@ class cTraderClient:
                                 amend_req.ctidTraderAccountId = self.account_id_num
                                 amend_req.positionId = int(pos_id)
                                 if sl_val is not None:
-                                    try: amend_req.stopLoss = float(sl_val)
-                                    except: pass
+                                    try:
+                                        amend_req.stopLoss = float(sl_val)
+                                    except Exception:
+                                        pass
                                 if tp_val is not None:
-                                    try: amend_req.takeProfit = float(tp_val)
-                                    except: pass
+                                    try:
+                                        amend_req.takeProfit = float(tp_val)
+                                    except Exception:
+                                        pass
                                 c.send(amend_req).addErrback(on_error)
                                 log_process("success", f"✓ Protected Position #{pos_id} with SL: {sl_val} | TP: {tp_val}")
                                 del self.pending_sl_tp[int(sym_id)]
@@ -775,10 +779,16 @@ class cTraderClient:
                         sltp = self.pending_sl_tp[int(sym_id)]
                         if pos_id:
                             amend = ProtoOAAmendPositionSLTPReq(ctidTraderAccountId=self.account_id_num, positionId=int(pos_id))
-                            if sltp.get("sl"): try: amend.stopLoss = float(sltp["sl"])
-                            except: pass
-                            if sltp.get("tp"): try: amend.takeProfit = float(sltp["tp"])
-                            except: pass
+                            if sltp.get("sl"):
+                                try:
+                                    amend.stopLoss = float(sltp["sl"])
+                                except Exception:
+                                    pass
+                            if sltp.get("tp"):
+                                try:
+                                    amend.takeProfit = float(sltp["tp"])
+                                except Exception:
+                                    pass
                             c.send(amend)
                             log_process("success", f"✓ Protected Position #{pos_id} with SL/TP!")
                 except Exception as ex:
@@ -969,8 +979,10 @@ def parse_signal(text):
             
             m = re.search(r"(?:New\s*)?SL\s*[:=]\s*([\d.]+)", line, re.IGNORECASE)
             if m and new_sl is None:
-                try: new_sl = float(m.group(1))
-                except: pass
+                try:
+                    new_sl = float(m.group(1))
+                except Exception:
+                    pass
         if new_sl:
             return {"type": "SL_UPDATE", "pair": pair or "EURUSD", "new_sl": new_sl}
         return None
@@ -985,12 +997,16 @@ def parse_signal(text):
         cl = re.sub(r"<[^>]+>", "", line).strip()
         m = re.search(r"(?<![A-Za-z])SL\s*[:=]\s*([\d.]+)", cl, re.IGNORECASE)
         if m and sl is None:
-            try: sl = float(m.group(1))
-            except: pass
+            try:
+                sl = float(m.group(1))
+            except Exception:
+                pass
         m = re.search(r"(?<![A-Za-z])TP\s*[:=]\s*([\d.]+)", cl, re.IGNORECASE)
         if m and tp is None:
-            try: tp = float(m.group(1))
-            except: pass
+            try:
+                tp = float(m.group(1))
+            except Exception:
+                pass
 
     qty = 0.10 if "BTC" in pair else 0.01
     return {"type": "SIGNAL", "direction": direction, "pair": pair, "sl": sl, "tp": tp, "qty": qty}
