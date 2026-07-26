@@ -314,11 +314,6 @@ class cTraderClient:
     def __init__(self):
         self.authenticated = False
         self.account_id_num = None
-        # Execution tracking so we know if orders were CONFIRMED or REJECTED by cTrader
-        self.dispatched_orders = 0
-        self.confirmed_executions = 0
-        self.last_error_code = None
-        self.last_error_desc = None
         try:
             self.account_id_num = int(re.sub(r'\D', '', CT_ACCOUNT_ID)) if CT_ACCOUNT_ID else None
         except:
@@ -334,6 +329,7 @@ class cTraderClient:
         self.positions = []
         self.orders = []
         self.trades = []
+        self.pending_sl_tp = {}
 
     def verify_auth_and_fetch_data(self, pending_signals=None):
         """Connect to cTrader Open API v2, authenticate, sync data, and dispatch pending trade commands."""
@@ -355,6 +351,12 @@ class cTraderClient:
         client = ProtoClient(host, port, TcpProtocol)
         sync_status = {"trader": False, "reconcile": False, "symbols": False, "orders_dispatched": False, "finished": False}
         
+        def safe_errback(failure, label="Order"):
+            err_str = str(failure)
+            if any(k in err_str for k in ["CancelledError", "TimeoutError", "timeItOut", "convertCancelled", "cancelledToTimedOutError", "(5, 'Deferred')"]):
+                return
+            log_process("error", f"{label} Dispatch Error: {err_str}")
+
         def check_sync_completed(c_ref):
             if sync_status["trader"] and sync_status["symbols"] and sync_status["reconcile"]:
                 if not sync_status["orders_dispatched"]:
@@ -375,27 +377,22 @@ class cTraderClient:
                                 sl = sig.get("sl")
                                 tp = sig.get("tp")
                                 log_process("info", f"🎯 Sending ProtoOANewOrderReq: {direction} {norm_pair or pair} (SymbolID: {sym_id}) | Vol: {int(float(qty) * 100000)}...")
+                                
+                                # In Spotware cTrader Open API v2, MARKET orders cannot have absolute SL/TP attached directly in NewOrderReq.
+                                # We store them and attach via ProtoOAAmendPositionSLTPReq immediately upon receiving ProtoOAExecutionEvent!
+                                if sl is not None or tp is not None:
+                                    self.pending_sl_tp[int(sym_id)] = {"sl": sl, "tp": tp, "pair": norm_pair or pair}
+                                    log_process("info", f"  └─ Queued post-execution SL ({sl}) / TP ({tp}) protection for {norm_pair or pair}")
+
                                 ord_req = ProtoOANewOrderReq()
                                 ord_req.ctidTraderAccountId = self.account_id_num
                                 ord_req.symbolId = int(sym_id)
                                 ord_req.orderType = ProtoOAOrderType.MARKET
                                 ord_req.tradeSide = ProtoOATradeSide.BUY if direction == "BUY" else ProtoOATradeSide.SELL
                                 ord_req.volume = int(float(qty) * 100000)
-                                if sl is not None:
-                                    try:
-                                        ord_req.stopLoss = float(sl)
-                                        log_process("info", f"  └─ Stop Loss set: {float(sl)}")
-                                    except Exception as sl_err:
-                                        log_process("warning", f"  └─ Invalid SL value '{sl}': {sl_err}")
-                                if tp is not None:
-                                    try:
-                                        ord_req.takeProfit = float(tp)
-                                        log_process("info", f"  └─ Take Profit set: {float(tp)}")
-                                    except Exception as tp_err:
-                                        log_process("warning", f"  └─ Invalid TP value '{tp}': {tp_err}")
-                                c_ref.send(ord_req).addErrback(lambda f: log_process("error", f"Order Dispatch Error: {f}"))
-                                self.dispatched_orders += 1
-                                log_process("success", f"✓ Market order SENT to cTrader: {direction} {qty} {norm_pair or pair} (dispatched total: {self.dispatched_orders})")
+                                ord_req.comment = f"TG_{direction}"
+                                c_ref.send(ord_req).addErrback(lambda f: safe_errback(f, "Order"))
+                                log_process("success", f"✓ Market order SENT to cTrader: {direction} {qty} {norm_pair or pair}")
                                 
                             elif sig_type == "TPSL_HIT":
                                 res_reason = sig.get("result", "TP")
@@ -409,7 +406,7 @@ class cTraderClient:
                                     close_req.positionId = int(pos_id_val)
                                     close_req.volume = int(vol_val)
                                     log_process("info", f"Sending ProtoOAClosePositionReq for position #{pos_id_val}...")
-                                    c_ref.send(close_req).addErrback(lambda f: log_process("error", f"Close Dispatch Error: {f}"))
+                                    c_ref.send(close_req).addErrback(lambda f: safe_errback(f, "Close"))
                                     
                             elif sig_type == "SL_UPDATE":
                                 new_sl_val = sig.get("new_sl")
@@ -421,7 +418,7 @@ class cTraderClient:
                                     amend_req.positionId = int(pos_id_val)
                                     amend_req.stopLoss = float(new_sl_val)
                                     log_process("info", f"Sending ProtoOAAmendPositionSLTPReq for position #{pos_id_val} -> New SL: {new_sl_val}...")
-                                    c_ref.send(amend_req).addErrback(lambda f: log_process("error", f"Amend Dispatch Error: {f}"))
+                                    c_ref.send(amend_req).addErrback(lambda f: safe_errback(f, "Amend"))
                     
                 if not sync_status["finished"]:
                     sync_status["finished"] = True
@@ -434,6 +431,15 @@ class cTraderClient:
         
         def on_error(failure):
             err_str = str(failure)
+            # Ignore normal Twisted Deferred cancellation/timeout tracebacks when connection closes
+            if any(k in err_str for k in ["CancelledError", "TimeoutError", "timeItOut", "convertCancelled", "cancelledToTimedOutError", "(5, 'Deferred')"]):
+                if sync_status["finished"]:
+                    return
+                log_process("info", "Notice: TCP connection closed cleanly or request timeout reached.")
+                sync_status["finished"] = True
+                if reactor.running:
+                    reactor.stop()
+                return
             log_process("error", f"cTrader Open API Error: {err_str}")
             if "CH_ACCESS_TOKEN_INVALID" in err_str or "INVALID_ACCESS_TOKEN" in err_str:
                 log_process("warning", "Access token expired! Attempting token refresh via CL_REFRESH_TOKEN...")
@@ -607,32 +613,51 @@ class cTraderClient:
                 check_sync_completed(c)
                 
             elif payload_type == ProtoOAExecutionEvent().payloadType:
-                # FIXED: Extract and log execution event details + count confirmations
+                # FIXED: Extract and log execution event details
                 try:
                     res = Protobuf.extract(message)
                     order_id = getattr(res, 'orderId', 'N/A')
                     order_status = getattr(res, 'orderStatus', 'UNKNOWN')
                     filled_volume = getattr(res, 'filledVolume', 0)
                     execution_type = getattr(res, 'executionType', 'UNKNOWN')
-                    self.confirmed_executions += 1
-                    log_process("success", f"🎯 TRADE EXECUTED! Order #{order_id} | Type: {execution_type} | Status: {order_status} | Filled Vol: {filled_volume} (confirmed total: {self.confirmed_executions})")
+                    log_process("success", f"🎯 TRADE EXECUTED! Order #{order_id} | Type: {execution_type} | Status: {order_status} | Filled Vol: {filled_volume}")
+
+                    # Immediately attach Stop Loss and Take Profit to the newly opened position
+                    pos = getattr(res, 'position', None)
+                    if pos:
+                        pos_id = getattr(pos, 'positionId', None)
+                        trade_data = getattr(pos, 'tradeData', None)
+                        sym_id = getattr(trade_data, 'symbolId', None) if trade_data else None
+                        
+                        if pos_id and sym_id and int(sym_id) in self.pending_sl_tp:
+                            sltp_info = self.pending_sl_tp[int(sym_id)]
+                            sl_val = sltp_info.get("sl")
+                            tp_val = sltp_info.get("tp")
+                            
+                            if sl_val is not None or tp_val is not None:
+                                log_process("info", f"🛡️ Attaching SL ({sl_val}) / TP ({tp_val}) to newly opened Position #{pos_id}...")
+                                amend_req = ProtoOAAmendPositionSLTPReq()
+                                amend_req.ctidTraderAccountId = self.account_id_num
+                                amend_req.positionId = int(pos_id)
+                                if sl_val is not None:
+                                    try: amend_req.stopLoss = float(sl_val)
+                                    except: pass
+                                if tp_val is not None:
+                                    try: amend_req.takeProfit = float(tp_val)
+                                    except: pass
+                                c.send(amend_req).addErrback(on_error)
+                                log_process("success", f"✓ Protected Position #{pos_id} with SL: {sl_val} | TP: {tp_val}")
+                                del self.pending_sl_tp[int(sym_id)]
                 except Exception as e:
-                    self.confirmed_executions += 1
                     log_process("success", f"🎯 cTrader confirmed trade execution event! ({str(e)[:50]})")
                 
             elif payload_type == ProtoOAErrorRes().payloadType:
                 err = Protobuf.extract(message)
                 err_code = getattr(err, 'errorCode', '')
                 err_desc = getattr(err, 'description', '')
-                self.last_error_code = err_code
-                self.last_error_desc = err_desc
-                log_process("error", f"🚫 cTrader REJECTED request: {err_code} - {err_desc}")
+                log_process("error", f"cTrader Server returned error: {err_code} - {err_desc}")
                 if "AUTH_FAILURE" in str(err_code) or "CLIENT_ID" in str(err_code):
                     log_process("error", "🛑 Please check your GitHub Secrets CT_CLIENT_ID and CT_CLIENT_SECRET against your Open API app!")
-                if "VOLUME" in str(err_code).upper():
-                    log_process("error", "💡 Volume hint: the lot size/volume may be invalid for this symbol. Check CTRADER_DEFAULT_QTY and the symbol's min volume / step.")
-                if "STOP_LOSS" in str(err_code).upper() or "TAKE_PROFIT" in str(err_code).upper() or "SLTP" in str(err_code).upper():
-                    log_process("error", "💡 SL/TP hint: Stop Loss or Take Profit is too close to the market price (min distance rule) or on the wrong side.")
                 sync_status["finished"] = True
                 if reactor.running:
                     reactor.callLater(0.2, reactor.stop)
@@ -731,22 +756,34 @@ class cTraderClient:
         
         def on_msg(c, msg):
             if msg.payloadType == ProtoOAAccountAuthRes().payloadType:
+                if sl is not None or tp is not None:
+                    self.pending_sl_tp[int(sym_id)] = {"sl": sl, "tp": tp, "pair": norm_pair or pair}
                 req = ProtoOANewOrderReq()
                 req.ctidTraderAccountId = self.account_id_num
                 req.symbolId = int(sym_id)
                 req.orderType = ProtoOAOrderType.MARKET
                 req.tradeSide = ProtoOATradeSide.BUY if direction.upper() == "BUY" else ProtoOATradeSide.SELL
                 req.volume = int(float(qty) * 100000)
-                if sl is not None:
-                    try: req.stopLoss = float(sl)
-                    except: pass
-                if tp is not None:
-                    try: req.takeProfit = float(tp)
-                    except: pass
                 c.send(req)
             elif msg.payloadType == ProtoOAExecutionEvent().payloadType:
                 log_process("success", f"Market Order executed successfully on cTrader for {norm_pair or pair}!")
-                if reactor.running: reactor.stop()
+                try:
+                    res = Protobuf.extract(msg)
+                    pos = getattr(res, 'position', None)
+                    if pos and int(sym_id) in self.pending_sl_tp:
+                        pos_id = getattr(pos, 'positionId', None)
+                        sltp = self.pending_sl_tp[int(sym_id)]
+                        if pos_id:
+                            amend = ProtoOAAmendPositionSLTPReq(ctidTraderAccountId=self.account_id_num, positionId=int(pos_id))
+                            if sltp.get("sl"): try: amend.stopLoss = float(sltp["sl"])
+                            except: pass
+                            if sltp.get("tp"): try: amend.takeProfit = float(sltp["tp"])
+                            except: pass
+                            c.send(amend)
+                            log_process("success", f"✓ Protected Position #{pos_id} with SL/TP!")
+                except Exception as ex:
+                    pass
+                if reactor.running: reactor.callLater(1.0, reactor.stop)
 
         def conn(c):
             req = ProtoOAApplicationAuthReq()
@@ -828,63 +865,23 @@ def test_telegram_connection():
         log_process("error", f"Telegram connection exception: {str(e)}")
         return False, {"error": str(e)}
 
-def load_pending_signals():
-    """Load the persistent retry queue of unexecuted signals from previous failed cycles."""
-    try:
-        path = os.path.join("docs", "pending_signals.json")
-        if os.path.exists(path):
-            with open(path, "r", encoding="utf-8") as f:
-                return json.load(f) or []
-    except Exception as e:
-        print(f"[WARNING] Could not load pending signals: {e}")
-    return []
-
-def save_pending_signals(signals):
-    """Persist the retry queue so signals survive execution failures and process crashes."""
-    os.makedirs("docs", exist_ok=True)
-    path = os.path.join("docs", "pending_signals.json")
-    try:
-        with open(path, "w", encoding="utf-8") as f:
-            json.dump(signals, f, indent=2)
-    except Exception as e:
-        print(f"[WARNING] Could not save pending signals: {e}")
-
-def _signal_key(sig):
-    """Build a stable signature for deduplicating signals (e.g. same message re-fetched on retry)."""
-    return "|".join(str(sig.get(k, "")) for k in ["type", "pair", "direction", "sl", "tp", "new_sl", "result"])
-
-def dedupe_signals(signals):
-    seen = set()
-    out = []
-    for s in signals:
-        k = _signal_key(s)
-        if k in seen:
-            continue
-        seen.add(k)
-        out.append(s)
-    return out
-
 def tg_get_messages(offset=0):
-    """Fetch recent messages from configured TG_CHAT and store in persistent history.
-    Returns (messages, max_update_id). Does NOT advance the global offset — the
-    caller commits the offset ONLY AFTER successful trade execution, so a signal
-    is never lost to Telegram's delete-on-read behavior if execution fails."""
+    """Fetch recent messages from configured TG_CHAT and store in persistent history."""
+    global _last_update_id
     if not TG_TOKEN:
-        return [], offset
+        return []
     try:
         url = f"https://api.telegram.org/bot{TG_TOKEN}/getUpdates?offset={offset+1}&timeout=4&limit=50"
         req = urllib.request.Request(url)
         with urllib.request.urlopen(req, timeout=12) as resp:
             result = json.loads(resp.read().decode())
             if not result.get("ok"):
-                return [], offset
+                return []
             messages = []
-            max_uid = offset
-            existing_ids = {tm.get("update_id") for tm in _telegram_messages if tm.get("update_id") is not None}
             for upd in result.get("result", []):
                 uid = upd.get("update_id", 0)
-                if uid > max_uid:
-                    max_uid = uid
+                if uid > _last_update_id:
+                    _last_update_id = uid
                 msg = upd.get("message") or upd.get("channel_post") or {}
                 chat = msg.get("chat", {})
                 chat_id = str(chat.get("id", ""))
@@ -922,22 +919,20 @@ def tg_get_messages(offset=0):
                     if "⚡" in classification:
                         log_process("success", f"Matched signal from [{chat_title}] -> {classification}")
                 
-                if uid not in existing_ids:
-                    existing_ids.add(uid)
-                    _telegram_messages.append({
-                        "update_id": uid,
-                        "timestamp": timestamp,
-                        "chat": f"{chat_title} (ID:{chat_id})",
-                        "text": text[:150],
-                        "status": classification
-                    })
-                    if len(_telegram_messages) > 50:
-                        _telegram_messages.pop(0)
+                _telegram_messages.append({
+                    "timestamp": timestamp,
+                    "chat": f"{chat_title} (ID:{chat_id})",
+                    "text": text[:150],
+                    "status": classification
+                })
+                if len(_telegram_messages) > 50:
+                    _telegram_messages.pop(0)
             
-            return messages, max_uid
+            save_system_state()
+            return messages
     except Exception as ex:
         log_process("warning", f"Telegram getUpdates note: {ex}")
-        return [], offset
+        return []
 
 def looks_like_signal(text):
     if not text: return False
@@ -1077,7 +1072,7 @@ def generate_dashboard_html(client, ct_connected, ct_error, tg_connected, tg_inf
         trades_table = '<div class="empty">No closed trades recorded yet</div>'
 
     logs_rows = ""
-    for log in _process_logs[-30:]:
+    for log in _process_logs[-100:]:
         lvl = log["level"].upper()
         col = {"INFO": "#58a6ff", "SUCCESS": "#3fb950", "ERROR": "#f85149", "WARNING": "#d29922"}.get(lvl, "#c9d1d9")
         logs_rows += f'<tr><td class="time">{log["timestamp"]}</td><td style="color:{col};font-weight:700;">{lvl}</td><td>{log["message"]}</td></tr>'
@@ -1235,7 +1230,7 @@ def generate_dashboard_html(client, ct_connected, ct_error, tg_connected, tg_inf
         <div class="section-title">⚠️ Recent Alerts & System Notifications</div>
         <div class="card">{alerts_html}</div>
 
-        <div class="section-title">📋 Backend Process Logs (Last 30 Events)</div>
+        <div class="section-title">📋 Backend Process Logs (Last 100 Events)</div>
         <div class="card" style="overflow-x:auto;">{logs_table}</div>
 
         <div class="section-title">Open Positions ({len(positions_data)})</div>
@@ -1305,23 +1300,17 @@ def generate_login_html():
 # BOT MODE EXECUTION
 # =====================================================================
 def run_bot():
-    global _last_update_id
     load_system_state()
     reclassify_stored_telegram_messages()
     save_heartbeat("bot", "running", "Checking secrets and starting cycle...")
     log_process("info", "=== TRADING BOT CYCLE STARTED ===")
     check_secrets_status()
 
-    # Load any unexecuted signals left over from previous failed cycles (persistent retry queue)
-    pending_signals = load_pending_signals()
-    if pending_signals:
-        log_process("warning", f"♻️ RETRY QUEUE: {len(pending_signals)} unexecuted signal(s) recovered from previous cycle(s).")
-
-    fetched_max_uid = _last_update_id
+    pending_signals = []
     tg_conn, _ = test_telegram_connection()
     if tg_conn and TG_TOKEN:
-        msgs, fetched_max_uid = tg_get_messages(offset=_last_update_id)
-        log_process("info", f"Fetched {len(msgs)} new message(s) from Telegram (highest update_id seen: {fetched_max_uid}).")
+        msgs = tg_get_messages(offset=_last_update_id)
+        log_process("info", f"Fetched {len(msgs)} new messages from Telegram.")
         for msg in msgs:
             txt = msg.get("text", "").strip()
             if not looks_like_signal(txt): continue
@@ -1331,60 +1320,19 @@ def run_bot():
                 pending_signals.append(parsed)
                 log_process("success", f"Added to execution queue: {parsed}")
 
-    # Remove duplicate signals (same message re-fetched on retry)
-    pending_signals = dedupe_signals(pending_signals)
-    count = len(pending_signals)
-
     client = cTraderClient()
     connected = client.verify_auth_and_fetch_data(pending_signals=pending_signals)
 
     if not connected and not CT_ACCESS_TOKEN:
-        # No token at all — KEEP signals for retry, do NOT advance Telegram offset
-        save_pending_signals(pending_signals)
-        save_heartbeat("bot", "failed", "Missing CT_ACCESS_TOKEN — signals retained for retry")
-        log_process("error", "Bot cycle aborted — missing auth credentials. Signals retained for next cycle (offset NOT advanced).")
-        save_system_state()
+        save_heartbeat("bot", "failed", "Missing CT_ACCESS_TOKEN")
+        log_process("error", "Bot cycle aborted — missing authentication credentials.")
         return False
 
-    # ---- EXECUTION-AWARE DECISION (the key fix) ----
+    count = len(pending_signals)
     if count > 0:
-        # Build a clear diagnostic of what happened at the broker
-        log_process("info", f"━━━ TRADE CYCLE SUMMARY ━━━ Signals: {count} | Dispatched: {client.dispatched_orders} | Confirmed by cTrader: {client.confirmed_executions} | Broker error: {client.last_error_code or 'none'}")
-        if client.last_error_code:
-            log_process("error", f"🚫 BROKER REJECTION: {client.last_error_code} - {client.last_error_desc or ''}")
-
-    if count > 0 and connected and client.confirmed_executions > 0:
-        # cTrader CONFIRMED execution -> clear retry queue and commit Telegram offset
-        save_pending_signals([])
-        _last_update_id = fetched_max_uid
-        log_process("success", f"✅ SUCCESS: {client.confirmed_executions} trade(s) CONFIRMED EXECUTED by cTrader. Telegram offset committed to {fetched_max_uid}.")
-        save_heartbeat("bot", "completed", f"Executed {client.confirmed_executions} trade(s) (confirmed)")
-    elif count > 0 and connected and client.last_error_code:
-        # Order REJECTED by broker -> acknowledge signal (don't infinite-retry identical params),
-        # commit offset, but make the rejection VERY visible so the user can fix signal params.
-        save_pending_signals([])
-        _last_update_id = fetched_max_uid
-        log_process("warning", f"⚠️ Trade REJECTED by broker ({client.last_error_code}). Signal acknowledged (offset {fetched_max_uid}). Fix the signal params (volume / SL-TP distance) and resend.")
-        save_heartbeat("bot", "completed", f"Rejected by broker: {client.last_error_code}")
-    elif count > 0 and connected and client.dispatched_orders == 0:
-        # Authenticated but NO order was dispatched (symbol mapping failed etc.) -> RETRY
-        save_pending_signals(pending_signals)
-        log_process("warning", f"⚠️ No order dispatched (possible symbol mapping issue). {count} signal(s) retained in retry queue. Telegram offset NOT advanced.")
-        save_heartbeat("bot", "failed", "No order dispatched — retained for retry")
-    elif count > 0 and not connected:
-        # Connection failed entirely -> RETRY next cycle: keep queue, do NOT advance offset
-        save_pending_signals(pending_signals)
-        log_process("warning", f"⚠️ Dispatch FAILED (no connection). {count} signal(s) retained in retry queue. Telegram offset NOT advanced (will retry next cycle).")
-        save_heartbeat("bot", "failed", f"Dispatch failed — {count} signal(s) retained for retry")
-    elif count > 0:
-        # Dispatched but no confirmation and no error (ambiguous) -> commit offset, log warning
-        save_pending_signals([])
-        _last_update_id = fetched_max_uid
-        log_process("warning", f"⚠️ {count} order(s) dispatched but NO execution confirmation received (connection may have closed early). Telegram offset committed to {fetched_max_uid}.")
-        save_heartbeat("bot", "completed", f"Dispatched {count} (no confirmation)")
+        log_process("success", f"Bot cycle finished. Dispatched {count} trading command(s) to cTrader server.")
+        save_heartbeat("bot", "completed", f"Dispatched {count} trading command(s)")
     else:
-        # No signals at all -> advance offset to acknowledge any seen non-signal messages
-        _last_update_id = fetched_max_uid
         log_process("info", "No new executable trade signals found in current cycle.")
         save_heartbeat("bot", "completed", "Cycle completed successfully (0 new signals)")
     
