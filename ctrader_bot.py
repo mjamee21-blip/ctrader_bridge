@@ -314,6 +314,11 @@ class cTraderClient:
     def __init__(self):
         self.authenticated = False
         self.account_id_num = None
+        # Execution tracking so we know if orders were CONFIRMED or REJECTED by cTrader
+        self.dispatched_orders = 0
+        self.confirmed_executions = 0
+        self.last_error_code = None
+        self.last_error_desc = None
         try:
             self.account_id_num = int(re.sub(r'\D', '', CT_ACCOUNT_ID)) if CT_ACCOUNT_ID else None
         except:
@@ -389,7 +394,8 @@ class cTraderClient:
                                     except Exception as tp_err:
                                         log_process("warning", f"  └─ Invalid TP value '{tp}': {tp_err}")
                                 c_ref.send(ord_req).addErrback(lambda f: log_process("error", f"Order Dispatch Error: {f}"))
-                                log_process("success", f"✓ Market order SENT to cTrader: {direction} {qty} {norm_pair or pair}")
+                                self.dispatched_orders += 1
+                                log_process("success", f"✓ Market order SENT to cTrader: {direction} {qty} {norm_pair or pair} (dispatched total: {self.dispatched_orders})")
                                 
                             elif sig_type == "TPSL_HIT":
                                 res_reason = sig.get("result", "TP")
@@ -601,24 +607,32 @@ class cTraderClient:
                 check_sync_completed(c)
                 
             elif payload_type == ProtoOAExecutionEvent().payloadType:
-                # FIXED: Extract and log execution event details
+                # FIXED: Extract and log execution event details + count confirmations
                 try:
                     res = Protobuf.extract(message)
                     order_id = getattr(res, 'orderId', 'N/A')
                     order_status = getattr(res, 'orderStatus', 'UNKNOWN')
                     filled_volume = getattr(res, 'filledVolume', 0)
                     execution_type = getattr(res, 'executionType', 'UNKNOWN')
-                    log_process("success", f"🎯 TRADE EXECUTED! Order #{order_id} | Type: {execution_type} | Status: {order_status} | Filled Vol: {filled_volume}")
+                    self.confirmed_executions += 1
+                    log_process("success", f"🎯 TRADE EXECUTED! Order #{order_id} | Type: {execution_type} | Status: {order_status} | Filled Vol: {filled_volume} (confirmed total: {self.confirmed_executions})")
                 except Exception as e:
+                    self.confirmed_executions += 1
                     log_process("success", f"🎯 cTrader confirmed trade execution event! ({str(e)[:50]})")
                 
             elif payload_type == ProtoOAErrorRes().payloadType:
                 err = Protobuf.extract(message)
                 err_code = getattr(err, 'errorCode', '')
                 err_desc = getattr(err, 'description', '')
-                log_process("error", f"cTrader Server returned error: {err_code} - {err_desc}")
+                self.last_error_code = err_code
+                self.last_error_desc = err_desc
+                log_process("error", f"🚫 cTrader REJECTED request: {err_code} - {err_desc}")
                 if "AUTH_FAILURE" in str(err_code) or "CLIENT_ID" in str(err_code):
                     log_process("error", "🛑 Please check your GitHub Secrets CT_CLIENT_ID and CT_CLIENT_SECRET against your Open API app!")
+                if "VOLUME" in str(err_code).upper():
+                    log_process("error", "💡 Volume hint: the lot size/volume may be invalid for this symbol. Check CTRADER_DEFAULT_QTY and the symbol's min volume / step.")
+                if "STOP_LOSS" in str(err_code).upper() or "TAKE_PROFIT" in str(err_code).upper() or "SLTP" in str(err_code).upper():
+                    log_process("error", "💡 SL/TP hint: Stop Loss or Take Profit is too close to the market price (min distance rule) or on the wrong side.")
                 sync_status["finished"] = True
                 if reactor.running:
                     reactor.callLater(0.2, reactor.stop)
@@ -1332,19 +1346,44 @@ def run_bot():
         save_system_state()
         return False
 
-    if count > 0 and connected:
-        # Dispatched successfully -> clear retry queue and commit Telegram offset (acknowledge messages)
+    # ---- EXECUTION-AWARE DECISION (the key fix) ----
+    if count > 0:
+        # Build a clear diagnostic of what happened at the broker
+        log_process("info", f"━━━ TRADE CYCLE SUMMARY ━━━ Signals: {count} | Dispatched: {client.dispatched_orders} | Confirmed by cTrader: {client.confirmed_executions} | Broker error: {client.last_error_code or 'none'}")
+        if client.last_error_code:
+            log_process("error", f"🚫 BROKER REJECTION: {client.last_error_code} - {client.last_error_desc or ''}")
+
+    if count > 0 and connected and client.confirmed_executions > 0:
+        # cTrader CONFIRMED execution -> clear retry queue and commit Telegram offset
         save_pending_signals([])
         _last_update_id = fetched_max_uid
-        log_process("success", f"✅ Bot cycle finished. Dispatched {count} trading command(s) to cTrader. Telegram offset committed to {fetched_max_uid} (messages acknowledged).")
-        save_heartbeat("bot", "completed", f"Dispatched {count} trading command(s)")
-    elif count > 0 and not connected:
-        # Had signals but dispatch failed -> RETRY next cycle: keep queue, do NOT advance offset
+        log_process("success", f"✅ SUCCESS: {client.confirmed_executions} trade(s) CONFIRMED EXECUTED by cTrader. Telegram offset committed to {fetched_max_uid}.")
+        save_heartbeat("bot", "completed", f"Executed {client.confirmed_executions} trade(s) (confirmed)")
+    elif count > 0 and connected and client.last_error_code:
+        # Order REJECTED by broker -> acknowledge signal (don't infinite-retry identical params),
+        # commit offset, but make the rejection VERY visible so the user can fix signal params.
+        save_pending_signals([])
+        _last_update_id = fetched_max_uid
+        log_process("warning", f"⚠️ Trade REJECTED by broker ({client.last_error_code}). Signal acknowledged (offset {fetched_max_uid}). Fix the signal params (volume / SL-TP distance) and resend.")
+        save_heartbeat("bot", "completed", f"Rejected by broker: {client.last_error_code}")
+    elif count > 0 and connected and client.dispatched_orders == 0:
+        # Authenticated but NO order was dispatched (symbol mapping failed etc.) -> RETRY
         save_pending_signals(pending_signals)
-        log_process("warning", f"⚠️ Dispatch FAILED — {count} signal(s) retained in retry queue. Telegram offset NOT advanced (will retry next cycle).")
+        log_process("warning", f"⚠️ No order dispatched (possible symbol mapping issue). {count} signal(s) retained in retry queue. Telegram offset NOT advanced.")
+        save_heartbeat("bot", "failed", "No order dispatched — retained for retry")
+    elif count > 0 and not connected:
+        # Connection failed entirely -> RETRY next cycle: keep queue, do NOT advance offset
+        save_pending_signals(pending_signals)
+        log_process("warning", f"⚠️ Dispatch FAILED (no connection). {count} signal(s) retained in retry queue. Telegram offset NOT advanced (will retry next cycle).")
         save_heartbeat("bot", "failed", f"Dispatch failed — {count} signal(s) retained for retry")
+    elif count > 0:
+        # Dispatched but no confirmation and no error (ambiguous) -> commit offset, log warning
+        save_pending_signals([])
+        _last_update_id = fetched_max_uid
+        log_process("warning", f"⚠️ {count} order(s) dispatched but NO execution confirmation received (connection may have closed early). Telegram offset committed to {fetched_max_uid}.")
+        save_heartbeat("bot", "completed", f"Dispatched {count} (no confirmation)")
     else:
-        # No signals at all -> safe to advance offset to acknowledge any seen non-signal messages
+        # No signals at all -> advance offset to acknowledge any seen non-signal messages
         _last_update_id = fetched_max_uid
         log_process("info", "No new executable trade signals found in current cycle.")
         save_heartbeat("bot", "completed", "Cycle completed successfully (0 new signals)")
