@@ -1,12 +1,12 @@
 {
   "bot": {
-    "status": "completed",
-    "timestamp": "2026-07-26T16:46:45.160164+00:00",
-    "details": "Cycle completed successfully (0 new signals)"
+    "status": "failed",
+    "timestamp": "2026-07-26T16:49:05.262057+00:00",
+    "details": "No order dispatched \u2014 retained for retry"
   },
   "dashboard": {
     "status": "completed",
-    "timestamp": "2026-07-26T16:46:50.891050+00:00",
+    "timestamp": "2026-07-26T16:49:10.994424+00:00",
     "details": "No errors encountered"
   }
 }
