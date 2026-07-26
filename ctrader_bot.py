@@ -75,8 +75,10 @@ try:
 except:
     PAIR_MAP = {}
 
-# Common pair aliases for signal parsing
+# Common pair aliases for signal parsing - FIXED: Added BTC/ETH and other cryptos
 PAIR_ALIASES = {
+    "BTC": "BTCUSD", "BITCOIN": "BTCUSD",
+    "ETH": "ETHUSD", "ETHEREUM": "ETHUSD",
     "GOLD": "XAUUSD", "XAU": "XAUUSD",
     "SILVER": "XAGUSD", "XAG": "XAGUSD",
     "OIL": "USOIL", "WTI": "USOIL", "CRUDE": "USOIL",
@@ -359,7 +361,7 @@ class cTraderClient:
                             pair = sig.get("pair")
                             norm_pair, sym_id = self.normalize_symbol_for_ctrader(pair)
                             if not sym_id:
-                                log_process("warning", f"Could not map symbol '{pair}' for trade execution.")
+                                log_process("error", f"CRITICAL: Could not map symbol '{pair}' for trade execution. Available instruments: {len(_instruments)}")
                                 continue
                                 
                             if sig_type == "SIGNAL":
@@ -367,7 +369,7 @@ class cTraderClient:
                                 qty = sig.get("qty") or (0.10 if "BTC" in (norm_pair or pair).upper() else 0.01)
                                 sl = sig.get("sl")
                                 tp = sig.get("tp")
-                                log_process("info", f"Sending ProtoOANewOrderReq: {direction} {norm_pair or pair} (SymbolID: {sym_id}) | Vol: {int(float(qty) * 100000)}...")
+                                log_process("info", f"🎯 Sending ProtoOANewOrderReq: {direction} {norm_pair or pair} (SymbolID: {sym_id}) | Vol: {int(float(qty) * 100000)}...")
                                 ord_req = ProtoOANewOrderReq()
                                 ord_req.ctidTraderAccountId = self.account_id_num
                                 ord_req.symbolId = int(sym_id)
@@ -375,12 +377,19 @@ class cTraderClient:
                                 ord_req.tradeSide = ProtoOATradeSide.BUY if direction == "BUY" else ProtoOATradeSide.SELL
                                 ord_req.volume = int(float(qty) * 100000)
                                 if sl is not None:
-                                    try: ord_req.stopLoss = float(sl)
-                                    except: pass
+                                    try:
+                                        ord_req.stopLoss = float(sl)
+                                        log_process("info", f"  └─ Stop Loss set: {float(sl)}")
+                                    except Exception as sl_err:
+                                        log_process("warning", f"  └─ Invalid SL value '{sl}': {sl_err}")
                                 if tp is not None:
-                                    try: ord_req.takeProfit = float(tp)
-                                    except: pass
+                                    try:
+                                        ord_req.takeProfit = float(tp)
+                                        log_process("info", f"  └─ Take Profit set: {float(tp)}")
+                                    except Exception as tp_err:
+                                        log_process("warning", f"  └─ Invalid TP value '{tp}': {tp_err}")
                                 c_ref.send(ord_req).addErrback(lambda f: log_process("error", f"Order Dispatch Error: {f}"))
+                                log_process("success", f"✓ Market order queued: {direction} {qty} {norm_pair or pair}")
                                 
                             elif sig_type == "TPSL_HIT":
                                 res_reason = sig.get("result", "TP")
@@ -411,7 +420,8 @@ class cTraderClient:
                 if not sync_status["finished"]:
                     sync_status["finished"] = True
                     log_process("success", "Complete Account & Position Data synchronized via TCP Protobuf!")
-                    delay_close = 5.0 if pending_signals else 0.3
+                    # FIXED: Increased delay to 10 seconds to allow orders to process before closing connection
+                    delay_close = 10.0 if pending_signals else 0.3
                     if reactor.running:
                         reactor.callLater(delay_close, reactor.stop)
         
@@ -590,7 +600,15 @@ class cTraderClient:
                 check_sync_completed(c)
                 
             elif payload_type == ProtoOAExecutionEvent().payloadType:
-                log_process("success", f"🎯 cTrader confirmed execution event from server!")
+                # FIXED: Extract and log execution event details
+                try:
+                    res = Protobuf.extract(message)
+                    order_id = getattr(res, 'orderId', 'N/A')
+                    order_status = getattr(res, 'orderStatus', 'UNKNOWN')
+                    filled_volume = getattr(res, 'filledVolume', 0)
+                    log_process("success", f"🎯 cTrader Execution Event: Order #{order_id} | Status: {order_status} | Filled Volume: {filled_volume}")
+                except Exception as e:
+                    log_process("success", f"🎯 cTrader confirmed execution event from server!")
                 
             elif payload_type == ProtoOAErrorRes().payloadType:
                 err = Protobuf.extract(message)
@@ -617,13 +635,13 @@ class cTraderClient:
         client.setDisconnectedCallback(disconnected)
         client.setMessageReceivedCallback(on_message_received)
         
-        # Timeout safety net so GitHub Actions workflow never hangs
+        # Timeout safety net so GitHub Actions workflow never hangs - FIXED: Increased from 12s to 20s
         def force_timeout():
             if not sync_status["finished"] and reactor.running:
                 log_process("warning", f"TCP sync timeout reached (Trd:{sync_status['trader']}, Rec:{sync_status['reconcile']}, Sym:{sync_status['symbols']}).")
                 reactor.stop()
                 
-        reactor.callLater(12.0, force_timeout)
+        reactor.callLater(20.0, force_timeout)
         try:
             client.startService()
             reactor.run()
@@ -657,15 +675,18 @@ class cTraderClient:
         # 1. Check user repository secret PAIR_MAP first
         mapped = PAIR_MAP.get(clean_pair, "").upper()
         if mapped and mapped in _instruments:
+            log_process("info", f"Symbol '{clean_pair}' mapped via PAIR_MAP to '{mapped}' (ID: {_instruments[mapped]['id']})")
             return mapped, _instruments[mapped]["id"]
 
         # 2. Check common trading aliases (GOLD -> XAUUSD, OIL -> USOIL, NAS100 -> US100)
         alias = PAIR_ALIASES.get(clean_pair, "")
         if alias and alias in _instruments:
+            log_process("info", f"Symbol '{clean_pair}' matched PAIR_ALIASES to '{alias}' (ID: {_instruments[alias]['id']})")
             return alias, _instruments[alias]["id"]
 
         # 3. Exact match in cTrader catalog
         if clean_pair in _instruments:
+            log_process("info", f"Symbol '{clean_pair}' found exact match in cTrader (ID: {_instruments[clean_pair]['id']})")
             return clean_pair, _instruments[clean_pair]["id"]
 
         # 4. Fuzzy suffix match (e.g. matching EURUSD against EURUSD.m or EURUSD.pro or XAUUSD.c)
@@ -674,8 +695,8 @@ class cTraderClient:
                 log_process("info", f"Symbol '{clean_pair}' matched cTrader instrument '{name}' (ID: {info['id']})")
                 return name, info["id"]
 
-        log_process("warning", f"Could not map instrument '{pair_name}' in cTrader catalog. Defaulting symbol resolution.")
-        return clean_pair, 1
+        log_process("error", f"CRITICAL MAPPING FAILURE: Could not map instrument '{pair_name}' ({clean_pair}) in cTrader catalog of {len(_instruments)} symbols.")
+        return clean_pair, None
 
     def place_order(self, pair, direction, sl, tp, qty=None):
         """Execute market order via cTrader Open API v2 Protocol Buffers."""
@@ -1231,7 +1252,6 @@ def run_bot():
     save_heartbeat("bot", "running", "Checking secrets and starting cycle...")
     log_process("info", "=== TRADING BOT CYCLE STARTED ===")
     check_secrets_status()
-    # refresh_access_token_if_needed() removed to prevent premature refresh token rotation (handled on auth error)
 
     pending_signals = []
     tg_conn, _ = test_telegram_connection()
@@ -1245,6 +1265,7 @@ def run_bot():
             parsed = parse_signal(txt)
             if parsed:
                 pending_signals.append(parsed)
+                log_process("success", f"Added to execution queue: {parsed}")
 
     client = cTraderClient()
     connected = client.verify_auth_and_fetch_data(pending_signals=pending_signals)
@@ -1276,7 +1297,6 @@ def run_dashboard():
     log_process("info", "=== DASHBOARD GENERATION STARTED ===")
     
     check_secrets_status()
-    # refresh_access_token_if_needed() removed to prevent premature refresh token rotation (handled on auth error)
 
     client = cTraderClient()
     ct_connected = client.verify_auth_and_fetch_data()

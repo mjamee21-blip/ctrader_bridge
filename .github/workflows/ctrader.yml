@@ -2,6 +2,8 @@ name: cTrader Bot & Dashboard
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: '*/5 * * * *'
 
 permissions:
   contents: write
@@ -34,7 +36,10 @@ jobs:
           TG_CHAT: ${{ secrets.TG_CHAT }}
           DASHBOARD_USERNAME: ${{ secrets.DASHBOARD_USERNAME }}
           DASHBOARD_PASSWORD: ${{ secrets.DASHBOARD_PASSWORD }}
-        run: python3 ctrader_bot.py
+        run: |
+          echo "Starting Trading Bot..."
+          python3 ctrader_bot.py
+          echo "Bot execution completed"
       
       - name: Generate Dashboard HTML
         env:
@@ -49,12 +54,26 @@ jobs:
           TG_CHAT: ${{ secrets.TG_CHAT }}
           DASHBOARD_USERNAME: ${{ secrets.DASHBOARD_USERNAME }}
           DASHBOARD_PASSWORD: ${{ secrets.DASHBOARD_PASSWORD }}
-        run: python3 ctrader_bot.py
+        run: |
+          echo "Generating Dashboard..."
+          python3 ctrader_bot.py
+          echo "Dashboard generation completed"
       
       - name: Commit and Push Dashboard
         run: |
           git config --global user.email "bot@github.com"
           git config --global user.name "Dashboard Bot"
           git add docs/ || true
-          git commit -m "Dashboard update $(date -u '+%Y-%m-%d %H:%M UTC')" || true
+          git commit -m "Dashboard & Bot Update: $(date -u '+%Y-%m-%d %H:%M UTC')" || true
           git push || true
+      
+      - name: Report Execution Status
+        if: always()
+        run: |
+          echo "✅ Workflow execution completed"
+          if [ -f docs/system_state.json ]; then
+            echo "📊 System state saved"
+          fi
+          if [ -f docs/index.html ]; then
+            echo "📈 Dashboard generated"
+          fi
