@@ -101,7 +101,7 @@ _heartbeat_log = {}
 _alerts = []
 _telegram_messages = []
 _BUILD_VERSION = datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S")
-_SCRIPT_VERSION = "v4-FINAL-retry-queue-execution-tracking-robust"
+_SCRIPT_VERSION = "v5-verify-reconcile-no-infinite-loop"
 
 # =====================================================================
 # PERSISTENT SYSTEM STATE STORAGE (SHARES DATA BETWEEN BOT & DASHBOARD)
@@ -428,14 +428,33 @@ class cTraderClient:
                                     log_process("info", f"Sending ProtoOAAmendPositionSLTPReq for position #{pos_id_val} -> New SL: {new_sl_val}...")
                                     c_ref.send(amend_req).addErrback(lambda f: log_process("error", f"Amend Dispatch Error: {f}"))
                     
-                if not sync_status["finished"]:
-                    sync_status["finished"] = True
-                    log_process("success", "✅ Complete Account & Position Data synchronized via TCP Protobuf! Standing by for execution confirmations...")
-                    # FIXED: Increased delay to 15 seconds to allow orders to process and receive confirmations before closing
-                    delay_close = 15.0 if pending_signals else 0.5
-                    log_process("info", f"⏱️  Waiting {delay_close}s for cTrader execution confirmations before closing connection...")
-                    if reactor.running:
-                        reactor.callLater(delay_close, reactor.stop)
+                if not sync_status["finished"] and not sync_status.get("verifying"):
+                    if pending_signals and getattr(self, "dispatched_orders", 0) > 0:
+                        # Orders were dispatched -> do a VERIFICATION RECONCILE to confirm fills
+                        # (execution events are sometimes lost on flaky connections).
+                        sync_status["pre_position_count"] = len(self.positions)
+                        sync_status["verifying"] = True
+                        log_process("info", f"🔍 {self.dispatched_orders} order(s) dispatched. Scheduling verification reconcile in 3s (positions before: {sync_status['pre_position_count']})...")
+                        def do_verify_reconcile():
+                            if sync_status.get("verify_sent") or sync_status["finished"]:
+                                return
+                            sync_status["verify_sent"] = True
+                            try:
+                                vreq = ProtoOAReconcileReq()
+                                vreq.ctidTraderAccountId = self.account_id_num
+                                c_ref.send(vreq).addErrback(on_error)
+                                log_process("info", "🔍 Verification reconcile sent. Waiting for broker position snapshot...")
+                            except Exception as ve:
+                                log_process("warning", f"Verify reconcile send note: {ve}")
+                        if reactor.running:
+                            reactor.callLater(3.0, do_verify_reconcile)
+                    else:
+                        sync_status["finished"] = True
+                        log_process("success", "✅ Complete Account & Position Data synchronized via TCP Protobuf! Standing by for execution confirmations...")
+                        delay_close = 15.0 if pending_signals else 0.5
+                        log_process("info", f"⏱️  Waiting {delay_close}s for cTrader execution confirmations before closing connection...")
+                        if reactor.running:
+                            reactor.callLater(delay_close, reactor.stop)
         
         def on_error(failure):
             err_str = str(failure)
@@ -569,6 +588,46 @@ class cTraderClient:
                 res = Protobuf.extract(message)
                 pos_list = getattr(res, "position", [])
                 ord_list = getattr(res, "order", [])
+
+                # ---- VERIFICATION RECONCILE (after dispatch): confirm whether orders filled ----
+                if sync_status.get("verify_sent") and not sync_status["finished"]:
+                    pre = sync_status.get("pre_position_count", 0)
+                    now_count = len(pos_list)
+                    delta = now_count - pre
+                    if delta > 0:
+                        self.confirmed_executions += delta
+                        log_process("success", f"✅ EXECUTION VERIFIED via reconcile: {delta} NEW position(s) appeared (was {pre}, now {now_count}). Trade confirmed filled!")
+                    else:
+                        log_process("warning", f"⚠️ Verify reconcile: positions unchanged ({pre} -> {now_count}). The dispatched order did NOT open a position (rejected or not processed by broker).")
+                    self.positions = []
+                    for p in pos_list:
+                        try:
+                            td = getattr(p, "tradeData", None)
+                            sid = getattr(td, "symbolId", "N/A")
+                            lbl = f"ID:{sid}"
+                            for nm, meta in _instruments.items():
+                                if str(meta["id"]) == str(sid):
+                                    lbl = nm
+                                    break
+                            self.positions.append({
+                                "pair": lbl,
+                                "side": "BUY" if str(getattr(td, "tradeSide", 1)) in ("1",) or "BUY" in str(getattr(td, "tradeSide", 1)) else "SELL",
+                                "qty": str(getattr(td, "volume", 0) / 100000.0),
+                                "price": str(getattr(p, "price", 0.0)),
+                                "sl": str(getattr(p, "stopLoss", "—") or "—"),
+                                "tp": str(getattr(p, "takeProfit", "—") or "—"),
+                                "pnl": "$0.00", "pnl_value": 0.0,
+                                "position_id": getattr(p, "positionId", "N/A"),
+                                "symbol_id": sid,
+                                "raw_volume": getattr(td, "volume", 0)
+                            })
+                        except Exception:
+                            pass
+                    sync_status["finished"] = True
+                    if reactor.running:
+                        reactor.callLater(1.0, reactor.stop)
+                    return
+
                 log_process("info", f"Reconciliation retrieved: {len(pos_list)} open positions, {len(ord_list)} orders.")
                 used_margin_total = 0.0
                 for p in pos_list:
@@ -1436,42 +1495,56 @@ def run_bot():
         save_system_state()
         return False
 
-    # ---- EXECUTION-AWARE DECISION (the key fix) ----
+    # ---- EXECUTION-AWARE DECISION (fixed: no more infinite loop) ----
+    has_new_orders = any(s.get("type") == "SIGNAL" for s in pending_signals)
+    has_manage_ops = any(s.get("type") in ("TPSL_HIT", "SL_UPDATE") for s in pending_signals)
+
     if count > 0:
-        # Build a clear diagnostic of what happened at the broker
-        log_process("info", f"━━━ TRADE CYCLE SUMMARY ━━━ Signals: {count} | Dispatched: {client.dispatched_orders} | Confirmed by cTrader: {client.confirmed_executions} | Broker error: {client.last_error_code or 'none'}")
+        log_process("info", f"━━━ TRADE CYCLE SUMMARY ━━━ Signals: {count} (new orders: {has_new_orders}, manage ops: {has_manage_ops}) | Dispatched: {client.dispatched_orders} | Confirmed by cTrader: {client.confirmed_executions} | Broker error: {client.last_error_code or 'none'}")
         if client.last_error_code:
             log_process("error", f"🚫 BROKER REJECTION: {client.last_error_code} - {client.last_error_desc or ''}")
 
-    if count > 0 and connected and client.confirmed_executions > 0:
-        # cTrader CONFIRMED execution -> clear retry queue and commit Telegram offset
+    if count > 0 and client.confirmed_executions > 0:
+        # cTrader CONFIRMED execution -> clear retry queue and commit offset
         save_pending_signals([])
         _last_update_id = fetched_max_uid
-        log_process("success", f"✅ SUCCESS: {client.confirmed_executions} trade(s) CONFIRMED EXECUTED by cTrader. Telegram offset committed to {fetched_max_uid}.")
-        save_heartbeat("bot", "completed", f"Executed {client.confirmed_executions} trade(s) (confirmed)")
-    elif count > 0 and connected and client.last_error_code:
-        # Order REJECTED by broker -> acknowledge signal (don't infinite-retry identical params),
-        # commit offset, but make the rejection VERY visible so the user can fix signal params.
+        log_process("success", f"✅ SUCCESS: {client.confirmed_executions} trade(s) CONFIRMED EXECUTED by cTrader. Offset committed to {fetched_max_uid}.")
+        save_heartbeat("bot", "completed", f"Executed {client.confirmed_executions} trade(s)")
+    elif count > 0 and client.last_error_code:
+        # Broker REJECTED -> commit (retrying identical params won't help), make it visible
         save_pending_signals([])
         _last_update_id = fetched_max_uid
-        log_process("warning", f"⚠️ Trade REJECTED by broker ({client.last_error_code}). Signal acknowledged (offset {fetched_max_uid}). Fix the signal params (volume / SL-TP distance) and resend.")
-        save_heartbeat("bot", "completed", f"Rejected by broker: {client.last_error_code}")
-    elif count > 0 and connected and client.dispatched_orders == 0:
-        # Authenticated but NO order was dispatched (symbol mapping failed etc.) -> RETRY
-        save_pending_signals(pending_signals)
-        log_process("warning", f"⚠️ No order dispatched (possible symbol mapping issue). {count} signal(s) retained in retry queue. Telegram offset NOT advanced.")
-        save_heartbeat("bot", "failed", "No order dispatched — retained for retry")
+        log_process("warning", f"⚠️ REJECTED by broker ({client.last_error_code}). Offset committed to {fetched_max_uid}. Fix signal params (volume / SL-TP) and resend.")
+        save_heartbeat("bot", "completed", f"Rejected: {client.last_error_code}")
+    elif count > 0 and client.dispatched_orders > 0:
+        # Orders DISPATCHED -> commit (cannot safely retry; would risk DUPLICATE trades).
+        # The reconciliation-based verification (in sync) reports whether they actually filled.
+        save_pending_signals([])
+        _last_update_id = fetched_max_uid
+        log_process("warning", f"⚠️ {client.dispatched_orders} order(s) dispatched. Offset committed to {fetched_max_uid} (no retry to avoid duplicate trades). Check Open Positions to verify fill.")
+        save_heartbeat("bot", "completed", f"Dispatched {client.dispatched_orders} order(s)")
     elif count > 0 and not connected:
-        # Connection failed entirely -> RETRY next cycle: keep queue, do NOT advance offset
+        # No connection at all -> RETRY (safe: nothing was sent)
         save_pending_signals(pending_signals)
-        log_process("warning", f"⚠️ Dispatch FAILED (no connection). {count} signal(s) retained in retry queue. Telegram offset NOT advanced (will retry next cycle).")
-        save_heartbeat("bot", "failed", f"Dispatch failed — {count} signal(s) retained for retry")
-    elif count > 0:
-        # Dispatched but no confirmation and no error (ambiguous) -> commit offset, log warning
+        log_process("warning", f"⚠️ No cTrader connection. {count} signal(s) retained for retry. Offset NOT advanced.")
+        save_heartbeat("bot", "failed", f"No connection — {count} signal(s) retained for retry")
+    elif count > 0 and has_new_orders and client.dispatched_orders == 0:
+        # New-order signals present but NONE dispatched (symbol mapping / sync issue) -> RETRY
+        save_pending_signals(pending_signals)
+        log_process("warning", f"⚠️ New-order signal(s) present but not dispatched (symbol mapping or sync not ready). Retained for retry. Offset NOT advanced.")
+        save_heartbeat("bot", "failed", "Order not dispatched — retained for retry")
+    elif count > 0 and has_manage_ops and not has_new_orders:
+        # Only TP-hit / SL-update signals, with no open positions to act on -> HANDLED, commit
         save_pending_signals([])
         _last_update_id = fetched_max_uid
-        log_process("warning", f"⚠️ {count} order(s) dispatched but NO execution confirmation received (connection may have closed early). Telegram offset committed to {fetched_max_uid}.")
-        save_heartbeat("bot", "completed", f"Dispatched {count} (no confirmation)")
+        log_process("info", f"ℹ️ Only close/modify signal(s) with no matching open positions — nothing to do. Offset committed to {fetched_max_uid}.")
+        save_heartbeat("bot", "completed", "Close/modify — no positions to act on")
+    elif count > 0:
+        # Any other handled case -> commit
+        save_pending_signals([])
+        _last_update_id = fetched_max_uid
+        log_process("info", f"ℹ️ Signal(s) handled. Offset committed to {fetched_max_uid}.")
+        save_heartbeat("bot", "completed", "Signals handled")
     else:
         # No signals at all -> advance offset to acknowledge any seen non-signal messages
         _last_update_id = fetched_max_uid
