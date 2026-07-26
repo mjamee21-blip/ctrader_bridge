@@ -351,7 +351,7 @@ class cTraderClient:
         sync_status = {"trader": False, "reconcile": False, "symbols": False, "orders_dispatched": False, "finished": False}
         
         def check_sync_completed(c_ref):
-            if sync_status["trader"] and sync_status["symbols"]:
+            if sync_status["trader"] and sync_status["symbols"] and sync_status["reconcile"]:
                 if not sync_status["orders_dispatched"]:
                     sync_status["orders_dispatched"] = True
                     if pending_signals:
@@ -389,7 +389,7 @@ class cTraderClient:
                                     except Exception as tp_err:
                                         log_process("warning", f"  └─ Invalid TP value '{tp}': {tp_err}")
                                 c_ref.send(ord_req).addErrback(lambda f: log_process("error", f"Order Dispatch Error: {f}"))
-                                log_process("success", f"✓ Market order queued: {direction} {qty} {norm_pair or pair}")
+                                log_process("success", f"✓ Market order SENT to cTrader: {direction} {qty} {norm_pair or pair}")
                                 
                             elif sig_type == "TPSL_HIT":
                                 res_reason = sig.get("result", "TP")
@@ -419,9 +419,10 @@ class cTraderClient:
                     
                 if not sync_status["finished"]:
                     sync_status["finished"] = True
-                    log_process("success", "Complete Account & Position Data synchronized via TCP Protobuf!")
-                    # FIXED: Increased delay to 10 seconds to allow orders to process before closing connection
-                    delay_close = 10.0 if pending_signals else 0.3
+                    log_process("success", "✅ Complete Account & Position Data synchronized via TCP Protobuf! Standing by for execution confirmations...")
+                    # FIXED: Increased delay to 15 seconds to allow orders to process and receive confirmations before closing
+                    delay_close = 15.0 if pending_signals else 0.5
+                    log_process("info", f"⏱️  Waiting {delay_close}s for cTrader execution confirmations before closing connection...")
                     if reactor.running:
                         reactor.callLater(delay_close, reactor.stop)
         
@@ -606,9 +607,10 @@ class cTraderClient:
                     order_id = getattr(res, 'orderId', 'N/A')
                     order_status = getattr(res, 'orderStatus', 'UNKNOWN')
                     filled_volume = getattr(res, 'filledVolume', 0)
-                    log_process("success", f"🎯 cTrader Execution Event: Order #{order_id} | Status: {order_status} | Filled Volume: {filled_volume}")
+                    execution_type = getattr(res, 'executionType', 'UNKNOWN')
+                    log_process("success", f"🎯 TRADE EXECUTED! Order #{order_id} | Type: {execution_type} | Status: {order_status} | Filled Vol: {filled_volume}")
                 except Exception as e:
-                    log_process("success", f"🎯 cTrader confirmed execution event from server!")
+                    log_process("success", f"🎯 cTrader confirmed trade execution event! ({str(e)[:50]})")
                 
             elif payload_type == ProtoOAErrorRes().payloadType:
                 err = Protobuf.extract(message)
@@ -635,13 +637,13 @@ class cTraderClient:
         client.setDisconnectedCallback(disconnected)
         client.setMessageReceivedCallback(on_message_received)
         
-        # Timeout safety net so GitHub Actions workflow never hangs - FIXED: Increased from 12s to 20s
+        # Timeout safety net so GitHub Actions workflow never hangs - FIXED: Increased to 35s to allow full order cycle
         def force_timeout():
             if not sync_status["finished"] and reactor.running:
                 log_process("warning", f"TCP sync timeout reached (Trd:{sync_status['trader']}, Rec:{sync_status['reconcile']}, Sym:{sync_status['symbols']}).")
                 reactor.stop()
                 
-        reactor.callLater(20.0, force_timeout)
+        reactor.callLater(35.0, force_timeout)
         try:
             client.startService()
             reactor.run()
