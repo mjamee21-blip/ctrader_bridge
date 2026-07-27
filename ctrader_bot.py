@@ -351,7 +351,7 @@ class cTraderClient:
         port = EndPoints.PROTOBUF_PORT
         
         client = ProtoClient(host, port, TcpProtocol)
-        sync_status = {"trader": False, "reconcile": False, "symbols": False, "orders_dispatched": False, "finished": False}
+        sync_status = {"trader": False, "reconcile": False, "symbols": False, "deals": False, "orders_dispatched": False, "finished": False}
         
         def safe_errback(failure, label="Order"):
             err_str = str(failure)
@@ -435,11 +435,11 @@ class cTraderClient:
                                     amend_req.stopLoss = float(new_sl_val)
                                     log_process("info", f"Sending ProtoOAAmendPositionSLTPReq for position #{pos_id_val} -> New SL: {new_sl_val}...")
                                     c_ref.send(amend_req).addErrback(lambda f: safe_errback(f, "Amend"))
-                    
+            
+            if sync_status["trader"] and sync_status["symbols"] and sync_status["reconcile"] and sync_status["deals"]:
                 if not sync_status["finished"]:
                     sync_status["finished"] = True
-                    log_process("success", "✅ Complete Account & Position Data synchronized via TCP Protobuf! Standing by for execution confirmations...")
-                    # FIXED: Increased delay to 15 seconds to allow orders to process and receive confirmations before closing
+                    log_process("success", "✅ Complete Account, Position & Deals Data synchronized via TCP Protobuf! Standing by for execution confirmations...")
                     delay_close = 15.0 if pending_signals else 0.5
                     log_process("info", f"⏱️  Waiting {delay_close}s for cTrader execution confirmations before closing connection...")
                     if reactor.running:
@@ -541,6 +541,11 @@ class cTraderClient:
                 sym_req.ctidTraderAccountId = self.account_id_num
                 sym_req.includeArchivedSymbols = False
                 c.send(sym_req).addErrback(on_error)
+
+                now_ms = int(datetime.now(timezone.utc).timestamp() * 1000)
+                from_ms = now_ms - (7 * 24 * 3600 * 1000)  # 7 days history
+                deal_req = ProtoOADealListReq(ctidTraderAccountId=self.account_id_num, fromTimestamp=from_ms, toTimestamp=now_ms, maxRows=50)
+                c.send(deal_req).addErrback(on_error)
                 
             elif payload_type == ProtoOATraderRes().payloadType:
                 res = Protobuf.extract(message)
@@ -628,6 +633,43 @@ class cTraderClient:
                 sync_status["reconcile"] = True
                 check_sync_completed(c)
                 
+            elif payload_type == ProtoOADealListRes().payloadType:
+                res = Protobuf.extract(message)
+                deals_list = getattr(res, "deal", [])
+                log_process("info", f"Deals history retrieved: {len(deals_list)} historical deals.")
+                for d in deals_list:
+                    close_detail = getattr(d, "closePositionDetail", None)
+                    if close_detail is not None:
+                        deal_id = getattr(d, "dealId", "N/A")
+                        sym_id = getattr(d, "symbolId", "N/A")
+                        side_val = getattr(d, "tradeSide", 1)
+                        side_str = "BUY" if str(side_val) == "1" or "BUY" in str(side_val) else "SELL"
+                        exit_price = getattr(d, "executionPrice", 0.0)
+                        entry_price = getattr(close_detail, "entryPrice", 0.0)
+                        gross_profit = getattr(close_detail, "grossProfit", 0)
+                        money_digits = getattr(close_detail, "moneyDigits", 2) or 2
+                        divisor = 10 ** money_digits
+                        pnl_val = float(gross_profit) / divisor
+                        pnl_str = _safe_currency(pnl_val)
+                        
+                        pair_label = f"ID:{sym_id}"
+                        for name, meta in _instruments.items():
+                            if str(meta["id"]) == str(sym_id):
+                                pair_label = name
+                                break
+                                
+                        self.trades.append({
+                            "pair": pair_label,
+                            "side": side_str,
+                            "entry": f"{entry_price:,.5f}".rstrip('0').rstrip('.'),
+                            "exit": f"{exit_price:,.5f}".rstrip('0').rstrip('.'),
+                            "pnl": pnl_str,
+                            "pnl_value": pnl_val,
+                            "deal_id": deal_id
+                        })
+                sync_status["deals"] = True
+                check_sync_completed(c)
+
             elif payload_type == ProtoOAExecutionEvent().payloadType:
                 # FIXED: Extract and log execution event details
                 try:
@@ -1134,7 +1176,7 @@ def generate_dashboard_html(client, ct_connected, ct_error, tg_connected, tg_inf
 
     if trades_data:
         trade_rows = "".join([
-            f'<tr><td class="pair">{t.get("pair","N/A")}</td><td class="buy">{t.get("side","BUY")}</td><td>{t.get("entry","0.00")}</td><td>{t.get("exit","0.00")}</td><td style="color:#3fb950;">{t.get("pnl","$0.00")}</td></tr>'
+            f'<tr><td class="pair">{t.get("pair","N/A")}</td><td class="{"buy" if "BUY" in t.get("side","BUY") else "sell"}">{t.get("side","BUY")}</td><td>{t.get("entry","0.00")}</td><td>{t.get("exit","0.00")}</td><td style="color:{"#3fb950" if t.get("pnl_value",0)>=0 else "#f85149"};font-weight:600;">{t.get("pnl","$0.00")}</td></tr>'
             for t in trades_data
         ])
         trades_table = f'<table><thead><tr><th>Pair</th><th>Side</th><th>Entry</th><th>Exit</th><th>P&L</th></tr></thead><tbody>{trade_rows}</tbody></table>'
@@ -1233,7 +1275,7 @@ def generate_dashboard_html(client, ct_connected, ct_error, tg_connected, tg_inf
             <strong style="color:#58a6ff;">📊 cTrader Account:</strong> {state['account_id']} | <strong style="color:#58a6ff;">Server:</strong> {state['server']} | <strong style="color:#58a6ff;">Currency:</strong> {state['currency']} | <strong style="color:#58a6ff;">Build:</strong> {_BUILD_VERSION}
         </div>
         <div style="background: #1f242c; border: 1px solid #3b434f; padding: 10px 16px; border-radius: 6px; font-size: 11px; margin-bottom: 20px; color: #58a6ff; font-family: monospace;">
-            🔧 DIAGNOSTIC: Script version: v5-ULTIMATE-dynamic-lots-multiline-parser | Telegram offset (last_update_id): {_last_update_id} | Instruments loaded: {len(_instruments)}
+            🔧 DIAGNOSTIC: Script version: v6-FINAL-closed-deals-history-complete | Telegram offset (last_update_id): {_last_update_id} | Instruments loaded: {len(_instruments)}
         </div>
 
         <div class="section-title">🩺 System Health & Secrets Check</div>
@@ -1376,7 +1418,7 @@ def run_bot():
     load_system_state()
     reclassify_stored_telegram_messages()
     save_heartbeat("bot", "running", "Checking secrets and starting cycle...")
-    log_process("info", "=== TRADING BOT CYCLE STARTED === [v5-ULTIMATE-dynamic-lots-multiline-parser]")
+    log_process("info", "=== TRADING BOT CYCLE STARTED === [v6-FINAL-closed-deals-history-complete]")
     check_secrets_status()
 
     pending_signals = []
@@ -1421,7 +1463,7 @@ def run_dashboard():
     reclassify_stored_telegram_messages()
     load_heartbeat()
     save_heartbeat("dashboard", "running", "Synchronizing account state & HTML...")
-    log_process("info", "=== DASHBOARD GENERATION STARTED === [v5-ULTIMATE-dynamic-lots-multiline-parser]")
+    log_process("info", "=== DASHBOARD GENERATION STARTED === [v6-FINAL-closed-deals-history-complete]")
     
     check_secrets_status()
 
