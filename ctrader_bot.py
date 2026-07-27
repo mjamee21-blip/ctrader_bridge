@@ -1513,7 +1513,7 @@ def run_bot():
     check_secrets_status()
 
     pending_signals = []
-    tg_conn, _ = test_telegram_connection()
+    tg_conn, tg_info = test_telegram_connection()
     if tg_conn and TG_TOKEN:
         log_process("info", f"Checking Telegram updates starting after offset (last_update_id): {_last_update_id}...")
         msgs = tg_get_messages(offset=_last_update_id)
@@ -1543,6 +1543,18 @@ def run_bot():
         log_process("info", "No new executable trade signals found in current cycle.")
         save_heartbeat("bot", "completed", "Cycle completed successfully (0 new signals)")
     
+    # Fast Unified Dashboard Generation: Generate HTML right here without a second TCP connection!
+    ct_error = None if connected else "Authentication check noted (Open API Protobuf/OAuth)"
+    os.makedirs("docs", exist_ok=True)
+    html_dashboard = generate_dashboard_html(client, connected, ct_error, tg_conn, tg_info)
+    with open("docs/index.html", "w", encoding="utf-8") as f:
+        f.write(html_dashboard)
+    html_login = generate_login_html()
+    with open("docs/login.html", "w", encoding="utf-8") as f:
+        f.write(html_login)
+    log_process("success", "⚡ Dashboard index.html and login.html generated instantly in single unified cycle!")
+    save_heartbeat("dashboard", "completed", "Synchronized alongside bot cycle")
+
     save_system_state()
     return True
 
