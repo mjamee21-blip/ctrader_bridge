@@ -252,6 +252,43 @@ def _mask_token(val):
         return f"[Invalid/Too Short (len: {len(val)})]"
     return f"{val[:3]}***{val[-2:]} (len: {len(val)})"
 
+def format_volume(pair_name, raw_vol_cents):
+    if not raw_vol_cents: return "0"
+    try:
+        units = float(raw_vol_cents) / 100.0
+        p = str(pair_name or "").upper()
+        if any(k in p for k in ["BTC", "ETH", "XAU", "GOLD", "SILVER", "OIL", "US30", "NAS100", "SPX", "GER40", "UK100", "INDEX"]):
+            if "BTC" in p or "ETH" in p:
+                return f"{units:,.2f} {p[:3]}"
+            return f"{units:,.2f} Units"
+        lots = units / 100000.0
+        if lots >= 0.01:
+            return f"{lots:,.2f} Lots ({int(units):,} units)"
+        return f"{units:,.2f} Units"
+    except Exception:
+        return str(raw_vol_cents)
+
+def calc_pips(pair_name, side_str, entry_price, exit_price):
+    try:
+        e1 = float(entry_price)
+        e2 = float(exit_price)
+        if not e1 or not e2: return "0.0"
+        diff = (e2 - e1) if "BUY" in str(side_str).upper() else (e1 - e2)
+        p = str(pair_name or "").upper()
+        if "JPY" in p:
+            pips = diff / 0.01
+        elif any(k in p for k in ["XAU", "GOLD"]):
+            pips = diff / 0.10
+        elif any(k in p for k in ["BTC", "ETH", "NAS", "US30", "GER40", "SPX", "OIL"]):
+            pips = diff
+        elif e1 > 500:
+            pips = diff
+        else:
+            pips = diff / 0.0001
+        return f"{pips:+.1f}"
+    except Exception:
+        return "0.0"
+
 def check_secrets_status():
     """Verify that all 10 GitHub repository secrets are properly set."""
     secrets_check = {
@@ -548,8 +585,8 @@ class cTraderClient:
                 c.send(sym_req).addErrback(on_error)
 
                 now_ms = int(datetime.now(timezone.utc).timestamp() * 1000)
-                from_ms = now_ms - (7 * 24 * 3600 * 1000)  # 7 days history
-                deal_req = ProtoOADealListReq(ctidTraderAccountId=self.account_id_num, fromTimestamp=from_ms, toTimestamp=now_ms, maxRows=50)
+                from_ms = now_ms - (30 * 24 * 3600 * 1000)  # 30 days history
+                deal_req = ProtoOADealListReq(ctidTraderAccountId=self.account_id_num, fromTimestamp=from_ms, toTimestamp=now_ms, maxRows=100)
                 c.send(deal_req).addErrback(on_error)
                 
             elif payload_type == ProtoOATraderRes().payloadType:
@@ -642,36 +679,85 @@ class cTraderClient:
                 res = Protobuf.extract(message)
                 deals_list = getattr(res, "deal", [])
                 log_process("info", f"Deals history retrieved: {len(deals_list)} historical deals.")
+                
+                open_deals_map = {}
                 for d in deals_list:
-                    close_detail = getattr(d, "closePositionDetail", None)
-                    if close_detail is not None:
-                        deal_id = getattr(d, "dealId", "N/A")
-                        sym_id = getattr(d, "symbolId", "N/A")
-                        side_val = getattr(d, "tradeSide", 1)
-                        side_str = "BUY" if str(side_val) == "1" or "BUY" in str(side_val) else "SELL"
-                        exit_price = getattr(d, "executionPrice", 0.0)
-                        entry_price = getattr(close_detail, "entryPrice", 0.0)
-                        gross_profit = getattr(close_detail, "grossProfit", 0)
-                        money_digits = getattr(close_detail, "moneyDigits", 2) or 2
-                        divisor = 10 ** money_digits
-                        pnl_val = float(gross_profit) / divisor
-                        pnl_str = _safe_currency(pnl_val)
-                        
-                        pair_label = f"ID:{sym_id}"
-                        for name, meta in _instruments.items():
-                            if str(meta["id"]) == str(sym_id):
-                                pair_label = name
-                                break
+                    if not hasattr(d, "HasField") or not d.HasField("closePositionDetail"):
+                        pos_id = getattr(d, "positionId", None)
+                        if pos_id:
+                            ts = getattr(d, "executionTimestamp", 0) or getattr(d, "createTimestamp", 0)
+                            side_val = getattr(d, "tradeSide", 1)
+                            side_str = "BUY" if str(side_val) == "1" or "BUY" in str(side_val) else "SELL"
+                            open_deals_map[pos_id] = {
+                                "open_ts": ts,
+                                "open_price": getattr(d, "executionPrice", 0.0),
+                                "side": side_str,
+                                "volume": getattr(d, "volume", 0) or getattr(d, "filledVolume", 0)
+                            }
+                
+                for d in deals_list:
+                    if hasattr(d, "HasField") and d.HasField("closePositionDetail"):
+                        close_detail = getattr(d, "closePositionDetail", None)
+                        if close_detail:
+                            deal_id = getattr(d, "dealId", "N/A")
+                            pos_id = getattr(d, "positionId", "N/A")
+                            sym_id = getattr(d, "symbolId", "N/A")
+                            
+                            open_info = open_deals_map.get(pos_id, {})
+                            close_side_val = getattr(d, "tradeSide", 2)
+                            close_side_str = "BUY" if str(close_side_val) == "1" or "BUY" in str(close_side_val) else "SELL"
+                            true_side = open_info.get("side") or ("BUY" if close_side_str == "SELL" else "SELL")
+                            
+                            entry_price = getattr(close_detail, "entryPrice", 0.0) or open_info.get("open_price", 0.0)
+                            exit_price = getattr(d, "executionPrice", 0.0)
+                            
+                            open_ts = open_info.get("open_ts", 0)
+                            close_ts = getattr(d, "executionTimestamp", 0) or getattr(d, "createTimestamp", 0)
+                            open_time_str = datetime.fromtimestamp(open_ts / 1000.0, tz=timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC") if open_ts else "Prior (<30d)"
+                            close_time_str = datetime.fromtimestamp(close_ts / 1000.0, tz=timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC") if close_ts else "Unknown"
+                            
+                            duration_str = "—"
+                            if open_ts and close_ts and close_ts > open_ts:
+                                delta_sec = int((close_ts - open_ts) / 1000)
+                                if delta_sec < 60: duration_str = f"{delta_sec}s"
+                                elif delta_sec < 3600: duration_str = f"{delta_sec // 60}m {delta_sec % 60}s"
+                                elif delta_sec < 86400: duration_str = f"{delta_sec // 3600}h {(delta_sec % 3600) // 60}m"
+                                else: duration_str = f"{delta_sec // 86400}d {(delta_sec % 86400) // 3600}h"
                                 
-                        self.trades.append({
-                            "pair": pair_label,
-                            "side": side_str,
-                            "entry": f"{entry_price:,.5f}".rstrip('0').rstrip('.'),
-                            "exit": f"{exit_price:,.5f}".rstrip('0').rstrip('.'),
-                            "pnl": pnl_str,
-                            "pnl_value": pnl_val,
-                            "deal_id": deal_id
-                        })
+                            gross_profit = getattr(close_detail, "grossProfit", 0)
+                            swap_val = getattr(close_detail, "swap", 0)
+                            comm_val = getattr(close_detail, "commission", 0)
+                            money_digits = getattr(close_detail, "moneyDigits", 2) or 2
+                            divisor = 10 ** money_digits
+                            
+                            net_pnl_val = float(gross_profit + swap_val + comm_val) / divisor
+                            net_pnl_str = _safe_currency(net_pnl_val)
+                            
+                            pair_label = f"ID:{sym_id}"
+                            for name, meta in _instruments.items():
+                                if str(meta["id"]) == str(sym_id):
+                                    pair_label = name
+                                    break
+                                    
+                            raw_vol = getattr(close_detail, "closedVolume", 0) or getattr(d, "volume", 0)
+                            vol_str = format_volume(pair_label, raw_vol)
+                            pips_str = calc_pips(pair_label, true_side, entry_price, exit_price)
+                            
+                            self.trades.append({
+                                "pair": pair_label,
+                                "side": true_side,
+                                "qty": vol_str,
+                                "entry": f"{entry_price:,.5f}".rstrip('0').rstrip('.'),
+                                "exit": f"{exit_price:,.5f}".rstrip('0').rstrip('.'),
+                                "open_time": open_time_str,
+                                "close_time": close_time_str,
+                                "duration": duration_str,
+                                "pips": pips_str,
+                                "pnl": net_pnl_str,
+                                "pnl_value": net_pnl_val,
+                                "deal_id": deal_id,
+                                "pos_id": pos_id
+                            })
                 sync_status["deals"] = True
                 check_sync_completed(c)
 
@@ -1172,19 +1258,19 @@ def generate_dashboard_html(client, ct_connected, ct_error, tg_connected, tg_inf
     # Tables formatting
     if positions_data:
         pos_rows = "".join([
-            f'<tr><td class="pair">{p["pair"]}</td><td class="{"buy" if "BUY" in p["side"] else "sell"}">{p["side"]}</td><td>{p["qty"]}</td><td>{p["price"]}</td><td>{p["sl"]}</td><td>{p["tp"]}</td><td style="color:#3fb950;font-weight:600;">{p["pnl"]}</td></tr>'
+            f'<tr><td class="pair">{p["pair"]}</td><td class="{"buy" if "BUY" in p["side"] else "sell"}">{p["side"]}</td><td>{p.get("qty","—")}</td><td>{p.get("price","—")}</td><td>{p.get("sl","—")}</td><td>{p.get("tp","—")}</td><td style="font-size:11px;color:#8b949e;white-space:nowrap;">{p.get("open_time","—")}</td><td style="font-size:11px;color:#8b949e;">{p.get("swap_comm","—")}</td><td style="font-size:11px;color:#8b949e;">{p.get("margin","—")}</td><td style="color:#3fb950;font-weight:600;">{p["pnl"]}</td></tr>'
             for p in positions_data
         ])
-        positions_table = f'<table><thead><tr><th>Pair</th><th>Side</th><th>Qty</th><th>Entry</th><th>SL</th><th>TP</th><th>P&L</th></tr></thead><tbody>{pos_rows}</tbody></table>'
+        positions_table = f'<table style="min-width:800px;"><thead><tr><th>Pair</th><th>Side</th><th>Volume</th><th>Entry</th><th>SL</th><th>TP</th><th>Open Time (UTC)</th><th>Swap / Comm.</th><th>Used Margin</th><th>P&L</th></tr></thead><tbody>{pos_rows}</tbody></table>'
     else:
         positions_table = '<div class="empty">No open positions currently</div>'
 
     if trades_data:
         trade_rows = "".join([
-            f'<tr><td class="pair">{t.get("pair","N/A")}</td><td class="{"buy" if "BUY" in t.get("side","BUY") else "sell"}">{t.get("side","BUY")}</td><td>{t.get("entry","0.00")}</td><td>{t.get("exit","0.00")}</td><td style="color:{"#3fb950" if t.get("pnl_value",0)>=0 else "#f85149"};font-weight:600;">{t.get("pnl","$0.00")}</td></tr>'
+            f'<tr><td class="pair">{t.get("pair","N/A")}</td><td class="{"buy" if "BUY" in t.get("side","BUY") else "sell"}">{t.get("side","BUY")}</td><td>{t.get("qty","—")}</td><td>{t.get("entry","0.00")}</td><td>{t.get("exit","0.00")}</td><td style="font-size:11px;color:#8b949e;white-space:nowrap;">{t.get("open_time","—")}</td><td style="font-size:11px;color:#8b949e;white-space:nowrap;">{t.get("close_time","—")}</td><td style="font-size:11px;color:#8b949e;">{t.get("duration","—")}</td><td style="font-weight:700;color:{"#3fb950" if "+" in str(t.get("pips","")) else "#f85149"};">{t.get("pips","—")}</td><td style="color:{"#3fb950" if t.get("pnl_value",0)>=0 else "#f85149"};font-weight:700;">{t.get("pnl","$0.00")}</td></tr>'
             for t in trades_data
         ])
-        trades_table = f'<table><thead><tr><th>Pair</th><th>Side</th><th>Entry</th><th>Exit</th><th>P&L</th></tr></thead><tbody>{trade_rows}</tbody></table>'
+        trades_table = f'<table style="min-width:900px;"><thead><tr><th>Pair</th><th>Side</th><th>Volume</th><th>Entry</th><th>Exit</th><th>Entry Time (UTC)</th><th>Exit Time (UTC)</th><th>Duration</th><th>Pips</th><th>Net P&L</th></tr></thead><tbody>{trade_rows}</tbody></table>'
     else:
         trades_table = '<div class="empty">No closed trades recorded yet</div>'
 
