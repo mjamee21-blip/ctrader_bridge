@@ -481,6 +481,7 @@ class cTraderClient:
                 log_process("info", f"📋 cTrader token returned {len(accounts)} linked account(s).")
                 
                 selected_account_id = None
+                selected_login = None
                 is_target_live = (CT_ENV == "live")
                 
                 acc_descriptions = []
@@ -493,6 +494,7 @@ class cTraderClient:
                     
                     if self.account_id_num and (str(self.account_id_num) == str(acc_id) or str(self.account_id_num) == str(acc_login)):
                         selected_account_id = int(acc_id)
+                        selected_login = str(acc_login)
                         
                 if acc_descriptions:
                     log_process("info", f"Discovered Accounts -> {', '.join(acc_descriptions)}")
@@ -505,16 +507,19 @@ class cTraderClient:
                         acc_live = getattr(acc, "isLive", False)
                         if acc_live == is_target_live and acc_id:
                             selected_account_id = int(acc_id)
+                            selected_login = str(getattr(acc, "traderLogin", "N/A"))
                             log_process("warning", f"Account '{self.account_id_num}' not matched directly — auto-selecting {acc_type_str} account ID: {selected_account_id}")
                             break
                     if selected_account_id is None and accounts:
                         selected_account_id = int(getattr(accounts[0], "ctidTraderAccountId"))
+                        selected_login = str(getattr(accounts[0], "traderLogin", "N/A"))
                         log_process("warning", f"Defaulting to first available account ID: {selected_account_id}")
                 
                 if selected_account_id:
                     self.account_id_num = selected_account_id
-                    self.account_state['account_id'] = str(selected_account_id)
-                    log_process("info", f"Sending Account Authorization for cTID Account {self.account_id_num}...")
+                    disp_login = f"{selected_login} (API ID: {selected_account_id})" if selected_login and selected_login != "N/A" else str(selected_account_id)
+                    self.account_state['account_id'] = disp_login
+                    log_process("info", f"Sending Account Authorization for cTID Account {self.account_id_num} (Login: {selected_login})...")
                     auth_req = ProtoOAAccountAuthReq()
                     auth_req.ctidTraderAccountId = self.account_id_num
                     auth_req.accessToken = CT_ACCESS_TOKEN
