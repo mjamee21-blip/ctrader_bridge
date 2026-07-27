@@ -62,8 +62,8 @@ CT_ENV = _clean_sec(os.environ.get("CT_ENV", "demo")).lower()
 TG_TOKEN = _clean_sec(os.environ.get("TG_TOKEN", ""))
 TG_CHAT = _clean_sec(os.environ.get("TG_CHAT", ""))
 
-DASHBOARD_USERNAME = _clean_sec(os.environ.get("DASHBOARD_USERNAME", "oobigoo"))
-DASHBOARD_PASSWORD = _clean_sec(os.environ.get("DASHBOARD_PASSWORD", "4131428@oobigoo"))
+DASHBOARD_USERNAME = _clean_sec(os.environ.get("DASHBOARD_USERNAME", ""))
+DASHBOARD_PASSWORD = _clean_sec(os.environ.get("DASHBOARD_PASSWORD", ""))
 
 # Optional configurations
 CTRADER_PAIR_MAP_JSON = os.environ.get("CTRADER_PAIR_MAP", "{}")
