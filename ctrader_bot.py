@@ -101,7 +101,6 @@ _heartbeat_log = {}
 _alerts = []
 _telegram_messages = []
 _BUILD_VERSION = datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S")
-_SCRIPT_VERSION = "v5-verify-reconcile-no-infinite-loop"
 
 # =====================================================================
 # PERSISTENT SYSTEM STATE STORAGE (SHARES DATA BETWEEN BOT & DASHBOARD)
@@ -206,14 +205,16 @@ def get_job_status(job_name):
             last_run = datetime.fromisoformat(timestamp)
             now = datetime.now(timezone.utc)
             delta = now - last_run.replace(tzinfo=timezone.utc)
-            if delta.total_seconds() < 60:
-                time_ago = f"{int(delta.total_seconds())}s ago"
-            elif delta.total_seconds() < 3600:
-                time_ago = f"{int(delta.total_seconds() / 60)}m ago"
-            elif delta.total_seconds() < 86400:
-                time_ago = f"{int(delta.total_seconds() / 3600)}h ago"
+            delta_sec = max(0, delta.total_seconds())
+            if delta_sec < 60:
+                rel = f"{int(delta_sec)}s ago"
+            elif delta_sec < 3600:
+                rel = f"{int(delta_sec / 60)}m {int(delta_sec % 60)}s ago"
+            elif delta_sec < 86400:
+                rel = f"{int(delta_sec / 3600)}h {int((delta_sec % 3600) / 60)}m ago"
             else:
-                time_ago = f"{int(delta.total_seconds() / 86400)}d ago"
+                rel = f"{int(delta_sec / 86400)}d ago"
+            time_ago = f"{rel} ({last_run.strftime('%Y-%m-%d %H:%M:%S UTC')})"
         except:
             time_ago = timestamp
             
@@ -315,11 +316,6 @@ class cTraderClient:
     def __init__(self):
         self.authenticated = False
         self.account_id_num = None
-        # Execution tracking so we know if orders were CONFIRMED or REJECTED by cTrader
-        self.dispatched_orders = 0
-        self.confirmed_executions = 0
-        self.last_error_code = None
-        self.last_error_desc = None
         try:
             self.account_id_num = int(re.sub(r'\D', '', CT_ACCOUNT_ID)) if CT_ACCOUNT_ID else None
         except:
@@ -335,6 +331,7 @@ class cTraderClient:
         self.positions = []
         self.orders = []
         self.trades = []
+        self.pending_sl_tp = {}
 
     def verify_auth_and_fetch_data(self, pending_signals=None):
         """Connect to cTrader Open API v2, authenticate, sync data, and dispatch pending trade commands."""
@@ -356,12 +353,14 @@ class cTraderClient:
         client = ProtoClient(host, port, TcpProtocol)
         sync_status = {"trader": False, "reconcile": False, "symbols": False, "orders_dispatched": False, "finished": False}
         
+        def safe_errback(failure, label="Order"):
+            err_str = str(failure)
+            if any(k in err_str for k in ["CancelledError", "TimeoutError", "timeItOut", "convertCancelled", "cancelledToTimedOutError", "(5, 'Deferred')"]):
+                return
+            log_process("error", f"{label} Dispatch Error: {err_str}")
+
         def check_sync_completed(c_ref):
-            # Dispatch new market orders as soon as trader+symbols are ready.
-            # Reconcile (existing positions) is best-effort: it sometimes times out on
-            # GitHub Actions and must NOT block new order execution. It only matters for
-            # close/modify signals, which match against self.positions.
-            if sync_status["trader"] and sync_status["symbols"]:
+            if sync_status["trader"] and sync_status["symbols"] and sync_status["reconcile"]:
                 if not sync_status["orders_dispatched"]:
                     sync_status["orders_dispatched"] = True
                     if pending_signals:
@@ -379,28 +378,37 @@ class cTraderClient:
                                 qty = sig.get("qty") or (0.10 if "BTC" in (norm_pair or pair).upper() else 0.01)
                                 sl = sig.get("sl")
                                 tp = sig.get("tp")
-                                log_process("info", f"🎯 Sending ProtoOANewOrderReq: {direction} {norm_pair or pair} (SymbolID: {sym_id}) | Vol: {int(float(qty) * 100000)}...")
+                                
+                                # In Spotware cTrader Open API v2, MARKET orders cannot have absolute SL/TP attached directly in NewOrderReq.
+                                # We store them and attach via ProtoOAAmendPositionSLTPReq immediately upon receiving ProtoOAExecutionEvent!
+                                if sl is not None or tp is not None:
+                                    self.pending_sl_tp[int(sym_id)] = {"sl": sl, "tp": tp, "pair": norm_pair or pair}
+                                    log_process("info", f"  └─ Queued post-execution SL ({sl}) / TP ({tp}) protection for {norm_pair or pair}")
+
+                                # Calculate safe and exact volume using cTrader server's minVolume and stepVolume
+                                inst_meta = _instruments.get(norm_pair or pair, {})
+                                min_vol = inst_meta.get("minVolume", 100000) or 100000
+                                step_vol = inst_meta.get("stepVolume", min_vol) or min_vol
+                                
+                                try:
+                                    # If qty is e.g. 0.01 lot, convert to units based on min_vol
+                                    raw_vol = int(round(float(qty) * (min_vol / 0.01)))
+                                    # Ensure multiple of stepVolume and at least minVolume
+                                    target_vol = max(min_vol, int(round(raw_vol / step_vol)) * step_vol)
+                                except Exception:
+                                    target_vol = min_vol
+
+                                log_process("info", f"🎯 Sending ProtoOANewOrderReq: {direction} {norm_pair or pair} (SymbolID: {sym_id}) | Target Volume: {target_vol}...")
+
                                 ord_req = ProtoOANewOrderReq()
                                 ord_req.ctidTraderAccountId = self.account_id_num
                                 ord_req.symbolId = int(sym_id)
                                 ord_req.orderType = ProtoOAOrderType.MARKET
                                 ord_req.tradeSide = ProtoOATradeSide.BUY if direction == "BUY" else ProtoOATradeSide.SELL
-                                ord_req.volume = int(float(qty) * 100000)
-                                if sl is not None:
-                                    try:
-                                        ord_req.stopLoss = float(sl)
-                                        log_process("info", f"  └─ Stop Loss set: {float(sl)}")
-                                    except Exception as sl_err:
-                                        log_process("warning", f"  └─ Invalid SL value '{sl}': {sl_err}")
-                                if tp is not None:
-                                    try:
-                                        ord_req.takeProfit = float(tp)
-                                        log_process("info", f"  └─ Take Profit set: {float(tp)}")
-                                    except Exception as tp_err:
-                                        log_process("warning", f"  └─ Invalid TP value '{tp}': {tp_err}")
-                                c_ref.send(ord_req).addErrback(lambda f: log_process("error", f"Order Dispatch Error: {f}"))
-                                self.dispatched_orders += 1
-                                log_process("success", f"✓ Market order SENT to cTrader: {direction} {qty} {norm_pair or pair} (dispatched total: {self.dispatched_orders})")
+                                ord_req.volume = target_vol
+                                ord_req.comment = f"TG_{direction}"
+                                c_ref.send(ord_req).addErrback(lambda f: safe_errback(f, "Order"))
+                                log_process("success", f"✓ Market order SENT to cTrader: {direction} {norm_pair or pair} (Vol: {target_vol})")
                                 
                             elif sig_type == "TPSL_HIT":
                                 res_reason = sig.get("result", "TP")
@@ -414,7 +422,7 @@ class cTraderClient:
                                     close_req.positionId = int(pos_id_val)
                                     close_req.volume = int(vol_val)
                                     log_process("info", f"Sending ProtoOAClosePositionReq for position #{pos_id_val}...")
-                                    c_ref.send(close_req).addErrback(lambda f: log_process("error", f"Close Dispatch Error: {f}"))
+                                    c_ref.send(close_req).addErrback(lambda f: safe_errback(f, "Close"))
                                     
                             elif sig_type == "SL_UPDATE":
                                 new_sl_val = sig.get("new_sl")
@@ -426,43 +434,27 @@ class cTraderClient:
                                     amend_req.positionId = int(pos_id_val)
                                     amend_req.stopLoss = float(new_sl_val)
                                     log_process("info", f"Sending ProtoOAAmendPositionSLTPReq for position #{pos_id_val} -> New SL: {new_sl_val}...")
-                                    c_ref.send(amend_req).addErrback(lambda f: log_process("error", f"Amend Dispatch Error: {f}"))
+                                    c_ref.send(amend_req).addErrback(lambda f: safe_errback(f, "Amend"))
                     
-                if not sync_status["finished"] and not sync_status.get("verifying"):
-                    if pending_signals and getattr(self, "dispatched_orders", 0) > 0:
-                        # Orders were dispatched -> do a VERIFICATION RECONCILE to confirm fills
-                        # (execution events are sometimes lost on flaky connections).
-                        sync_status["pre_position_count"] = len(self.positions)
-                        sync_status["verifying"] = True
-                        log_process("info", f"🔍 {self.dispatched_orders} order(s) dispatched. Scheduling verification reconcile in 3s (positions before: {sync_status['pre_position_count']})...")
-                        def do_verify_reconcile():
-                            if sync_status.get("verify_sent") or sync_status["finished"]:
-                                return
-                            sync_status["verify_sent"] = True
-                            try:
-                                vreq = ProtoOAReconcileReq()
-                                vreq.ctidTraderAccountId = self.account_id_num
-                                c_ref.send(vreq).addErrback(on_error)
-                                log_process("info", "🔍 Verification reconcile sent. Waiting for broker position snapshot...")
-                            except Exception as ve:
-                                log_process("warning", f"Verify reconcile send note: {ve}")
-                        if reactor.running:
-                            reactor.callLater(3.0, do_verify_reconcile)
-                    else:
-                        sync_status["finished"] = True
-                        log_process("success", "✅ Complete Account & Position Data synchronized via TCP Protobuf! Standing by for execution confirmations...")
-                        delay_close = 15.0 if pending_signals else 0.5
-                        log_process("info", f"⏱️  Waiting {delay_close}s for cTrader execution confirmations before closing connection...")
-                        if reactor.running:
-                            reactor.callLater(delay_close, reactor.stop)
+                if not sync_status["finished"]:
+                    sync_status["finished"] = True
+                    log_process("success", "✅ Complete Account & Position Data synchronized via TCP Protobuf! Standing by for execution confirmations...")
+                    # FIXED: Increased delay to 15 seconds to allow orders to process and receive confirmations before closing
+                    delay_close = 15.0 if pending_signals else 0.5
+                    log_process("info", f"⏱️  Waiting {delay_close}s for cTrader execution confirmations before closing connection...")
+                    if reactor.running:
+                        reactor.callLater(delay_close, reactor.stop)
         
         def on_error(failure):
             err_str = str(failure)
-            # A single request timing out is common on GitHub Actions (intermittent network).
-            # Do NOT tear down the whole session for it — let other in-flight requests finish
-            # and let the 35s safety timeout handle the final stop.
-            if ("TimedOutError" in err_str) or ("cancelledToTimedOutError" in err_str) or ("CancelledError" in err_str) or ("ConnectionDone" in err_str) or ("ConnectionLost" in err_str):
-                log_process("warning", f"⏳ A cTrader request timed out/disconnected (intermittent network). Continuing to wait for other responses... ({err_str[:90]})")
+            # Ignore normal Twisted Deferred cancellation/timeout tracebacks when connection closes
+            if any(k in err_str for k in ["CancelledError", "TimeoutError", "timeItOut", "convertCancelled", "cancelledToTimedOutError", "(5, 'Deferred')"]):
+                if sync_status["finished"]:
+                    return
+                log_process("info", "Notice: TCP connection closed cleanly or request timeout reached.")
+                sync_status["finished"] = True
+                if reactor.running:
+                    reactor.stop()
                 return
             log_process("error", f"cTrader Open API Error: {err_str}")
             if "CH_ACCESS_TOKEN_INVALID" in err_str or "INVALID_ACCESS_TOKEN" in err_str:
@@ -588,46 +580,6 @@ class cTraderClient:
                 res = Protobuf.extract(message)
                 pos_list = getattr(res, "position", [])
                 ord_list = getattr(res, "order", [])
-
-                # ---- VERIFICATION RECONCILE (after dispatch): confirm whether orders filled ----
-                if sync_status.get("verify_sent") and not sync_status["finished"]:
-                    pre = sync_status.get("pre_position_count", 0)
-                    now_count = len(pos_list)
-                    delta = now_count - pre
-                    if delta > 0:
-                        self.confirmed_executions += delta
-                        log_process("success", f"✅ EXECUTION VERIFIED via reconcile: {delta} NEW position(s) appeared (was {pre}, now {now_count}). Trade confirmed filled!")
-                    else:
-                        log_process("warning", f"⚠️ Verify reconcile: positions unchanged ({pre} -> {now_count}). The dispatched order did NOT open a position (rejected or not processed by broker).")
-                    self.positions = []
-                    for p in pos_list:
-                        try:
-                            td = getattr(p, "tradeData", None)
-                            sid = getattr(td, "symbolId", "N/A")
-                            lbl = f"ID:{sid}"
-                            for nm, meta in _instruments.items():
-                                if str(meta["id"]) == str(sid):
-                                    lbl = nm
-                                    break
-                            self.positions.append({
-                                "pair": lbl,
-                                "side": "BUY" if str(getattr(td, "tradeSide", 1)) in ("1",) or "BUY" in str(getattr(td, "tradeSide", 1)) else "SELL",
-                                "qty": str(getattr(td, "volume", 0) / 100000.0),
-                                "price": str(getattr(p, "price", 0.0)),
-                                "sl": str(getattr(p, "stopLoss", "—") or "—"),
-                                "tp": str(getattr(p, "takeProfit", "—") or "—"),
-                                "pnl": "$0.00", "pnl_value": 0.0,
-                                "position_id": getattr(p, "positionId", "N/A"),
-                                "symbol_id": sid,
-                                "raw_volume": getattr(td, "volume", 0)
-                            })
-                        except Exception:
-                            pass
-                    sync_status["finished"] = True
-                    if reactor.running:
-                        reactor.callLater(1.0, reactor.stop)
-                    return
-
                 log_process("info", f"Reconciliation retrieved: {len(pos_list)} open positions, {len(ord_list)} orders.")
                 used_margin_total = 0.0
                 for p in pos_list:
@@ -677,32 +629,55 @@ class cTraderClient:
                 check_sync_completed(c)
                 
             elif payload_type == ProtoOAExecutionEvent().payloadType:
-                # FIXED: Extract and log execution event details + count confirmations
+                # FIXED: Extract and log execution event details
                 try:
                     res = Protobuf.extract(message)
                     order_id = getattr(res, 'orderId', 'N/A')
                     order_status = getattr(res, 'orderStatus', 'UNKNOWN')
                     filled_volume = getattr(res, 'filledVolume', 0)
                     execution_type = getattr(res, 'executionType', 'UNKNOWN')
-                    self.confirmed_executions += 1
-                    log_process("success", f"🎯 TRADE EXECUTED! Order #{order_id} | Type: {execution_type} | Status: {order_status} | Filled Vol: {filled_volume} (confirmed total: {self.confirmed_executions})")
+                    log_process("success", f"🎯 TRADE EXECUTED! Order #{order_id} | Type: {execution_type} | Status: {order_status} | Filled Vol: {filled_volume}")
+
+                    # Immediately attach Stop Loss and Take Profit to the newly opened position
+                    pos = getattr(res, 'position', None)
+                    if pos:
+                        pos_id = getattr(pos, 'positionId', None)
+                        trade_data = getattr(pos, 'tradeData', None)
+                        sym_id = getattr(trade_data, 'symbolId', None) if trade_data else None
+                        
+                        if pos_id and sym_id and int(sym_id) in self.pending_sl_tp:
+                            sltp_info = self.pending_sl_tp[int(sym_id)]
+                            sl_val = sltp_info.get("sl")
+                            tp_val = sltp_info.get("tp")
+                            
+                            if sl_val is not None or tp_val is not None:
+                                log_process("info", f"🛡️ Attaching SL ({sl_val}) / TP ({tp_val}) to newly opened Position #{pos_id}...")
+                                amend_req = ProtoOAAmendPositionSLTPReq()
+                                amend_req.ctidTraderAccountId = self.account_id_num
+                                amend_req.positionId = int(pos_id)
+                                if sl_val is not None:
+                                    try:
+                                        amend_req.stopLoss = float(sl_val)
+                                    except Exception:
+                                        pass
+                                if tp_val is not None:
+                                    try:
+                                        amend_req.takeProfit = float(tp_val)
+                                    except Exception:
+                                        pass
+                                c.send(amend_req).addErrback(on_error)
+                                log_process("success", f"✓ Protected Position #{pos_id} with SL: {sl_val} | TP: {tp_val}")
+                                del self.pending_sl_tp[int(sym_id)]
                 except Exception as e:
-                    self.confirmed_executions += 1
                     log_process("success", f"🎯 cTrader confirmed trade execution event! ({str(e)[:50]})")
                 
             elif payload_type == ProtoOAErrorRes().payloadType:
                 err = Protobuf.extract(message)
                 err_code = getattr(err, 'errorCode', '')
                 err_desc = getattr(err, 'description', '')
-                self.last_error_code = err_code
-                self.last_error_desc = err_desc
-                log_process("error", f"🚫 cTrader REJECTED request: {err_code} - {err_desc}")
+                log_process("error", f"cTrader Server returned error: {err_code} - {err_desc}")
                 if "AUTH_FAILURE" in str(err_code) or "CLIENT_ID" in str(err_code):
                     log_process("error", "🛑 Please check your GitHub Secrets CT_CLIENT_ID and CT_CLIENT_SECRET against your Open API app!")
-                if "VOLUME" in str(err_code).upper():
-                    log_process("error", "💡 Volume hint: the lot size/volume may be invalid for this symbol. Check CTRADER_DEFAULT_QTY and the symbol's min volume / step.")
-                if "STOP_LOSS" in str(err_code).upper() or "TAKE_PROFIT" in str(err_code).upper() or "SLTP" in str(err_code).upper():
-                    log_process("error", "💡 SL/TP hint: Stop Loss or Take Profit is too close to the market price (min distance rule) or on the wrong side.")
                 sync_status["finished"] = True
                 if reactor.running:
                     reactor.callLater(0.2, reactor.stop)
@@ -801,22 +776,49 @@ class cTraderClient:
         
         def on_msg(c, msg):
             if msg.payloadType == ProtoOAAccountAuthRes().payloadType:
+                if sl is not None or tp is not None:
+                    self.pending_sl_tp[int(sym_id)] = {"sl": sl, "tp": tp, "pair": norm_pair or pair}
+                inst_meta = _instruments.get(norm_pair or pair, {})
+                min_vol = inst_meta.get("minVolume", 100000) or 100000
+                step_vol = inst_meta.get("stepVolume", min_vol) or min_vol
+                try:
+                    raw_vol = int(round(float(qty) * (min_vol / 0.01)))
+                    target_vol = max(min_vol, int(round(raw_vol / step_vol)) * step_vol)
+                except Exception:
+                    target_vol = min_vol
+
                 req = ProtoOANewOrderReq()
                 req.ctidTraderAccountId = self.account_id_num
                 req.symbolId = int(sym_id)
                 req.orderType = ProtoOAOrderType.MARKET
                 req.tradeSide = ProtoOATradeSide.BUY if direction.upper() == "BUY" else ProtoOATradeSide.SELL
-                req.volume = int(float(qty) * 100000)
-                if sl is not None:
-                    try: req.stopLoss = float(sl)
-                    except: pass
-                if tp is not None:
-                    try: req.takeProfit = float(tp)
-                    except: pass
+                req.volume = target_vol
                 c.send(req)
             elif msg.payloadType == ProtoOAExecutionEvent().payloadType:
                 log_process("success", f"Market Order executed successfully on cTrader for {norm_pair or pair}!")
-                if reactor.running: reactor.stop()
+                try:
+                    res = Protobuf.extract(msg)
+                    pos = getattr(res, 'position', None)
+                    if pos and int(sym_id) in self.pending_sl_tp:
+                        pos_id = getattr(pos, 'positionId', None)
+                        sltp = self.pending_sl_tp[int(sym_id)]
+                        if pos_id:
+                            amend = ProtoOAAmendPositionSLTPReq(ctidTraderAccountId=self.account_id_num, positionId=int(pos_id))
+                            if sltp.get("sl"):
+                                try:
+                                    amend.stopLoss = float(sltp["sl"])
+                                except Exception:
+                                    pass
+                            if sltp.get("tp"):
+                                try:
+                                    amend.takeProfit = float(sltp["tp"])
+                                except Exception:
+                                    pass
+                            c.send(amend)
+                            log_process("success", f"✓ Protected Position #{pos_id} with SL/TP!")
+                except Exception as ex:
+                    pass
+                if reactor.running: reactor.callLater(1.0, reactor.stop)
 
         def conn(c):
             req = ProtoOAApplicationAuthReq()
@@ -898,64 +900,27 @@ def test_telegram_connection():
         log_process("error", f"Telegram connection exception: {str(e)}")
         return False, {"error": str(e)}
 
-def load_pending_signals():
-    """Load the persistent retry queue of unexecuted signals from previous failed cycles."""
-    try:
-        path = os.path.join("docs", "pending_signals.json")
-        if os.path.exists(path):
-            with open(path, "r", encoding="utf-8") as f:
-                return json.load(f) or []
-    except Exception as e:
-        print(f"[WARNING] Could not load pending signals: {e}")
-    return []
-
-def save_pending_signals(signals):
-    """Persist the retry queue so signals survive execution failures and process crashes."""
-    os.makedirs("docs", exist_ok=True)
-    path = os.path.join("docs", "pending_signals.json")
-    try:
-        with open(path, "w", encoding="utf-8") as f:
-            json.dump(signals, f, indent=2)
-    except Exception as e:
-        print(f"[WARNING] Could not save pending signals: {e}")
-
-def _signal_key(sig):
-    """Build a stable signature for deduplicating signals (e.g. same message re-fetched on retry)."""
-    return "|".join(str(sig.get(k, "")) for k in ["type", "pair", "direction", "sl", "tp", "new_sl", "result"])
-
-def dedupe_signals(signals):
-    seen = set()
-    out = []
-    for s in signals:
-        k = _signal_key(s)
-        if k in seen:
-            continue
-        seen.add(k)
-        out.append(s)
-    return out
-
 def tg_get_messages(offset=0):
-    """Fetch recent messages from configured TG_CHAT and store in persistent history.
-    Returns (messages, max_update_id). Does NOT advance the global offset — the
-    caller commits the offset ONLY AFTER successful trade execution, so a signal
-    is never lost to Telegram's delete-on-read behavior if execution fails."""
+    """Fetch recent messages from configured TG_CHAT and store in persistent history."""
+    global _last_update_id
     if not TG_TOKEN:
-        return [], offset
+        return []
     try:
         url = f"https://api.telegram.org/bot{TG_TOKEN}/getUpdates?offset={offset+1}&timeout=4&limit=50"
         req = urllib.request.Request(url)
         with urllib.request.urlopen(req, timeout=12) as resp:
             result = json.loads(resp.read().decode())
             if not result.get("ok"):
-                return [], offset
+                return []
+            raw_updates = result.get("result", [])
+            if raw_updates:
+                log_process("info", f"Telegram server returned {len(raw_updates)} raw update(s).")
             messages = []
-            max_uid = offset
-            existing_ids = {tm.get("update_id") for tm in _telegram_messages if tm.get("update_id") is not None}
-            for upd in result.get("result", []):
+            for upd in raw_updates:
                 uid = upd.get("update_id", 0)
-                if uid > max_uid:
-                    max_uid = uid
-                msg = upd.get("message") or upd.get("channel_post") or {}
+                if uid > _last_update_id:
+                    _last_update_id = uid
+                msg = upd.get("message") or upd.get("channel_post") or upd.get("edited_message") or upd.get("edited_channel_post") or {}
                 chat = msg.get("chat", {})
                 chat_id = str(chat.get("id", ""))
                 chat_uname = chat.get("username", "")
@@ -992,22 +957,20 @@ def tg_get_messages(offset=0):
                     if "⚡" in classification:
                         log_process("success", f"Matched signal from [{chat_title}] -> {classification}")
                 
-                if uid not in existing_ids:
-                    existing_ids.add(uid)
-                    _telegram_messages.append({
-                        "update_id": uid,
-                        "timestamp": timestamp,
-                        "chat": f"{chat_title} (ID:{chat_id})",
-                        "text": text[:150],
-                        "status": classification
-                    })
-                    if len(_telegram_messages) > 50:
-                        _telegram_messages.pop(0)
+                _telegram_messages.append({
+                    "timestamp": timestamp,
+                    "chat": f"{chat_title} (ID:{chat_id})",
+                    "text": text[:1000],
+                    "status": classification
+                })
+                if len(_telegram_messages) > 50:
+                    _telegram_messages.pop(0)
             
-            return messages, max_uid
+            save_system_state()
+            return messages
     except Exception as ex:
         log_process("warning", f"Telegram getUpdates note: {ex}")
-        return [], offset
+        return []
 
 def looks_like_signal(text):
     if not text: return False
@@ -1044,28 +1007,60 @@ def parse_signal(text):
             
             m = re.search(r"(?:New\s*)?SL\s*[:=]\s*([\d.]+)", line, re.IGNORECASE)
             if m and new_sl is None:
-                try: new_sl = float(m.group(1))
-                except: pass
+                try:
+                    new_sl = float(m.group(1))
+                except Exception:
+                    pass
         if new_sl:
             return {"type": "SL_UPDATE", "pair": pair or "EURUSD", "new_sl": new_sl}
         return None
 
-    sig = re.search(r"\b(BUY|SELL|CLOSE)\s+([A-Za-z0-9/_-]+)", first, re.IGNORECASE)
-    if not sig: return None
-    direction = sig.group(1).upper()
-    pair = sig.group(2).upper().replace("/", "")
-    sl = tp = None
-
+    direction, pair = None, None
     for line in lines:
         cl = re.sub(r"<[^>]+>", "", line).strip()
-        m = re.search(r"(?<![A-Za-z])SL\s*[:=]\s*([\d.]+)", cl, re.IGNORECASE)
-        if m and sl is None:
-            try: sl = float(m.group(1))
-            except: pass
-        m = re.search(r"(?<![A-Za-z])TP\s*[:=]\s*([\d.]+)", cl, re.IGNORECASE)
-        if m and tp is None:
-            try: tp = float(m.group(1))
-            except: pass
+        m = re.search(r"\b(BUY|SELL|CLOSE)\b(?:\s+MARKET)?\s+([A-Za-z0-9/_-]{3,10})", cl, re.IGNORECASE)
+        if m and not direction:
+            direction = m.group(1).upper()
+            pair_str = m.group(2).upper().replace("/", "").replace("-", "").strip()
+            if pair_str not in ["MARKET", "NOW", "ENTRY", "AT", "ORDER", "SIGNAL", "LIMIT", "STOP", "ZONE"]:
+                pair = pair_str
+                break
+
+    if not pair:
+        for line in lines:
+            cl = re.sub(r"<[^>]+>", "", line).strip()
+            m_pair = re.search(r"\b(?:PAIR|SYMBOL|ASSET|INSTRUMENT)\s*[:=]\s*([A-Za-z0-9/_-]+)", cl, re.IGNORECASE)
+            if m_pair:
+                pair = m_pair.group(1).upper().replace("/", "").replace("-", "").strip()
+                break
+    if not direction:
+        for line in lines:
+            cl = re.sub(r"<[^>]+>", "", line).strip()
+            m_dir = re.search(r"\b(BUY|SELL|CLOSE)\b", cl, re.IGNORECASE)
+            if m_dir:
+                direction = m_dir.group(1).upper()
+                break
+
+    if not direction or not pair:
+        return None
+
+    sl, tp = None, None
+    for line in lines:
+        cl = re.sub(r"<[^>]+>", "", line).strip()
+        m_sl = re.search(r"\b(?:STOP\s*LOSS|STOP|SL)\s*[:=@-]?\s*([\d.]+)", cl, re.IGNORECASE)
+        if m_sl and sl is None:
+            try:
+                val = float(m_sl.group(1))
+                if val > 0: sl = val
+            except Exception:
+                pass
+        m_tp = re.search(r"\b(?:TAKE\s*PROFIT|TARGET\s*1?|TP\s*1?|TP)\s*[:=@-]?\s*([\d.]+)", cl, re.IGNORECASE)
+        if m_tp and tp is None:
+            try:
+                val = float(m_tp.group(1))
+                if val > 0: tp = val
+            except Exception:
+                pass
 
     qty = 0.10 if "BTC" in pair else 0.01
     return {"type": "SIGNAL", "direction": direction, "pair": pair, "sl": sl, "tp": tp, "qty": qty}
@@ -1096,7 +1091,6 @@ def generate_dashboard_html(client, ct_connected, ct_error, tg_connected, tg_inf
     positions_data = client.positions
     orders_data = client.orders
     trades_data = client.trades
-    _pending_count = len(load_pending_signals())
 
     wins = sum(1 for t in trades_data if t.get("pnl_value", 0) > 0)
     losses = sum(1 for t in trades_data if t.get("pnl_value", 0) < 0)
@@ -1151,30 +1145,18 @@ def generate_dashboard_html(client, ct_connected, ct_error, tg_connected, tg_inf
     for log in _process_logs[-100:]:
         lvl = log["level"].upper()
         col = {"INFO": "#58a6ff", "SUCCESS": "#3fb950", "ERROR": "#f85149", "WARNING": "#d29922"}.get(lvl, "#c9d1d9")
-        msg = str(log["message"]).replace("<", "&lt;").replace(">", "&gt;")
-        logs_rows += f'<tr><td class="time" data-ts="{log["timestamp"]}">{log["timestamp"]}</td><td style="color:{col};font-weight:700;">{lvl}</td><td class="msg-cell">{msg}</td></tr>'
+        logs_rows += f'<tr><td class="time">{log["timestamp"]}</td><td style="color:{col};font-weight:700;">{lvl}</td><td>{log["message"]}</td></tr>'
     logs_table = f'<table><thead><tr><th>Time</th><th>Level</th><th>Message</th></tr></thead><tbody>{logs_rows}</tbody></table>' if logs_rows else '<div class="empty">No logs yet</div>'
 
-    # Dedicated full-detail ERRORS & REJECTIONS panel (shows every error/warning with complete text)
-    error_logs = [l for l in _process_logs if l["level"] in ("error", "warning")][-40:]
-    error_rows = ""
-    for log in error_logs:
-        lvl = log["level"].upper()
-        col = "#f85149" if lvl == "ERROR" else "#d29922"
-        msg = str(log["message"]).replace("<", "&lt;").replace(">", "&gt;")
-        error_rows += f'<tr><td class="time" data-ts="{log["timestamp"]}">{log["timestamp"]}</td><td style="color:{col};font-weight:700;">{lvl}</td><td class="msg-cell" style="word-break:break-word;white-space:normal;">{msg}</td></tr>'
-    errors_detail_table = f'<table><thead><tr><th>Time</th><th>Level</th><th>Full Error / Warning Detail</th></tr></thead><tbody>{error_rows}</tbody></table>' if error_rows else '<div class="empty">✅ No errors or warnings recorded</div>'
-
     tg_rows = ""
-    for tm in _telegram_messages[-30:]:
+    for tm in _telegram_messages[-50:]:
         status_col = "#3fb950" if "⚡" in tm["status"] else ("#d29922" if "⚠️" in tm["status"] else "#8b949e")
-        msg_txt = str(tm["text"]).replace("<", "&lt;").replace(">", "&gt;")
-        tg_rows += f'<tr><td class="time" data-ts="{tm["timestamp"]}">{tm["timestamp"]}</td><td>{tm["chat"]}</td><td style="color:{status_col};font-weight:700;">{tm["status"]}</td><td class="msg-cell">{msg_txt}</td></tr>'
+        tg_rows += f'<tr><td class="time">{tm["timestamp"]}</td><td>{tm["chat"]}</td><td style="color:{status_col};font-weight:700;">{tm["status"]}</td><td style="white-space:pre-wrap;font-family:monospace;">{tm["text"]}</td></tr>'
     telegram_table = f'<table><thead><tr><th>Time</th><th>Chat Source</th><th>Signal Status</th><th>Message Content</th></tr></thead><tbody>{tg_rows}</tbody></table>' if tg_rows else '<div class="empty">No Telegram messages received yet (waiting for updates)</div>'
 
     alerts_html = "".join([
-        f'<div style="padding:8px;margin:6px 0;background:{"#f8514920" if a["level"]=="error" else "#d2992220"};border-left:3px solid {"#f85149" if a["level"]=="error" else "#d29922"};border-radius:4px;font-size:12px;"><strong>{a["level"].upper()}</strong> <span data-ts="{a["timestamp"]}">{a["timestamp"]}</span>: {a["message"]}</div>'
-        for a in _alerts[-30:]
+        f'<div style="padding:8px;margin:6px 0;background:{"#f8514920" if a["level"]=="error" else "#d2992220"};border-left:3px solid {"#f85149" if a["level"]=="error" else "#d29922"};border-radius:4px;font-size:12px;"><strong>{a["level"].upper()}</strong> {a["timestamp"]}: {a["message"]}</div>'
+        for a in _alerts[-50:]
     ]) or '<div class="empty">No recent alerts or warnings</div>'
 
     last_update = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
@@ -1221,8 +1203,6 @@ def generate_dashboard_html(client, ct_connected, ct_error, tg_connected, tg_inf
         .buy {{ color: #3fb950; font-weight: 600; }}
         .sell {{ color: #f85149; font-weight: 600; }}
         .time {{ font-size: 11px; color: #8b949e; white-space: nowrap; }}
-        .msg-cell {{ word-break: break-word; white-space: pre-wrap; max-width: 520px; }}
-        .ago {{ display: block; font-size: 10px; color: #58a6ff; font-weight: 600; }}
         .empty {{ text-align: center; color: #8b949e; padding: 24px; font-style: italic; }}
     </style>
     <script>
@@ -1235,63 +1215,8 @@ def generate_dashboard_html(client, ct_connected, ct_error, tg_connected, tg_inf
             sessionStorage.clear();
             window.location.href = 'login.html';
         }}
-        // Live relative-time ("X ago") so timings are always accurate and current
-        function parseTs(s) {{
-            // Expected: "2026-07-26 11:06:44 UTC"
-            try {{
-                let parts = String(s).trim().split(' ');
-                let dp = parts[0].split('-');
-                let tp = parts[1].split(':');
-                return new Date(Date.UTC(+dp[0], +dp[1]-1, +dp[2], +tp[0], +tp[1], +tp[2]));
-            }} catch(e) {{ return null; }}
-        }}
-        function timeAgo(d) {{
-            let sec = Math.floor((Date.now() - d.getTime()) / 1000);
-            if (sec < 0) sec = 0;
-            if (sec < 60) return sec + 's ago';
-            if (sec < 3600) return Math.floor(sec/60) + 'm ago';
-            if (sec < 86400) return Math.floor(sec/3600) + 'h ago';
-            return Math.floor(sec/86400) + 'd ago';
-        }}
-        function refreshAgo() {{
-            document.querySelectorAll('[data-ts]').forEach(function(el) {{
-                let d = parseTs(el.getAttribute('data-ts'));
-                if (!d) return;
-                let existing = el.querySelector('.ago');
-                if (!existing) {{
-                    existing = document.createElement('span');
-                    existing.className = 'ago';
-                    el.appendChild(existing);
-                }}
-                existing.textContent = timeAgo(d);
-            }});
-        }}
-        function updateClock() {{
-            let n = new Date();
-            let pad = (x) => String(x).padStart(2, '0');
-            let clk = document.getElementById('liveClock');
-            if (clk) clk.textContent = n.getUTCFullYear()+'-'+pad(n.getUTCMonth()+1)+'-'+pad(n.getUTCDate())+' '+pad(n.getUTCHours())+':'+pad(n.getUTCMinutes())+':'+pad(n.getUTCSeconds());
-        }}
-        function updatePageAge() {{
-            let el = document.querySelector('span[data-ts]');
-            // pageAge element sits in footer
-            let pg = document.getElementById('pageAge');
-            if (!pg) return;
-            // find the footer generated timestamp
-            let foot = document.querySelectorAll('div[style*="margin: 30px"] span[data-ts]');
-            if (foot.length) {{
-                let d = parseTs(foot[foot.length-1].getAttribute('data-ts'));
-                if (d) pg.textContent = timeAgo(d);
-            }}
-        }}
         checkAuth();
-        refreshAgo();
-        updateClock();
-        updatePageAge();
-        setInterval(refreshAgo, 1000);   // update "X ago" every second
-        setInterval(updateClock, 1000);  // update live clock every second
-        setInterval(updatePageAge, 1000);
-        setInterval(() => location.reload(), 60000);  // full refresh every 60s
+        setInterval(() => location.reload(), 60000);
     </script>
 </head>
 <body>
@@ -1307,9 +1232,8 @@ def generate_dashboard_html(client, ct_connected, ct_error, tg_connected, tg_inf
         <div style="background: #161b22; border: 1px solid #30363d; padding: 12px 16px; border-radius: 6px; font-size: 12px; margin-bottom: 20px;">
             <strong style="color:#58a6ff;">📊 cTrader Account:</strong> {state['account_id']} | <strong style="color:#58a6ff;">Server:</strong> {state['server']} | <strong style="color:#58a6ff;">Currency:</strong> {state['currency']} | <strong style="color:#58a6ff;">Build:</strong> {_BUILD_VERSION}
         </div>
-
-        <div style="background: #0d1117; border: 1px solid #30363d; padding: 10px 16px; border-radius: 6px; font-size: 11px; margin-bottom: 20px; color:#8b949e;">
-            <strong style="color:#d29922;">🔧 DIAGNOSTIC:</strong> Script version: <strong style="color:#3fb950;">{_SCRIPT_VERSION}</strong> | Telegram offset (last_update_id): <strong style="color:#c9d1d9;">{_last_update_id}</strong> | Pending signals in queue: <strong style="color:#c9d1d9;">{_pending_count}</strong> | Instruments loaded: <strong style="color:#c9d1d9;">{len(_instruments)}</strong>
+        <div style="background: #1f242c; border: 1px solid #3b434f; padding: 10px 16px; border-radius: 6px; font-size: 11px; margin-bottom: 20px; color: #58a6ff; font-family: monospace;">
+            🔧 DIAGNOSTIC: Script version: v5-ULTIMATE-dynamic-lots-multiline-parser | Telegram offset (last_update_id): {_last_update_id} | Instruments loaded: {len(_instruments)}
         </div>
 
         <div class="section-title">🩺 System Health & Secrets Check</div>
@@ -1373,13 +1297,10 @@ def generate_dashboard_html(client, ct_connected, ct_error, tg_connected, tg_inf
             <div class="card stat"><div class="stat-value">{len(positions_data)}</div><div class="stat-label">Open Positions</div></div>
         </div>
 
-        <div class="section-title">📱 Recent Telegram Messages & Signal History (Last 30)</div>
+        <div class="section-title">📱 Recent Telegram Messages & Signal History (Last 50 Events)</div>
         <div class="card" style="overflow-x:auto;">{telegram_table}</div>
 
-        <div class="section-title">🚨 Full Errors & Rejections Detail (Last 40)</div>
-        <div class="card" style="overflow-x:auto;">{errors_detail_table}</div>
-
-        <div class="section-title">⚠️ Recent Alerts & System Notifications (Last 30)</div>
+        <div class="section-title">⚠️ Recent Alerts & System Notifications (Last 50 Events)</div>
         <div class="card">{alerts_html}</div>
 
         <div class="section-title">📋 Backend Process Logs (Last 100 Events)</div>
@@ -1392,8 +1313,7 @@ def generate_dashboard_html(client, ct_connected, ct_error, tg_connected, tg_inf
         <div class="card" style="overflow-x:auto;">{trades_table}</div>
 
         <div style="text-align: center; color: #8b949e; font-size: 11px; margin: 30px 0;">
-            cTrader Bot &amp; Dashboard • Script {_SCRIPT_VERSION} • Auto-refreshing every 60s • Page generated: <span data-ts="{last_update}">{last_update}</span> (<span id="pageAge"></span>)
-            <br>Time now (UTC): <strong id="liveClock"></strong>
+            cTrader Bot & Dashboard • Auto-refreshing every 60s • Last synchronized: {last_update}
         </div>
     </div>
 </body>
@@ -1453,24 +1373,18 @@ def generate_login_html():
 # BOT MODE EXECUTION
 # =====================================================================
 def run_bot():
-    global _last_update_id
     load_system_state()
     reclassify_stored_telegram_messages()
     save_heartbeat("bot", "running", "Checking secrets and starting cycle...")
-    log_process("info", f"=== TRADING BOT CYCLE STARTED === [SCRIPT {_SCRIPT_VERSION}]")
-    log_process("info", f"Telegram current offset (last_update_id) at cycle start = {_last_update_id}")
+    log_process("info", "=== TRADING BOT CYCLE STARTED === [v5-ULTIMATE-dynamic-lots-multiline-parser]")
     check_secrets_status()
 
-    # Load any unexecuted signals left over from previous failed cycles (persistent retry queue)
-    pending_signals = load_pending_signals()
-    if pending_signals:
-        log_process("warning", f"♻️ RETRY QUEUE: {len(pending_signals)} unexecuted signal(s) recovered from previous cycle(s).")
-
-    fetched_max_uid = _last_update_id
+    pending_signals = []
     tg_conn, _ = test_telegram_connection()
     if tg_conn and TG_TOKEN:
-        msgs, fetched_max_uid = tg_get_messages(offset=_last_update_id)
-        log_process("info", f"Fetched {len(msgs)} new message(s) from Telegram (highest update_id seen: {fetched_max_uid}).")
+        log_process("info", f"Checking Telegram updates starting after offset (last_update_id): {_last_update_id}...")
+        msgs = tg_get_messages(offset=_last_update_id)
+        log_process("info", f"Fetched {len(msgs)} new message(s) from Telegram (new highest update_id: {_last_update_id}).")
         for msg in msgs:
             txt = msg.get("text", "").strip()
             if not looks_like_signal(txt): continue
@@ -1480,74 +1394,19 @@ def run_bot():
                 pending_signals.append(parsed)
                 log_process("success", f"Added to execution queue: {parsed}")
 
-    # Remove duplicate signals (same message re-fetched on retry)
-    pending_signals = dedupe_signals(pending_signals)
-    count = len(pending_signals)
-
     client = cTraderClient()
     connected = client.verify_auth_and_fetch_data(pending_signals=pending_signals)
 
     if not connected and not CT_ACCESS_TOKEN:
-        # No token at all — KEEP signals for retry, do NOT advance Telegram offset
-        save_pending_signals(pending_signals)
-        save_heartbeat("bot", "failed", "Missing CT_ACCESS_TOKEN — signals retained for retry")
-        log_process("error", "Bot cycle aborted — missing auth credentials. Signals retained for next cycle (offset NOT advanced).")
-        save_system_state()
+        save_heartbeat("bot", "failed", "Missing CT_ACCESS_TOKEN")
+        log_process("error", "Bot cycle aborted — missing authentication credentials.")
         return False
 
-    # ---- EXECUTION-AWARE DECISION (fixed: no more infinite loop) ----
-    has_new_orders = any(s.get("type") == "SIGNAL" for s in pending_signals)
-    has_manage_ops = any(s.get("type") in ("TPSL_HIT", "SL_UPDATE") for s in pending_signals)
-
+    count = len(pending_signals)
     if count > 0:
-        log_process("info", f"━━━ TRADE CYCLE SUMMARY ━━━ Signals: {count} (new orders: {has_new_orders}, manage ops: {has_manage_ops}) | Dispatched: {client.dispatched_orders} | Confirmed by cTrader: {client.confirmed_executions} | Broker error: {client.last_error_code or 'none'}")
-        if client.last_error_code:
-            log_process("error", f"🚫 BROKER REJECTION: {client.last_error_code} - {client.last_error_desc or ''}")
-
-    if count > 0 and client.confirmed_executions > 0:
-        # cTrader CONFIRMED execution -> clear retry queue and commit offset
-        save_pending_signals([])
-        _last_update_id = fetched_max_uid
-        log_process("success", f"✅ SUCCESS: {client.confirmed_executions} trade(s) CONFIRMED EXECUTED by cTrader. Offset committed to {fetched_max_uid}.")
-        save_heartbeat("bot", "completed", f"Executed {client.confirmed_executions} trade(s)")
-    elif count > 0 and client.last_error_code:
-        # Broker REJECTED -> commit (retrying identical params won't help), make it visible
-        save_pending_signals([])
-        _last_update_id = fetched_max_uid
-        log_process("warning", f"⚠️ REJECTED by broker ({client.last_error_code}). Offset committed to {fetched_max_uid}. Fix signal params (volume / SL-TP) and resend.")
-        save_heartbeat("bot", "completed", f"Rejected: {client.last_error_code}")
-    elif count > 0 and client.dispatched_orders > 0:
-        # Orders DISPATCHED -> commit (cannot safely retry; would risk DUPLICATE trades).
-        # The reconciliation-based verification (in sync) reports whether they actually filled.
-        save_pending_signals([])
-        _last_update_id = fetched_max_uid
-        log_process("warning", f"⚠️ {client.dispatched_orders} order(s) dispatched. Offset committed to {fetched_max_uid} (no retry to avoid duplicate trades). Check Open Positions to verify fill.")
-        save_heartbeat("bot", "completed", f"Dispatched {client.dispatched_orders} order(s)")
-    elif count > 0 and not connected:
-        # No connection at all -> RETRY (safe: nothing was sent)
-        save_pending_signals(pending_signals)
-        log_process("warning", f"⚠️ No cTrader connection. {count} signal(s) retained for retry. Offset NOT advanced.")
-        save_heartbeat("bot", "failed", f"No connection — {count} signal(s) retained for retry")
-    elif count > 0 and has_new_orders and client.dispatched_orders == 0:
-        # New-order signals present but NONE dispatched (symbol mapping / sync issue) -> RETRY
-        save_pending_signals(pending_signals)
-        log_process("warning", f"⚠️ New-order signal(s) present but not dispatched (symbol mapping or sync not ready). Retained for retry. Offset NOT advanced.")
-        save_heartbeat("bot", "failed", "Order not dispatched — retained for retry")
-    elif count > 0 and has_manage_ops and not has_new_orders:
-        # Only TP-hit / SL-update signals, with no open positions to act on -> HANDLED, commit
-        save_pending_signals([])
-        _last_update_id = fetched_max_uid
-        log_process("info", f"ℹ️ Only close/modify signal(s) with no matching open positions — nothing to do. Offset committed to {fetched_max_uid}.")
-        save_heartbeat("bot", "completed", "Close/modify — no positions to act on")
-    elif count > 0:
-        # Any other handled case -> commit
-        save_pending_signals([])
-        _last_update_id = fetched_max_uid
-        log_process("info", f"ℹ️ Signal(s) handled. Offset committed to {fetched_max_uid}.")
-        save_heartbeat("bot", "completed", "Signals handled")
+        log_process("success", f"Bot cycle finished. Dispatched {count} trading command(s) to cTrader server.")
+        save_heartbeat("bot", "completed", f"Dispatched {count} trading command(s)")
     else:
-        # No signals at all -> advance offset to acknowledge any seen non-signal messages
-        _last_update_id = fetched_max_uid
         log_process("info", "No new executable trade signals found in current cycle.")
         save_heartbeat("bot", "completed", "Cycle completed successfully (0 new signals)")
     
@@ -1562,7 +1421,7 @@ def run_dashboard():
     reclassify_stored_telegram_messages()
     load_heartbeat()
     save_heartbeat("dashboard", "running", "Synchronizing account state & HTML...")
-    log_process("info", f"=== DASHBOARD GENERATION STARTED === [SCRIPT {_SCRIPT_VERSION}]")
+    log_process("info", "=== DASHBOARD GENERATION STARTED === [v5-ULTIMATE-dynamic-lots-multiline-parser]")
     
     check_secrets_status()
 
