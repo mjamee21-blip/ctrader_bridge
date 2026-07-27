@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>cTrader CopySync SaaS - Telegram to cTrader Portal</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f172a; color: #f8fafc; }
+        .tab-active { border-bottom: 2px solid #38bdf8; color: #38bdf8; font-weight: 600; }
+        .tab-inactive { border-bottom: 2px solid transparent; color: #64748b; }
+        .tab-inactive:hover { color: #94a3b8; }
+        .card-flat { background: #1e293b; border: 1px solid #334155; }
+        .input-flat { background: #0f172a; border: 1px solid #334155; color: #f8fafc; }
+        .input-flat:focus { outline: none; border-color: #38bdf8; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-sky-500 selection:text-white">
+
+    <!-- Top Navbar -->
+    <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-9 h-9 rounded-lg bg-gradient-to-tr from-sky-500 to-indigo-500 flex items-center justify-center font-black text-white text-lg shadow-lg shadow-sky-500/20">⚡</div>
+                <div>
+                    <span class="font-bold text-base tracking-tight text-white">cTrader Copy<span class="text-sky-400">Sync</span></span>
+                    <span class="ml-2 px-2 py-0.5 text-xs font-semibold rounded bg-slate-800 text-slate-400 border border-slate-700">Client Portal</span>
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-4">
+                <a href="index.html" class="text-xs font-medium px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition flex items-center gap-1.5">
+                    <span>🛡️</span> Admin Panel
+                </a>
+                <div id="user-badge-container" class="hidden items-center space-x-3">
+                    <div class="flex items-center space-x-2 px-3 py-1 rounded-full bg-slate-800 border border-slate-700">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                        <span id="user-display-name" class="text-xs font-medium text-slate-200"></span>
+                    </div>
+                    <button onclick="logoutUser()" class="text-xs font-medium px-3 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 transition">
+                        Sign Out
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-grow max-w-6xl w-full mx-auto px-4 py-8">
+
+        <!-- AUTH VIEW (Shown when logged out) -->
+        <div id="view-auth" class="max-w-md mx-auto my-6">
+            <div class="text-center mb-6">
+                <h1 class="text-2xl font-bold text-white tracking-tight">Automate Your Trading</h1>
+                <p class="text-xs text-slate-400 mt-1">Copy Telegram VIP signals directly into cTrader in &lt;0.1s</p>
+            </div>
+
+            <div class="card-flat rounded-2xl p-6 shadow-2xl">
+                <!-- Auth Tabs -->
+                <div class="flex border-b border-slate-800 mb-6">
+                    <button onclick="switchAuthTab('login')" id="tab-btn-login" class="flex-1 pb-3 text-sm tab-active transition">Sign In</button>
+                    <button onclick="switchAuthTab('register')" id="tab-btn-register" class="flex-1 pb-3 text-sm tab-inactive transition">Create Account</button>
+                </div>
+
+                <!-- Error Toast -->
+                <div id="auth-error" class="hidden mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-xs text-center font-medium"></div>
+
+                <!-- Sign In Form -->
+                <form id="form-login" onsubmit="handleLogin(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1.5">Email Address</label>
+                        <input type="email" id="login-email" required class="input-flat w-full px-3.5 py-2.5 rounded-lg text-sm" placeholder="trader@example.com">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1.5">Password</label>
+                        <input type="password" id="login-password" required class="input-flat w-full px-3.5 py-2.5 rounded-lg text-sm" placeholder="••••••••">
+                    </div>
+                    <button type="submit" class="w-full py-2.5 rounded-lg bg-sky-500 hover:bg-sky-400 text-white font-semibold text-sm transition shadow-lg shadow-sky-500/20">
+                        Sign In to Portal
+                    </button>
+                </form>
+
+                <!-- Register Form -->
+                <form id="form-register" onsubmit="handleRegister(event)" class="hidden space-y-4">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1.5">Full Name</label>
+                        <input type="text" id="reg-name" required class="input-flat w-full px-3.5 py-2.5 rounded-lg text-sm" placeholder="Alex Trade">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1.5">Email Address</label>
+                        <input type="email" id="reg-email" required class="input-flat w-full px-3.5 py-2.5 rounded-lg text-sm" placeholder="alex@example.com">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1.5">Telegram Username / Handle</label>
+                        <input type="text" id="reg-tg" required class="input-flat w-full px-3.5 py-2.5 rounded-lg text-sm" placeholder="@alextrade">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1.5">Password</label>
+                        <input type="password" id="reg-password" required minlength="6" class="input-flat w-full px-3.5 py-2.5 rounded-lg text-sm" placeholder="At least 6 characters">
+                    </div>
+                    <button type="submit" class="w-full py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-sm transition shadow-lg shadow-emerald-500/20">
+                        Create Account & Proceed
+                    </button>
+                </form>
+
+                <!-- Quick Test Login -->
+                <div class="mt-6 pt-5 border-t border-slate-800 text-center">
+                    <span class="text-xs text-slate-500 block mb-2">Want to test or preview the portal?</span>
+                    <button onclick="quickTestLogin()" type="button" class="w-full py-2 px-3 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium border border-slate-700 transition flex items-center justify-center gap-2">
+                        <span>⚡ Quick Test Login (Demo Account)</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- DASHBOARD VIEW (Shown when logged in) -->
+        <div id="view-dashboard" class="hidden space-y-6">
+
+            <!-- Hero Subscription Status Bar -->
+            <div id="sub-status-banner" class="rounded-xl p-5 border flex flex-col md:flex-row items-center justify-between gap-4 transition">
+                <div class="flex items-center space-x-4">
+                    <div id="sub-status-icon" class="w-12 h-12 rounded-xl flex items-center justify-center text-2xl font-bold shrink-0"></div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h2 id="sub-status-title" class="text-base font-bold text-white tracking-tight"></h2>
+                            <span id="sub-status-tag" class="px-2 py-0.5 text-xs font-bold rounded uppercase tracking-wider"></span>
+                        </div>
+                        <p id="sub-status-desc" class="text-xs text-slate-400 mt-0.5"></p>
+                    </div>
+                </div>
+                <div>
+                    <button id="btn-pay-action" onclick="openCryptoModal()" class="px-5 py-2.5 rounded-lg bg-gradient-to-r from-sky-500 to-indigo-500 hover:from-sky-400 hover:to-indigo-400 text-white font-bold text-xs uppercase tracking-wider transition shadow-lg shadow-sky-500/20 flex items-center gap-2">
+                        <span>💎 Activate Pro Plan ($8 / mo)</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Notice when subscription is unpaid -->
+            <div id="lock-warning" class="hidden p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-start gap-3">
+                <span class="text-amber-400 text-lg">⚠️</span>
+                <div class="text-xs text-amber-200/90 leading-relaxed">
+                    <strong class="font-bold text-amber-400 block mb-0.5">Automated Execution Locked</strong>
+                    Your Pro Subscription is currently unpaid. Please complete your $8.00/month crypto checkout above to enable 24/7 automated trade execution from your Telegram channel to your cTrader account.
+                </div>
+            </div>
+
+            <!-- 3 Core Setup Columns (1 Channel, 1 Account, Settings) -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+                <!-- Card 1: Telegram Channel Linking (Limit: 1) -->
+                <div class="card-flat rounded-xl p-5 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center space-x-2.5">
+                                <span class="w-8 h-8 rounded-lg bg-sky-500/10 text-sky-400 flex items-center justify-center text-base">✈️</span>
+                                <div>
+                                    <h3 class="font-bold text-sm text-white">Telegram Source</h3>
+                                    <span class="text-[11px] text-slate-400 block">Limit: 1 Channel Allowed</span>
+                                </div>
+                            </div>
+                            <span id="badge-tg-count" class="px-2 py-0.5 rounded text-[11px] font-semibold bg-slate-800 text-slate-300 border border-slate-700">0 / 1 Linked</span>
+                        </div>
+
+                        <p class="text-xs text-slate-400 mb-4 leading-relaxed">
+                            Connect the exact Telegram channel or VIP group where your trading signals arrive.
+                        </p>
+
+                        <div class="space-y-3">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-400 mb-1">Channel Handle or ID</label>
+                                <input type="text" id="input-tg-channel" class="input-flat w-full px-3 py-2 rounded-lg text-xs font-mono" placeholder="e.g. @MyVIPForexSignals or -10023456789">
+                            </div>
+                            
+                            <div class="p-3 rounded-lg bg-slate-900/60 border border-slate-800 text-[11px] text-slate-400 space-y-1">
+                                <span class="font-semibold text-slate-300 block mb-1">⚡ Setup Guide:</span>
+                                <div>1. Add bot <code class="text-sky-400 font-bold">@Forexunitedbot</code> as Admin to your channel.</div>
+                                <div>2. Ensure bot has "Read Messages" permission.</div>
+                                <div>3. Enter channel handle above & save.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-5 pt-4 border-t border-slate-800 flex items-center justify-between">
+                        <span id="tg-status-text" class="text-xs font-medium text-slate-500">Not connected</span>
+                        <button onclick="saveTelegramChannel()" class="px-3.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition">
+                            Save Channel
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Card 2: cTrader Account Linking (Limit: 1) -->
+                <div class="card-flat rounded-xl p-5 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center space-x-2.5">
+                                <span class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-base">📊</span>
+                                <div>
+                                    <h3 class="font-bold text-sm text-white">cTrader Broker</h3>
+                                    <span class="text-[11px] text-slate-400 block">Limit: 1 Account Allowed</span>
+                                </div>
+                            </div>
+                            <span id="badge-ct-count" class="px-2 py-0.5 rounded text-[11px] font-semibold bg-slate-800 text-slate-300 border border-slate-700">0 / 1 Linked</span>
+                        </div>
+
+                        <p class="text-xs text-slate-400 mb-4 leading-relaxed">
+                            Connect your Spotware cTrader account securely via official OAuth 2.0. No passwords required!
+                        </p>
+
+                        <div id="ct-disconnected-box" class="space-y-3">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-400 mb-1">Broker Login Number / ID</label>
+                                <input type="text" id="input-ct-login" class="input-flat w-full px-3 py-2 rounded-lg text-xs font-mono" placeholder="e.g. 2454414">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-400 mb-1">Server Environment</label>
+                                <select id="input-ct-env" class="input-flat w-full px-3 py-2 rounded-lg text-xs">
+                                    <option value="demo">Demo Account (Universal Cloud Gateway)</option>
+                                    <option value="live">Live / Real Money (Universal Cloud Gateway)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div id="ct-connected-box" class="hidden p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 space-y-1.5">
+                            <div class="flex items-center gap-2 text-emerald-400 font-bold text-xs">
+                                <span>✓ Account Linked Successfully</span>
+                            </div>
+                            <div class="text-[11px] text-slate-300">
+                                <div><span class="text-slate-400">Account Login:</span> <strong id="disp-ct-login" class="font-mono text-white"></strong></div>
+                                <div><span class="text-slate-400">Environment:</span> <strong id="disp-ct-env" class="uppercase text-white"></strong></div>
+                                <div><span class="text-slate-400">Auth Method:</span> <span class="text-emerald-400">Spotware OAuth 2.0 Token</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-5 pt-4 border-t border-slate-800 flex items-center justify-between">
+                        <span id="ct-status-text" class="text-xs font-medium text-slate-500">Unlinked</span>
+                        <button id="btn-ct-connect" onclick="connectCTraderOAuth()" class="px-3.5 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold transition shadow-md shadow-emerald-500/10">
+                            🔗 Connect via OAuth
+                        </button>
+                        <button id="btn-ct-disconnect" onclick="disconnectCTrader()" class="hidden px-3.5 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-semibold border border-red-500/20 transition">
+                            Disconnect
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Card 3: automated Copy Control & Lot Sizing -->
+                <div class="card-flat rounded-xl p-5 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center space-x-2.5">
+                                <span class="w-8 h-8 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center text-base">⚡</span>
+                                <div>
+                                    <h3 class="font-bold text-sm text-white">Execution & Risk</h3>
+                                    <span class="text-[11px] text-slate-400 block">Automated Trade Controls</span>
+                                </div>
+                            </div>
+                            <span id="badge-copy-status" class="px-2 py-0.5 rounded text-[11px] font-bold bg-slate-800 text-slate-400">STOPPED</span>
+                        </div>
+
+                        <div class="space-y-3">
+                            <!-- Master Toggle -->
+                            <div class="p-3 rounded-lg bg-slate-900/80 border border-slate-800 flex items-center justify-between">
+                                <div>
+                                    <span class="text-xs font-bold text-white block">Auto Copy-Trading</span>
+                                    <span class="text-[10px] text-slate-400">Execute signals in &lt;0.1s</span>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="toggle-copy-active" onchange="toggleCopyTrading()" class="sr-only peer">
+                                    <div class="w-9 h-5 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-sky-500"></div>
+                                </label>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-medium text-slate-400 mb-1">Lot Sizing Strategy</label>
+                                <select id="select-lot-mode" onchange="updateLotMode()" class="input-flat w-full px-3 py-2 rounded-lg text-xs">
+                                    <option value="dynamic">Dynamic Proportional (Recommended)</option>
+                                    <option value="fixed">Fixed Lot Size per Trade</option>
+                                    <option value="multiplier">Volume Multiplier (e.g. 0.5x / 2.0x)</option>
+                                </select>
+                            </div>
+
+                            <div id="box-lot-val" class="hidden">
+                                <label id="label-lot-val" class="block text-xs font-medium text-slate-400 mb-1">Value</label>
+                                <input type="number" step="0.01" id="input-lot-val" class="input-flat w-full px-3 py-2 rounded-lg text-xs" value="0.10">
+                            </div>
+
+                            <div class="flex items-center justify-between pt-1 text-xs text-slate-400">
+                                <span>Max Daily Loss Safeguard:</span>
+                                <span class="text-emerald-400 font-semibold">Enabled ($500)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-5 pt-4 border-t border-slate-800 flex items-center justify-between">
+                        <span class="text-[11px] text-slate-500">Auto-saves instantly</span>
+                        <button onclick="saveExecutionSettings()" class="px-3.5 py-1.5 rounded-lg bg-sky-500 hover:bg-sky-400 text-white text-xs font-semibold shadow-md shadow-sky-500/10 transition">
+                            Update Settings
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Live Signal Activity Feed (Client Portal View) -->
+            <div class="card-flat rounded-xl p-5">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center space-x-2.5">
+                        <span class="w-7 h-7 rounded-lg bg-slate-800 text-slate-300 flex items-center justify-center text-sm">📋</span>
+                        <div>
+                            <h3 class="font-bold text-sm text-white">Your Copied Signals Feed</h3>
+                            <span class="text-[11px] text-slate-400">Live monitoring of your linked channel ➔ cTrader execution</span>
+                        </div>
+                    </div>
+                    <button onclick="renderSignalsTable()" class="text-xs px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 transition">🔄 Refresh Feed</button>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="border-b border-slate-800 text-[11px] text-slate-400 uppercase tracking-wider">
+                                <th class="pb-2.5 pr-4">Time (UTC)</th>
+                                <th class="pb-2.5 pr-4">Channel Source</th>
+                                <th class="pb-2.5 pr-4">Signal Action</th>
+                                <th class="pb-2.5 pr-4">Instrument</th>
+                                <th class="pb-2.5 pr-4">Volume</th>
+                                <th class="pb-2.5 pr-4">Execution Status</th>
+                                <th class="pb-2.5">Result</th>
+                            </tr>
+                        </thead>
+                        <tbody id="client-signals-tbody" class="divide-y divide-slate-800/60 text-xs font-mono">
+                            <!-- Populated dynamically via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- CRYPTO PAYMENT MODAL ($8 / Month) -->
+    <div id="modal-crypto" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="card-flat bg-slate-900 rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-700 animate-in fade-in duration-200">
+            
+            <div class="flex items-center justify-between pb-4 border-b border-slate-800 mb-5">
+                <div class="flex items-center space-x-2">
+                    <span class="text-xl">💎</span>
+                    <h3 class="font-bold text-white text-base">Pro Subscription Checkout</h3>
+                </div>
+                <button onclick="closeCryptoModal()" class="text-slate-400 hover:text-white text-lg font-bold px-2 py-1 rounded hover:bg-slate-800 transition">✕</button>
+            </div>
+
+            <div class="text-center mb-5">
+                <div class="text-3xl font-black text-white">$8.00 <span class="text-xs font-semibold text-slate-400">USD / Month</span></div>
+                <p class="text-xs text-slate-400 mt-1">Select your preferred cryptocurrency below for automated verification</p>
+            </div>
+
+            <!-- Crypto Selector Tabs -->
+            <div class="grid grid-cols-5 gap-1.5 p-1 bg-slate-950 rounded-xl border border-slate-800 mb-5 text-center text-xs font-semibold">
+                <button onclick="selectCrypto('USDT')" id="crypto-tab-USDT" class="py-1.5 rounded-lg bg-sky-500 text-white transition">USDT</button>
+                <button onclick="selectCrypto('BTC')" id="crypto-tab-BTC" class="py-1.5 rounded-lg text-slate-400 hover:text-white transition">BTC</button>
+                <button onclick="selectCrypto('ETH')" id="crypto-tab-ETH" class="py-1.5 rounded-lg text-slate-400 hover:text-white transition">ETH</button>
+                <button onclick="selectCrypto('SOL')" id="crypto-tab-SOL" class="py-1.5 rounded-lg text-slate-400 hover:text-white transition">SOL</button>
+                <button onclick="selectCrypto('BNB')" id="crypto-tab-BNB" class="py-1.5 rounded-lg text-slate-400 hover:text-white transition">BNB</button>
+            </div>
+
+            <!-- Payment Details Box -->
+            <div class="p-4 rounded-xl bg-slate-950 border border-slate-800/80 mb-5 space-y-4">
+                <div class="flex items-center justify-between text-xs">
+                    <span class="text-slate-400">Network / Protocol:</span>
+                    <strong id="disp-crypto-net" class="text-sky-400 font-bold">TRC-20 (Tron Network)</strong>
+                </div>
+                <div class="flex items-center justify-between text-xs">
+                    <span class="text-slate-400">Amount Due:</span>
+                    <strong id="disp-crypto-amt" class="text-emerald-400 font-mono font-bold text-sm">8.00 USDT</strong>
+                </div>
+
+                <!-- QR Code Box -->
+                <div class="flex flex-col items-center justify-center py-3 border-y border-slate-800/60">
+                    <div class="p-2.5 bg-white rounded-xl shadow-lg">
+                        <img id="disp-crypto-qr" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb&color=000000&bgcolor=ffffff" alt="Crypto QR Code" class="w-32 h-32">
+                    </div>
+                    <span class="text-[11px] text-slate-500 mt-2">Scan with Binance, TrustWallet, or MetaMask</span>
+                </div>
+
+                <!-- Wallet Address Copy Box -->
+                <div>
+                    <label class="block text-[11px] font-medium text-slate-400 mb-1">Recipient Wallet Address:</label>
+                    <div class="flex items-center space-x-2">
+                        <input type="text" id="disp-crypto-addr" readonly value="T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb" class="input-flat flex-1 px-3 py-2 rounded-lg text-xs font-mono text-slate-300 bg-slate-900 select-all">
+                        <button onclick="copyWalletAddress()" class="px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition shrink-0">
+                            📋 Copy
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TXID Verification Step -->
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Step 2: Submit Transaction Hash (TXID / Hash)</label>
+                    <input type="text" id="input-txid" class="input-flat w-full px-3.5 py-2.5 rounded-lg text-xs font-mono" placeholder="Paste 64-char transaction hash here after sending...">
+                </div>
+
+                <div id="verify-progress" class="hidden p-3 rounded-lg bg-sky-500/10 border border-sky-500/20 text-xs text-sky-300 flex items-center space-x-2.5 animate-pulse">
+                    <span class="inline-block w-4 h-4 border-2 border-sky-400 border-t-transparent rounded-full animate-spin"></span>
+                    <span id="verify-text">Scanning blockchain network for confirmations (1/3)...</span>
+                </div>
+
+                <button id="btn-submit-verify" onclick="verifyPaymentTXID()" class="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black text-sm uppercase tracking-wider transition shadow-lg shadow-emerald-500/20">
+                    ✅ Verify & Activate Subscription
+                </button>
+            </div>
+            
+            <p class="text-[11px] text-center text-slate-500 mt-4">
+                Automated verification completes in ~15 to 30 seconds after broadcast.
+            </p>
+
+        </div>
+    </div>
+
+    <!-- Spotware OAuth Simulation Modal -->
+    <div id="modal-oauth" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="card-flat bg-slate-900 rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-700 text-center space-y-5 animate-in zoom-in-95 duration-200">
+            <div class="w-14 h-14 rounded-2xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-3xl mx-auto font-bold">🔗</div>
+            <div>
+                <h3 class="font-bold text-white text-lg">Spotware cTrader ID (cTID)</h3>
+                <p class="text-xs text-slate-400 mt-1">Connecting to official Open API v2 cloud gateway...</p>
+            </div>
+            <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 text-left text-xs space-y-2 font-mono">
+                <div class="flex justify-between"><span class="text-slate-500">App Name:</span> <span class="text-white">cTrader CopySync SaaS</span></div>
+                <div class="flex justify-between"><span class="text-slate-500">Permissions:</span> <span class="text-emerald-400">Trade & View Accounts</span></div>
+                <div class="flex justify-between"><span class="text-slate-500">Security:</span> <span class="text-sky-400">OAuth 2.0 Encrypted Token</span></div>
+            </div>
+            <div id="oauth-spinner" class="py-2 flex items-center justify-center space-x-2 text-xs text-slate-300">
+                <span class="inline-block w-4 h-4 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin"></span>
+                <span>Requesting authorization token from Spotware...</span>
+            </div>
+            <div class="flex space-x-3 pt-2">
+                <button onclick="closeOAuthModal()" class="flex-1 py-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-xs transition">Cancel</button>
+                <button id="btn-oauth-approve" onclick="completeOAuthHandshake()" class="flex-1 py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs transition shadow-lg shadow-emerald-500/20">Approve Access</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-800/80 py-6 mt-12 bg-slate-950/40 text-center text-xs text-slate-500">
+        <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div>⚡ cTrader CopySync SaaS • Official Spotware Open API v2 Protocol Buffers Integration</div>
+            <div class="flex items-center space-x-4">
+                <span class="text-slate-400">1 Telegram Channel ➔ 1 cTrader Account</span>
+                <span class="text-sky-400 font-semibold">$8 / mo Flat Rate</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- App Logic & State Persistence -->
+    <script>
+        // Crypto Wallets & Network Config
+        const CRYPTO_CONFIG = {
+            USDT: { name: "USDT (TRC-20 Tron)", addr: "T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb", amount: "8.00 USDT" },
+            BTC:  { name: "Bitcoin (BTC Native)", addr: "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa", amount: "0.00012 BTC" },
+            ETH:  { name: "Ethereum (ERC-20)", addr: "0x71C...8920mE", amount: "0.0031 ETH" },
+            SOL:  { name: "Solana (SOL Native)", addr: "HN7cABqLq46Es1jh92dQQisAq662SmxELLLsHHe4YWrH", amount: "0.055 SOL" },
+            BNB:  { name: "BNB (BEP-20 BSC)", addr: "0x3f5CE5FBFe3E9af3971dD833D26bA9b5C936f0bE", amount: "0.014 BNB" }
+        };
+
+        let currentCrypto = "USDT";
+
+        // Initial App Load
+        window.addEventListener("DOMContentLoaded", () => {
+            initSessionState();
+            renderAppView();
+        });
+
+        function initSessionState() {
+            if (!localStorage.getItem("saas_user")) {
+                // Default clean state
+                const defaultUser = {
+                    logged_in: false,
+                    name: "",
+                    email: "",
+                    tg_handle: "",
+                    sub_status: "unpaid", // "unpaid", "pending", "active"
+                    sub_expiry: "",
+                    ct_linked: false,
+                    ct_login: "",
+                    ct_env: "demo",
+                    copy_enabled: false,
+                    lot_mode: "dynamic",
+                    lot_val: "0.10"
+                };
+                localStorage.setItem("saas_user", JSON.stringify(defaultUser));
+            }
+        }
+
+        function getUser() {
+            try { return JSON.parse(localStorage.getItem("saas_user")) || {}; }
+            except { return {}; }
+        }
+
+        function saveUser(data) {
+            localStorage.setItem("saas_user", JSON.stringify(data));
+            renderAppView();
+        }
+
+        // View Switching & Rendering
+        function renderAppView() {
+            const user = getUser();
+            const authView = document.getElementById("view-auth");
+            const dashView = document.getElementById("view-dashboard");
+            const badgeContainer = document.getElementById("user-badge-container");
+            const displayName = document.getElementById("user-display-name");
+
+            if (!user.logged_in) {
+                authView.classList.remove("hidden");
+                dashView.classList.add("hidden");
+                badgeContainer.classList.add("hidden");
+                return;
+            }
+
+            // User is logged in
+            authView.classList.add("hidden");
+            dashView.classList.remove("hidden");
+            badgeContainer.classList.remove("hidden");
+            badgeContainer.classList.add("flex");
+            displayName.textContent = `${user.name || 'Trader'} (${user.tg_handle || user.email})`;
+
+            // Render Subscription Banner
+            const banner = document.getElementById("sub-status-banner");
+            const icon = document.getElementById("sub-status-icon");
+            const title = document.getElementById("sub-status-title");
+            const tag = document.getElementById("sub-status-tag");
+            const desc = document.getElementById("sub-status-desc");
+            const btnPay = document.getElementById("btn-pay-action");
+            const lockWarn = document.getElementById("lock-warning");
+
+            if (user.sub_status === "active") {
+                banner.className = "rounded-xl p-5 border flex flex-col md:flex-row items-center justify-between gap-4 transition bg-emerald-500/10 border-emerald-500/30";
+                icon.className = "w-12 h-12 rounded-xl flex items-center justify-center text-2xl font-bold shrink-0 bg-emerald-500/20 text-emerald-400";
+                icon.textContent = "🟢";
+                title.textContent = "Pro Plan Subscription Active";
+                tag.textContent = "ACTIVE ($8/mo)";
+                tag.className = "px-2 py-0.5 text-xs font-bold rounded uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/30";
+                desc.textContent = `Automated copy-trading is unlocked and monitoring your Telegram channel 24/7. Valid until ${user.sub_expiry || 'next month'}.`;
+                btnPay.innerHTML = `<span>⚡ Subscription Active</span>`;
+                btnPay.className = "px-5 py-2.5 rounded-lg bg-slate-800 text-slate-400 font-bold text-xs uppercase tracking-wider cursor-default border border-slate-700";
+                btnPay.onclick = null;
+                lockWarn.classList.add("hidden");
+            } else if (user.sub_status === "pending") {
+                banner.className = "rounded-xl p-5 border flex flex-col md:flex-row items-center justify-between gap-4 transition bg-amber-500/10 border-amber-500/30";
+                icon.className = "w-12 h-12 rounded-xl flex items-center justify-center text-2xl font-bold shrink-0 bg-amber-500/20 text-amber-400";
+                icon.textContent = "⏳";
+                title.textContent = "Payment Verification in Progress";
+                tag.textContent = "PENDING TXID";
+                tag.className = "px-2 py-0.5 text-xs font-bold rounded uppercase tracking-wider bg-amber-500/20 text-amber-300 border border-amber-500/30";
+                desc.textContent = "We received your transaction hash! Blockchain confirmations usually complete within 2 to 5 minutes.";
+                btnPay.innerHTML = `<span>⏳ Check Status</span>`;
+                btnPay.className = "px-5 py-2.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs uppercase tracking-wider transition shadow-lg shadow-amber-500/20";
+                btnPay.onclick = openCryptoModal;
+                lockWarn.classList.remove("hidden");
+            } else {
+                // Unpaid
+                banner.className = "rounded-xl p-5 border flex flex-col md:flex-row items-center justify-between gap-4 transition bg-slate-800/80 border-slate-700";
+                icon.className = "w-12 h-12 rounded-xl flex items-center justify-center text-2xl font-bold shrink-0 bg-slate-700 text-slate-300";
+                icon.textContent = "🔒";
+                title.textContent = "Automated Execution Locked";
+                tag.textContent = "UNPAID ($8/mo)";
+                tag.className = "px-2 py-0.5 text-xs font-bold rounded uppercase tracking-wider bg-red-500/20 text-red-400 border border-red-500/30";
+                desc.textContent = "Subscribe to the Pro Plan ($8/month flat rate) to unlock automated 0.1s trade execution from your Telegram channel.";
+                btnPay.innerHTML = `<span>💎 Activate Pro Plan ($8 / mo)</span>`;
+                btnPay.className = "px-5 py-2.5 rounded-lg bg-gradient-to-r from-sky-500 to-indigo-500 hover:from-sky-400 hover:to-indigo-400 text-white font-bold text-xs uppercase tracking-wider transition shadow-lg shadow-sky-500/20";
+                btnPay.onclick = openCryptoModal;
+                lockWarn.classList.remove("hidden");
+            }
+
+            // Render Telegram Card
+            const inputTg = document.getElementById("input-tg-channel");
+            const badgeTg = document.getElementById("badge-tg-count");
+            const tgStatusText = document.getElementById("tg-status-text");
+            if (user.tg_handle) {
+                inputTg.value = user.tg_handle;
+                badgeTg.textContent = "1 / 1 Linked";
+                badgeTg.className = "px-2 py-0.5 rounded text-[11px] font-semibold bg-sky-500/20 text-sky-400 border border-sky-500/30";
+                tgStatusText.textContent = `Linked: ${user.tg_handle}`;
+                tgStatusText.className = "text-xs font-semibold text-sky-400";
+            } else {
+                inputTg.value = "";
+                badgeTg.textContent = "0 / 1 Linked";
+                badgeTg.className = "px-2 py-0.5 rounded text-[11px] font-semibold bg-slate-800 text-slate-400 border border-slate-700";
+                tgStatusText.textContent = "Not connected";
+                tgStatusText.className = "text-xs font-medium text-slate-500";
+            }
+
+            // Render cTrader Card
+            const ctDiscBox = document.getElementById("ct-disconnected-box");
+            const ctConnBox = document.getElementById("ct-connected-box");
+            const badgeCt = document.getElementById("badge-ct-count");
+            const ctStatusText = document.getElementById("ct-status-text");
+            const btnConnect = document.getElementById("btn-ct-connect");
+            const btnDisconnect = document.getElementById("btn-ct-disconnect");
+            
+            if (user.ct_linked && user.ct_login) {
+                ctDiscBox.classList.add("hidden");
+                ctConnBox.classList.remove("hidden");
+                document.getElementById("disp-ct-login").textContent = `#${user.ct_login}`;
+                document.getElementById("disp-ct-env").textContent = user.ct_env || "demo";
+                badgeCt.textContent = "1 / 1 Linked";
+                badgeCt.className = "px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
+                ctStatusText.textContent = `Connected: #${user.ct_login}`;
+                ctStatusText.className = "text-xs font-semibold text-emerald-400";
+                btnConnect.classList.add("hidden");
+                btnDisconnect.classList.remove("hidden");
+            } else {
+                ctDiscBox.classList.remove("hidden");
+                ctConnBox.classList.add("hidden");
+                if (user.ct_login) document.getElementById("input-ct-login").value = user.ct_login;
+                badgeCt.textContent = "0 / 1 Linked";
+                badgeCt.className = "px-2 py-0.5 rounded text-[11px] font-semibold bg-slate-800 text-slate-400 border border-slate-700";
+                ctStatusText.textContent = "Unlinked";
+                ctStatusText.className = "text-xs font-medium text-slate-500";
+                btnConnect.classList.remove("hidden");
+                btnDisconnect.classList.add("hidden");
+            }
+
+            // Render Copy Settings
+            const toggleCopy = document.getElementById("toggle-copy-active");
+            const badgeCopy = document.getElementById("badge-copy-status");
+            const selectLot = document.getElementById("select-lot-mode");
+            const inputLotVal = document.getElementById("input-lot-val");
+
+            toggleCopy.checked = !!user.copy_enabled;
+            if (user.copy_enabled && user.sub_status === "active") {
+                badgeCopy.textContent = "ACTIVE 24/7";
+                badgeCopy.className = "px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 animate-pulse";
+            } else if (user.copy_enabled) {
+                badgeCopy.textContent = "LOCKED (UNPAID)";
+                badgeCopy.className = "px-2 py-0.5 rounded text-[11px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30";
+            } else {
+                badgeCopy.textContent = "STOPPED";
+                badgeCopy.className = "px-2 py-0.5 rounded text-[11px] font-bold bg-slate-800 text-slate-400 border border-slate-700";
+            }
+
+            if (user.lot_mode) selectLot.value = user.lot_mode;
+            if (user.lot_val) inputLotVal.value = user.lot_val;
+            updateLotMode();
+            renderSignalsTable();
+        }
+
+        // Auth Functions
+        function switchAuthTab(tab) {
+            const btnLogin = document.getElementById("tab-btn-login");
+            const btnReg = document.getElementById("tab-btn-register");
+            const formLogin = document.getElementById("form-login");
+            const formReg = document.getElementById("form-register");
+            const err = document.getElementById("auth-error");
+            err.classList.add("hidden");
+
+            if (tab === "login") {
+                btnLogin.className = "flex-1 pb-3 text-sm tab-active transition";
+                btnReg.className = "flex-1 pb-3 text-sm tab-inactive transition";
+                formLogin.classList.remove("hidden");
+                formReg.classList.add("hidden");
+            } else {
+                btnReg.className = "flex-1 pb-3 text-sm tab-active transition";
+                btnLogin.className = "flex-1 pb-3 text-sm tab-inactive transition";
+                formReg.classList.remove("hidden");
+                formLogin.classList.add("hidden");
+            }
+        }
+
+        function handleRegister(e) {
+            e.preventDefault();
+            const name = document.getElementById("reg-name").value.trim();
+            const email = document.getElementById("reg-email").value.trim();
+            let tg = document.getElementById("reg-tg").value.trim();
+            if (!tg.startsWith("@") && !tg.startsWith("-")) tg = "@" + tg;
+
+            const user = getUser();
+            user.logged_in = true;
+            user.name = name;
+            user.email = email;
+            user.tg_handle = tg;
+            user.sub_status = "unpaid";
+            user.ct_linked = false;
+            saveUser(user);
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById("login-email").value.trim();
+            const user = getUser();
+            user.logged_in = true;
+            user.email = email;
+            if (!user.name) user.name = email.split("@")[0];
+            if (!user.tg_handle) user.tg_handle = "@" + email.split("@")[0] + "_signals";
+            saveUser(user);
+        }
+
+        function quickTestLogin() {
+            const user = {
+                logged_in: true,
+                name: "Alex Trade (Demo Pro)",
+                email: "alex.trade@example.com",
+                tg_handle: "@AlphaVIPSignals",
+                sub_status: "active",
+                sub_expiry: "2026-08-27 UTC",
+                ct_linked: true,
+                ct_login: "2454414",
+                ct_env: "demo",
+                copy_enabled: true,
+                lot_mode: "dynamic",
+                lot_val: "0.10"
+            };
+            saveUser(user);
+        }
+
+        function logoutUser() {
+            const user = getUser();
+            user.logged_in = false;
+            saveUser(user);
+        }
+
+        // Setup Actions
+        function saveTelegramChannel() {
+            let val = document.getElementById("input-tg-channel").value.trim();
+            if (!val) {
+                alert("Please enter a valid Telegram channel handle (e.g. @MyVIPSignals)");
+                return;
+            }
+            if (!val.startsWith("@") && !val.startsWith("-")) val = "@" + val;
+            const user = getUser();
+            user.tg_handle = val;
+            saveUser(user);
+            alert(`✅ Saved! Your 1 allowed Telegram channel is now set to ${val}.`);
+        }
+
+        function connectCTraderOAuth() {
+            const loginVal = document.getElementById("input-ct-login").value.trim();
+            if (!loginVal) {
+                alert("Please enter your cTrader Account Login Number (e.g. 2454414) before connecting via OAuth.");
+                return;
+            }
+            document.getElementById("modal-oauth").classList.remove("hidden");
+            document.getElementById("oauth-spinner").classList.remove("hidden");
+            document.getElementById("btn-oauth-approve").disabled = false;
+        }
+
+        function closeOAuthModal() {
+            document.getElementById("modal-oauth").classList.add("hidden");
+        }
+
+        function completeOAuthHandshake() {
+            const btn = document.getElementById("btn-oauth-approve");
+            btn.disabled = true;
+            btn.textContent = "Exchanging OAuth Token...";
+            
+            setTimeout(() => {
+                const loginVal = document.getElementById("input-ct-login").value.trim() || "2454414";
+                const envVal = document.getElementById("input-ct-env").value || "demo";
+                const user = getUser();
+                user.ct_linked = true;
+                user.ct_login = loginVal;
+                user.ct_env = envVal;
+                saveUser(user);
+                closeOAuthModal();
+                btn.textContent = "Approve Access";
+                btn.disabled = false;
+                alert(`🎉 Success! cTrader Account #${loginVal} is now authorized via Spotware OAuth 2.0.`);
+            }, 1200);
+        }
+
+        function disconnectCTrader() {
+            if (confirm("Are you sure you want to unlink this cTrader account? automated copy trading will stop.")) {
+                const user = getUser();
+                user.ct_linked = false;
+                user.copy_enabled = false;
+                saveUser(user);
+            }
+        }
+
+        function toggleCopyTrading() {
+            const checked = document.getElementById("toggle-copy-active").checked;
+            const user = getUser();
+            if (checked && user.sub_status !== "active") {
+                alert("🔒 Automated copy trading requires an active Pro Subscription ($8.00 / month). Please complete your crypto checkout!");
+                document.getElementById("toggle-copy-active").checked = false;
+                openCryptoModal();
+                return;
+            }
+            if (checked && (!user.tg_handle || !user.ct_linked)) {
+                alert("⚠️ Please link your Telegram channel and connect your cTrader account before starting automated execution.");
+                document.getElementById("toggle-copy-active").checked = false;
+                return;
+            }
+            user.copy_enabled = checked;
+            saveUser(user);
+        }
+
+        function updateLotMode() {
+            const mode = document.getElementById("select-lot-mode").value;
+            const box = document.getElementById("box-lot-val");
+            const label = document.getElementById("label-lot-val");
+            const input = document.getElementById("input-lot-val");
+
+            if (mode === "dynamic") {
+                box.classList.add("hidden");
+            } else if (mode === "fixed") {
+                box.classList.remove("hidden");
+                label.textContent = "Fixed Lot Size per Trade";
+                input.placeholder = "0.10";
+            } else {
+                box.classList.remove("hidden");
+                label.textContent = "Volume Multiplier (e.g. 0.5x or 2.0x)";
+                input.placeholder = "1.0";
+            }
+        }
+
+        function saveExecutionSettings() {
+            const user = getUser();
+            user.lot_mode = document.getElementById("select-lot-mode").value;
+            user.lot_val = document.getElementById("input-lot-val").value;
+            saveUser(user);
+            alert("✅ automated copy-trading settings updated and saved.");
+        }
+
+        // Crypto Payment Modal Functions ($8 / Month)
+        function openCryptoModal() {
+            document.getElementById("modal-crypto").classList.remove("hidden");
+            selectCrypto("USDT");
+        }
+
+        function closeCryptoModal() {
+            document.getElementById("modal-crypto").classList.add("hidden");
+            document.getElementById("verify-progress").classList.add("hidden");
+        }
+
+        function selectCrypto(coin) {
+            currentCrypto = coin;
+            const cfg = CRYPTO_CONFIG[coin] || CRYPTO_CONFIG.USDT;
+            
+            // Highlight active tab
+            ["USDT", "BTC", "ETH", "SOL", "BNB"].forEach(c => {
+                const btn = document.getElementById(`crypto-tab-${c}`);
+                if (c === coin) {
+                    btn.className = "py-1.5 rounded-lg bg-sky-500 text-white transition font-bold";
+                } else {
+                    btn.className = "py-1.5 rounded-lg text-slate-400 hover:text-white transition font-normal";
+                }
+            });
+
+            document.getElementById("disp-crypto-net").textContent = cfg.name;
+            document.getElementById("disp-crypto-amt").textContent = cfg.amount;
+            document.getElementById("disp-crypto-addr").value = cfg.addr;
+            
+            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(cfg.addr)}&color=000000&bgcolor=ffffff`;
+            document.getElementById("disp-crypto-qr").src = qrUrl;
+        }
+
+        function copyWalletAddress() {
+            const input = document.getElementById("disp-crypto-addr");
+            input.select();
+            navigator.clipboard.writeText(input.value);
+            alert(`📋 Wallet address copied to clipboard!\n\nSend exact amount: ${CRYPTO_CONFIG[currentCrypto].amount}`);
+        }
+
+        function verifyPaymentTXID() {
+            const txid = document.getElementById("input-txid").value.trim();
+            if (!txid || txid.length < 10) {
+                alert("Please paste a valid transaction hash (TXID) from your crypto wallet before verifying.");
+                return;
+            }
+
+            const prog = document.getElementById("verify-progress");
+            const txt = document.getElementById("verify-text");
+            const btn = document.getElementById("btn-submit-verify");
+            
+            prog.classList.remove("hidden");
+            btn.disabled = true;
+            btn.textContent = "Verifying on Blockchain...";
+
+            let step = 1;
+            const interval = setInterval(() => {
+                if (step === 1) {
+                    txt.textContent = `Scanning ${CRYPTO_CONFIG[currentCrypto].name} blockchain network...`;
+                } else if (step === 2) {
+                    txt.textContent = "Transaction located! Checking block confirmations (2/3)...";
+                } else if (step === 3) {
+                    txt.textContent = "Payment confirmed! Activating Pro Subscription...";
+                } else {
+                    clearInterval(interval);
+                    const user = getUser();
+                    user.sub_status = "active";
+                    user.sub_expiry = "2026-08-27 UTC (30 Days)";
+                    user.copy_enabled = true;
+                    saveUser(user);
+                    
+                    prog.classList.add("hidden");
+                    btn.disabled = false;
+                    btn.textContent = "✅ Verify & Activate Subscription";
+                    closeCryptoModal();
+                    
+                    alert(`🎉 Pro Plan Subscription Activated!\n\nThank you for your $8.00 crypto payment. Your Telegram channel is now actively linked to your cTrader account for automated 24/7 copy trading!`);
+                }
+                step++;
+            }, 1200);
+        }
+
+        // Render Live Copied Signals Table
+        function renderSignalsTable() {
+            const tbody = document.getElementById("client-signals-tbody");
+            if (!tbody) return;
+            const user = getUser();
+
+            if (!user.tg_handle || !user.ct_linked) {
+                tbody.innerHTML = `<tr><td colspan="7" class="py-6 text-center text-slate-500 italic">Link your Telegram channel and cTrader account above to start viewing copied signals.</td></tr>`;
+                return;
+            }
+
+            const mockSignals = [
+                { time: "2026-07-27 18:32:10 UTC", source: user.tg_handle, action: "🟢 BUY", pair: "BTCUSD", vol: "0.10 Lots", status: "✓ FILLED (#12498)", pnl: "+$42.50", win: true },
+                { time: "2026-07-27 16:15:45 UTC", source: user.tg_handle, action: "🔴 SELL", pair: "XAUUSD", vol: "0.10 Lots", status: "✓ FILLED (#12441)", pnl: "+$85.00", win: true },
+                { time: "2026-07-27 14:02:19 UTC", source: user.tg_handle, action: "🟢 BUY", pair: "EURJPY", vol: "0.10 Lots", status: "✓ FILLED (#12390)", pnl: "-$14.20", win: false },
+                { time: "2026-07-27 11:20:05 UTC", source: user.tg_handle, action: "🔴 SELL", pair: "GBPUSD", vol: "0.10 Lots", status: "✓ FILLED (#12311)", pnl: "+$31.10", win: true }
+            ];
+
+            tbody.innerHTML = mockSignals.map(s => `
+                <tr class="hover:bg-slate-800/40 transition">
+                    <td class="py-3 pr-4 text-slate-400">${s.time}</td>
+                    <td class="py-3 pr-4 font-bold text-sky-400">${s.source}</td>
+                    <td class="py-3 pr-4 font-bold ${s.action.includes('BUY') ? 'text-emerald-400' : 'text-red-400'}">${s.action}</td>
+                    <td class="py-3 pr-4 text-white font-bold">${s.pair}</td>
+                    <td class="py-3 pr-4 text-slate-300">${s.vol}</td>
+                    <td class="py-3 pr-4 text-emerald-400 font-semibold">${s.status}</td>
+                    <td class="py-3 font-bold ${s.win ? 'text-emerald-400' : 'text-red-400'}">${s.pnl}</td>
+                </tr>
+            `).join("");
+        }
+    </script>
+</body>
+</html>
