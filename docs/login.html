@@ -26,6 +26,9 @@
             <input type="password" id="pwd" placeholder="Password" required autocomplete="current-password">
             <button type="submit">Sign In</button>
         </form>
+        <div style="margin-top: 20px; pt: 15px; border-top: 1px solid #30363d; padding-top: 15px;">
+            <a href="portal.html" style="color: #38bdf8; font-size: 12px; text-decoration: none; font-weight: 600;">➔ Switch to Client Copy-Trading Portal ($8/mo)</a>
+        </div>
     </div>
     <script>
         const U = "siris888";
@@ -34,14 +37,14 @@
             e.preventDefault();
             if (document.getElementById('usr').value === U && document.getElementById('pwd').value === P) {
                 sessionStorage.setItem('dashboard_authenticated', 'true');
-                window.location.href = 'index.html?v=20260727211245';
+                window.location.href = 'index.html?v=20260727225228';
             } else {
                 document.getElementById('err').style.display = 'block';
                 document.getElementById('pwd').value = '';
             }
         }
         if (sessionStorage.getItem('dashboard_authenticated') === 'true') {
-            window.location.href = 'index.html?v=20260727211245';
+            window.location.href = 'index.html?v=20260727225228';
         }
     </script>
 </body>
