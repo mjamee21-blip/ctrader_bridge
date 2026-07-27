@@ -1370,7 +1370,7 @@ def generate_dashboard_html(client, ct_connected, ct_error, tg_connected, tg_inf
         checkAuth();
         setInterval(() => location.reload(), 60000);
 
-        let ADMIN_PAIR_LOTS = JSON.parse(localStorage.getItem('admin_pair_lots') || '{}');
+        let ADMIN_PAIR_LOTS = JSON.parse(localStorage.getItem('admin_pair_lots') || '{{}}');
         try {{
             const SERVER_PAIR_LOTS = {json.dumps(PAIR_LOTS_MAP)};
             Object.assign(ADMIN_PAIR_LOTS, SERVER_PAIR_LOTS);
