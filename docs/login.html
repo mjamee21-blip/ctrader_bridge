@@ -37,14 +37,14 @@
             e.preventDefault();
             if (document.getElementById('usr').value === U && document.getElementById('pwd').value === P) {
                 sessionStorage.setItem('dashboard_authenticated', 'true');
-                window.location.href = 'index.html?v=20260728145831';
+                window.location.href = 'index.html?v=20260728150128';
             } else {
                 document.getElementById('err').style.display = 'block';
                 document.getElementById('pwd').value = '';
             }
         }
         if (sessionStorage.getItem('dashboard_authenticated') === 'true') {
-            window.location.href = 'index.html?v=20260728145831';
+            window.location.href = 'index.html?v=20260728150128';
         }
     </script>
 </body>
