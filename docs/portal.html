@@ -1,43 +1,82 @@
 <!DOCTYPE html>
 <html lang="en" class="dark">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>cTrader CopySync SaaS - Telegram to cTrader Portal</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f172a; color: #f8fafc; }
-        .tab-active { border-bottom: 2px solid #38bdf8; color: #38bdf8; font-weight: 600; }
-        .tab-inactive { border-bottom: 2px solid transparent; color: #64748b; }
-        .tab-inactive:hover { color: #94a3b8; }
-        .card-flat { background: #1e293b; border: 1px solid #334155; }
-        .input-flat { background: #0f172a; border: 1px solid #334155; color: #f8fafc; }
-        .input-flat:focus { outline: none; border-color: #38bdf8; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0f172a;
+            color: #f8fafc;
+        }
+
+        .tab-active {
+            border-bottom: 2px solid #38bdf8;
+            color: #38bdf8;
+            font-weight: 600;
+        }
+
+        .tab-inactive {
+            border-bottom: 2px solid transparent;
+            color: #64748b;
+        }
+
+        .tab-inactive:hover {
+            color: #94a3b8;
+        }
+
+        .card-flat {
+            background: #1e293b;
+            border: 1px solid #334155;
+        }
+
+        .input-flat {
+            background: #0f172a;
+            border: 1px solid #334155;
+            color: #f8fafc;
+        }
+
+        .input-flat:focus {
+            outline: none;
+            border-color: #38bdf8;
+        }
     </style>
 </head>
+
 <body class="min-h-screen flex flex-col justify-between selection:bg-sky-500 selection:text-white">
 
     <!-- Top Navbar -->
     <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-50">
         <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
             <div class="flex items-center space-x-3">
-                <div class="w-9 h-9 rounded-lg bg-gradient-to-tr from-sky-500 to-indigo-500 flex items-center justify-center font-black text-white text-lg shadow-lg shadow-sky-500/20">⚡</div>
+                <div
+                    class="w-9 h-9 rounded-lg bg-gradient-to-tr from-sky-500 to-indigo-500 flex items-center justify-center font-black text-white text-lg shadow-lg shadow-sky-500/20">
+                    ⚡</div>
                 <div>
-                    <span class="font-bold text-base tracking-tight text-white">cTrader Copy<span class="text-sky-400">Sync</span></span>
-                    <span class="ml-2 px-2 py-0.5 text-xs font-semibold rounded bg-slate-800 text-slate-400 border border-slate-700">Client Portal</span>
+                    <span class="font-bold text-base tracking-tight text-white">cTrader Copy<span
+                            class="text-sky-400">Sync</span></span>
+                    <span
+                        class="ml-2 px-2 py-0.5 text-xs font-semibold rounded bg-slate-800 text-slate-400 border border-slate-700">Client
+                        Portal</span>
                 </div>
             </div>
 
             <div class="flex items-center space-x-4">
-                <a href="index.html" class="text-xs font-medium px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition flex items-center gap-1.5">
+                <a href="index.html"
+                    class="text-xs font-medium px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition flex items-center gap-1.5">
                     <span>🛡️</span> Admin Panel
                 </a>
                 <div id="user-badge-container" class="hidden items-center space-x-3">
-                    <div class="flex items-center space-x-2 px-3 py-1 rounded-full bg-slate-800 border border-slate-700">
+                    <div
+                        class="flex items-center space-x-2 px-3 py-1 rounded-full bg-slate-800 border border-slate-700">
                         <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                         <span id="user-display-name" class="text-xs font-medium text-slate-200"></span>
                     </div>
-                    <button onclick="logoutUser()" class="text-xs font-medium px-3 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 transition">
+                    <button onclick="logoutUser()"
+                        class="text-xs font-medium px-3 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 transition">
                         Sign Out
                     </button>
                 </div>
@@ -58,24 +97,31 @@
             <div class="card-flat rounded-2xl p-6 shadow-2xl">
                 <!-- Auth Tabs -->
                 <div class="flex border-b border-slate-800 mb-6">
-                    <button onclick="switchAuthTab('login')" id="tab-btn-login" class="flex-1 pb-3 text-sm tab-active transition">Sign In</button>
-                    <button onclick="switchAuthTab('register')" id="tab-btn-register" class="flex-1 pb-3 text-sm tab-inactive transition">Create Account</button>
+                    <button onclick="switchAuthTab('login')" id="tab-btn-login"
+                        class="flex-1 pb-3 text-sm tab-active transition">Sign In</button>
+                    <button onclick="switchAuthTab('register')" id="tab-btn-register"
+                        class="flex-1 pb-3 text-sm tab-inactive transition">Create Account</button>
                 </div>
 
                 <!-- Error Toast -->
-                <div id="auth-error" class="hidden mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-xs text-center font-medium"></div>
+                <div id="auth-error"
+                    class="hidden mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-xs text-center font-medium">
+                </div>
 
                 <!-- Sign In Form -->
                 <form id="form-login" onsubmit="handleLogin(event)" class="space-y-4">
                     <div>
                         <label class="block text-xs font-medium text-slate-400 mb-1.5">Email Address</label>
-                        <input type="email" id="login-email" required class="input-flat w-full px-3.5 py-2.5 rounded-lg text-sm" placeholder="trader@example.com">
+                        <input type="email" id="login-email" required
+                            class="input-flat w-full px-3.5 py-2.5 rounded-lg text-sm" placeholder="trader@example.com">
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-slate-400 mb-1.5">Password</label>
-                        <input type="password" id="login-password" required class="input-flat w-full px-3.5 py-2.5 rounded-lg text-sm" placeholder="••••••••">
+                        <input type="password" id="login-password" required
+                            class="input-flat w-full px-3.5 py-2.5 rounded-lg text-sm" placeholder="••••••••">
                     </div>
-                    <button type="submit" class="w-full py-2.5 rounded-lg bg-sky-500 hover:bg-sky-400 text-white font-semibold text-sm transition shadow-lg shadow-sky-500/20">
+                    <button type="submit"
+                        class="w-full py-2.5 rounded-lg bg-sky-500 hover:bg-sky-400 text-white font-semibold text-sm transition shadow-lg shadow-sky-500/20">
                         Sign In to Portal
                     </button>
                 </form>
@@ -84,21 +130,28 @@
                 <form id="form-register" onsubmit="handleRegister(event)" class="hidden space-y-4">
                     <div>
                         <label class="block text-xs font-medium text-slate-400 mb-1.5">Full Name</label>
-                        <input type="text" id="reg-name" required class="input-flat w-full px-3.5 py-2.5 rounded-lg text-sm" placeholder="Alex Trade">
+                        <input type="text" id="reg-name" required
+                            class="input-flat w-full px-3.5 py-2.5 rounded-lg text-sm" placeholder="Alex Trade">
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-slate-400 mb-1.5">Email Address</label>
-                        <input type="email" id="reg-email" required class="input-flat w-full px-3.5 py-2.5 rounded-lg text-sm" placeholder="alex@example.com">
+                        <input type="email" id="reg-email" required
+                            class="input-flat w-full px-3.5 py-2.5 rounded-lg text-sm" placeholder="alex@example.com">
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-slate-400 mb-1.5">Telegram Username / Handle</label>
-                        <input type="text" id="reg-tg" required class="input-flat w-full px-3.5 py-2.5 rounded-lg text-sm" placeholder="@alextrade">
+                        <label class="block text-xs font-medium text-slate-400 mb-1.5">Telegram Username /
+                            Handle</label>
+                        <input type="text" id="reg-tg" required
+                            class="input-flat w-full px-3.5 py-2.5 rounded-lg text-sm" placeholder="@alextrade">
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-slate-400 mb-1.5">Password</label>
-                        <input type="password" id="reg-password" required minlength="6" class="input-flat w-full px-3.5 py-2.5 rounded-lg text-sm" placeholder="At least 6 characters">
+                        <input type="password" id="reg-password" required minlength="6"
+                            class="input-flat w-full px-3.5 py-2.5 rounded-lg text-sm"
+                            placeholder="At least 6 characters">
                     </div>
-                    <button type="submit" class="w-full py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-sm transition shadow-lg shadow-emerald-500/20">
+                    <button type="submit"
+                        class="w-full py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-sm transition shadow-lg shadow-emerald-500/20">
                         Create Account & Proceed
                     </button>
                 </form>
@@ -106,7 +159,8 @@
                 <!-- Quick Test Login -->
                 <div class="mt-6 pt-5 border-t border-slate-800 text-center">
                     <span class="text-xs text-slate-500 block mb-2">Want to test or preview the portal?</span>
-                    <button onclick="quickTestLogin()" type="button" class="w-full py-2 px-3 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium border border-slate-700 transition flex items-center justify-center gap-2">
+                    <button onclick="quickTestLogin()" type="button"
+                        class="w-full py-2 px-3 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium border border-slate-700 transition flex items-center justify-center gap-2">
                         <span>⚡ Quick Test Login (Demo Account)</span>
                     </button>
                 </div>
@@ -117,30 +171,36 @@
         <div id="view-dashboard" class="hidden space-y-6">
 
             <!-- Hero Subscription Status Bar -->
-            <div id="sub-status-banner" class="rounded-xl p-5 border flex flex-col md:flex-row items-center justify-between gap-4 transition">
+            <div id="sub-status-banner"
+                class="rounded-xl p-5 border flex flex-col md:flex-row items-center justify-between gap-4 transition">
                 <div class="flex items-center space-x-4">
-                    <div id="sub-status-icon" class="w-12 h-12 rounded-xl flex items-center justify-center text-2xl font-bold shrink-0"></div>
+                    <div id="sub-status-icon"
+                        class="w-12 h-12 rounded-xl flex items-center justify-center text-2xl font-bold shrink-0"></div>
                     <div>
                         <div class="flex items-center gap-2">
                             <h2 id="sub-status-title" class="text-base font-bold text-white tracking-tight"></h2>
-                            <span id="sub-status-tag" class="px-2 py-0.5 text-xs font-bold rounded uppercase tracking-wider"></span>
+                            <span id="sub-status-tag"
+                                class="px-2 py-0.5 text-xs font-bold rounded uppercase tracking-wider"></span>
                         </div>
                         <p id="sub-status-desc" class="text-xs text-slate-400 mt-0.5"></p>
                     </div>
                 </div>
                 <div>
-                    <button id="btn-pay-action" onclick="openCryptoModal()" class="px-5 py-2.5 rounded-lg bg-gradient-to-r from-sky-500 to-indigo-500 hover:from-sky-400 hover:to-indigo-400 text-white font-bold text-xs uppercase tracking-wider transition shadow-lg shadow-sky-500/20 flex items-center gap-2">
+                    <button id="btn-pay-action" onclick="openCryptoModal()"
+                        class="px-5 py-2.5 rounded-lg bg-gradient-to-r from-sky-500 to-indigo-500 hover:from-sky-400 hover:to-indigo-400 text-white font-bold text-xs uppercase tracking-wider transition shadow-lg shadow-sky-500/20 flex items-center gap-2">
                         <span>💎 Activate Pro Plan ($8 / mo)</span>
                     </button>
                 </div>
             </div>
 
             <!-- Notice when subscription is unpaid -->
-            <div id="lock-warning" class="hidden p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-start gap-3">
+            <div id="lock-warning"
+                class="hidden p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-start gap-3">
                 <span class="text-amber-400 text-lg">⚠️</span>
                 <div class="text-xs text-amber-200/90 leading-relaxed">
                     <strong class="font-bold text-amber-400 block mb-0.5">Automated Execution Locked</strong>
-                    Your Pro Subscription is currently unpaid. Please complete your $8.00/month crypto checkout above to enable 24/7 automated trade execution from your Telegram channel to your cTrader account.
+                    Your Pro Subscription is currently unpaid. Please complete your $8.00/month crypto checkout above to
+                    enable 24/7 automated trade execution from your Telegram channel to your cTrader account.
                 </div>
             </div>
 
@@ -152,13 +212,16 @@
                     <div>
                         <div class="flex items-center justify-between mb-4">
                             <div class="flex items-center space-x-2.5">
-                                <span class="w-8 h-8 rounded-lg bg-sky-500/10 text-sky-400 flex items-center justify-center text-base">✈️</span>
+                                <span
+                                    class="w-8 h-8 rounded-lg bg-sky-500/10 text-sky-400 flex items-center justify-center text-base">✈️</span>
                                 <div>
                                     <h3 class="font-bold text-sm text-white">Telegram Source</h3>
                                     <span class="text-[11px] text-slate-400 block">Limit: 1 Channel Allowed</span>
                                 </div>
                             </div>
-                            <span id="badge-tg-count" class="px-2 py-0.5 rounded text-[11px] font-semibold bg-slate-800 text-slate-300 border border-slate-700">0 / 1 Linked</span>
+                            <span id="badge-tg-count"
+                                class="px-2 py-0.5 rounded text-[11px] font-semibold bg-slate-800 text-slate-300 border border-slate-700">0
+                                / 1 Linked</span>
                         </div>
 
                         <p class="text-xs text-slate-400 mb-4 leading-relaxed">
@@ -167,13 +230,18 @@
 
                         <div class="space-y-3">
                             <div>
-                                <label class="block text-xs font-medium text-slate-400 mb-1">Channel Handle or ID</label>
-                                <input type="text" id="input-tg-channel" class="input-flat w-full px-3 py-2 rounded-lg text-xs font-mono" placeholder="e.g. @MyVIPForexSignals or -10023456789">
+                                <label class="block text-xs font-medium text-slate-400 mb-1">Channel Handle or
+                                    ID</label>
+                                <input type="text" id="input-tg-channel"
+                                    class="input-flat w-full px-3 py-2 rounded-lg text-xs font-mono"
+                                    placeholder="e.g. @MyVIPForexSignals or -10023456789">
                             </div>
-                            
-                            <div class="p-3 rounded-lg bg-slate-900/60 border border-slate-800 text-[11px] text-slate-400 space-y-1">
+
+                            <div
+                                class="p-3 rounded-lg bg-slate-900/60 border border-slate-800 text-[11px] text-slate-400 space-y-1">
                                 <span class="font-semibold text-slate-300 block mb-1">⚡ Setup Guide:</span>
-                                <div>1. Add bot <code class="text-sky-400 font-bold">@Forexunitedbot</code> as Admin to your channel.</div>
+                                <div>1. Add bot <code class="text-sky-400 font-bold">@Forexunitedbot</code> as Admin to
+                                    your channel.</div>
                                 <div>2. Ensure bot has "Read Messages" permission.</div>
                                 <div>3. Enter channel handle above & save.</div>
                             </div>
@@ -182,7 +250,8 @@
 
                     <div class="mt-5 pt-4 border-t border-slate-800 flex items-center justify-between">
                         <span id="tg-status-text" class="text-xs font-medium text-slate-500">Not connected</span>
-                        <button onclick="saveTelegramChannel()" class="px-3.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition">
+                        <button onclick="saveTelegramChannel()"
+                            class="px-3.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition">
                             Save Channel
                         </button>
                     </div>
@@ -193,23 +262,30 @@
                     <div>
                         <div class="flex items-center justify-between mb-4">
                             <div class="flex items-center space-x-2.5">
-                                <span class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-base">📊</span>
+                                <span
+                                    class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-base">📊</span>
                                 <div>
                                     <h3 class="font-bold text-sm text-white">cTrader Broker</h3>
                                     <span class="text-[11px] text-slate-400 block">Limit: 1 Account Allowed</span>
                                 </div>
                             </div>
-                            <span id="badge-ct-count" class="px-2 py-0.5 rounded text-[11px] font-semibold bg-slate-800 text-slate-300 border border-slate-700">0 / 1 Linked</span>
+                            <span id="badge-ct-count"
+                                class="px-2 py-0.5 rounded text-[11px] font-semibold bg-slate-800 text-slate-300 border border-slate-700">0
+                                / 1 Linked</span>
                         </div>
 
                         <p class="text-xs text-slate-400 mb-4 leading-relaxed">
-                            Connect your Spotware cTrader account securely via official OAuth 2.0. No passwords required!
+                            Connect your Spotware cTrader account securely via official OAuth 2.0. No passwords
+                            required!
                         </p>
 
                         <div id="ct-disconnected-box" class="space-y-3">
                             <div>
-                                <label class="block text-xs font-medium text-slate-400 mb-1">Broker Login Number / ID</label>
-                                <input type="text" id="input-ct-login" class="input-flat w-full px-3 py-2 rounded-lg text-xs font-mono" placeholder="e.g. 2454414">
+                                <label class="block text-xs font-medium text-slate-400 mb-1">Broker Login Number /
+                                    ID</label>
+                                <input type="text" id="input-ct-login"
+                                    class="input-flat w-full px-3 py-2 rounded-lg text-xs font-mono"
+                                    placeholder="e.g. 2454414">
                             </div>
                             <div>
                                 <label class="block text-xs font-medium text-slate-400 mb-1">Server Environment</label>
@@ -220,24 +296,30 @@
                             </div>
                         </div>
 
-                        <div id="ct-connected-box" class="hidden p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 space-y-1.5">
+                        <div id="ct-connected-box"
+                            class="hidden p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 space-y-1.5">
                             <div class="flex items-center gap-2 text-emerald-400 font-bold text-xs">
                                 <span>✓ Account Linked Successfully</span>
                             </div>
                             <div class="text-[11px] text-slate-300">
-                                <div><span class="text-slate-400">Account Login:</span> <strong id="disp-ct-login" class="font-mono text-white"></strong></div>
-                                <div><span class="text-slate-400">Environment:</span> <strong id="disp-ct-env" class="uppercase text-white"></strong></div>
-                                <div><span class="text-slate-400">Auth Method:</span> <span class="text-emerald-400">Spotware OAuth 2.0 Token</span></div>
+                                <div><span class="text-slate-400">Account Login:</span> <strong id="disp-ct-login"
+                                        class="font-mono text-white"></strong></div>
+                                <div><span class="text-slate-400">Environment:</span> <strong id="disp-ct-env"
+                                        class="uppercase text-white"></strong></div>
+                                <div><span class="text-slate-400">Auth Method:</span> <span
+                                        class="text-emerald-400">Spotware OAuth 2.0 Token</span></div>
                             </div>
                         </div>
                     </div>
 
                     <div class="mt-5 pt-4 border-t border-slate-800 flex items-center justify-between">
                         <span id="ct-status-text" class="text-xs font-medium text-slate-500">Unlinked</span>
-                        <button id="btn-ct-connect" onclick="connectCTraderOAuth()" class="px-3.5 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold transition shadow-md shadow-emerald-500/10">
+                        <button id="btn-ct-connect" onclick="connectCTraderOAuth()"
+                            class="px-3.5 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold transition shadow-md shadow-emerald-500/10">
                             🔗 Connect via OAuth
                         </button>
-                        <button id="btn-ct-disconnect" onclick="disconnectCTrader()" class="hidden px-3.5 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-semibold border border-red-500/20 transition">
+                        <button id="btn-ct-disconnect" onclick="disconnectCTrader()"
+                            class="hidden px-3.5 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-semibold border border-red-500/20 transition">
                             Disconnect
                         </button>
                     </div>
@@ -248,31 +330,38 @@
                     <div>
                         <div class="flex items-center justify-between mb-4">
                             <div class="flex items-center space-x-2.5">
-                                <span class="w-8 h-8 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center text-base">⚡</span>
+                                <span
+                                    class="w-8 h-8 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center text-base">⚡</span>
                                 <div>
                                     <h3 class="font-bold text-sm text-white">Execution & Risk</h3>
                                     <span class="text-[11px] text-slate-400 block">Automated Trade Controls</span>
                                 </div>
                             </div>
-                            <span id="badge-copy-status" class="px-2 py-0.5 rounded text-[11px] font-bold bg-slate-800 text-slate-400">STOPPED</span>
+                            <span id="badge-copy-status"
+                                class="px-2 py-0.5 rounded text-[11px] font-bold bg-slate-800 text-slate-400">STOPPED</span>
                         </div>
 
                         <div class="space-y-3">
                             <!-- Master Toggle -->
-                            <div class="p-3 rounded-lg bg-slate-900/80 border border-slate-800 flex items-center justify-between">
+                            <div
+                                class="p-3 rounded-lg bg-slate-900/80 border border-slate-800 flex items-center justify-between">
                                 <div>
                                     <span class="text-xs font-bold text-white block">Auto Copy-Trading</span>
                                     <span class="text-[10px] text-slate-400">Execute signals in &lt;0.1s</span>
                                 </div>
                                 <label class="relative inline-flex items-center cursor-pointer">
-                                    <input type="checkbox" id="toggle-copy-active" onchange="toggleCopyTrading()" class="sr-only peer">
-                                    <div class="w-9 h-5 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-sky-500"></div>
+                                    <input type="checkbox" id="toggle-copy-active" onchange="toggleCopyTrading()"
+                                        class="sr-only peer">
+                                    <div
+                                        class="w-9 h-5 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-sky-500">
+                                    </div>
                                 </label>
                             </div>
 
                             <div>
                                 <label class="block text-xs font-medium text-slate-400 mb-1">Lot Sizing Strategy</label>
-                                <select id="select-lot-mode" onchange="updateLotMode()" class="input-flat w-full px-3 py-2 rounded-lg text-xs">
+                                <select id="select-lot-mode" onchange="updateLotMode()"
+                                    class="input-flat w-full px-3 py-2 rounded-lg text-xs">
                                     <option value="dynamic">Dynamic Proportional (Recommended)</option>
                                     <option value="fixed">Fixed Lot Size per Trade</option>
                                     <option value="multiplier">Volume Multiplier (e.g. 0.5x / 2.0x)</option>
@@ -280,8 +369,10 @@
                             </div>
 
                             <div id="box-lot-val" class="hidden">
-                                <label id="label-lot-val" class="block text-xs font-medium text-slate-400 mb-1">Value</label>
-                                <input type="number" step="0.01" id="input-lot-val" class="input-flat w-full px-3 py-2 rounded-lg text-xs" value="0.10">
+                                <label id="label-lot-val"
+                                    class="block text-xs font-medium text-slate-400 mb-1">Value</label>
+                                <input type="number" step="0.01" id="input-lot-val"
+                                    class="input-flat w-full px-3 py-2 rounded-lg text-xs" value="0.10">
                             </div>
 
                             <div class="flex items-center justify-between pt-1 text-xs text-slate-400">
@@ -293,7 +384,8 @@
 
                     <div class="mt-5 pt-4 border-t border-slate-800 flex items-center justify-between">
                         <span class="text-[11px] text-slate-500">Auto-saves instantly</span>
-                        <button onclick="saveExecutionSettings()" class="px-3.5 py-1.5 rounded-lg bg-sky-500 hover:bg-sky-400 text-white text-xs font-semibold shadow-md shadow-sky-500/10 transition">
+                        <button onclick="saveExecutionSettings()"
+                            class="px-3.5 py-1.5 rounded-lg bg-sky-500 hover:bg-sky-400 text-white text-xs font-semibold shadow-md shadow-sky-500/10 transition">
                             Update Settings
                         </button>
                     </div>
@@ -305,13 +397,17 @@
             <div class="card-flat rounded-xl p-5">
                 <div class="flex items-center justify-between mb-4">
                     <div class="flex items-center space-x-2.5">
-                        <span class="w-7 h-7 rounded-lg bg-slate-800 text-slate-300 flex items-center justify-center text-sm">📋</span>
+                        <span
+                            class="w-7 h-7 rounded-lg bg-slate-800 text-slate-300 flex items-center justify-center text-sm">📋</span>
                         <div>
                             <h3 class="font-bold text-sm text-white">Your Copied Signals Feed</h3>
-                            <span class="text-[11px] text-slate-400">Live monitoring of your linked channel ➔ cTrader execution</span>
+                            <span class="text-[11px] text-slate-400">Live monitoring of your linked channel ➔ cTrader
+                                execution</span>
                         </div>
                     </div>
-                    <button onclick="renderSignalsTable()" class="text-xs px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 transition">🔄 Refresh Feed</button>
+                    <button onclick="renderSignalsTable()"
+                        class="text-xs px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 transition">🔄
+                        Refresh Feed</button>
                 </div>
 
                 <div class="overflow-x-auto">
@@ -339,29 +435,40 @@
     </main>
 
     <!-- CRYPTO PAYMENT MODAL ($8 / Month) -->
-    <div id="modal-crypto" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="card-flat bg-slate-900 rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-700 animate-in fade-in duration-200">
-            
+    <div id="modal-crypto"
+        class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div
+            class="card-flat bg-slate-900 rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-700 animate-in fade-in duration-200">
+
             <div class="flex items-center justify-between pb-4 border-b border-slate-800 mb-5">
                 <div class="flex items-center space-x-2">
                     <span class="text-xl">💎</span>
                     <h3 class="font-bold text-white text-base">Pro Subscription Checkout</h3>
                 </div>
-                <button onclick="closeCryptoModal()" class="text-slate-400 hover:text-white text-lg font-bold px-2 py-1 rounded hover:bg-slate-800 transition">✕</button>
+                <button onclick="closeCryptoModal()"
+                    class="text-slate-400 hover:text-white text-lg font-bold px-2 py-1 rounded hover:bg-slate-800 transition">✕</button>
             </div>
 
             <div class="text-center mb-5">
-                <div class="text-3xl font-black text-white">$8.00 <span class="text-xs font-semibold text-slate-400">USD / Month</span></div>
-                <p class="text-xs text-slate-400 mt-1">Select your preferred cryptocurrency below for automated verification</p>
+                <div class="text-3xl font-black text-white">$8.00 <span class="text-xs font-semibold text-slate-400">USD
+                        / Month</span></div>
+                <p class="text-xs text-slate-400 mt-1">Select your preferred cryptocurrency below for automated
+                    verification</p>
             </div>
 
             <!-- Crypto Selector Tabs -->
-            <div class="grid grid-cols-5 gap-1.5 p-1 bg-slate-950 rounded-xl border border-slate-800 mb-5 text-center text-xs font-semibold">
-                <button onclick="selectCrypto('USDT')" id="crypto-tab-USDT" class="py-1.5 rounded-lg bg-sky-500 text-white transition">USDT</button>
-                <button onclick="selectCrypto('BTC')" id="crypto-tab-BTC" class="py-1.5 rounded-lg text-slate-400 hover:text-white transition">BTC</button>
-                <button onclick="selectCrypto('ETH')" id="crypto-tab-ETH" class="py-1.5 rounded-lg text-slate-400 hover:text-white transition">ETH</button>
-                <button onclick="selectCrypto('SOL')" id="crypto-tab-SOL" class="py-1.5 rounded-lg text-slate-400 hover:text-white transition">SOL</button>
-                <button onclick="selectCrypto('BNB')" id="crypto-tab-BNB" class="py-1.5 rounded-lg text-slate-400 hover:text-white transition">BNB</button>
+            <div
+                class="grid grid-cols-5 gap-1.5 p-1 bg-slate-950 rounded-xl border border-slate-800 mb-5 text-center text-xs font-semibold">
+                <button onclick="selectCrypto('USDT')" id="crypto-tab-USDT"
+                    class="py-1.5 rounded-lg bg-sky-500 text-white transition">USDT</button>
+                <button onclick="selectCrypto('BTC')" id="crypto-tab-BTC"
+                    class="py-1.5 rounded-lg text-slate-400 hover:text-white transition">BTC</button>
+                <button onclick="selectCrypto('ETH')" id="crypto-tab-ETH"
+                    class="py-1.5 rounded-lg text-slate-400 hover:text-white transition">ETH</button>
+                <button onclick="selectCrypto('SOL')" id="crypto-tab-SOL"
+                    class="py-1.5 rounded-lg text-slate-400 hover:text-white transition">SOL</button>
+                <button onclick="selectCrypto('BNB')" id="crypto-tab-BNB"
+                    class="py-1.5 rounded-lg text-slate-400 hover:text-white transition">BNB</button>
             </div>
 
             <!-- Payment Details Box -->
@@ -378,7 +485,9 @@
                 <!-- QR Code Box -->
                 <div class="flex flex-col items-center justify-center py-3 border-y border-slate-800/60">
                     <div class="p-2.5 bg-white rounded-xl shadow-lg">
-                        <img id="disp-crypto-qr" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb&color=000000&bgcolor=ffffff" alt="Crypto QR Code" class="w-32 h-32">
+                        <img id="disp-crypto-qr"
+                            src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb&color=000000&bgcolor=ffffff"
+                            alt="Crypto QR Code" class="w-32 h-32">
                     </div>
                     <span class="text-[11px] text-slate-500 mt-2">Scan with Binance, TrustWallet, or MetaMask</span>
                 </div>
@@ -387,8 +496,10 @@
                 <div>
                     <label class="block text-[11px] font-medium text-slate-400 mb-1">Recipient Wallet Address:</label>
                     <div class="flex items-center space-x-2">
-                        <input type="text" id="disp-crypto-addr" readonly value="T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb" class="input-flat flex-1 px-3 py-2 rounded-lg text-xs font-mono text-slate-300 bg-slate-900 select-all">
-                        <button onclick="copyWalletAddress()" class="px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition shrink-0">
+                        <input type="text" id="disp-crypto-addr" readonly value="T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb"
+                            class="input-flat flex-1 px-3 py-2 rounded-lg text-xs font-mono text-slate-300 bg-slate-900 select-all">
+                        <button onclick="copyWalletAddress()"
+                            class="px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition shrink-0">
                             📋 Copy
                         </button>
                     </div>
@@ -398,20 +509,26 @@
             <!-- TXID Verification Step -->
             <div class="space-y-3">
                 <div>
-                    <label class="block text-xs font-medium text-slate-300 mb-1">Step 2: Submit Transaction Hash (TXID / Hash)</label>
-                    <input type="text" id="input-txid" class="input-flat w-full px-3.5 py-2.5 rounded-lg text-xs font-mono" placeholder="Paste 64-char transaction hash here after sending...">
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Step 2: Submit Transaction Hash (TXID /
+                        Hash)</label>
+                    <input type="text" id="input-txid"
+                        class="input-flat w-full px-3.5 py-2.5 rounded-lg text-xs font-mono"
+                        placeholder="Paste 64-char transaction hash here after sending...">
                 </div>
 
-                <div id="verify-progress" class="hidden p-3 rounded-lg bg-sky-500/10 border border-sky-500/20 text-xs text-sky-300 flex items-center space-x-2.5 animate-pulse">
-                    <span class="inline-block w-4 h-4 border-2 border-sky-400 border-t-transparent rounded-full animate-spin"></span>
+                <div id="verify-progress"
+                    class="hidden p-3 rounded-lg bg-sky-500/10 border border-sky-500/20 text-xs text-sky-300 flex items-center space-x-2.5 animate-pulse">
+                    <span
+                        class="inline-block w-4 h-4 border-2 border-sky-400 border-t-transparent rounded-full animate-spin"></span>
                     <span id="verify-text">Scanning blockchain network for confirmations (1/3)...</span>
                 </div>
 
-                <button id="btn-submit-verify" onclick="verifyPaymentTXID()" class="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black text-sm uppercase tracking-wider transition shadow-lg shadow-emerald-500/20">
+                <button id="btn-submit-verify" onclick="verifyPaymentTXID()"
+                    class="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black text-sm uppercase tracking-wider transition shadow-lg shadow-emerald-500/20">
                     ✅ Verify & Activate Subscription
                 </button>
             </div>
-            
+
             <p class="text-[11px] text-center text-slate-500 mt-4">
                 Automated verification completes in ~15 to 30 seconds after broadcast.
             </p>
@@ -420,25 +537,36 @@
     </div>
 
     <!-- Spotware OAuth Simulation Modal -->
-    <div id="modal-oauth" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="card-flat bg-slate-900 rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-700 text-center space-y-5 animate-in zoom-in-95 duration-200">
-            <div class="w-14 h-14 rounded-2xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-3xl mx-auto font-bold">🔗</div>
+    <div id="modal-oauth"
+        class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div
+            class="card-flat bg-slate-900 rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-700 text-center space-y-5 animate-in zoom-in-95 duration-200">
+            <div
+                class="w-14 h-14 rounded-2xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-3xl mx-auto font-bold">
+                🔗</div>
             <div>
                 <h3 class="font-bold text-white text-lg">Spotware cTrader ID (cTID)</h3>
                 <p class="text-xs text-slate-400 mt-1">Connecting to official Open API v2 cloud gateway...</p>
             </div>
             <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 text-left text-xs space-y-2 font-mono">
-                <div class="flex justify-between"><span class="text-slate-500">App Name:</span> <span class="text-white">cTrader CopySync SaaS</span></div>
-                <div class="flex justify-between"><span class="text-slate-500">Permissions:</span> <span class="text-emerald-400">Trade & View Accounts</span></div>
-                <div class="flex justify-between"><span class="text-slate-500">Security:</span> <span class="text-sky-400">OAuth 2.0 Encrypted Token</span></div>
+                <div class="flex justify-between"><span class="text-slate-500">App Name:</span> <span
+                        class="text-white">cTrader CopySync SaaS</span></div>
+                <div class="flex justify-between"><span class="text-slate-500">Permissions:</span> <span
+                        class="text-emerald-400">Trade & View Accounts</span></div>
+                <div class="flex justify-between"><span class="text-slate-500">Security:</span> <span
+                        class="text-sky-400">OAuth 2.0 Encrypted Token</span></div>
             </div>
             <div id="oauth-spinner" class="py-2 flex items-center justify-center space-x-2 text-xs text-slate-300">
-                <span class="inline-block w-4 h-4 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin"></span>
+                <span
+                    class="inline-block w-4 h-4 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin"></span>
                 <span>Requesting authorization token from Spotware...</span>
             </div>
             <div class="flex space-x-3 pt-2">
-                <button onclick="closeOAuthModal()" class="flex-1 py-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-xs transition">Cancel</button>
-                <button id="btn-oauth-approve" onclick="completeOAuthHandshake()" class="flex-1 py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs transition shadow-lg shadow-emerald-500/20">Approve Access</button>
+                <button onclick="closeOAuthModal()"
+                    class="flex-1 py-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-xs transition">Cancel</button>
+                <button id="btn-oauth-approve" onclick="completeOAuthHandshake()"
+                    class="flex-1 py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs transition shadow-lg shadow-emerald-500/20">Approve
+                    Access</button>
             </div>
         </div>
     </div>
@@ -459,10 +587,10 @@
         // Crypto Wallets & Network Config
         const CRYPTO_CONFIG = {
             USDT: { name: "USDT (TRC-20 Tron)", addr: "T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb", amount: "8.00 USDT" },
-            BTC:  { name: "Bitcoin (BTC Native)", addr: "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa", amount: "0.00012 BTC" },
-            ETH:  { name: "Ethereum (ERC-20)", addr: "0x71C...8920mE", amount: "0.0031 ETH" },
-            SOL:  { name: "Solana (SOL Native)", addr: "HN7cABqLq46Es1jh92dQQisAq662SmxELLLsHHe4YWrH", amount: "0.055 SOL" },
-            BNB:  { name: "BNB (BEP-20 BSC)", addr: "0x3f5CE5FBFe3E9af3971dD833D26bA9b5C936f0bE", amount: "0.014 BNB" }
+            BTC: { name: "Bitcoin (BTC Native)", addr: "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa", amount: "0.00012 BTC" },
+            ETH: { name: "Ethereum (ERC-20)", addr: "0x71C...8920mE", amount: "0.0031 ETH" },
+            SOL: { name: "Solana (SOL Native)", addr: "HN7cABqLq46Es1jh92dQQisAq662SmxELLLsHHe4YWrH", amount: "0.055 SOL" },
+            BNB: { name: "BNB (BEP-20 BSC)", addr: "0x3f5CE5FBFe3E9af3971dD833D26bA9b5C936f0bE", amount: "0.014 BNB" }
         };
 
         let currentCrypto = "USDT";
@@ -599,7 +727,7 @@
             const ctStatusText = document.getElementById("ct-status-text");
             const btnConnect = document.getElementById("btn-ct-connect");
             const btnDisconnect = document.getElementById("btn-ct-disconnect");
-            
+
             if (user.ct_linked && user.ct_login) {
                 ctDiscBox.classList.add("hidden");
                 ctConnBox.classList.remove("hidden");
@@ -754,7 +882,7 @@
             const btn = document.getElementById("btn-oauth-approve");
             btn.disabled = true;
             btn.textContent = "Exchanging OAuth Token...";
-            
+
             setTimeout(() => {
                 const loginVal = document.getElementById("input-ct-login").value.trim() || "2454414";
                 const envVal = document.getElementById("input-ct-env").value || "demo";
@@ -838,7 +966,7 @@
         function selectCrypto(coin) {
             currentCrypto = coin;
             const cfg = CRYPTO_CONFIG[coin] || CRYPTO_CONFIG.USDT;
-            
+
             // Highlight active tab
             ["USDT", "BTC", "ETH", "SOL", "BNB"].forEach(c => {
                 const btn = document.getElementById(`crypto-tab-${c}`);
@@ -852,7 +980,7 @@
             document.getElementById("disp-crypto-net").textContent = cfg.name;
             document.getElementById("disp-crypto-amt").textContent = cfg.amount;
             document.getElementById("disp-crypto-addr").value = cfg.addr;
-            
+
             const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(cfg.addr)}&color=000000&bgcolor=ffffff`;
             document.getElementById("disp-crypto-qr").src = qrUrl;
         }
@@ -874,7 +1002,7 @@
             const prog = document.getElementById("verify-progress");
             const txt = document.getElementById("verify-text");
             const btn = document.getElementById("btn-submit-verify");
-            
+
             prog.classList.remove("hidden");
             btn.disabled = true;
             btn.textContent = "Verifying on Blockchain...";
@@ -894,12 +1022,12 @@
                     user.sub_expiry = "2026-08-27 UTC (30 Days)";
                     user.copy_enabled = true;
                     saveUser(user);
-                    
+
                     prog.classList.add("hidden");
                     btn.disabled = false;
                     btn.textContent = "✅ Verify & Activate Subscription";
                     closeCryptoModal();
-                    
+
                     alert(`🎉 Pro Plan Subscription Activated!\n\nThank you for your $8.00 crypto payment. Your Telegram channel is now actively linked to your cTrader account for automated 24/7 copy trading!`);
                 }
                 step++;
@@ -938,4 +1066,5 @@
         }
     </script>
 </body>
+
 </html>

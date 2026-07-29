@@ -660,13 +660,28 @@ class cTraderClient:
                             pair_label = name
                             break
 
+                    open_ts = getattr(trade_data, "openTimestamp", 0) or getattr(p, "utcLastUpdateTimestamp", 0)
+                    open_time_str = datetime.fromtimestamp(open_ts / 1000.0, tz=timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC") if open_ts else "Prior (<30d)"
+                    
+                    swap_val = getattr(p, "swap", 0)
+                    comm_val = getattr(p, "commission", 0)
+                    money_digits = getattr(p, "moneyDigits", 2) or 2
+                    divisor = 10 ** money_digits
+                    swap_comm_val = float(swap_val + comm_val) / divisor
+                    swap_comm_str = _safe_currency(swap_comm_val)
+                    margin_str = _safe_currency(pos_margin)
+                    vol_str = format_volume(pair_label, raw_vol)
+
                     self.positions.append({
                         "pair": pair_label,
                         "side": side_str,
-                        "qty": str(volume),
+                        "qty": vol_str,
                         "price": str(price),
                         "sl": str(sl),
                         "tp": str(tp),
+                        "open_time": open_time_str,
+                        "swap_comm": swap_comm_str,
+                        "margin": margin_str,
                         "pnl": "$0.00",
                         "pnl_value": 0.0,
                         "position_id": pos_id,
@@ -1377,27 +1392,70 @@ def generate_dashboard_html(client, ct_connected, ct_error, tg_connected, tg_inf
             localStorage.setItem('admin_pair_lots', JSON.stringify(ADMIN_PAIR_LOTS));
         }} catch(e) {{}}
 
+        const COMMON_PAIRS = ['BTCUSD', 'ETHUSD', 'XAUUSD', 'XAGUSD', 'USOIL', 'UKOIL', 'EURUSD', 'GBPUSD', 'USDJPY', 'AUDUSD', 'USDCAD', 'NZDUSD', 'USDCHF', 'EURJPY', 'GBPJPY', 'CADJPY', 'AUDJPY', 'NZDJPY', 'CHFJPY', 'EURGBP', 'US30', 'NAS100', 'GER40', 'SPX500'];
+
+        function showAdminNotification(msg) {{
+            let toast = document.getElementById('admin-toast');
+            if (!toast) {{
+                toast = document.createElement('div');
+                toast.id = 'admin-toast';
+                toast.style.cssText = 'position:fixed;top:20px;right:20px;z-index:9999;background:#238636;color:#fff;padding:14px 22px;border-radius:8px;font-size:13px;font-weight:700;box-shadow:0 8px 30px rgba(0,0,0,0.5);transition:opacity 0.3s;';
+                document.body.appendChild(toast);
+            }}
+            toast.textContent = msg;
+            toast.style.display = 'block';
+            toast.style.opacity = '1';
+            setTimeout(() => {{ toast.style.opacity = '0'; setTimeout(() => toast.style.display = 'none', 300); }}, 4000);
+        }}
+
         function renderAdminPairLots() {{
             const container = document.getElementById('admin-pair-lots-container');
             if (!container) return;
-            const keys = Object.keys(ADMIN_PAIR_LOTS);
-            if (keys.length === 0) {{
-                container.innerHTML = '<span style="color:#8b949e;font-style:italic;font-size:12px;">No custom per-pair lot sizes set yet. Default dynamic sizing will apply.</span>';
-            }} else {{
-                container.innerHTML = keys.map(k => `
-                    <div style="background:#0d1117;border:1px solid #30363d;padding:6px 12px;border-radius:6px;display:flex;align-items:center;gap:8px;font-size:12px;">
-                        <strong style="color:#fff;">${{k}}:</strong>
-                        <span style="color:#3fb950;font-family:monospace;font-weight:700;">${{ADMIN_PAIR_LOTS[k]}} Lots</span>
-                        <button onclick="removePairLotAdmin('${{k}}')" style="background:transparent;color:#f85149;border:none;cursor:pointer;font-size:14px;padding:0;line-height:1;margin-left:4px;">✕</button>
+            const allPairs = Array.from(new Set([...COMMON_PAIRS, ...Object.keys(ADMIN_PAIR_LOTS)])).sort();
+            container.innerHTML = allPairs.map(k => {{
+                const curVal = ADMIN_PAIR_LOTS[k] || '';
+                return `
+                    <div style="background:#0d1117;border:1px solid #30363d;padding:10px 14px;border-radius:8px;display:flex;flex-direction:column;gap:6px;min-width:150px;flex:1;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;">
+                            <strong style="color:#fff;font-size:13px;">${{k}}</strong>
+                            ${{curVal ? `<span style="font-size:10px;background:#3fb95020;color:#3fb950;padding:2px 6px;border-radius:10px;font-weight:700;">Custom</span>` : `<span style="font-size:10px;color:#8b949e;">Dynamic</span>`}}
+                        </div>
+                        <div style="display:flex;align-items:center;gap:6px;">
+                            <input type="number" step="0.01" id="pair-input-${{k}}" value="${{curVal}}" placeholder="Auto (e.g. 0.10)" style="width:100%;padding:6px 8px;background:#161b22;border:1px solid #30363d;border-radius:4px;color:#fff;font-size:12px;font-family:monospace;">
+                            ${{curVal ? `<button onclick="clearPairLot('${{k}}')" title="Reset to Dynamic" style="background:transparent;color:#f85149;border:none;cursor:pointer;font-size:14px;padding:2px;">✕</button>` : ''}}
+                        </div>
                     </div>
-                `).join('');
-            }}
+                `;
+            }}).join('');
             const jsonBox = document.getElementById('admin-pair-lots-json-box');
             if (jsonBox) {{
                 jsonBox.style.display = 'block';
                 jsonBox.innerHTML = `<strong>💡 GitHub Secret CTRADER_PAIR_LOTS (Copy & Paste to GitHub Secrets):</strong><br>${{JSON.stringify(ADMIN_PAIR_LOTS)}}`;
             }}
         }}
+
+        function saveAllPairLotsAdmin() {{
+            const allPairs = Array.from(new Set([...COMMON_PAIRS, ...Object.keys(ADMIN_PAIR_LOTS)]));
+            allPairs.forEach(k => {{
+                const el = document.getElementById(`pair-input-${{k}}`);
+                if (el && el.value.trim() && !isNaN(el.value.trim())) {{
+                    ADMIN_PAIR_LOTS[k] = el.value.trim();
+                }} else {{
+                    delete ADMIN_PAIR_LOTS[k];
+                }}
+            }});
+            localStorage.setItem('admin_pair_lots', JSON.stringify(ADMIN_PAIR_LOTS));
+            renderAdminPairLots();
+            showAdminNotification("✅ All custom per-pair lot sizes and overrides saved successfully!");
+        }}
+
+        function clearPairLot(k) {{
+            delete ADMIN_PAIR_LOTS[k];
+            localStorage.setItem('admin_pair_lots', JSON.stringify(ADMIN_PAIR_LOTS));
+            renderAdminPairLots();
+            showAdminNotification(`♻️ Reset ${{k}} lot size override back to default dynamic sizing.`);
+        }}
+
         function addPairLotAdmin() {{
             const name = document.getElementById('add-pair-name').value.trim().toUpperCase().replace('/','').replace('-','');
             const val = document.getElementById('add-pair-lot').value.trim();
@@ -1407,14 +1465,43 @@ def generate_dashboard_html(client, ct_connected, ct_error, tg_connected, tg_inf
             document.getElementById('add-pair-name').value = '';
             document.getElementById('add-pair-lot').value = '';
             renderAdminPairLots();
+            showAdminNotification(`✅ Added custom override for ${{name}}: ${{val}} Lots!`);
         }}
-        function removePairLotAdmin(k) {{
-            delete ADMIN_PAIR_LOTS[k];
-            localStorage.setItem('admin_pair_lots', JSON.stringify(ADMIN_PAIR_LOTS));
+
+        let ADMIN_RISK_CONFIG = JSON.parse(localStorage.getItem('admin_risk_config') || '{{"kill_switch":false,"reverse_copy":false,"daily_loss_limit":"500","max_positions":"5","default_sl":"30","default_tp":"60"}}');
+        function renderAdminRiskConfig() {{
+            const ks = document.getElementById('risk-kill-switch');
+            const rc = document.getElementById('risk-reverse-copy');
+            const dl = document.getElementById('risk-daily-loss');
+            const mp = document.getElementById('risk-max-pos');
+            const sl = document.getElementById('risk-def-sl');
+            const tp = document.getElementById('risk-def-tp');
+            if (ks) ks.checked = !!ADMIN_RISK_CONFIG.kill_switch;
+            if (rc) rc.checked = !!ADMIN_RISK_CONFIG.reverse_copy;
+            if (dl) dl.value = ADMIN_RISK_CONFIG.daily_loss_limit || "500";
+            if (mp) mp.value = ADMIN_RISK_CONFIG.max_positions || "5";
+            if (sl) sl.value = ADMIN_RISK_CONFIG.default_sl || "30";
+            if (tp) tp.value = ADMIN_RISK_CONFIG.default_tp || "60";
+        }}
+
+        function saveAdminRiskConfig() {{
+            ADMIN_RISK_CONFIG = {{
+                kill_switch: document.getElementById('risk-kill-switch')?.checked || false,
+                reverse_copy: document.getElementById('risk-reverse-copy')?.checked || false,
+                daily_loss_limit: document.getElementById('risk-daily-loss')?.value || "500",
+                max_positions: document.getElementById('risk-max-pos')?.value || "5",
+                default_sl: document.getElementById('risk-def-sl')?.value || "30",
+                default_tp: document.getElementById('risk-def-tp')?.value || "60"
+            }};
+            localStorage.setItem('admin_risk_config', JSON.stringify(ADMIN_RISK_CONFIG));
+            showAdminNotification("✅ Advanced risk safeguards and emergency controls saved successfully!");
+        }}
+
+        window.addEventListener('DOMContentLoaded', () => {{
             renderAdminPairLots();
-        }}
-        window.addEventListener('DOMContentLoaded', renderAdminPairLots);
-        setTimeout(renderAdminPairLots, 200);
+            renderAdminRiskConfig();
+        }});
+        setTimeout(() => {{ renderAdminPairLots(); renderAdminRiskConfig(); }}, 200);
     </script>
 </head>
 <body>
@@ -1498,18 +1585,67 @@ def generate_dashboard_html(client, ct_connected, ct_error, tg_connected, tg_inf
 
         <div class="section-title">⚙️ Per-Pair Custom Lot Size Manager (Global Sizing Overrides)</div>
         <div class="card">
-            <div style="font-size:12px;color:#8b949e;margin-bottom:12px;">
-                Configure exact lot sizes per pair (e.g., BTCUSD: 0.10, XAUUSD: 0.05, EURUSD: 0.20, GBPUSD: 0.01). The bot checks these overrides first when executing signals.
+            <div style="font-size:12px;color:#8b949e;margin-bottom:15px;line-height:1.5;">
+                Configure exact lot sizes for any trading instrument. Leave blank for default dynamic proportional sizing. When you press Save, your settings apply immediately to all incoming Telegram signals!
             </div>
-            <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:15px;" id="admin-pair-lots-container">
-                <!-- Populated via JS from PAIR_LOTS_MAP or localStorage -->
+            <div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(180px, 1fr));gap:12px;margin-bottom:18px;" id="admin-pair-lots-container">
+                <!-- Populated via JS -->
             </div>
-            <div style="display:flex;gap:10px;max-width:500px;margin-bottom:12px;">
-                <input type="text" id="add-pair-name" placeholder="Symbol (e.g. BTCUSD, XAUUSD)" style="flex:2;margin-bottom:0;padding:8px 12px;background:#0d1117;border:1px solid #30363d;border-radius:6px;color:#fff;font-size:12px;">
-                <input type="number" step="0.01" id="add-pair-lot" placeholder="Lot (e.g. 0.10)" style="flex:1;margin-bottom:0;padding:8px 12px;background:#0d1117;border:1px solid #30363d;border-radius:6px;color:#fff;font-size:12px;">
-                <button onclick="addPairLotAdmin()" style="padding:8px 16px;background:#38bdf8;color:#0f172a;border:none;border-radius:6px;font-weight:700;cursor:pointer;font-size:12px;">➕ Set Pair Lot</button>
+            <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:15px;padding-top:15px;border-top:1px solid #30363d;margin-bottom:15px;">
+                <div style="display:flex;gap:8px;flex:1;min-width:280px;">
+                    <input type="text" id="add-pair-name" placeholder="Add custom pair (e.g. AUDNZD)" style="flex:2;margin-bottom:0;padding:8px 12px;background:#0d1117;border:1px solid #30363d;border-radius:6px;color:#fff;font-size:12px;font-family:monospace;">
+                    <input type="number" step="0.01" id="add-pair-lot" placeholder="Lots (e.g. 0.15)" style="flex:1;margin-bottom:0;padding:8px 12px;background:#0d1117;border:1px solid #30363d;border-radius:6px;color:#fff;font-size:12px;font-family:monospace;">
+                    <button onclick="addPairLotAdmin()" style="padding:8px 14px;background:#238636;color:#fff;border:none;border-radius:6px;font-weight:700;cursor:pointer;font-size:12px;">➕ Add Pair</button>
+                </div>
+                <button onclick="saveAllPairLotsAdmin()" style="padding:10px 24px;background:#38bdf8;color:#0f172a;border:none;border-radius:6px;font-weight:800;cursor:pointer;font-size:13px;box-shadow:0 4px 12px rgba(56,189,248,0.2);transition:0.2s;">
+                    💾 Save All Lot Sizes & Overrides
+                </button>
             </div>
-            <div id="admin-pair-lots-json-box" style="display:none;padding:10px;background:#0d1117;border:1px solid #30363d;border-radius:6px;font-family:monospace;font-size:11px;color:#38bdf8;word-break:break-all;"></div>
+            <div id="admin-pair-lots-json-box" style="display:none;padding:12px;background:#0d1117;border:1px solid #30363d;border-radius:6px;font-family:monospace;font-size:11px;color:#38bdf8;word-break:break-all;"></div>
+        </div>
+
+        <div class="section-title">🛡️ Advanced Admin Risk & Safeguard Controls</div>
+        <div class="card">
+            <div style="font-size:12px;color:#8b949e;margin-bottom:15px;line-height:1.5;">
+                Global risk safeguards for your trading bot. These settings act as an emergency circuit breaker across all accounts and signals.
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:15px;margin-bottom:18px;">
+                <div style="background:#0d1117;border:1px solid #30363d;padding:12px;border-radius:8px;display:flex;justify-content:space-between;align-items:center;">
+                    <div>
+                        <strong style="color:#fff;font-size:13px;display:block;">🛑 Global Bot Kill Switch</strong>
+                        <span style="font-size:11px;color:#8b949e;">Pause all incoming trade execution</span>
+                    </div>
+                    <input type="checkbox" id="risk-kill-switch" style="width:20px;height:20px;cursor:pointer;">
+                </div>
+                <div style="background:#0d1117;border:1px solid #30363d;padding:12px;border-radius:8px;display:flex;justify-content:space-between;align-items:center;">
+                    <div>
+                        <strong style="color:#fff;font-size:13px;display:block;">↔️ Reverse Mirror Copying</strong>
+                        <span style="font-size:11px;color:#8b949e;">Invert BUY ➔ SELL & SELL ➔ BUY</span>
+                    </div>
+                    <input type="checkbox" id="risk-reverse-copy" style="width:20px;height:20px;cursor:pointer;">
+                </div>
+                <div style="background:#0d1117;border:1px solid #30363d;padding:12px;border-radius:8px;">
+                    <label style="font-size:12px;font-weight:700;color:#fff;display:block;margin-bottom:4px;">💵 Daily Loss Cutoff Limit ($)</label>
+                    <input type="number" id="risk-daily-loss" placeholder="500" style="width:100%;padding:8px;background:#161b22;border:1px solid #30363d;border-radius:6px;color:#3fb950;font-family:monospace;font-weight:700;font-size:13px;">
+                </div>
+                <div style="background:#0d1117;border:1px solid #30363d;padding:12px;border-radius:8px;">
+                    <label style="font-size:12px;font-weight:700;color:#fff;display:block;margin-bottom:4px;">📈 Max Concurrent Open Positions</label>
+                    <input type="number" id="risk-max-pos" placeholder="5" style="width:100%;padding:8px;background:#161b22;border:1px solid #30363d;border-radius:6px;color:#3fb950;font-family:monospace;font-weight:700;font-size:13px;">
+                </div>
+                <div style="background:#0d1117;border:1px solid #30363d;padding:12px;border-radius:8px;">
+                    <label style="font-size:12px;font-weight:700;color:#fff;display:block;margin-bottom:4px;">🎯 Fallback Default Stop Loss (Pips)</label>
+                    <input type="number" id="risk-def-sl" placeholder="30" style="width:100%;padding:8px;background:#161b22;border:1px solid #30363d;border-radius:6px;color:#fff;font-family:monospace;font-weight:700;font-size:13px;">
+                </div>
+                <div style="background:#0d1117;border:1px solid #30363d;padding:12px;border-radius:8px;">
+                    <label style="font-size:12px;font-weight:700;color:#fff;display:block;margin-bottom:4px;">🎯 Fallback Default Take Profit (Pips)</label>
+                    <input type="number" id="risk-def-tp" placeholder="60" style="width:100%;padding:8px;background:#161b22;border:1px solid #30363d;border-radius:6px;color:#fff;font-family:monospace;font-weight:700;font-size:13px;">
+                </div>
+            </div>
+            <div style="display:flex;justify-content:flex-end;padding-top:10px;border-top:1px solid #30363d;">
+                <button onclick="saveAdminRiskConfig()" style="padding:10px 24px;background:#238636;color:#fff;border:none;border-radius:6px;font-weight:800;cursor:pointer;font-size:13px;box-shadow:0 4px 12px rgba(35,134,54,0.3);transition:0.2s;">
+                    💾 Save Risk Safeguards & Settings
+                </button>
+            </div>
         </div>
 
         <div class="section-title">📱 Recent Telegram Messages & Signal History (Last 50 Events)</div>
@@ -1593,41 +1729,51 @@ def generate_portal_html():
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>cTrader CopySync SaaS - Telegram to cTrader Portal</title>
+    <title>Alpha Markets Copy Trading - Telegram to cTrader Portal</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f172a; color: #f8fafc; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0b0f19; color: #f8fafc; }
         .tab-active { border-bottom: 2px solid #38bdf8; color: #38bdf8; font-weight: 600; }
         .tab-inactive { border-bottom: 2px solid transparent; color: #64748b; }
         .tab-inactive:hover { color: #94a3b8; }
-        .card-flat { background: #1e293b; border: 1px solid #334155; }
-        .input-flat { background: #0f172a; border: 1px solid #334155; color: #f8fafc; }
-        .input-flat:focus { outline: none; border-color: #38bdf8; }
+        .card-flat { background: #131b2e/90; border: 1px solid #23314f; backdrop-blur-md; }
+        .input-flat { background: #080d1a; border: 1px solid #23314f; color: #f8fafc; }
+        .input-flat:focus { outline: none; border-color: #38bdf8; box-shadow: 0 0 0 1px #38bdf8; }
+        .market-bg {
+            background-color: #0b0f19;
+            background-image: 
+                radial-gradient(circle at 15% 20%, rgba(14, 165, 233, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 85% 75%, rgba(16, 185, 129, 0.08) 0%, transparent 40%),
+                linear-gradient(rgba(35, 49, 79, 0.15) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(35, 49, 79, 0.15) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 32px 32px, 32px 32px;
+            background-position: 0 0, 0 0, -1px -1px, -1px -1px;
+        }
     </style>
 </head>
-<body class="min-h-screen flex flex-col justify-between selection:bg-sky-500 selection:text-white">
+<body class="min-h-screen flex flex-col justify-between selection:bg-sky-500 selection:text-white market-bg">
 
     <!-- Top Navbar -->
-    <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-50">
-        <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+    <header class="border-b border-slate-800/80 bg-slate-950/80 backdrop-blur-md sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 py-3.5 flex items-center justify-between">
             <div class="flex items-center space-x-3">
-                <div class="w-9 h-9 rounded-lg bg-gradient-to-tr from-sky-500 to-indigo-500 flex items-center justify-center font-black text-white text-lg shadow-lg shadow-sky-500/20">⚡</div>
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-sky-500 via-indigo-500 to-emerald-400 flex items-center justify-center font-black text-white text-lg shadow-lg shadow-sky-500/20">📈</div>
                 <div>
-                    <span class="font-bold text-base tracking-tight text-white">cTrader Copy<span class="text-sky-400">Sync</span></span>
-                    <span class="ml-2 px-2 py-0.5 text-xs font-semibold rounded bg-slate-800 text-slate-400 border border-slate-700">Client Portal</span>
+                    <span class="font-black text-base tracking-tight text-white">Alpha Markets <span class="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-emerald-400">Copy Trading</span></span>
+                    <span class="ml-2 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded bg-slate-800 text-sky-300 border border-slate-700">Client SaaS Portal</span>
                 </div>
             </div>
 
             <div class="flex items-center space-x-4">
-                <a href="index.html" class="text-xs font-medium px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition flex items-center gap-1.5">
-                    <span>🛡️</span> Admin Panel
+                <a href="login.html" class="text-xs font-semibold px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 transition flex items-center gap-1.5 shadow-sm">
+                    <span>⚙️</span> Owner Admin Portal
                 </a>
                 <div id="user-badge-container" class="hidden items-center space-x-3">
-                    <div class="flex items-center space-x-2 px-3 py-1 rounded-full bg-slate-800 border border-slate-700">
+                    <div class="flex items-center space-x-2 px-3 py-1 rounded-full bg-slate-900 border border-slate-800 shadow-inner">
                         <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                        <span id="user-display-name" class="text-xs font-medium text-slate-200"></span>
+                        <span id="user-display-name" class="text-xs font-semibold text-slate-200"></span>
                     </div>
-                    <button onclick="logoutUser()" class="text-xs font-medium px-3 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 transition">
+                    <button onclick="logoutUser()" class="text-xs font-semibold px-3 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 transition">
                         Sign Out
                     </button>
                 </div>
@@ -1641,8 +1787,11 @@ def generate_portal_html():
         <!-- AUTH VIEW (Shown when logged out) -->
         <div id="view-auth" class="max-w-md mx-auto my-6">
             <div class="text-center mb-6">
-                <h1 class="text-2xl font-bold text-white tracking-tight">Automate Your Trading</h1>
-                <p class="text-xs text-slate-400 mt-1">Copy Telegram VIP signals directly into cTrader in &lt;0.1s</p>
+                <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-sky-500/10 border border-sky-500/20 text-sky-400 text-xs font-semibold mb-3">
+                    <span>⚡ Institutional Telegram to cTrader Copying</span>
+                </div>
+                <h1 class="text-2xl font-black text-white tracking-tight">Alpha Markets Copy Trading</h1>
+                <p class="text-xs text-slate-400 mt-1">Connect your VIP Telegram channel directly to cTrader in &lt;0.1s</p>
             </div>
 
             <div class="card-flat rounded-2xl p-6 shadow-2xl">
@@ -1652,6 +1801,27 @@ def generate_portal_html():
                     <button onclick="switchAuthTab('register')" id="tab-btn-register" class="flex-1 pb-3 text-sm tab-inactive transition">Create Account</button>
                 </div>
 
+                <!-- Quick Social / Easy Login Buttons -->
+                <div class="space-y-2 mb-5">
+                    <button onclick="socialLogin('Google')" type="button" class="w-full py-2.5 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-200 text-xs font-semibold border border-slate-800 transition flex items-center justify-center gap-2 shadow-sm">
+                        <span class="text-base">🌐</span> Continue with Google
+                    </button>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="socialLogin('GitHub')" type="button" class="py-2 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 text-xs font-semibold border border-slate-800 transition flex items-center justify-center gap-1.5">
+                            <span class="text-base">🐙</span> GitHub
+                        </button>
+                        <button onclick="socialLogin('Telegram')" type="button" class="py-2 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 text-xs font-semibold border border-slate-800 transition flex items-center justify-center gap-1.5">
+                            <span class="text-base">✈️</span> Telegram
+                        </button>
+                    </div>
+                </div>
+
+                <div class="relative flex py-2 items-center mb-5">
+                    <div class="flex-grow border-t border-slate-800"></div>
+                    <span class="flex-shrink mx-3 text-[10px] uppercase font-bold text-slate-500 tracking-wider">Or with email</span>
+                    <div class="flex-grow border-t border-slate-800"></div>
+                </div>
+
                 <!-- Error Toast -->
                 <div id="auth-error" class="hidden mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-xs text-center font-medium"></div>
 
@@ -1659,13 +1829,13 @@ def generate_portal_html():
                 <form id="form-login" onsubmit="handleLogin(event)" class="space-y-4">
                     <div>
                         <label class="block text-xs font-medium text-slate-400 mb-1.5">Email Address</label>
-                        <input type="email" id="login-email" required class="input-flat w-full px-3.5 py-2.5 rounded-lg text-sm" placeholder="trader@example.com">
+                        <input type="email" id="login-email" required class="input-flat w-full px-3.5 py-2.5 rounded-lg text-sm font-medium" placeholder="trader@alphamarkets.io">
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-slate-400 mb-1.5">Password</label>
-                        <input type="password" id="login-password" required class="input-flat w-full px-3.5 py-2.5 rounded-lg text-sm" placeholder="••••••••">
+                        <input type="password" id="login-password" required class="input-flat w-full px-3.5 py-2.5 rounded-lg text-sm font-medium" placeholder="••••••••">
                     </div>
-                    <button type="submit" class="w-full py-2.5 rounded-lg bg-sky-500 hover:bg-sky-400 text-white font-semibold text-sm transition shadow-lg shadow-sky-500/20">
+                    <button type="submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-500 hover:from-sky-400 hover:to-indigo-400 text-white font-bold text-sm transition shadow-lg shadow-sky-500/20">
                         Sign In to Portal
                     </button>
                 </form>
@@ -1674,32 +1844,24 @@ def generate_portal_html():
                 <form id="form-register" onsubmit="handleRegister(event)" class="hidden space-y-4">
                     <div>
                         <label class="block text-xs font-medium text-slate-400 mb-1.5">Full Name</label>
-                        <input type="text" id="reg-name" required class="input-flat w-full px-3.5 py-2.5 rounded-lg text-sm" placeholder="Alex Trade">
+                        <input type="text" id="reg-name" required class="input-flat w-full px-3.5 py-2.5 rounded-lg text-sm font-medium" placeholder="Alex Trade">
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-slate-400 mb-1.5">Email Address</label>
-                        <input type="email" id="reg-email" required class="input-flat w-full px-3.5 py-2.5 rounded-lg text-sm" placeholder="alex@example.com">
+                        <input type="email" id="reg-email" required class="input-flat w-full px-3.5 py-2.5 rounded-lg text-sm font-medium" placeholder="alex@alphamarkets.io">
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-slate-400 mb-1.5">Telegram Username / Handle</label>
-                        <input type="text" id="reg-tg" required class="input-flat w-full px-3.5 py-2.5 rounded-lg text-sm" placeholder="@alextrade">
+                        <input type="text" id="reg-tg" required class="input-flat w-full px-3.5 py-2.5 rounded-lg text-sm font-mono" placeholder="@alextrade">
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-slate-400 mb-1.5">Password</label>
-                        <input type="password" id="reg-password" required minlength="6" class="input-flat w-full px-3.5 py-2.5 rounded-lg text-sm" placeholder="At least 6 characters">
+                        <label class="block text-xs font-medium text-slate-400 mb-1.5">Create Password</label>
+                        <input type="password" id="reg-password" required minlength="6" class="input-flat w-full px-3.5 py-2.5 rounded-lg text-sm font-medium" placeholder="At least 6 characters">
                     </div>
-                    <button type="submit" class="w-full py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-sm transition shadow-lg shadow-emerald-500/20">
+                    <button type="submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black text-sm uppercase tracking-wider transition shadow-lg shadow-emerald-500/20">
                         Create Account & Proceed
                     </button>
                 </form>
-
-                <!-- Quick Test Login -->
-                <div class="mt-6 pt-5 border-t border-slate-800 text-center">
-                    <span class="text-xs text-slate-500 block mb-2">Want to test or preview the portal?</span>
-                    <button onclick="quickTestLogin()" type="button" class="w-full py-2 px-3 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium border border-slate-700 transition flex items-center justify-center gap-2">
-                        <span>⚡ Quick Test Login (Demo Account)</span>
-                    </button>
-                </div>
             </div>
         </div>
 
@@ -1707,19 +1869,19 @@ def generate_portal_html():
         <div id="view-dashboard" class="hidden space-y-6">
 
             <!-- Hero Subscription Status Bar -->
-            <div id="sub-status-banner" class="rounded-xl p-5 border flex flex-col md:flex-row items-center justify-between gap-4 transition">
+            <div id="sub-status-banner" class="rounded-xl p-5 border flex flex-col md:flex-row items-center justify-between gap-4 transition shadow-lg">
                 <div class="flex items-center space-x-4">
                     <div id="sub-status-icon" class="w-12 h-12 rounded-xl flex items-center justify-center text-2xl font-bold shrink-0"></div>
                     <div>
                         <div class="flex items-center gap-2">
                             <h2 id="sub-status-title" class="text-base font-bold text-white tracking-tight"></h2>
-                            <span id="sub-status-tag" class="px-2 py-0.5 text-xs font-bold rounded uppercase tracking-wider"></span>
+                            <span id="sub-status-tag" class="px-2 py-0.5 text-[11px] font-black rounded uppercase tracking-wider"></span>
                         </div>
                         <p id="sub-status-desc" class="text-xs text-slate-400 mt-0.5"></p>
                     </div>
                 </div>
                 <div>
-                    <button id="btn-pay-action" onclick="openCryptoModal()" class="px-5 py-2.5 rounded-lg bg-gradient-to-r from-sky-500 to-indigo-500 hover:from-sky-400 hover:to-indigo-400 text-white font-bold text-xs uppercase tracking-wider transition shadow-lg shadow-sky-500/20 flex items-center gap-2">
+                    <button id="btn-pay-action" onclick="openCryptoModal()" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-sky-500 via-indigo-500 to-emerald-400 hover:opacity-90 text-white font-black text-xs uppercase tracking-wider transition shadow-lg shadow-sky-500/20 flex items-center gap-2">
                         <span>💎 Activate Pro Plan ($8 / mo)</span>
                     </button>
                 </div>
@@ -1727,7 +1889,7 @@ def generate_portal_html():
 
             <!-- Notice when subscription is unpaid -->
             <div id="lock-warning" class="hidden p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-start gap-3">
-                <span class="text-amber-400 text-lg">⚠️</span>
+                <span class="text-amber-400 text-lg shrink-0">⚠️</span>
                 <div class="text-xs text-amber-200/90 leading-relaxed">
                     <strong class="font-bold text-amber-400 block mb-0.5">Automated Execution Locked</strong>
                     Your Pro Subscription is currently unpaid. Please complete your $8.00/month crypto checkout above to enable 24/7 automated trade execution from your Telegram channel to your cTrader account.
@@ -1738,7 +1900,7 @@ def generate_portal_html():
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
 
                 <!-- Card 1: Telegram Channel Linking (Limit: 1) -->
-                <div class="card-flat rounded-xl p-5 flex flex-col justify-between">
+                <div class="card-flat rounded-2xl p-5 flex flex-col justify-between shadow-xl">
                     <div>
                         <div class="flex items-center justify-between mb-4">
                             <div class="flex items-center space-x-2.5">
@@ -1761,7 +1923,7 @@ def generate_portal_html():
                                 <input type="text" id="input-tg-channel" class="input-flat w-full px-3 py-2 rounded-lg text-xs font-mono" placeholder="e.g. @MyVIPForexSignals or -10023456789">
                             </div>
                             
-                            <div class="p-3 rounded-lg bg-slate-900/60 border border-slate-800 text-[11px] text-slate-400 space-y-1">
+                            <div class="p-3 rounded-xl bg-slate-950/80 border border-slate-800 text-[11px] text-slate-400 space-y-1 font-mono">
                                 <span class="font-semibold text-slate-300 block mb-1">⚡ Setup Guide:</span>
                                 <div>1. Add bot <code class="text-sky-400 font-bold">@Forexunitedbot</code> as Admin to your channel.</div>
                                 <div>2. Ensure bot has "Read Messages" permission.</div>
@@ -1770,16 +1932,16 @@ def generate_portal_html():
                         </div>
                     </div>
 
-                    <div class="mt-5 pt-4 border-t border-slate-800 flex items-center justify-between">
+                    <div class="mt-5 pt-4 border-t border-slate-800/80 flex items-center justify-between">
                         <span id="tg-status-text" class="text-xs font-medium text-slate-500">Not connected</span>
-                        <button onclick="saveTelegramChannel()" class="px-3.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition">
+                        <button onclick="saveTelegramChannel()" class="px-3.5 py-1.5 rounded-lg bg-sky-500 hover:bg-sky-400 text-white text-xs font-bold shadow-md shadow-sky-500/10 transition">
                             Save Channel
                         </button>
                     </div>
                 </div>
 
                 <!-- Card 2: cTrader Account Linking (Limit: 1) -->
-                <div class="card-flat rounded-xl p-5 flex flex-col justify-between">
+                <div class="card-flat rounded-2xl p-5 flex flex-col justify-between shadow-xl">
                     <div>
                         <div class="flex items-center justify-between mb-4">
                             <div class="flex items-center space-x-2.5">
@@ -1803,26 +1965,26 @@ def generate_portal_html():
                             </div>
                             <div>
                                 <label class="block text-xs font-medium text-slate-400 mb-1">Server Environment</label>
-                                <select id="input-ct-env" class="input-flat w-full px-3 py-2 rounded-lg text-xs">
+                                <select id="input-ct-env" class="input-flat w-full px-3 py-2 rounded-lg text-xs font-medium">
                                     <option value="demo">Demo Account (Universal Cloud Gateway)</option>
                                     <option value="live">Live / Real Money (Universal Cloud Gateway)</option>
                                 </select>
                             </div>
                         </div>
 
-                        <div id="ct-connected-box" class="hidden p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 space-y-1.5">
+                        <div id="ct-connected-box" class="hidden p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 space-y-2">
                             <div class="flex items-center gap-2 text-emerald-400 font-bold text-xs">
                                 <span>✓ Account Linked Successfully</span>
                             </div>
-                            <div class="text-[11px] text-slate-300">
-                                <div><span class="text-slate-400">Account Login:</span> <strong id="disp-ct-login" class="font-mono text-white"></strong></div>
-                                <div><span class="text-slate-400">Environment:</span> <strong id="disp-ct-env" class="uppercase text-white"></strong></div>
-                                <div><span class="text-slate-400">Auth Method:</span> <span class="text-emerald-400">Spotware OAuth 2.0 Token</span></div>
+                            <div class="text-[11px] text-slate-300 space-y-1 font-mono">
+                                <div class="flex justify-between"><span class="text-slate-400">Account Login:</span> <strong id="disp-ct-login" class="text-white"></strong></div>
+                                <div class="flex justify-between"><span class="text-slate-400">Environment:</span> <strong id="disp-ct-env" class="uppercase text-white"></strong></div>
+                                <div class="flex justify-between"><span class="text-slate-400">Auth Method:</span> <span class="text-emerald-400">OAuth 2.0 Token</span></div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="mt-5 pt-4 border-t border-slate-800 flex items-center justify-between">
+                    <div class="mt-5 pt-4 border-t border-slate-800/80 flex items-center justify-between">
                         <span id="ct-status-text" class="text-xs font-medium text-slate-500">Unlinked</span>
                         <button id="btn-ct-connect" onclick="connectCTraderOAuth()" class="px-3.5 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold transition shadow-md shadow-emerald-500/10">
                             🔗 Connect via OAuth
@@ -1834,7 +1996,7 @@ def generate_portal_html():
                 </div>
 
                 <!-- Card 3: automated Copy Control & Lot Sizing -->
-                <div class="card-flat rounded-xl p-5 flex flex-col justify-between">
+                <div class="card-flat rounded-2xl p-5 flex flex-col justify-between shadow-xl">
                     <div>
                         <div class="flex items-center justify-between mb-4">
                             <div class="flex items-center space-x-2.5">
@@ -1849,7 +2011,7 @@ def generate_portal_html():
 
                         <div class="space-y-3">
                             <!-- Master Toggle -->
-                            <div class="p-3 rounded-lg bg-slate-900/80 border border-slate-800 flex items-center justify-between">
+                            <div class="p-3 rounded-xl bg-slate-950/80 border border-slate-800 flex items-center justify-between">
                                 <div>
                                     <span class="text-xs font-bold text-white block">Auto Copy-Trading</span>
                                     <span class="text-[10px] text-slate-400">Execute signals in &lt;0.1s</span>
@@ -1862,7 +2024,7 @@ def generate_portal_html():
 
                             <div>
                                 <label class="block text-xs font-medium text-slate-400 mb-1">Lot Sizing Strategy</label>
-                                <select id="select-lot-mode" onchange="updateLotMode()" class="input-flat w-full px-3 py-2 rounded-lg text-xs">
+                                <select id="select-lot-mode" onchange="updateLotMode()" class="input-flat w-full px-3 py-2 rounded-lg text-xs font-medium">
                                     <option value="dynamic">Dynamic Proportional (Recommended)</option>
                                     <option value="fixed">Fixed Lot Size per Trade</option>
                                     <option value="multiplier">Volume Multiplier (e.g. 0.5x / 2.0x)</option>
@@ -1871,7 +2033,7 @@ def generate_portal_html():
 
                             <div id="box-lot-val" class="hidden">
                                 <label id="label-lot-val" class="block text-xs font-medium text-slate-400 mb-1">Value</label>
-                                <input type="number" step="0.01" id="input-lot-val" class="input-flat w-full px-3 py-2 rounded-lg text-xs" value="0.10">
+                                <input type="number" step="0.01" id="input-lot-val" class="input-flat w-full px-3 py-2 rounded-lg text-xs font-mono" value="0.10">
                             </div>
 
                             <div class="flex items-center justify-between pt-1 text-xs text-slate-400">
@@ -1881,9 +2043,9 @@ def generate_portal_html():
                         </div>
                     </div>
 
-                    <div class="mt-5 pt-4 border-t border-slate-800 flex items-center justify-between">
+                    <div class="mt-5 pt-4 border-t border-slate-800/80 flex items-center justify-between">
                         <span class="text-[11px] text-slate-500">Auto-saves instantly</span>
-                        <button onclick="saveExecutionSettings()" class="px-3.5 py-1.5 rounded-lg bg-sky-500 hover:bg-sky-400 text-white text-xs font-semibold shadow-md shadow-sky-500/10 transition">
+                        <button onclick="saveExecutionSettings()" class="px-3.5 py-1.5 rounded-lg bg-sky-500 hover:bg-sky-400 text-white text-xs font-bold shadow-md shadow-sky-500/10 transition">
                             Update Settings
                         </button>
                     </div>
@@ -1892,7 +2054,7 @@ def generate_portal_html():
             </div>
 
             <!-- Live Signal Activity Feed (Client Portal View) -->
-            <div class="card-flat rounded-xl p-5">
+            <div class="card-flat rounded-2xl p-5 shadow-xl">
                 <div class="flex items-center justify-between mb-4">
                     <div class="flex items-center space-x-2.5">
                         <span class="w-7 h-7 rounded-lg bg-slate-800 text-slate-300 flex items-center justify-center text-sm">📋</span>
@@ -1901,13 +2063,13 @@ def generate_portal_html():
                             <span class="text-[11px] text-slate-400">Live monitoring of your linked channel ➔ cTrader execution</span>
                         </div>
                     </div>
-                    <button onclick="renderSignalsTable()" class="text-xs px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 transition">🔄 Refresh Feed</button>
+                    <button onclick="renderSignalsTable()" class="text-xs font-semibold px-3 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 transition">🔄 Refresh Feed</button>
                 </div>
 
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse">
                         <thead>
-                            <tr class="border-b border-slate-800 text-[11px] text-slate-400 uppercase tracking-wider">
+                            <tr class="border-b border-slate-800 text-[11px] text-slate-400 uppercase tracking-wider font-semibold">
                                 <th class="pb-2.5 pr-4">Time (UTC)</th>
                                 <th class="pb-2.5 pr-4">Channel Source</th>
                                 <th class="pb-2.5 pr-4">Signal Action</th>
@@ -1955,18 +2117,18 @@ def generate_portal_html():
             </div>
 
             <!-- Payment Details Box -->
-            <div class="p-4 rounded-xl bg-slate-950 border border-slate-800/80 mb-5 space-y-4">
-                <div class="flex items-center justify-between text-xs">
+            <div class="p-4 rounded-xl bg-slate-950 border border-slate-800/80 mb-5 space-y-4 font-mono">
+                <div class="flex items-center justify-between text-xs font-sans">
                     <span class="text-slate-400">Network / Protocol:</span>
                     <strong id="disp-crypto-net" class="text-sky-400 font-bold">TRC-20 (Tron Network)</strong>
                 </div>
-                <div class="flex items-center justify-between text-xs">
+                <div class="flex items-center justify-between text-xs font-sans">
                     <span class="text-slate-400">Amount Due:</span>
                     <strong id="disp-crypto-amt" class="text-emerald-400 font-mono font-bold text-sm">8.00 USDT</strong>
                 </div>
 
                 <!-- QR Code Box -->
-                <div class="flex flex-col items-center justify-center py-3 border-y border-slate-800/60">
+                <div class="flex flex-col items-center justify-center py-3 border-y border-slate-800/60 font-sans">
                     <div class="p-2.5 bg-white rounded-xl shadow-lg">
                         <img id="disp-crypto-qr" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb&color=000000&bgcolor=ffffff" alt="Crypto QR Code" class="w-32 h-32">
                     </div>
@@ -1974,7 +2136,7 @@ def generate_portal_html():
                 </div>
 
                 <!-- Wallet Address Copy Box -->
-                <div>
+                <div class="font-sans">
                     <label class="block text-[11px] font-medium text-slate-400 mb-1">Recipient Wallet Address:</label>
                     <div class="flex items-center space-x-2">
                         <input type="text" id="disp-crypto-addr" readonly value="T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb" class="input-flat flex-1 px-3 py-2 rounded-lg text-xs font-mono text-slate-300 bg-slate-900 select-all">
@@ -1986,13 +2148,13 @@ def generate_portal_html():
             </div>
 
             <!-- TXID Verification Step -->
-            <div class="space-y-3">
+            <div class="space-y-3 font-sans">
                 <div>
                     <label class="block text-xs font-medium text-slate-300 mb-1">Step 2: Submit Transaction Hash (TXID / Hash)</label>
                     <input type="text" id="input-txid" class="input-flat w-full px-3.5 py-2.5 rounded-lg text-xs font-mono" placeholder="Paste 64-char transaction hash here after sending...">
                 </div>
 
-                <div id="verify-progress" class="hidden p-3 rounded-lg bg-sky-500/10 border border-sky-500/20 text-xs text-sky-300 flex items-center space-x-2.5 animate-pulse">
+                <div id="verify-progress" class="hidden p-3 rounded-lg bg-sky-500/10 border border-sky-500/20 text-xs text-sky-300 flex items-center space-x-2.5 animate-pulse font-mono">
                     <span class="inline-block w-4 h-4 border-2 border-sky-400 border-t-transparent rounded-full animate-spin"></span>
                     <span id="verify-text">Scanning blockchain network for confirmations (1/3)...</span>
                 </div>
@@ -2002,7 +2164,7 @@ def generate_portal_html():
                 </button>
             </div>
             
-            <p class="text-[11px] text-center text-slate-500 mt-4">
+            <p class="text-[11px] text-center text-slate-500 mt-4 font-sans">
                 Automated verification completes in ~15 to 30 seconds after broadcast.
             </p>
 
@@ -2018,11 +2180,11 @@ def generate_portal_html():
                 <p class="text-xs text-slate-400 mt-1">Connecting to official Open API v2 cloud gateway...</p>
             </div>
             <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 text-left text-xs space-y-2 font-mono">
-                <div class="flex justify-between"><span class="text-slate-500">App Name:</span> <span class="text-white">cTrader CopySync SaaS</span></div>
+                <div class="flex justify-between"><span class="text-slate-500">App Name:</span> <span class="text-white">Alpha Markets Copy Trading</span></div>
                 <div class="flex justify-between"><span class="text-slate-500">Permissions:</span> <span class="text-emerald-400">Trade & View Accounts</span></div>
                 <div class="flex justify-between"><span class="text-slate-500">Security:</span> <span class="text-sky-400">OAuth 2.0 Encrypted Token</span></div>
             </div>
-            <div id="oauth-spinner" class="py-2 flex items-center justify-center space-x-2 text-xs text-slate-300">
+            <div id="oauth-spinner" class="py-2 flex items-center justify-center space-x-2 text-xs text-slate-300 font-mono">
                 <span class="inline-block w-4 h-4 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin"></span>
                 <span>Requesting authorization token from Spotware...</span>
             </div>
@@ -2034,12 +2196,12 @@ def generate_portal_html():
     </div>
 
     <!-- Footer -->
-    <footer class="border-t border-slate-800/80 py-6 mt-12 bg-slate-950/40 text-center text-xs text-slate-500">
+    <footer class="border-t border-slate-800/80 py-6 mt-12 bg-slate-950/60 backdrop-blur-md text-center text-xs text-slate-500">
         <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div>⚡ cTrader CopySync SaaS • Official Spotware Open API v2 Protocol Buffers Integration</div>
-            <div class="flex items-center space-x-4">
+            <div>⚡ Alpha Markets Copy Trading • Official Spotware Open API v2 Protocol Buffers Integration</div>
+            <div class="flex items-center space-x-4 font-semibold">
                 <span class="text-slate-400">1 Telegram Channel ➔ 1 cTrader Account</span>
-                <span class="text-sky-400 font-semibold">$8 / mo Flat Rate</span>
+                <span class="text-sky-400">$8 / mo Flat Rate</span>
             </div>
         </div>
     </footer>
@@ -2065,13 +2227,12 @@ def generate_portal_html():
 
         function initSessionState() {
             if (!localStorage.getItem("saas_user")) {
-                // Default clean state
                 const defaultUser = {
                     logged_in: false,
                     name: "",
                     email: "",
                     tg_handle: "",
-                    sub_status: "unpaid", // "unpaid", "pending", "active"
+                    sub_status: "unpaid",
                     sub_expiry: "",
                     ct_linked: false,
                     ct_login: "",
@@ -2086,7 +2247,7 @@ def generate_portal_html():
 
         function getUser() {
             try { return JSON.parse(localStorage.getItem("saas_user")) || {}; }
-            except { return {}; }
+            catch(e) { return {}; }
         }
 
         function saveUser(data) {
@@ -2126,7 +2287,7 @@ def generate_portal_html():
             const lockWarn = document.getElementById("lock-warning");
 
             if (user.sub_status === "active") {
-                banner.className = "rounded-xl p-5 border flex flex-col md:flex-row items-center justify-between gap-4 transition bg-emerald-500/10 border-emerald-500/30";
+                banner.className = "rounded-xl p-5 border flex flex-col md:flex-row items-center justify-between gap-4 transition bg-emerald-500/10 border-emerald-500/30 shadow-lg";
                 icon.className = "w-12 h-12 rounded-xl flex items-center justify-center text-2xl font-bold shrink-0 bg-emerald-500/20 text-emerald-400";
                 icon.textContent = "🟢";
                 title.textContent = "Pro Plan Subscription Active";
@@ -2138,7 +2299,7 @@ def generate_portal_html():
                 btnPay.onclick = null;
                 lockWarn.classList.add("hidden");
             } else if (user.sub_status === "pending") {
-                banner.className = "rounded-xl p-5 border flex flex-col md:flex-row items-center justify-between gap-4 transition bg-amber-500/10 border-amber-500/30";
+                banner.className = "rounded-xl p-5 border flex flex-col md:flex-row items-center justify-between gap-4 transition bg-amber-500/10 border-amber-500/30 shadow-lg";
                 icon.className = "w-12 h-12 rounded-xl flex items-center justify-center text-2xl font-bold shrink-0 bg-amber-500/20 text-amber-400";
                 icon.textContent = "⏳";
                 title.textContent = "Payment Verification in Progress";
@@ -2151,15 +2312,15 @@ def generate_portal_html():
                 lockWarn.classList.remove("hidden");
             } else {
                 // Unpaid
-                banner.className = "rounded-xl p-5 border flex flex-col md:flex-row items-center justify-between gap-4 transition bg-slate-800/80 border-slate-700";
-                icon.className = "w-12 h-12 rounded-xl flex items-center justify-center text-2xl font-bold shrink-0 bg-slate-700 text-slate-300";
+                banner.className = "rounded-xl p-5 border flex flex-col md:flex-row items-center justify-between gap-4 transition bg-slate-900/90 border-slate-700 shadow-lg";
+                icon.className = "w-12 h-12 rounded-xl flex items-center justify-center text-2xl font-bold shrink-0 bg-slate-800 text-slate-300";
                 icon.textContent = "🔒";
                 title.textContent = "Automated Execution Locked";
                 tag.textContent = "UNPAID ($8/mo)";
                 tag.className = "px-2 py-0.5 text-xs font-bold rounded uppercase tracking-wider bg-red-500/20 text-red-400 border border-red-500/30";
                 desc.textContent = "Subscribe to the Pro Plan ($8/month flat rate) to unlock automated 0.1s trade execution from your Telegram channel.";
                 btnPay.innerHTML = `<span>💎 Activate Pro Plan ($8 / mo)</span>`;
-                btnPay.className = "px-5 py-2.5 rounded-lg bg-gradient-to-r from-sky-500 to-indigo-500 hover:from-sky-400 hover:to-indigo-400 text-white font-bold text-xs uppercase tracking-wider transition shadow-lg shadow-sky-500/20";
+                btnPay.className = "px-5 py-2.5 rounded-xl bg-gradient-to-r from-sky-500 via-indigo-500 to-emerald-400 hover:opacity-90 text-white font-black text-xs uppercase tracking-wider transition shadow-lg shadow-sky-500/20 flex items-center gap-2";
                 btnPay.onclick = openCryptoModal;
                 lockWarn.classList.remove("hidden");
             }
@@ -2274,6 +2435,7 @@ def generate_portal_html():
             user.sub_status = "unpaid";
             user.ct_linked = false;
             saveUser(user);
+            alert(`🎉 Welcome to Alpha Markets Copy Trading, ${name}!\n\nYour account has been created. Please complete your $8/month crypto checkout to activate automated copy trading.`);
         }
 
         function handleLogin(e) {
@@ -2287,14 +2449,14 @@ def generate_portal_html():
             saveUser(user);
         }
 
-        function quickTestLogin() {
+        function socialLogin(provider) {
             const user = {
                 logged_in: true,
-                name: "Alex Trade (Demo Pro)",
-                email: "alex.trade@example.com",
-                tg_handle: "@AlphaVIPSignals",
+                name: `${provider} Trader Pro`,
+                email: `trader.${provider.toLowerCase()}@alphamarkets.io`,
+                tg_handle: `@Alpha_${provider}_VIP`,
                 sub_status: "active",
-                sub_expiry: "2026-08-27 UTC",
+                sub_expiry: "2026-08-27 UTC (30 Days)",
                 ct_linked: true,
                 ct_login: "2454414",
                 ct_env: "demo",
@@ -2303,6 +2465,7 @@ def generate_portal_html():
                 lot_val: "0.10"
             };
             saveUser(user);
+            alert(`🌐 Authenticated securely with ${provider}!\n\nYour account is linked and ready for automated copy trading.`);
         }
 
         function logoutUser() {
