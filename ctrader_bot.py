@@ -294,6 +294,29 @@ def calc_pips(pair_name, side_str, entry_price, exit_price):
     except Exception:
         return "0.0"
 
+def resolve_pair_config(pair_name, norm_pair, default_qty):
+    sym_key = str(norm_pair or pair_name or "").upper().replace("/", "").replace("-", "")
+    raw_val = PAIR_LOTS_MAP.get(sym_key) or PAIR_LOTS_MAP.get(str(pair_name).upper()) or PAIR_LOTS_MAP.get("DEFAULT")
+    if raw_val is None:
+        return True, default_qty
+    if isinstance(raw_val, dict):
+        enabled = raw_val.get("enabled", True)
+        if str(enabled).upper() in ["FALSE", "OFF", "NO", "0", "DISABLED"]:
+            return False, 0.0
+        try:
+            qty = float(raw_val.get("lot") or raw_val.get("qty") or default_qty)
+            return True, qty
+        except Exception:
+            return True, default_qty
+    val_str = str(raw_val).strip().upper()
+    if val_str in ["OFF", "DISABLED", "FALSE", "NO", "0", "0.0"]:
+        return False, 0.0
+    try:
+        qty = float(val_str)
+        return True, qty
+    except Exception:
+        return True, default_qty
+
 def check_secrets_status():
     """Verify that all 10 GitHub repository secrets are properly set."""
     secrets_check = {
@@ -418,12 +441,11 @@ class cTraderClient:
                             if sig_type == "SIGNAL":
                                 direction = sig.get("direction", "BUY").upper()
                                 sym_key = str(norm_pair or pair or "").upper().replace("/", "").replace("-", "")
-                                custom_qty = PAIR_LOTS_MAP.get(sym_key) or PAIR_LOTS_MAP.get(str(pair).upper()) or PAIR_LOTS_MAP.get("DEFAULT")
-                                if custom_qty:
-                                    try: qty = float(custom_qty)
-                                    except Exception: qty = sig.get("qty") or (0.10 if "BTC" in sym_key else 0.01)
-                                else:
-                                    qty = sig.get("qty") or (0.10 if "BTC" in sym_key else 0.01)
+                                base_qty = sig.get("qty") or (0.10 if "BTC" in sym_key else 0.01)
+                                is_enabled, qty = resolve_pair_config(pair, norm_pair, base_qty)
+                                if not is_enabled:
+                                    log_process("warning", f"🚫 Copying for instrument '{norm_pair or pair}' is switched OFF in Per-Pair Manager. Signal ignored!")
+                                    continue
                                 sl = sig.get("sl")
                                 tp = sig.get("tp")
                                 
@@ -921,14 +943,11 @@ class cTraderClient:
     def place_order(self, pair, direction, sl, tp, qty=None):
         """Execute market order via cTrader Open API v2 Protocol Buffers."""
         norm_pair, sym_id = self.normalize_symbol_for_ctrader(pair)
-        if not qty:
-            sym_key = str(norm_pair or pair or "").upper().replace("/", "").replace("-", "")
-            custom_qty = PAIR_LOTS_MAP.get(sym_key) or PAIR_LOTS_MAP.get("DEFAULT")
-            if custom_qty:
-                try: qty = float(custom_qty)
-                except Exception: qty = DEFAULT_QTY
-            else:
-                qty = DEFAULT_QTY
+        is_enabled, calc_qty = resolve_pair_config(pair, norm_pair, qty or DEFAULT_QTY)
+        if not is_enabled:
+            log_process("warning", f"🚫 Copying for instrument '{norm_pair or pair}' is switched OFF in Per-Pair Manager. Order cancelled!")
+            return False
+        qty = calc_qty
             
         log_process("info", f"Executing {direction} market order on cTrader: {norm_pair or pair} (ID:{sym_id}) | Qty: {qty} | SL: {sl} | TP: {tp}")
         
@@ -1392,7 +1411,9 @@ def generate_dashboard_html(client, ct_connected, ct_error, tg_connected, tg_inf
             localStorage.setItem('admin_pair_lots', JSON.stringify(ADMIN_PAIR_LOTS));
         }} catch(e) {{}}
 
-        const COMMON_PAIRS = ['BTCUSD', 'ETHUSD', 'XAUUSD', 'XAGUSD', 'USOIL', 'UKOIL', 'EURUSD', 'GBPUSD', 'USDJPY', 'AUDUSD', 'USDCAD', 'NZDUSD', 'USDCHF', 'EURJPY', 'GBPJPY', 'CADJPY', 'AUDJPY', 'NZDJPY', 'CHFJPY', 'EURGBP', 'US30', 'NAS100', 'GER40', 'SPX500'];
+        const COMMON_PAIRS = ['BTCUSD', 'ETHUSD', 'XAUUSD', 'XAGUSD', 'USOIL', 'UKOIL', 'EURUSD', 'GBPUSD', 'USDJPY', 'AUDUSD', 'USDCAD', 'NZDUSD', 'USDCHF', 'EURJPY', 'GBPJPY', 'CADJPY', 'AUDJPY', 'NZDJPY', 'CHFJPY', 'EURGBP', 'US30', 'NAS100', 'GER40', 'SPX500', 'AUDNZD', 'EURNZD', 'EURCAD', 'EURCHF', 'GBPCHF', 'GBPCAD', 'CADCHF', 'NZDCAD', 'NZDCHF'];
+        const SERVER_INSTRUMENTS = {json.dumps(sorted(list(_instruments.keys())) if _instruments else [])};
+        let showAll372 = false;
 
         function showAdminNotification(msg) {{
             let toast = document.getElementById('admin-toast');
@@ -1408,21 +1429,65 @@ def generate_dashboard_html(client, ct_connected, ct_error, tg_connected, tg_inf
             setTimeout(() => {{ toast.style.opacity = '0'; setTimeout(() => toast.style.display = 'none', 300); }}, 4000);
         }}
 
+        function getPairAdminConfig(k) {{
+            let val = ADMIN_PAIR_LOTS[k];
+            if (!val) return {{ lot: '', enabled: true, custom: false }};
+            if (typeof val === 'string' || typeof val === 'number') {{
+                let str = String(val).toUpperCase();
+                if (str === 'OFF' || str === 'DISABLED' || str === 'FALSE' || str === '0' || str === '0.0') {{
+                    return {{ lot: '', enabled: false, custom: true }};
+                }}
+                return {{ lot: String(val), enabled: true, custom: true }};
+            }}
+            if (typeof val === 'object') {{
+                return {{
+                    lot: val.lot || val.qty || '',
+                    enabled: val.enabled !== false && String(val.enabled).toUpperCase() !== 'OFF' && String(val.enabled).toUpperCase() !== 'FALSE',
+                    custom: true
+                }};
+            }}
+            return {{ lot: '', enabled: true, custom: false }};
+        }}
+
+        function toggleShowAll372() {{
+            showAll372 = !showAll372;
+            renderAdminPairLots();
+        }}
+
         function renderAdminPairLots() {{
             const container = document.getElementById('admin-pair-lots-container');
             if (!container) return;
-            const allPairs = Array.from(new Set([...COMMON_PAIRS, ...Object.keys(ADMIN_PAIR_LOTS)])).sort();
-            container.innerHTML = allPairs.map(k => {{
-                const curVal = ADMIN_PAIR_LOTS[k] || '';
+            const filterText = (document.getElementById('pair-search-filter')?.value || '').trim().toUpperCase();
+            const allKnown = Array.from(new Set([...COMMON_PAIRS, ...SERVER_INSTRUMENTS, ...Object.keys(ADMIN_PAIR_LOTS)])).sort();
+            
+            let displayPairs = allKnown;
+            if (filterText) {{
+                displayPairs = allKnown.filter(k => k.includes(filterText));
+            }} else if (!showAll372) {{
+                displayPairs = Array.from(new Set([...COMMON_PAIRS, ...Object.keys(ADMIN_PAIR_LOTS)])).sort();
+            }}
+
+            const btnToggle = document.getElementById('btn-toggle-372');
+            if (btnToggle) {{
+                btnToggle.innerHTML = showAll372 ? `👁️ Showing All ${allKnown.length} Instruments (Click to show Major only)` : `👁️ Show All ${allKnown.length} Loaded Instruments`;
+                btnToggle.style.background = showAll372 ? '#38bdf8' : '#161b22';
+                btnToggle.style.color = showAll372 ? '#0f172a' : '#38bdf8';
+            }}
+
+            container.innerHTML = displayPairs.map(k => {{
+                const cfg = getPairAdminConfig(k);
+                const isOff = !cfg.enabled;
                 return `
-                    <div style="background:#0d1117;border:1px solid #30363d;padding:10px 14px;border-radius:8px;display:flex;flex-direction:column;gap:6px;min-width:150px;flex:1;">
+                    <div style="background:#0d1117;border:1px solid ${isOff ? '#f85149' : '#30363d'};padding:10px 14px;border-radius:8px;display:flex;flex-direction:column;gap:8px;min-width:160px;flex:1;opacity:${isOff ? '0.75' : '1'};">
                         <div style="display:flex;justify-content:space-between;align-items:center;">
-                            <strong style="color:#fff;font-size:13px;">${{k}}</strong>
-                            ${{curVal ? `<span style="font-size:10px;background:#3fb95020;color:#3fb950;padding:2px 6px;border-radius:10px;font-weight:700;">Custom</span>` : `<span style="font-size:10px;color:#8b949e;">Dynamic</span>`}}
+                            <strong style="color:${isOff ? '#f85149' : '#fff'};font-size:13px;">${k}</strong>
+                            <button type="button" onclick="togglePairStatusAdmin('${k}')" style="padding:2px 8px;border-radius:12px;font-size:11px;font-weight:800;cursor:pointer;border:none;background:${!isOff ? '#3fb95020' : '#f8514920'};color:${!isOff ? '#3fb950' : '#f85149'};">
+                                ${!isOff ? '🟢 ON' : '🔴 OFF'}
+                            </button>
                         </div>
                         <div style="display:flex;align-items:center;gap:6px;">
-                            <input type="number" step="0.01" id="pair-input-${{k}}" value="${{curVal}}" placeholder="Auto (e.g. 0.10)" style="width:100%;padding:6px 8px;background:#161b22;border:1px solid #30363d;border-radius:4px;color:#fff;font-size:12px;font-family:monospace;">
-                            ${{curVal ? `<button onclick="clearPairLot('${{k}}')" title="Reset to Dynamic" style="background:transparent;color:#f85149;border:none;cursor:pointer;font-size:14px;padding:2px;">✕</button>` : ''}}
+                            <input type="number" step="0.01" id="pair-input-${k}" value="${cfg.lot}" ${isOff ? 'disabled' : ''} placeholder="Auto" style="width:100%;padding:6px 8px;background:${isOff ? '#161b2280' : '#161b22'};border:1px solid #30363d;border-radius:4px;color:#fff;font-size:12px;font-family:monospace;">
+                            ${cfg.custom ? `<button type="button" onclick="clearPairLot('${k}')" title="Reset to Dynamic" style="background:transparent;color:#f85149;border:none;cursor:pointer;font-size:14px;padding:2px;">✕</button>` : ''}
                         </div>
                     </div>
                 `;
@@ -1430,15 +1495,40 @@ def generate_dashboard_html(client, ct_connected, ct_error, tg_connected, tg_inf
             const jsonBox = document.getElementById('admin-pair-lots-json-box');
             if (jsonBox) {{
                 jsonBox.style.display = 'block';
-                jsonBox.innerHTML = `<strong>💡 GitHub Secret CTRADER_PAIR_LOTS (Copy & Paste to GitHub Secrets):</strong><br>${{JSON.stringify(ADMIN_PAIR_LOTS)}}`;
+                jsonBox.innerHTML = `<strong>💡 GitHub Secret CTRADER_PAIR_LOTS (Copy & Paste to GitHub Secrets):</strong><br>${JSON.stringify(ADMIN_PAIR_LOTS)}`;
             }}
         }}
 
+        function togglePairStatusAdmin(k) {{
+            const cfg = getPairAdminConfig(k);
+            const el = document.getElementById(`pair-input-${k}`);
+            const curLot = (el && el.value.trim()) ? el.value.trim() : cfg.lot;
+            
+            cfg.enabled = !cfg.enabled;
+            if (cfg.enabled && !curLot) {{
+                delete ADMIN_PAIR_LOTS[k];
+            }} else if (!cfg.enabled && !curLot) {{
+                ADMIN_PAIR_LOTS[k] = "OFF";
+            }} else {{
+                ADMIN_PAIR_LOTS[k] = {{ lot: curLot, enabled: cfg.enabled }};
+            }}
+            localStorage.setItem('admin_pair_lots', JSON.stringify(ADMIN_PAIR_LOTS));
+            renderAdminPairLots();
+            showAdminNotification(`⚡ Switched ${k} ${cfg.enabled ? 'ON (Copying Allowed)' : 'OFF (Signal Copying Blocked)'}!`);
+        }}
+
         function saveAllPairLotsAdmin() {{
-            const allPairs = Array.from(new Set([...COMMON_PAIRS, ...Object.keys(ADMIN_PAIR_LOTS)]));
-            allPairs.forEach(k => {{
-                const el = document.getElementById(`pair-input-${{k}}`);
-                if (el && el.value.trim() && !isNaN(el.value.trim())) {{
+            const allKnown = Array.from(new Set([...COMMON_PAIRS, ...SERVER_INSTRUMENTS, ...Object.keys(ADMIN_PAIR_LOTS)]));
+            allKnown.forEach(k => {{
+                const el = document.getElementById(`pair-input-${k}`);
+                const cfg = getPairAdminConfig(k);
+                if (!cfg.enabled) {{
+                    if (el && el.value.trim() && !isNaN(el.value.trim())) {{
+                        ADMIN_PAIR_LOTS[k] = {{ lot: el.value.trim(), enabled: false }};
+                    }} else {{
+                        ADMIN_PAIR_LOTS[k] = "OFF";
+                    }}
+                }} else if (el && el.value.trim() && !isNaN(el.value.trim())) {{
                     ADMIN_PAIR_LOTS[k] = el.value.trim();
                 }} else {{
                     delete ADMIN_PAIR_LOTS[k];
@@ -1446,7 +1536,7 @@ def generate_dashboard_html(client, ct_connected, ct_error, tg_connected, tg_inf
             }});
             localStorage.setItem('admin_pair_lots', JSON.stringify(ADMIN_PAIR_LOTS));
             renderAdminPairLots();
-            showAdminNotification("✅ All custom per-pair lot sizes and overrides saved successfully!");
+            showAdminNotification("✅ All custom per-pair lot sizes and ON/OFF overrides saved successfully!");
         }}
 
         function clearPairLot(k) {{
@@ -1583,22 +1673,26 @@ def generate_dashboard_html(client, ct_connected, ct_error, tg_connected, tg_inf
             <div class="card stat"><div class="stat-value">{len(positions_data)}</div><div class="stat-label">Open Positions</div></div>
         </div>
 
-        <div class="section-title">⚙️ Per-Pair Custom Lot Size Manager (Global Sizing Overrides)</div>
+        <div class="section-title">⚙️ Per-Pair Custom Lot Size Manager & ON/OFF Switch (Global Sizing Overrides)</div>
         <div class="card">
-            <div style="font-size:12px;color:#8b949e;margin-bottom:15px;line-height:1.5;">
-                Configure exact lot sizes for any trading instrument. Leave blank for default dynamic proportional sizing. When you press Save, your settings apply immediately to all incoming Telegram signals!
+            <div style="font-size:12px;color:#8b949e;margin-bottom:14px;line-height:1.5;">
+                Configure exact lot sizes and toggle ON/OFF copying for any instrument! If a pair is turned 🔴 OFF, all incoming Telegram signals for that pair will be blocked automatically.
             </div>
-            <div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(180px, 1fr));gap:12px;margin-bottom:18px;" id="admin-pair-lots-container">
+            <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:15px;">
+                <input type="text" id="pair-search-filter" oninput="renderAdminPairLots()" placeholder="🔍 Search pairs (e.g. BTC, XAU, EUR, JPY, CAD)..." style="flex:1;min-width:240px;padding:8px 12px;background:#0d1117;border:1px solid #30363d;border-radius:6px;color:#fff;font-size:13px;">
+                <button type="button" onclick="toggleShowAll372()" id="btn-toggle-372" style="padding:8px 16px;background:#161b22;border:1px solid #30363d;color:#38bdf8;border-radius:6px;font-weight:700;cursor:pointer;font-size:12px;">👁️ Show All Loaded Instruments</button>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(180px, 1fr));gap:12px;margin-bottom:18px;max-height:600px;overflow-y:auto;padding-right:4px;" id="admin-pair-lots-container">
                 <!-- Populated via JS -->
             </div>
             <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:15px;padding-top:15px;border-top:1px solid #30363d;margin-bottom:15px;">
                 <div style="display:flex;gap:8px;flex:1;min-width:280px;">
-                    <input type="text" id="add-pair-name" placeholder="Add custom pair (e.g. AUDNZD)" style="flex:2;margin-bottom:0;padding:8px 12px;background:#0d1117;border:1px solid #30363d;border-radius:6px;color:#fff;font-size:12px;font-family:monospace;">
+                    <input type="text" id="add-pair-name" placeholder="Add pair (e.g. AUDNZD)" style="flex:2;margin-bottom:0;padding:8px 12px;background:#0d1117;border:1px solid #30363d;border-radius:6px;color:#fff;font-size:12px;font-family:monospace;">
                     <input type="number" step="0.01" id="add-pair-lot" placeholder="Lots (e.g. 0.15)" style="flex:1;margin-bottom:0;padding:8px 12px;background:#0d1117;border:1px solid #30363d;border-radius:6px;color:#fff;font-size:12px;font-family:monospace;">
-                    <button onclick="addPairLotAdmin()" style="padding:8px 14px;background:#238636;color:#fff;border:none;border-radius:6px;font-weight:700;cursor:pointer;font-size:12px;">➕ Add Pair</button>
+                    <button type="button" onclick="addPairLotAdmin()" style="padding:8px 14px;background:#238636;color:#fff;border:none;border-radius:6px;font-weight:700;cursor:pointer;font-size:12px;">➕ Add Pair</button>
                 </div>
-                <button onclick="saveAllPairLotsAdmin()" style="padding:10px 24px;background:#38bdf8;color:#0f172a;border:none;border-radius:6px;font-weight:800;cursor:pointer;font-size:13px;box-shadow:0 4px 12px rgba(56,189,248,0.2);transition:0.2s;">
-                    💾 Save All Lot Sizes & Overrides
+                <button type="button" onclick="saveAllPairLotsAdmin()" style="padding:10px 24px;background:#38bdf8;color:#0f172a;border:none;border-radius:6px;font-weight:800;cursor:pointer;font-size:13px;box-shadow:0 4px 12px rgba(56,189,248,0.2);transition:0.2s;">
+                    💾 Save All Lot Sizes & ON/OFF Overrides
                 </button>
             </div>
             <div id="admin-pair-lots-json-box" style="display:none;padding:12px;background:#0d1117;border:1px solid #30363d;border-radius:6px;font-family:monospace;font-size:11px;color:#38bdf8;word-break:break-all;"></div>
