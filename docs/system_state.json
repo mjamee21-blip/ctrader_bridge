@@ -1,96 +1,6 @@
 {
   "logs": [
     {
-      "timestamp": "2026-07-29 00:32:43 UTC",
-      "level": "info",
-      "message": "Deals history retrieved: 21 historical deals."
-    },
-    {
-      "timestamp": "2026-07-29 00:32:43 UTC",
-      "level": "success",
-      "message": "\u2705 Complete Account, Position & Deals Data synchronized via TCP Protobuf! Standing by for execution confirmations..."
-    },
-    {
-      "timestamp": "2026-07-29 00:32:43 UTC",
-      "level": "info",
-      "message": "\u23f1\ufe0f  Waiting 0.5s for cTrader execution confirmations before closing connection..."
-    },
-    {
-      "timestamp": "2026-07-29 00:32:44 UTC",
-      "level": "info",
-      "message": "cTrader TCP connection disconnected safely."
-    },
-    {
-      "timestamp": "2026-07-29 00:32:44 UTC",
-      "level": "info",
-      "message": "No new executable trade signals found in current cycle."
-    },
-    {
-      "timestamp": "2026-07-29 00:32:44 UTC",
-      "level": "success",
-      "message": "\u26a1 Dashboard index.html, login.html, and portal.html generated instantly in single unified cycle!"
-    },
-    {
-      "timestamp": "2026-07-29 00:34:37 UTC",
-      "level": "info",
-      "message": "=== TRADING BOT CYCLE STARTED === [v6-FINAL-closed-deals-history-complete]"
-    },
-    {
-      "timestamp": "2026-07-29 00:34:37 UTC",
-      "level": "success",
-      "message": "\u2705 All 10 GitHub repository secrets detected successfully!"
-    },
-    {
-      "timestamp": "2026-07-29 00:34:37 UTC",
-      "level": "info",
-      "message": "\ud83d\udd12 Diagnostics -> Client ID: 337***NU (len: 56) | Secret: ner***Bn (len: 50) | AccessToken: GXG***LM (len: 43)"
-    },
-    {
-      "timestamp": "2026-07-29 00:34:37 UTC",
-      "level": "info",
-      "message": "\ud83d\udcca cTrader Target Account: 2454414 | Server Environment: DEMO"
-    },
-    {
-      "timestamp": "2026-07-29 00:34:37 UTC",
-      "level": "info",
-      "message": "\ud83d\udcf1 Telegram Config: Token present | Chat Target: -1003257960170"
-    },
-    {
-      "timestamp": "2026-07-29 00:34:37 UTC",
-      "level": "success",
-      "message": "Telegram Bot verified successfully! (@Forexunitedbot) | Chat Target: -1003257960170"
-    },
-    {
-      "timestamp": "2026-07-29 00:34:37 UTC",
-      "level": "info",
-      "message": "Checking Telegram updates starting after offset (last_update_id): 841819878..."
-    },
-    {
-      "timestamp": "2026-07-29 00:34:41 UTC",
-      "level": "info",
-      "message": "Fetched 0 new message(s) from Telegram (new highest update_id: 841819878)."
-    },
-    {
-      "timestamp": "2026-07-29 00:34:41 UTC",
-      "level": "info",
-      "message": "Connecting to cTrader Open API (DEMO TCP Server)..."
-    },
-    {
-      "timestamp": "2026-07-29 00:34:43 UTC",
-      "level": "info",
-      "message": "TCP Connected. Sending application authentication..."
-    },
-    {
-      "timestamp": "2026-07-29 00:34:45 UTC",
-      "level": "info",
-      "message": "Application authorized. Discovering authorized cTID accounts for access token..."
-    },
-    {
-      "timestamp": "2026-07-29 00:34:46 UTC",
-      "level": "info",
-      "message": "\ud83d\udccb cTrader token returned 4 linked account(s)."
-    },
-    {
       "timestamp": "2026-07-29 00:34:46 UTC",
       "level": "info",
       "message": "Discovered Accounts -> ID:47951199 (Login:5313108 | DEMO), ID:48013992 (Login:5865538 | DEMO), ID:48029390 (Login:1117964 | DEMO), ID:48038510 (Login:2454414 | DEMO)"
@@ -749,14 +659,99 @@
       "timestamp": "2026-07-29 00:44:52 UTC",
       "level": "success",
       "message": "\u26a1 Dashboard index.html, login.html, and portal.html generated instantly in single unified cycle!"
+    },
+    {
+      "timestamp": "2026-07-29 00:46:38 UTC",
+      "level": "info",
+      "message": "=== TRADING BOT CYCLE STARTED === [v6-FINAL-closed-deals-history-complete]"
+    },
+    {
+      "timestamp": "2026-07-29 00:46:38 UTC",
+      "level": "success",
+      "message": "\u2705 All 10 GitHub repository secrets detected successfully!"
+    },
+    {
+      "timestamp": "2026-07-29 00:46:38 UTC",
+      "level": "info",
+      "message": "\ud83d\udd12 Diagnostics -> Client ID: 337***NU (len: 56) | Secret: ner***Bn (len: 50) | AccessToken: GXG***LM (len: 43)"
+    },
+    {
+      "timestamp": "2026-07-29 00:46:38 UTC",
+      "level": "info",
+      "message": "\ud83d\udcca cTrader Target Account: 2454414 | Server Environment: DEMO"
+    },
+    {
+      "timestamp": "2026-07-29 00:46:38 UTC",
+      "level": "info",
+      "message": "\ud83d\udcf1 Telegram Config: Token present | Chat Target: -1003257960170"
+    },
+    {
+      "timestamp": "2026-07-29 00:46:38 UTC",
+      "level": "success",
+      "message": "Telegram Bot verified successfully! (@Forexunitedbot) | Chat Target: -1003257960170"
+    },
+    {
+      "timestamp": "2026-07-29 00:46:38 UTC",
+      "level": "info",
+      "message": "Checking Telegram updates starting after offset (last_update_id): 841819878..."
+    },
+    {
+      "timestamp": "2026-07-29 00:46:42 UTC",
+      "level": "info",
+      "message": "Fetched 0 new message(s) from Telegram (new highest update_id: 841819878)."
+    },
+    {
+      "timestamp": "2026-07-29 00:46:42 UTC",
+      "level": "info",
+      "message": "Connecting to cTrader Open API (DEMO TCP Server)..."
+    },
+    {
+      "timestamp": "2026-07-29 00:47:15 UTC",
+      "level": "info",
+      "message": "TCP Connected. Sending application authentication..."
+    },
+    {
+      "timestamp": "2026-07-29 00:47:16 UTC",
+      "level": "info",
+      "message": "Application authorized. Discovering authorized cTID accounts for access token..."
+    },
+    {
+      "timestamp": "2026-07-29 00:47:17 UTC",
+      "level": "info",
+      "message": "\ud83d\udccb cTrader token returned 4 linked account(s)."
+    },
+    {
+      "timestamp": "2026-07-29 00:47:17 UTC",
+      "level": "info",
+      "message": "Discovered Accounts -> ID:47951199 (Login:5313108 | DEMO), ID:48013992 (Login:5865538 | DEMO), ID:48029390 (Login:1117964 | DEMO), ID:48038510 (Login:2454414 | DEMO)"
+    },
+    {
+      "timestamp": "2026-07-29 00:47:17 UTC",
+      "level": "info",
+      "message": "Sending Account Authorization for cTID Account 48038510 (Login: 2454414)..."
+    },
+    {
+      "timestamp": "2026-07-29 00:47:17 UTC",
+      "level": "warning",
+      "message": "TCP sync timeout reached (Trd:False, Rec:False, Sym:False)."
+    },
+    {
+      "timestamp": "2026-07-29 00:47:17 UTC",
+      "level": "info",
+      "message": "cTrader TCP connection disconnected safely."
+    },
+    {
+      "timestamp": "2026-07-29 00:47:17 UTC",
+      "level": "info",
+      "message": "No new executable trade signals found in current cycle."
+    },
+    {
+      "timestamp": "2026-07-29 00:47:17 UTC",
+      "level": "success",
+      "message": "\u26a1 Dashboard index.html, login.html, and portal.html generated instantly in single unified cycle!"
     }
   ],
   "alerts": [
-    {
-      "timestamp": "2026-07-27 03:02:44 UTC",
-      "level": "warning",
-      "message": "\u26a0\ufe0f 2 order(s) dispatched. Offset committed to 841819815 (no retry to avoid duplicate trades). Check Open Positions to verify fill."
-    },
     {
       "timestamp": "2026-07-27 03:43:10 UTC",
       "level": "warning",
@@ -999,6 +994,11 @@
     },
     {
       "timestamp": "2026-07-28 23:19:15 UTC",
+      "level": "warning",
+      "message": "TCP sync timeout reached (Trd:False, Rec:False, Sym:False)."
+    },
+    {
+      "timestamp": "2026-07-29 00:47:17 UTC",
       "level": "warning",
       "message": "TCP sync timeout reached (Trd:False, Rec:False, Sym:False)."
     }
