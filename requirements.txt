@@ -1,3 +1,5 @@
+# Python dependencies for the cTrader bot
+# (required so the GitHub Actions 'cache: pip' option works)
 requests
 ctrader-open-api
 twisted
