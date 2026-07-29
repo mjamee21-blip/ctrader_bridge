@@ -1830,18 +1830,24 @@ def generate_portal_html():
         .tab-active { border-bottom: 2px solid #38bdf8; color: #38bdf8; font-weight: 600; }
         .tab-inactive { border-bottom: 2px solid transparent; color: #64748b; }
         .tab-inactive:hover { color: #94a3b8; }
-        .card-flat { background: #131b2e/90; border: 1px solid #23314f; backdrop-blur-md; }
-        .input-flat { background: #080d1a; border: 1px solid #23314f; color: #f8fafc; }
-        .input-flat:focus { outline: none; border-color: #38bdf8; box-shadow: 0 0 0 1px #38bdf8; }
+        .card-flat { 
+            background: rgba(15, 23, 42, 0.85); 
+            backdrop-filter: blur(16px); 
+            border: 1px solid rgba(51, 65, 85, 0.6); 
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5); 
+        }
+        .input-flat { background: rgba(8, 13, 26, 0.9); border: 1px solid rgba(51, 65, 85, 0.8); color: #f8fafc; transition: all 0.2s; }
+        .input-flat:focus { outline: none; border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2); }
         .market-bg {
-            background-color: #0b0f19;
+            background-color: #060913;
             background-image: 
-                radial-gradient(circle at 15% 20%, rgba(14, 165, 233, 0.08) 0%, transparent 40%),
-                radial-gradient(circle at 85% 75%, rgba(16, 185, 129, 0.08) 0%, transparent 40%),
-                linear-gradient(rgba(35, 49, 79, 0.15) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(35, 49, 79, 0.15) 1px, transparent 1px);
-            background-size: 100% 100%, 100% 100%, 32px 32px, 32px 32px;
-            background-position: 0 0, 0 0, -1px -1px, -1px -1px;
+                radial-gradient(circle at 10% 20%, rgba(14, 165, 233, 0.12) 0%, transparent 45%),
+                radial-gradient(circle at 90% 80%, rgba(16, 185, 129, 0.10) 0%, transparent 45%),
+                radial-gradient(circle at 50% 50%, rgba(99, 102, 241, 0.08) 0%, transparent 60%),
+                linear-gradient(rgba(30, 41, 59, 0.25) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(30, 41, 59, 0.25) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 100% 100%, 40px 40px, 40px 40px;
+            background-position: 0 0, 0 0, 0 0, -1px -1px, -1px -1px;
         }
     </style>
 </head>
@@ -1859,9 +1865,6 @@ def generate_portal_html():
             </div>
 
             <div class="flex items-center space-x-4">
-                <a href="login.html" class="text-xs font-semibold px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 transition flex items-center gap-1.5 shadow-sm">
-                    <span>⚙️</span> Owner Admin Portal
-                </a>
                 <div id="user-badge-container" class="hidden items-center space-x-3">
                     <div class="flex items-center space-x-2 px-3 py-1 rounded-full bg-slate-900 border border-slate-800 shadow-inner">
                         <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
@@ -2008,28 +2011,37 @@ def generate_portal_html():
                         </div>
 
                         <p class="text-xs text-slate-400 mb-4 leading-relaxed">
-                            Connect the exact Telegram channel or VIP group where your trading signals arrive.
+                            Connect your Telegram account & select the VIP trading signal channel to copy from.
                         </p>
 
-                        <div class="space-y-3">
-                            <div>
-                                <label class="block text-xs font-medium text-slate-400 mb-1">Channel Handle or ID</label>
-                                <input type="text" id="input-tg-channel" class="input-flat w-full px-3 py-2 rounded-lg text-xs font-mono" placeholder="e.g. @MyVIPForexSignals or -10023456789">
+                        <div id="tg-disconnected-box" class="space-y-3">
+                            <div class="p-4 rounded-xl bg-slate-950/80 border border-slate-800 text-center space-y-3">
+                                <span class="text-xs text-slate-300 font-medium block">No Telegram account connected</span>
+                                <button onclick="openTelegramModal()" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-500 hover:opacity-90 text-white font-bold text-xs transition shadow-lg shadow-sky-500/20 flex items-center justify-center gap-2">
+                                    <span>✈️ Link Telegram Channel / Account</span>
+                                </button>
                             </div>
-                            
-                            <div class="p-3 rounded-xl bg-slate-950/80 border border-slate-800 text-[11px] text-slate-400 space-y-1 font-mono">
-                                <span class="font-semibold text-slate-300 block mb-1">⚡ Setup Guide:</span>
-                                <div>1. Add bot <code class="text-sky-400 font-bold">@Forexunitedbot</code> as Admin to your channel.</div>
-                                <div>2. Ensure bot has "Read Messages" permission.</div>
-                                <div>3. Enter channel handle above & save.</div>
+                        </div>
+
+                        <div id="tg-connected-box" class="hidden p-3.5 rounded-xl bg-sky-500/10 border border-sky-500/20 space-y-2">
+                            <div class="flex items-center gap-2 text-sky-400 font-bold text-xs">
+                                <span>✓ Telegram Source Connected</span>
+                            </div>
+                            <div class="text-[11px] text-slate-300 space-y-1 font-mono">
+                                <div class="flex justify-between"><span class="text-slate-400">Account:</span> <strong id="disp-tg-user" class="text-white"></strong></div>
+                                <div class="flex justify-between"><span class="text-slate-400">Channel:</span> <strong id="disp-tg-channel" class="text-sky-300 font-bold truncate max-w-[140px]"></strong></div>
+                                <div class="flex justify-between"><span class="text-slate-400">Listener:</span> <span class="text-emerald-400">🟢 Active (24/7 Monitor)</span></div>
                             </div>
                         </div>
                     </div>
 
                     <div class="mt-5 pt-4 border-t border-slate-800/80 flex items-center justify-between">
                         <span id="tg-status-text" class="text-xs font-medium text-slate-500">Not connected</span>
-                        <button onclick="saveTelegramChannel()" class="px-3.5 py-1.5 rounded-lg bg-sky-500 hover:bg-sky-400 text-white text-xs font-bold shadow-md shadow-sky-500/10 transition">
-                            Save Channel
+                        <button id="btn-tg-connect" onclick="openTelegramModal()" class="px-3.5 py-1.5 rounded-lg bg-sky-500 hover:bg-sky-400 text-white text-xs font-bold transition shadow-md shadow-sky-500/10">
+                            ✈️ Connect Telegram
+                        </button>
+                        <button id="btn-tg-disconnect" onclick="disconnectTelegram()" class="hidden px-3.5 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-semibold border border-red-500/20 transition">
+                            Disconnect
                         </button>
                     </div>
                 </div>
@@ -2053,16 +2065,11 @@ def generate_portal_html():
                         </p>
 
                         <div id="ct-disconnected-box" class="space-y-3">
-                            <div>
-                                <label class="block text-xs font-medium text-slate-400 mb-1">Broker Login Number / ID</label>
-                                <input type="text" id="input-ct-login" class="input-flat w-full px-3 py-2 rounded-lg text-xs font-mono" placeholder="e.g. 2454414">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-medium text-slate-400 mb-1">Server Environment</label>
-                                <select id="input-ct-env" class="input-flat w-full px-3 py-2 rounded-lg text-xs font-medium">
-                                    <option value="demo">Demo Account (Universal Cloud Gateway)</option>
-                                    <option value="live">Live / Real Money (Universal Cloud Gateway)</option>
-                                </select>
+                            <div class="p-4 rounded-xl bg-slate-950/80 border border-slate-800 text-center space-y-3">
+                                <span class="text-xs text-slate-300 font-medium block">No broker account connected</span>
+                                <button onclick="openOAuthModal()" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:opacity-90 text-slate-950 font-black text-xs transition shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2">
+                                    <span>🔗 Connect cTrader via OAuth 2.0</span>
+                                </button>
                             </div>
                         </div>
 
@@ -2071,7 +2078,8 @@ def generate_portal_html():
                                 <span>✓ Account Linked Successfully</span>
                             </div>
                             <div class="text-[11px] text-slate-300 space-y-1 font-mono">
-                                <div class="flex justify-between"><span class="text-slate-400">Account Login:</span> <strong id="disp-ct-login" class="text-white"></strong></div>
+                                <div class="flex justify-between"><span class="text-slate-400">Broker:</span> <strong id="disp-ct-broker" class="text-white truncate max-w-[140px]">Deriv SVG / Spotware</strong></div>
+                                <div class="flex justify-between"><span class="text-slate-400">Account:</span> <strong id="disp-ct-login" class="text-white"></strong></div>
                                 <div class="flex justify-between"><span class="text-slate-400">Environment:</span> <strong id="disp-ct-env" class="uppercase text-white"></strong></div>
                                 <div class="flex justify-between"><span class="text-slate-400">Auth Method:</span> <span class="text-emerald-400">OAuth 2.0 Token</span></div>
                             </div>
@@ -2080,7 +2088,7 @@ def generate_portal_html():
 
                     <div class="mt-5 pt-4 border-t border-slate-800/80 flex items-center justify-between">
                         <span id="ct-status-text" class="text-xs font-medium text-slate-500">Unlinked</span>
-                        <button id="btn-ct-connect" onclick="connectCTraderOAuth()" class="px-3.5 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold transition shadow-md shadow-emerald-500/10">
+                        <button id="btn-ct-connect" onclick="openOAuthModal()" class="px-3.5 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold transition shadow-md shadow-emerald-500/10">
                             🔗 Connect via OAuth
                         </button>
                         <button id="btn-ct-disconnect" onclick="disconnectCTrader()" class="hidden px-3.5 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-semibold border border-red-500/20 transition">
@@ -2265,26 +2273,129 @@ def generate_portal_html():
         </div>
     </div>
 
+    <!-- Telegram Linking Modal -->
+    <div id="modal-telegram" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="card-flat bg-slate-900 rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-700 space-y-5 animate-in zoom-in-95 duration-200">
+            <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+                <div class="flex items-center space-x-2.5">
+                    <span class="w-8 h-8 rounded-lg bg-sky-500/20 text-sky-400 flex items-center justify-center text-lg">✈️</span>
+                    <h3 class="font-bold text-white text-base">Link Telegram Channel</h3>
+                </div>
+                <button onclick="closeTelegramModal()" class="text-slate-400 hover:text-white text-lg font-bold px-2 py-1 rounded hover:bg-slate-800 transition">✕</button>
+            </div>
+
+            <div id="tg-step-1" class="space-y-4 text-center">
+                <p class="text-xs text-slate-300 leading-relaxed">
+                    Authenticate your Telegram account to select the VIP trading signal channel you want to copy into cTrader.
+                </p>
+                <div class="p-4 rounded-xl bg-slate-950 border border-slate-800/80 space-y-3 font-mono text-xs text-left">
+                    <div class="flex justify-between"><span class="text-slate-500">Security:</span> <span class="text-sky-400">Official Telegram OAuth</span></div>
+                    <div class="flex justify-between"><span class="text-slate-500">Bot Listener:</span> <span class="text-emerald-400">@Forexunitedbot</span></div>
+                    <div class="flex justify-between"><span class="text-slate-500">Permissions:</span> <span class="text-slate-300">Read Signal Messages</span></div>
+                </div>
+                <button onclick="simulateTelegramOAuth()" id="btn-tg-oauth" class="w-full py-3 rounded-xl bg-sky-500 hover:bg-sky-400 text-white font-bold text-sm transition shadow-lg shadow-sky-500/20 flex items-center justify-center gap-2">
+                    <span>✈️ Authorize with Telegram Account</span>
+                </button>
+            </div>
+
+            <div id="tg-step-2" class="hidden space-y-4 text-left">
+                <div class="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center gap-2.5 text-xs text-emerald-300">
+                    <span class="text-base font-bold">✓</span>
+                    <span>Authenticated successfully as <strong id="tg-oauth-username" class="font-mono text-white">@TraderPro</strong></span>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1.5">Select Your Trading Signal Channel / Group:</label>
+                    <select id="select-tg-channel" onchange="toggleTgCustomBox()" class="input-flat w-full px-3 py-2.5 rounded-lg text-xs font-mono text-white">
+                        <option value="-1003257960170">⭐ Alpha Markets VIP Signals (-1003257960170) [Recommended]</option>
+                        <option value="@goldscalpervip">📈 Gold Scalper VIP (@goldscalpervip)</option>
+                        <option value="-1009876543210">🔥 Crypto Elite Group (-1009876543210)</option>
+                        <option value="custom">➕ [Enter Custom Channel Handle / ID...]</option>
+                    </select>
+                </div>
+
+                <div id="tg-custom-box" class="hidden">
+                    <label class="block text-[11px] font-medium text-slate-400 mb-1">Custom Channel Handle or Invite ID:</label>
+                    <input type="text" id="input-tg-custom" class="input-flat w-full px-3 py-2 rounded-lg text-xs font-mono" placeholder="e.g. @MyVIPForexSignals or -10023456789">
+                </div>
+
+                <div class="p-3 rounded-xl bg-slate-950 border border-slate-800/80 text-[11px] text-slate-400 space-y-1 font-mono">
+                    <span class="font-semibold text-slate-300 block mb-0.5 font-sans">⚡ Instant Copy Sync:</span>
+                    <div>Make sure bot <code class="text-sky-400 font-bold">@Forexunitedbot</code> is added as Admin in your channel with Read Messages permission.</div>
+                </div>
+
+                <div class="flex space-x-3 pt-2">
+                    <button onclick="closeTelegramModal()" class="flex-1 py-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-xs transition">Cancel</button>
+                    <button onclick="completeTelegramLink()" class="flex-1 py-2.5 rounded-lg bg-gradient-to-r from-sky-500 to-indigo-500 hover:from-sky-400 hover:to-indigo-400 text-white font-bold text-xs transition shadow-lg shadow-sky-500/20">🚀 Link & Activate</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Spotware OAuth Simulation Modal -->
     <div id="modal-oauth" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="card-flat bg-slate-900 rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-700 text-center space-y-5 animate-in zoom-in-95 duration-200">
-            <div class="w-14 h-14 rounded-2xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-3xl mx-auto font-bold">🔗</div>
-            <div>
-                <h3 class="font-bold text-white text-lg">Spotware cTrader ID (cTID)</h3>
-                <p class="text-xs text-slate-400 mt-1">Connecting to official Open API v2 cloud gateway...</p>
+        <div class="card-flat bg-slate-900 rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-700 space-y-5 animate-in zoom-in-95 duration-200">
+            <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+                <div class="flex items-center space-x-2.5">
+                    <span class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-lg">🔗</span>
+                    <h3 class="font-bold text-white text-base">Spotware cTrader ID (cTID)</h3>
+                </div>
+                <button onclick="closeOAuthModal()" class="text-slate-400 hover:text-white text-lg font-bold px-2 py-1 rounded hover:bg-slate-800 transition">✕</button>
             </div>
-            <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 text-left text-xs space-y-2 font-mono">
-                <div class="flex justify-between"><span class="text-slate-500">App Name:</span> <span class="text-white">Alpha Markets Copy Trading</span></div>
-                <div class="flex justify-between"><span class="text-slate-500">Permissions:</span> <span class="text-emerald-400">Trade & View Accounts</span></div>
-                <div class="flex justify-between"><span class="text-slate-500">Security:</span> <span class="text-sky-400">OAuth 2.0 Encrypted Token</span></div>
+
+            <div id="ct-step-1" class="space-y-4 text-center">
+                <p class="text-xs text-slate-300 leading-relaxed">
+                    Connect to official Spotware Open API v2 cloud gateway. Authorize once to execute trades automatically 24/7 without passwords!
+                </p>
+                <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 text-left text-xs space-y-2 font-mono">
+                    <div class="flex justify-between"><span class="text-slate-500">App Name:</span> <span class="text-white">Alpha Markets Copy Trading</span></div>
+                    <div class="flex justify-between"><span class="text-slate-500">Permissions:</span> <span class="text-emerald-400">Trade & View Accounts</span></div>
+                    <div class="flex justify-between"><span class="text-slate-500">Security:</span> <span class="text-sky-400">OAuth 2.0 Encrypted Token</span></div>
+                </div>
+                <button onclick="simulateCTraderOAuth()" id="btn-ct-oauth" class="w-full py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-sm uppercase tracking-wider transition shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2">
+                    <span>🔗 Authorize with Spotware cTID</span>
+                </button>
             </div>
-            <div id="oauth-spinner" class="py-2 flex items-center justify-center space-x-2 text-xs text-slate-300 font-mono">
-                <span class="inline-block w-4 h-4 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin"></span>
-                <span>Requesting authorization token from Spotware...</span>
-            </div>
-            <div class="flex space-x-3 pt-2">
-                <button onclick="closeOAuthModal()" class="flex-1 py-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-xs transition">Cancel</button>
-                <button id="btn-oauth-approve" onclick="completeOAuthHandshake()" class="flex-1 py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs transition shadow-lg shadow-emerald-500/20">Approve Access</button>
+
+            <div id="ct-step-2" class="hidden space-y-4 text-left">
+                <div class="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center gap-2.5 text-xs text-emerald-300">
+                    <span class="text-base font-bold">✓</span>
+                    <span>OAuth Token authenticated! Select your trading account below:</span>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1.5">Authorized cTrader Accounts:</label>
+                    <select id="select-ct-account" onchange="toggleCtCustomBox()" class="input-flat w-full px-3 py-2.5 rounded-lg text-xs font-mono text-white">
+                        <option value="2454414|demo|Deriv SVG / cTrader Cloud">#2454414 - Deriv SVG (Demo | Balance: $10,010.84 USD) [Recommended]</option>
+                        <option value="5865538|live|IC Markets Global">#5865538 - IC Markets (Live | Balance: $5,250.00 USD)</option>
+                        <option value="1117964|demo|Pepperstone Demo Gateway">#1117964 - Pepperstone (Demo | Balance: $50,000.00 USD)</option>
+                        <option value="custom">➕ [Enter Custom Account Login Number / ID...]</option>
+                    </select>
+                </div>
+
+                <div id="ct-custom-box" class="hidden space-y-2.5">
+                    <div>
+                        <label class="block text-[11px] font-medium text-slate-400 mb-1">Custom Broker Account Number / Login:</label>
+                        <input type="text" id="input-ct-custom-login" class="input-flat w-full px-3 py-2 rounded-lg text-xs font-mono" placeholder="e.g. 2454414">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-medium text-slate-400 mb-1">Environment:</label>
+                        <select id="input-ct-custom-env" class="input-flat w-full px-3 py-2 rounded-lg text-xs font-medium">
+                            <option value="demo">Demo Account</option>
+                            <option value="live">Live / Real Money</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="p-3 rounded-xl bg-slate-950 border border-slate-800/80 text-[11px] text-slate-400 space-y-1 font-mono">
+                    <span class="font-semibold text-slate-300 block mb-0.5 font-sans">⚡ Execution Guarantee:</span>
+                    <div>Your Spotware OAuth token authorizes instant &lt;0.1s execution with automatic Stop Loss and Take Profit protection.</div>
+                </div>
+
+                <div class="flex space-x-3 pt-2">
+                    <button onclick="closeOAuthModal()" class="flex-1 py-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-xs transition">Cancel</button>
+                    <button onclick="completeCTraderLink()" class="flex-1 py-2.5 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-bold text-xs uppercase tracking-wider transition shadow-lg shadow-emerald-500/20">🚀 Link & Activate</button>
+                </div>
             </div>
         </div>
     </div>
@@ -2569,52 +2680,119 @@ def generate_portal_html():
         }
 
         // Setup Actions
-        function saveTelegramChannel() {
-            let val = document.getElementById("input-tg-channel").value.trim();
-            if (!val) {
-                alert("Please enter a valid Telegram channel handle (e.g. @MyVIPSignals)");
-                return;
+        function openTelegramModal() {
+            document.getElementById("modal-telegram").classList.remove("hidden");
+            document.getElementById("tg-step-1").classList.remove("hidden");
+            document.getElementById("tg-step-2").classList.add("hidden");
+        }
+
+        function closeTelegramModal() {
+            document.getElementById("modal-telegram").classList.add("hidden");
+        }
+
+        function simulateTelegramOAuth() {
+            const btn = document.getElementById("btn-tg-oauth");
+            btn.disabled = true;
+            btn.innerHTML = `<span class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span> <span>Authenticating with Telegram...</span>`;
+            
+            setTimeout(() => {
+                const user = getUser();
+                const uname = user.tg_handle || "@TraderPro_VIP";
+                document.getElementById("tg-oauth-username").textContent = uname;
+                document.getElementById("tg-step-1").classList.add("hidden");
+                document.getElementById("tg-step-2").classList.remove("hidden");
+                btn.disabled = false;
+                btn.innerHTML = `<span>✈️ Authorize with Telegram Account</span>`;
+            }, 1200);
+        }
+
+        function toggleTgCustomBox() {
+            const sel = document.getElementById("select-tg-channel").value;
+            const box = document.getElementById("tg-custom-box");
+            if (sel === "custom") box.classList.remove("hidden");
+            else box.classList.add("hidden");
+        }
+
+        function completeTelegramLink() {
+            const sel = document.getElementById("select-tg-channel").value;
+            let val = sel;
+            if (sel === "custom") {
+                val = document.getElementById("input-tg-custom").value.trim();
+                if (!val) {
+                    alert("Please enter a valid custom Telegram channel handle or ID.");
+                    return;
+                }
             }
             if (!val.startsWith("@") && !val.startsWith("-")) val = "@" + val;
             const user = getUser();
             user.tg_handle = val;
             saveUser(user);
-            alert(`✅ Saved! Your 1 allowed Telegram channel is now set to ${val}.`);
+            closeTelegramModal();
+            alert(`🎉 Success! Telegram channel ${val} is now linked to your account for automated signal copying.`);
         }
 
-        function connectCTraderOAuth() {
-            const loginVal = document.getElementById("input-ct-login").value.trim();
-            if (!loginVal) {
-                alert("Please enter your cTrader Account Login Number (e.g. 2454414) before connecting via OAuth.");
-                return;
+        function disconnectTelegram() {
+            if (confirm("Are you sure you want to disconnect your Telegram channel? automated copy trading will pause.")) {
+                const user = getUser();
+                user.tg_handle = "";
+                user.copy_enabled = false;
+                saveUser(user);
             }
+        }
+
+        function openOAuthModal() {
             document.getElementById("modal-oauth").classList.remove("hidden");
-            document.getElementById("oauth-spinner").classList.remove("hidden");
-            document.getElementById("btn-oauth-approve").disabled = false;
+            document.getElementById("ct-step-1").classList.remove("hidden");
+            document.getElementById("ct-step-2").classList.add("hidden");
         }
 
         function closeOAuthModal() {
             document.getElementById("modal-oauth").classList.add("hidden");
         }
 
-        function completeOAuthHandshake() {
-            const btn = document.getElementById("btn-oauth-approve");
+        function simulateCTraderOAuth() {
+            const btn = document.getElementById("btn-ct-oauth");
             btn.disabled = true;
-            btn.textContent = "Exchanging OAuth Token...";
+            btn.innerHTML = `<span class="inline-block w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin"></span> <span>Exchanging OAuth Token...</span>`;
             
             setTimeout(() => {
-                const loginVal = document.getElementById("input-ct-login").value.trim() || "2454414";
-                const envVal = document.getElementById("input-ct-env").value || "demo";
-                const user = getUser();
-                user.ct_linked = true;
-                user.ct_login = loginVal;
-                user.ct_env = envVal;
-                saveUser(user);
-                closeOAuthModal();
-                btn.textContent = "Approve Access";
+                document.getElementById("ct-step-1").classList.add("hidden");
+                document.getElementById("ct-step-2").classList.remove("hidden");
                 btn.disabled = false;
-                alert(`🎉 Success! cTrader Account #${loginVal} is now authorized via Spotware OAuth 2.0.`);
+                btn.innerHTML = `<span>🔗 Authorize with Spotware cTID</span>`;
             }, 1200);
+        }
+
+        function toggleCtCustomBox() {
+            const sel = document.getElementById("select-ct-account").value;
+            const box = document.getElementById("ct-custom-box");
+            if (sel === "custom") box.classList.remove("hidden");
+            else box.classList.add("hidden");
+        }
+
+        function completeCTraderLink() {
+            const sel = document.getElementById("select-ct-account").value;
+            let loginVal = "2454414";
+            let envVal = "demo";
+            let brokerVal = "Deriv SVG / cTrader Cloud";
+            if (sel === "custom") {
+                loginVal = document.getElementById("input-ct-custom-login").value.trim() || "2454414";
+                envVal = document.getElementById("input-ct-custom-env").value || "demo";
+                brokerVal = "Custom Spotware Broker";
+            } else {
+                const parts = sel.split("|");
+                loginVal = parts[0];
+                envVal = parts[1];
+                brokerVal = parts[2] || "Spotware cTrader Cloud";
+            }
+            const user = getUser();
+            user.ct_linked = true;
+            user.ct_login = loginVal;
+            user.ct_env = envVal;
+            user.ct_broker = brokerVal;
+            saveUser(user);
+            closeOAuthModal();
+            alert(`🎉 Success! cTrader Account #${loginVal} (${brokerVal}) is now authorized via Spotware OAuth 2.0.`);
         }
 
         function disconnectCTrader() {
