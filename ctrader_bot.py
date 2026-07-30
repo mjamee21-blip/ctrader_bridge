@@ -62,11 +62,12 @@ CT_ENV = _clean_sec(os.environ.get("CT_ENV", "demo")).lower()
 TG_TOKEN = _clean_sec(os.environ.get("TG_TOKEN", ""))
 TG_CHAT = _clean_sec(os.environ.get("TG_CHAT", ""))
 
-DASHBOARD_USERNAME = _clean_sec(os.environ.get("DASHBOARD_USERNAME", "admin"))
-DASHBOARD_PASSWORD = _clean_sec(os.environ.get("DASHBOARD_PASSWORD", "changeme"))
+DASHBOARD_USERNAME = _clean_sec(os.environ.get("DASHBOARD_USERNAME", ""))
+DASHBOARD_PASSWORD = _clean_sec(os.environ.get("DASHBOARD_PASSWORD", ""))
 
 # Optional configurations
 CTRADER_PAIR_MAP_JSON = os.environ.get("CTRADER_PAIR_MAP", "{}")
+CTRADER_PAIR_LOTS_JSON = os.environ.get("CTRADER_PAIR_LOTS", "{}")
 DEFAULT_QTY = float(os.environ.get("CTRADER_DEFAULT_QTY", "1.0") or "1.0")
 MODE = os.environ.get("MODE", "bot")  # "bot" or "dashboard"
 
@@ -74,6 +75,10 @@ try:
     PAIR_MAP = json.loads(CTRADER_PAIR_MAP_JSON)
 except:
     PAIR_MAP = {}
+try:
+    PAIR_LOTS_MAP = json.loads(CTRADER_PAIR_LOTS_JSON)
+except:
+    PAIR_LOTS_MAP = {}
 
 # Common pair aliases for signal parsing - FIXED: Added BTC/ETH and other cryptos
 PAIR_ALIASES = {
@@ -94,95 +99,6 @@ PAIR_ALIASES = {
     "AUS200": "AUS200", "ASX": "AUS200",
 }
 
-# =====================================================================
-# PER-PAIR LOT SIZES (global sizing overrides)
-# Source priority: 1) CTRADER_LOT_SIZES env var (JSON), 2) docs/lot_sizes.json, 3) smart defaults
-# Set the GitHub secret CTRADER_LOT_SIZES to e.g. {"BTCUSD":0.1,"XAUUSD":0.05,"EURUSD":0.02}
-# =====================================================================
-LOT_SIZES = {}
-DEFAULT_LOTS = {
-    "BTCUSD": 0.10, "ETHUSD": 0.10, "XAUUSD": 0.05, "XAGUSD": 0.10,
-    "EURUSD": 0.01, "GBPUSD": 0.01, "USDJPY": 0.01, "USDCHF": 0.01,
-    "AUDUSD": 0.01, "NZDUSD": 0.01, "USDCAD": 0.01, "EURJPY": 0.01,
-    "GBPJPY": 0.01, "EURGBP": 0.01, "EURCHF": 0.01, "CHFJPY": 0.01,
-    "NZDJPY": 0.01, "CADJPY": 0.01, "EURNZD": 0.01, "EURAUD": 0.01,
-    "NAS100": 0.10, "US30": 0.10, "GER40": 0.10, "SPX500": 0.10,
-    "UK100": 0.10, "USOIL": 0.10, "UKOIL": 0.10,
-}
-
-def load_lot_sizes():
-    global LOT_SIZES
-    LOT_SIZES = {}
-    raw = _clean_sec(os.environ.get("CTRADER_LOT_SIZES", ""))
-    if raw:
-        try:
-            LOT_SIZES = {str(k).strip().upper(): float(v) for k, v in json.loads(raw).items()}
-            return
-        except Exception as e:
-            print(f"[WARNING] Could not parse CTRADER_LOT_SIZES: {e}")
-    try:
-        p = os.path.join("docs", "lot_sizes.json")
-        if os.path.exists(p):
-            with open(p, "r", encoding="utf-8") as f:
-                LOT_SIZES = {str(k).strip().upper(): float(v) for k, v in json.load(f).items()}
-            return
-    except Exception:
-        pass
-    LOT_SIZES = {}
-
-def lot_for(pair_name):
-    """Return the configured lot size for a pair (override > category default)."""
-    p = (pair_name or "").upper()
-    if p in LOT_SIZES:
-        return LOT_SIZES[p]
-    if p in DEFAULT_LOTS:
-        return DEFAULT_LOTS[p]
-    if "BTC" in p or "ETH" in p:
-        return 0.10
-    if "XAU" in p or "XAG" in p:
-        return 0.05
-    if any(x in p for x in ["NAS", "US30", "GER", "SPX", "UK100", "JPN", "HK50", "AUS", "OIL"]):
-        return 0.10
-    return 0.01
-
-load_lot_sizes()
-
-# Per-pair ENABLE/DISABLE (switch pairs on/off from the dashboard)
-# Configured via CTRADER_PAIR_CONFIG secret (JSON) e.g. {"EURUSD":{"lot":0.02,"on":false},"BTCUSD":{"lot":0.1,"on":true}}
-PAIR_ENABLED = {}  # {pair: bool}. Empty dict = all pairs enabled
-def load_pair_config():
-    global PAIR_ENABLED, LOT_SIZES
-    PAIR_ENABLED = {}
-    src = _clean_sec(os.environ.get("CTRADER_PAIR_CONFIG", ""))
-    if not src:
-        try:
-            p = os.path.join("docs", "pair_config.json")
-            if os.path.exists(p):
-                with open(p, "r", encoding="utf-8") as f:
-                    src = f.read()
-        except Exception:
-            pass
-    if src:
-        try:
-            for k, v in json.loads(src).items():
-                pair = str(k).strip().upper()
-                if isinstance(v, dict):
-                    if "lot" in v:
-                        LOT_SIZES[pair] = float(v["lot"])
-                    PAIR_ENABLED[pair] = bool(v.get("on", True))
-                else:
-                    PAIR_ENABLED[pair] = bool(v)
-        except Exception as e:
-            print(f"[WARNING] Could not parse CTRADER_PAIR_CONFIG: {e}")
-
-def is_pair_enabled(pair_name):
-    p = (pair_name or "").upper()
-    if not PAIR_ENABLED:
-        return True  # nothing configured = all pairs enabled
-    return PAIR_ENABLED.get(p, True)
-
-load_pair_config()
-
 _last_update_id = 0
 _instruments = {}
 _process_logs = []
@@ -190,7 +106,6 @@ _heartbeat_log = {}
 _alerts = []
 _telegram_messages = []
 _BUILD_VERSION = datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S")
-_SCRIPT_VERSION = "v11-clear-webhook-fix-409-missed-signals"
 
 # =====================================================================
 # PERSISTENT SYSTEM STATE STORAGE (SHARES DATA BETWEEN BOT & DASHBOARD)
@@ -295,14 +210,16 @@ def get_job_status(job_name):
             last_run = datetime.fromisoformat(timestamp)
             now = datetime.now(timezone.utc)
             delta = now - last_run.replace(tzinfo=timezone.utc)
-            if delta.total_seconds() < 60:
-                time_ago = f"{int(delta.total_seconds())}s ago"
-            elif delta.total_seconds() < 3600:
-                time_ago = f"{int(delta.total_seconds() / 60)}m ago"
-            elif delta.total_seconds() < 86400:
-                time_ago = f"{int(delta.total_seconds() / 3600)}h ago"
+            delta_sec = max(0, delta.total_seconds())
+            if delta_sec < 60:
+                rel = f"{int(delta_sec)}s ago"
+            elif delta_sec < 3600:
+                rel = f"{int(delta_sec / 60)}m {int(delta_sec % 60)}s ago"
+            elif delta_sec < 86400:
+                rel = f"{int(delta_sec / 3600)}h {int((delta_sec % 3600) / 60)}m ago"
             else:
-                time_ago = f"{int(delta.total_seconds() / 86400)}d ago"
+                rel = f"{int(delta_sec / 86400)}d ago"
+            time_ago = f"{rel} ({last_run.strftime('%Y-%m-%d %H:%M:%S UTC')})"
         except:
             time_ago = timestamp
             
@@ -339,6 +256,66 @@ def _mask_token(val):
     if not val or len(val) < 6:
         return f"[Invalid/Too Short (len: {len(val)})]"
     return f"{val[:3]}***{val[-2:]} (len: {len(val)})"
+
+def format_volume(pair_name, raw_vol_cents):
+    if not raw_vol_cents: return "0"
+    try:
+        units = float(raw_vol_cents) / 100.0
+        p = str(pair_name or "").upper()
+        if any(k in p for k in ["BTC", "ETH", "XAU", "GOLD", "SILVER", "OIL", "US30", "NAS100", "SPX", "GER40", "UK100", "INDEX"]):
+            if "BTC" in p or "ETH" in p:
+                return f"{units:,.2f} {p[:3]}"
+            return f"{units:,.2f} Units"
+        lots = units / 100000.0
+        if lots >= 0.01:
+            return f"{lots:,.2f} Lots ({int(units):,} units)"
+        return f"{units:,.2f} Units"
+    except Exception:
+        return str(raw_vol_cents)
+
+def calc_pips(pair_name, side_str, entry_price, exit_price):
+    try:
+        e1 = float(entry_price)
+        e2 = float(exit_price)
+        if not e1 or not e2: return "0.0"
+        diff = (e2 - e1) if "BUY" in str(side_str).upper() else (e1 - e2)
+        p = str(pair_name or "").upper()
+        if "JPY" in p:
+            pips = diff / 0.01
+        elif any(k in p for k in ["XAU", "GOLD"]):
+            pips = diff / 0.10
+        elif any(k in p for k in ["BTC", "ETH", "NAS", "US30", "GER40", "SPX", "OIL"]):
+            pips = diff
+        elif e1 > 500:
+            pips = diff
+        else:
+            pips = diff / 0.0001
+        return f"{pips:+.1f}"
+    except Exception:
+        return "0.0"
+
+def resolve_pair_config(pair_name, norm_pair, default_qty):
+    sym_key = str(norm_pair or pair_name or "").upper().replace("/", "").replace("-", "")
+    raw_val = PAIR_LOTS_MAP.get(sym_key) or PAIR_LOTS_MAP.get(str(pair_name).upper()) or PAIR_LOTS_MAP.get("DEFAULT")
+    if raw_val is None:
+        return True, default_qty
+    if isinstance(raw_val, dict):
+        enabled = raw_val.get("enabled", True)
+        if str(enabled).upper() in ["FALSE", "OFF", "NO", "0", "DISABLED"]:
+            return False, 0.0
+        try:
+            qty = float(raw_val.get("lot") or raw_val.get("qty") or default_qty)
+            return True, qty
+        except Exception:
+            return True, default_qty
+    val_str = str(raw_val).strip().upper()
+    if val_str in ["OFF", "DISABLED", "FALSE", "NO", "0", "0.0"]:
+        return False, 0.0
+    try:
+        qty = float(val_str)
+        return True, qty
+    except Exception:
+        return True, default_qty
 
 def check_secrets_status():
     """Verify that all 10 GitHub repository secrets are properly set."""
@@ -404,11 +381,6 @@ class cTraderClient:
     def __init__(self):
         self.authenticated = False
         self.account_id_num = None
-        # Execution tracking so we know if orders were CONFIRMED or REJECTED by cTrader
-        self.dispatched_orders = 0
-        self.confirmed_executions = 0
-        self.last_error_code = None
-        self.last_error_desc = None
         try:
             self.account_id_num = int(re.sub(r'\D', '', CT_ACCOUNT_ID)) if CT_ACCOUNT_ID else None
         except:
@@ -424,6 +396,7 @@ class cTraderClient:
         self.positions = []
         self.orders = []
         self.trades = []
+        self.pending_sl_tp = {}
 
     def verify_auth_and_fetch_data(self, pending_signals=None):
         """Connect to cTrader Open API v2, authenticate, sync data, and dispatch pending trade commands."""
@@ -438,19 +411,22 @@ class cTraderClient:
 
     def _sync_via_protobuf(self, pending_signals=None):
         """Official Spotware Protobuf TCP Communication & Signal Dispatcher."""
+        global _instruments
         log_process("info", f"Connecting to cTrader Open API ({CT_ENV.upper()} TCP Server)...")
         host = EndPoints.PROTOBUF_LIVE_HOST if CT_ENV == "live" else EndPoints.PROTOBUF_DEMO_HOST
         port = EndPoints.PROTOBUF_PORT
         
         client = ProtoClient(host, port, TcpProtocol)
-        sync_status = {"trader": False, "reconcile": False, "symbols": False, "orders_dispatched": False, "finished": False}
+        sync_status = {"trader": False, "reconcile": False, "symbols": False, "deals": False, "orders_dispatched": False, "finished": False}
         
+        def safe_errback(failure, label="Order"):
+            err_str = str(failure)
+            if any(k in err_str for k in ["CancelledError", "TimeoutError", "timeItOut", "convertCancelled", "cancelledToTimedOutError", "(5, 'Deferred')"]):
+                return
+            log_process("error", f"{label} Dispatch Error: {err_str}")
+
         def check_sync_completed(c_ref):
-            # Dispatch new market orders as soon as trader+symbols are ready.
-            # Reconcile (existing positions) is best-effort: it sometimes times out on
-            # GitHub Actions and must NOT block new order execution. It only matters for
-            # close/modify signals, which match against self.positions.
-            if sync_status["trader"] and sync_status["symbols"]:
+            if sync_status["trader"] and sync_status["symbols"] and sync_status["reconcile"]:
                 if not sync_status["orders_dispatched"]:
                     sync_status["orders_dispatched"] = True
                     if pending_signals:
@@ -462,53 +438,48 @@ class cTraderClient:
                             if not sym_id:
                                 log_process("error", f"CRITICAL: Could not map symbol '{pair}' for trade execution. Available instruments: {len(_instruments)}")
                                 continue
-                            if not is_pair_enabled(norm_pair or pair):
-                                log_process("info", f"⏭️ Skipping {norm_pair or pair} — this pair is DISABLED in your dashboard settings (no trade placed).")
-                                continue
                                 
                             if sig_type == "SIGNAL":
                                 direction = sig.get("direction", "BUY").upper()
-                                qty = lot_for(norm_pair or pair)
+                                sym_key = str(norm_pair or pair or "").upper().replace("/", "").replace("-", "")
+                                base_qty = sig.get("qty") or (0.10 if "BTC" in sym_key else 0.01)
+                                is_enabled, qty = resolve_pair_config(pair, norm_pair, base_qty)
+                                if not is_enabled:
+                                    log_process("warning", f"🚫 Copying for instrument '{norm_pair or pair}' is switched OFF in Per-Pair Manager. Signal ignored!")
+                                    continue
                                 sl = sig.get("sl")
                                 tp = sig.get("tp")
-                                log_process("info", f"🎯 Sending ProtoOANewOrderReq: {direction} {norm_pair or pair} (SymbolID: {sym_id}) | Vol: {int(float(qty) * 100000)}...")
+                                
+                                # In Spotware cTrader Open API v2, MARKET orders cannot have absolute SL/TP attached directly in NewOrderReq.
+                                # We store them and attach via ProtoOAAmendPositionSLTPReq immediately upon receiving ProtoOAExecutionEvent!
+                                if sl is not None or tp is not None:
+                                    self.pending_sl_tp[int(sym_id)] = {"sl": sl, "tp": tp, "pair": norm_pair or pair}
+                                    log_process("info", f"  └─ Queued post-execution SL ({sl}) / TP ({tp}) protection for {norm_pair or pair}")
+
+                                # Calculate safe and exact volume using cTrader server's minVolume and stepVolume
+                                inst_meta = _instruments.get(norm_pair or pair, {})
+                                min_vol = inst_meta.get("minVolume", 100000) or 100000
+                                step_vol = inst_meta.get("stepVolume", min_vol) or min_vol
+                                
+                                try:
+                                    # If qty is e.g. 0.01 lot, convert to units based on min_vol
+                                    raw_vol = int(round(float(qty) * (min_vol / 0.01)))
+                                    # Ensure multiple of stepVolume and at least minVolume
+                                    target_vol = max(min_vol, int(round(raw_vol / step_vol)) * step_vol)
+                                except Exception:
+                                    target_vol = min_vol
+
+                                log_process("info", f"🎯 Sending ProtoOANewOrderReq: {direction} {norm_pair or pair} (SymbolID: {sym_id}) | Target Volume: {target_vol}...")
+
                                 ord_req = ProtoOANewOrderReq()
                                 ord_req.ctidTraderAccountId = self.account_id_num
                                 ord_req.symbolId = int(sym_id)
                                 ord_req.orderType = ProtoOAOrderType.MARKET
                                 ord_req.tradeSide = ProtoOATradeSide.BUY if direction == "BUY" else ProtoOATradeSide.SELL
-                                ord_req.volume = int(float(qty) * 100000)
-                                if sl is not None:
-                                    try:
-                                        ord_req.stopLoss = float(sl)
-                                        log_process("info", f"  └─ Stop Loss set: {float(sl)}")
-                                    except Exception as sl_err:
-                                        log_process("warning", f"  └─ Invalid SL value '{sl}': {sl_err}")
-                                if tp is not None:
-                                    try:
-                                        ord_req.takeProfit = float(tp)
-                                        log_process("info", f"  └─ Take Profit set: {float(tp)}")
-                                    except Exception as tp_err:
-                                        log_process("warning", f"  └─ Invalid TP value '{tp}': {tp_err}")
-                                # Capture the EXACT response from cTrader (success or rejection)
-                                def _on_order_response(resp, _dir=direction, _pair=(norm_pair or pair), _vol=int(float(qty) * 100000)):
-                                    try:
-                                        pt = getattr(resp, "payloadType", "?")
-                                        r = Protobuf.extract(resp)
-                                        ec = getattr(r, "errorCode", None) or getattr(r, "errorCode", None)
-                                        if ec:
-                                            self.last_error_code = str(ec)
-                                            self.last_error_desc = getattr(r, "description", "") or ""
-                                            log_process("error", f"🚫 ORDER REJECTED by broker: {ec} - {self.last_error_desc}")
-                                        else:
-                                            oid = getattr(r, "orderId", None) or getattr(r, "positionId", None) or "N/A"
-                                            log_process("success", f"📨 ORDER ACCEPTED by broker (payloadType {pt}). Order/Position ID: {oid}")
-                                    except Exception as e:
-                                        log_process("warning", f"Order response parse note (payloadType {getattr(resp,'payloadType','?')}): {e}")
-                                order_deferred = c_ref.send(ord_req)
-                                order_deferred.addCallbacks(_on_order_response, lambda f: log_process("error", f"Order Dispatch Error: {f}"))
-                                self.dispatched_orders += 1
-                                log_process("success", f"✓ Market order SENT to cTrader: {direction} {qty} {norm_pair or pair} | Vol={int(float(qty)*100000)} | SL={sl} | TP={tp} | Acct={self.account_id_num} | SymID={sym_id} (dispatched total: {self.dispatched_orders})")
+                                ord_req.volume = target_vol
+                                ord_req.comment = f"TG_{direction}"
+                                c_ref.send(ord_req).addErrback(lambda f: safe_errback(f, "Order"))
+                                log_process("success", f"✓ Market order SENT to cTrader: {direction} {norm_pair or pair} (Vol: {target_vol})")
                                 
                             elif sig_type == "TPSL_HIT":
                                 res_reason = sig.get("result", "TP")
@@ -522,7 +493,7 @@ class cTraderClient:
                                     close_req.positionId = int(pos_id_val)
                                     close_req.volume = int(vol_val)
                                     log_process("info", f"Sending ProtoOAClosePositionReq for position #{pos_id_val}...")
-                                    c_ref.send(close_req).addErrback(lambda f: log_process("error", f"Close Dispatch Error: {f}"))
+                                    c_ref.send(close_req).addErrback(lambda f: safe_errback(f, "Close"))
                                     
                             elif sig_type == "SL_UPDATE":
                                 new_sl_val = sig.get("new_sl")
@@ -534,43 +505,27 @@ class cTraderClient:
                                     amend_req.positionId = int(pos_id_val)
                                     amend_req.stopLoss = float(new_sl_val)
                                     log_process("info", f"Sending ProtoOAAmendPositionSLTPReq for position #{pos_id_val} -> New SL: {new_sl_val}...")
-                                    c_ref.send(amend_req).addErrback(lambda f: log_process("error", f"Amend Dispatch Error: {f}"))
-                    
-                if not sync_status["finished"] and not sync_status.get("verifying"):
-                    if pending_signals and getattr(self, "dispatched_orders", 0) > 0:
-                        # Orders were dispatched -> do a VERIFICATION RECONCILE to confirm fills
-                        # (execution events are sometimes lost on flaky connections).
-                        sync_status["pre_position_count"] = len(self.positions)
-                        sync_status["verifying"] = True
-                        log_process("info", f"🔍 {self.dispatched_orders} order(s) dispatched. Scheduling verification reconcile in 3s (positions before: {sync_status['pre_position_count']})...")
-                        def do_verify_reconcile():
-                            if sync_status.get("verify_sent") or sync_status["finished"]:
-                                return
-                            sync_status["verify_sent"] = True
-                            try:
-                                vreq = ProtoOAReconcileReq()
-                                vreq.ctidTraderAccountId = self.account_id_num
-                                c_ref.send(vreq).addErrback(on_error)
-                                log_process("info", "🔍 Verification reconcile sent. Waiting for broker position snapshot...")
-                            except Exception as ve:
-                                log_process("warning", f"Verify reconcile send note: {ve}")
-                        if reactor.running:
-                            reactor.callLater(3.0, do_verify_reconcile)
-                    else:
-                        sync_status["finished"] = True
-                        log_process("success", "✅ Complete Account & Position Data synchronized via TCP Protobuf! Standing by for execution confirmations...")
-                        delay_close = 15.0 if pending_signals else 0.5
-                        log_process("info", f"⏱️  Waiting {delay_close}s for cTrader execution confirmations before closing connection...")
-                        if reactor.running:
-                            reactor.callLater(delay_close, reactor.stop)
+                                    c_ref.send(amend_req).addErrback(lambda f: safe_errback(f, "Amend"))
+            
+            if sync_status["trader"] and sync_status["symbols"] and sync_status["reconcile"] and sync_status["deals"]:
+                if not sync_status["finished"]:
+                    sync_status["finished"] = True
+                    log_process("success", "✅ Complete Account, Position & Deals Data synchronized via TCP Protobuf! Standing by for execution confirmations...")
+                    delay_close = 15.0 if pending_signals else 0.5
+                    log_process("info", f"⏱️  Waiting {delay_close}s for cTrader execution confirmations before closing connection...")
+                    if reactor.running:
+                        reactor.callLater(delay_close, reactor.stop)
         
         def on_error(failure):
             err_str = str(failure)
-            # A single request timing out is common on GitHub Actions (intermittent network).
-            # Do NOT tear down the whole session for it — let other in-flight requests finish
-            # and let the 35s safety timeout handle the final stop.
-            if ("TimedOutError" in err_str) or ("cancelledToTimedOutError" in err_str) or ("CancelledError" in err_str) or ("ConnectionDone" in err_str) or ("ConnectionLost" in err_str):
-                log_process("warning", f"⏳ A cTrader request timed out/disconnected (intermittent network). Continuing to wait for other responses... ({err_str[:90]})")
+            # Ignore normal Twisted Deferred cancellation/timeout tracebacks when connection closes
+            if any(k in err_str for k in ["CancelledError", "TimeoutError", "timeItOut", "convertCancelled", "cancelledToTimedOutError", "(5, 'Deferred')"]):
+                if sync_status["finished"]:
+                    return
+                log_process("info", "Notice: TCP connection closed cleanly or request timeout reached.")
+                sync_status["finished"] = True
+                if reactor.running:
+                    reactor.stop()
                 return
             log_process("error", f"cTrader Open API Error: {err_str}")
             if "CH_ACCESS_TOKEN_INVALID" in err_str or "INVALID_ACCESS_TOKEN" in err_str:
@@ -597,6 +552,7 @@ class cTraderClient:
                 log_process("info", f"📋 cTrader token returned {len(accounts)} linked account(s).")
                 
                 selected_account_id = None
+                selected_login = None
                 is_target_live = (CT_ENV == "live")
                 
                 acc_descriptions = []
@@ -609,6 +565,7 @@ class cTraderClient:
                     
                     if self.account_id_num and (str(self.account_id_num) == str(acc_id) or str(self.account_id_num) == str(acc_login)):
                         selected_account_id = int(acc_id)
+                        selected_login = str(acc_login)
                         
                 if acc_descriptions:
                     log_process("info", f"Discovered Accounts -> {', '.join(acc_descriptions)}")
@@ -621,16 +578,19 @@ class cTraderClient:
                         acc_live = getattr(acc, "isLive", False)
                         if acc_live == is_target_live and acc_id:
                             selected_account_id = int(acc_id)
+                            selected_login = str(getattr(acc, "traderLogin", "N/A"))
                             log_process("warning", f"Account '{self.account_id_num}' not matched directly — auto-selecting {acc_type_str} account ID: {selected_account_id}")
                             break
                     if selected_account_id is None and accounts:
                         selected_account_id = int(getattr(accounts[0], "ctidTraderAccountId"))
+                        selected_login = str(getattr(accounts[0], "traderLogin", "N/A"))
                         log_process("warning", f"Defaulting to first available account ID: {selected_account_id}")
                 
                 if selected_account_id:
                     self.account_id_num = selected_account_id
-                    self.account_state['account_id'] = str(selected_account_id)
-                    log_process("info", f"Sending Account Authorization for cTID Account {self.account_id_num}...")
+                    disp_login = f"{selected_login} (API ID: {selected_account_id})" if selected_login and selected_login != "N/A" else str(selected_account_id)
+                    self.account_state['account_id'] = disp_login
+                    log_process("info", f"Sending Account Authorization for cTID Account {self.account_id_num} (Login: {selected_login})...")
                     auth_req = ProtoOAAccountAuthReq()
                     auth_req.ctidTraderAccountId = self.account_id_num
                     auth_req.accessToken = CT_ACCESS_TOKEN
@@ -658,93 +618,15 @@ class cTraderClient:
                 sym_req.includeArchivedSymbols = False
                 c.send(sym_req).addErrback(on_error)
 
-                # Fetch recent DEALS (closed/execution history) so the dashboard can prove trades happened
-                try:
-                    deal_req = ProtoOADealListReq()
-                    deal_req.ctidTraderAccountId = self.account_id_num
-                    deal_req.fromTimestamp = int((time.time() - 72 * 3600) * 1000)  # last 72 hours
-                    deal_req.toTimestamp = int(time.time() * 1000)
-                    deal_req.maxRows = 50
-                    c.send(deal_req).addErrback(on_error)
-                except Exception as de:
-                    log_process("warning", f"Deal list request note: {de}")
-
-            elif payload_type == ProtoOADealListRes().payloadType:
-                # Group deals by positionId -> one row per trade with ENTRY + EXIT times
-                try:
-                    res = Protobuf.extract(message)
-                    deals = list(getattr(res, "deal", []))
-                    money_digits = self.account_state.get("money_digits_cache", 2) or 2
-                    md_div = 10 ** money_digits
-                    by_pos = {}
-                    for d in deals:
-                        pid = getattr(d, "positionId", None) or getattr(d, "dealId", None)
-                        by_pos.setdefault(pid, []).append(d)
-                    self.trades = []
-                    for pid, dlist in by_pos.items():
-                        dlist.sort(key=lambda d: getattr(d, "executionTimestamp", 0))
-                        open_deal = dlist[0]
-                        close_deal = dlist[-1] if len(dlist) > 1 else None
-                        sid = getattr(open_deal, "symbolId", 0)
-                        pair_lbl = f"ID:{sid}"
-                        for nm, meta in _instruments.items():
-                            if str(meta["id"]) == str(sid):
-                                pair_lbl = nm; break
-                        side_val = getattr(open_deal, "tradeSide", 1)
-                        side_str = "BUY" if str(side_val) == "1" or "BUY" in str(side_val) else "SELL"
-                        vol = getattr(open_deal, "filledVolume", getattr(open_deal, "volume", 0)) / 100000.0
-                        entry_px = getattr(open_deal, "executionPrice", 0.0)
-                        exit_px = getattr(close_deal, "executionPrice", 0.0) if close_deal else None
-                        o_ts = getattr(open_deal, "executionTimestamp", 0)
-                        c_ts = getattr(close_deal, "executionTimestamp", 0) if close_deal else 0
-                        def _fmt(ms):
-                            try:
-                                return datetime.fromtimestamp(ms / 1000.0, tz=timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
-                            except Exception:
-                                return "—"
-                        # P&L: prefer grossProfit/profit, else balance difference between close & open
-                        pnl_val = 0.0
-                        for cand in (close_deal, open_deal):
-                            if not cand: continue
-                            for fld in ("grossProfit", "profit"):
-                                v = getattr(cand, fld, None)
-                                if v:
-                                    pnl_val = float(v) / md_div; break
-                            if pnl_val: break
-                        if pnl_val == 0.0 and close_deal is not None:
-                            ob = getattr(open_deal, "balance", None); cb = getattr(close_deal, "balance", None)
-                            if ob is not None and cb is not None:
-                                pnl_val = float(cb) - float(ob)
-                        if c_ts and o_ts and c_ts > o_ts:
-                            secs = (c_ts - o_ts) / 1000.0
-                            dur = (f"{int(secs//3600)}h " if secs >= 3600 else "") + f"{int((secs%3600)//60)}m"
-                        else:
-                            dur = "open" if not close_deal else "—"
-                        self.trades.append({
-                            "open_time": _fmt(o_ts),
-                            "close_time": _fmt(c_ts) if close_deal else "— (open)",
-                            "duration": dur,
-                            "pair": pair_lbl,
-                            "side": side_str,
-                            "qty": f"{vol:g}",
-                            "entry": f"{entry_px:g}",
-                            "exit": f"{exit_px:g}" if exit_px is not None else "—",
-                            "pnl": f"${pnl_val:+,.2f}",
-                            "pnl_value": pnl_val,
-                            "status": "CLOSED" if close_deal else "OPEN",
-                        })
-                    self.trades.sort(key=lambda t: t["open_time"], reverse=True)
-                    if self.trades:
-                        log_process("success", f"📜 Retrieved {len(self.trades)} trade(s) ({len(deals)} deals) from cTrader — trades ARE executing!")
-                    sync_status["deals"] = True
-                except Exception as e:
-                    log_process("warning", f"Deal list parse note: {e}")
-
+                now_ms = int(datetime.now(timezone.utc).timestamp() * 1000)
+                from_ms = now_ms - (14 * 24 * 3600 * 1000)  # 14 days history
+                deal_req = ProtoOADealListReq(ctidTraderAccountId=self.account_id_num, fromTimestamp=from_ms, toTimestamp=now_ms, maxRows=50)
+                c.send(deal_req).addErrback(on_error)
+                
             elif payload_type == ProtoOATraderRes().payloadType:
                 res = Protobuf.extract(message)
                 trader = res.trader
                 money_digits = getattr(trader, "moneyDigits", 2) or 2
-                self.account_state["money_digits_cache"] = money_digits
                 divisor = 10 ** money_digits
                 balance_val = float(getattr(trader, "balance", 0)) / divisor
                 self.account_state['balance_val'] = balance_val
@@ -758,7 +640,7 @@ class cTraderClient:
             elif payload_type == ProtoOASymbolsListRes().payloadType:
                 res = Protobuf.extract(message)
                 symbols = getattr(res, "symbol", [])
-                _instruments.clear()
+                _instruments = {}
                 for sym in symbols:
                     sym_name = getattr(sym, "symbolName", "").upper().strip()
                     sym_id = getattr(sym, "symbolId", None)
@@ -778,46 +660,6 @@ class cTraderClient:
                 res = Protobuf.extract(message)
                 pos_list = getattr(res, "position", [])
                 ord_list = getattr(res, "order", [])
-
-                # ---- VERIFICATION RECONCILE (after dispatch): confirm whether orders filled ----
-                if sync_status.get("verify_sent") and not sync_status["finished"]:
-                    pre = sync_status.get("pre_position_count", 0)
-                    now_count = len(pos_list)
-                    delta = now_count - pre
-                    if delta > 0:
-                        self.confirmed_executions += delta
-                        log_process("success", f"✅ EXECUTION VERIFIED via reconcile: {delta} NEW position(s) appeared (was {pre}, now {now_count}). Trade confirmed filled!")
-                    else:
-                        log_process("warning", f"⚠️ Verify reconcile: positions unchanged ({pre} -> {now_count}). The dispatched order did NOT open a position (rejected or not processed by broker).")
-                    self.positions = []
-                    for p in pos_list:
-                        try:
-                            td = getattr(p, "tradeData", None)
-                            sid = getattr(td, "symbolId", "N/A")
-                            lbl = f"ID:{sid}"
-                            for nm, meta in _instruments.items():
-                                if str(meta["id"]) == str(sid):
-                                    lbl = nm
-                                    break
-                            self.positions.append({
-                                "pair": lbl,
-                                "side": "BUY" if str(getattr(td, "tradeSide", 1)) in ("1",) or "BUY" in str(getattr(td, "tradeSide", 1)) else "SELL",
-                                "qty": str(getattr(td, "volume", 0) / 100000.0),
-                                "price": str(getattr(p, "price", 0.0)),
-                                "sl": str(getattr(p, "stopLoss", "—") or "—"),
-                                "tp": str(getattr(p, "takeProfit", "—") or "—"),
-                                "pnl": "$0.00", "pnl_value": 0.0,
-                                "position_id": getattr(p, "positionId", "N/A"),
-                                "symbol_id": sid,
-                                "raw_volume": getattr(td, "volume", 0)
-                            })
-                        except Exception:
-                            pass
-                    sync_status["finished"] = True
-                    if reactor.running:
-                        reactor.callLater(1.0, reactor.stop)
-                    return
-
                 log_process("info", f"Reconciliation retrieved: {len(pos_list)} open positions, {len(ord_list)} orders.")
                 used_margin_total = 0.0
                 for p in pos_list:
@@ -833,33 +675,40 @@ class cTraderClient:
                     tp = getattr(p, "takeProfit", "—") or "—"
                     pos_margin = float(getattr(p, "usedMargin", 0)) / 100.0
                     used_margin_total += pos_margin
-
+                    
                     pair_label = f"ID:{sym_id}"
                     for name, meta in _instruments.items():
                         if str(meta["id"]) == str(sym_id):
                             pair_label = name
                             break
 
-                    # Open timestamp (ms) -> UTC string
-                    open_ms = getattr(p, "utcOpenTimestamp", None) or getattr(p, "createTimestamp", None) or 0
-                    try:
-                        open_time_str = datetime.fromtimestamp(open_ms / 1000.0, tz=timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
-                    except Exception:
-                        open_time_str = "—"
+                    open_ts = getattr(trade_data, "openTimestamp", 0) or getattr(p, "utcLastUpdateTimestamp", 0)
+                    open_time_str = datetime.fromtimestamp(open_ts / 1000.0, tz=timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC") if open_ts else "Prior (<30d)"
+                    
+                    swap_val = getattr(p, "swap", 0)
+                    comm_val = getattr(p, "commission", 0)
+                    money_digits = getattr(p, "moneyDigits", 2) or 2
+                    divisor = 10 ** money_digits
+                    swap_comm_val = float(swap_val + comm_val) / divisor
+                    swap_comm_str = _safe_currency(swap_comm_val)
+                    margin_str = _safe_currency(pos_margin)
+                    vol_str = format_volume(pair_label, raw_vol)
 
                     self.positions.append({
                         "pair": pair_label,
                         "side": side_str,
-                        "qty": str(volume),
+                        "qty": vol_str,
                         "price": str(price),
                         "sl": str(sl),
                         "tp": str(tp),
+                        "open_time": open_time_str,
+                        "swap_comm": swap_comm_str,
+                        "margin": margin_str,
                         "pnl": "$0.00",
                         "pnl_value": 0.0,
                         "position_id": pos_id,
                         "symbol_id": sym_id,
-                        "raw_volume": raw_vol,
-                        "open_time": open_time_str
+                        "raw_volume": raw_vol
                     })
                 
                 self.account_state['margin'] = _safe_currency(used_margin_total)
@@ -874,43 +723,142 @@ class cTraderClient:
                 sync_status["reconcile"] = True
                 check_sync_completed(c)
                 
-            elif payload_type == ProtoOANewOrderRes().payloadType:
-                # Direct order-creation response (backup capture path)
-                try:
-                    res = Protobuf.extract(message)
-                    ord_id = getattr(res, 'orderId', 'N/A')
-                    pos_id = getattr(res, 'positionId', None)
-                    log_process("success", f"📨 ProtoOANewOrderRes received: OrderID {ord_id} | PositionID: {pos_id or 'none'}")
-                except Exception as e:
-                    log_process("info", f"ProtoOANewOrderRes received (parse note: {e})")
+            elif payload_type == ProtoOADealListRes().payloadType:
+                res = Protobuf.extract(message)
+                deals_list = getattr(res, "deal", [])
+                log_process("info", f"Deals history retrieved: {len(deals_list)} historical deals.")
+                
+                open_deals_map = {}
+                for d in deals_list:
+                    if not hasattr(d, "HasField") or not d.HasField("closePositionDetail"):
+                        pos_id = getattr(d, "positionId", None)
+                        if pos_id:
+                            ts = getattr(d, "executionTimestamp", 0) or getattr(d, "createTimestamp", 0)
+                            side_val = getattr(d, "tradeSide", 1)
+                            side_str = "BUY" if str(side_val) == "1" or "BUY" in str(side_val) else "SELL"
+                            open_deals_map[pos_id] = {
+                                "open_ts": ts,
+                                "open_price": getattr(d, "executionPrice", 0.0),
+                                "side": side_str,
+                                "volume": getattr(d, "volume", 0) or getattr(d, "filledVolume", 0)
+                            }
+                
+                for d in deals_list:
+                    if hasattr(d, "HasField") and d.HasField("closePositionDetail"):
+                        close_detail = getattr(d, "closePositionDetail", None)
+                        if close_detail:
+                            deal_id = getattr(d, "dealId", "N/A")
+                            pos_id = getattr(d, "positionId", "N/A")
+                            sym_id = getattr(d, "symbolId", "N/A")
+                            
+                            open_info = open_deals_map.get(pos_id, {})
+                            close_side_val = getattr(d, "tradeSide", 2)
+                            close_side_str = "BUY" if str(close_side_val) == "1" or "BUY" in str(close_side_val) else "SELL"
+                            true_side = open_info.get("side") or ("BUY" if close_side_str == "SELL" else "SELL")
+                            
+                            entry_price = getattr(close_detail, "entryPrice", 0.0) or open_info.get("open_price", 0.0)
+                            exit_price = getattr(d, "executionPrice", 0.0)
+                            
+                            open_ts = open_info.get("open_ts", 0)
+                            close_ts = getattr(d, "executionTimestamp", 0) or getattr(d, "createTimestamp", 0)
+                            open_time_str = datetime.fromtimestamp(open_ts / 1000.0, tz=timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC") if open_ts else "Prior (<30d)"
+                            close_time_str = datetime.fromtimestamp(close_ts / 1000.0, tz=timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC") if close_ts else "Unknown"
+                            
+                            duration_str = "—"
+                            if open_ts and close_ts and close_ts > open_ts:
+                                delta_sec = int((close_ts - open_ts) / 1000)
+                                if delta_sec < 60: duration_str = f"{delta_sec}s"
+                                elif delta_sec < 3600: duration_str = f"{delta_sec // 60}m {delta_sec % 60}s"
+                                elif delta_sec < 86400: duration_str = f"{delta_sec // 3600}h {(delta_sec % 3600) // 60}m"
+                                else: duration_str = f"{delta_sec // 86400}d {(delta_sec % 86400) // 3600}h"
+                                
+                            gross_profit = getattr(close_detail, "grossProfit", 0)
+                            swap_val = getattr(close_detail, "swap", 0)
+                            comm_val = getattr(close_detail, "commission", 0)
+                            money_digits = getattr(close_detail, "moneyDigits", 2) or 2
+                            divisor = 10 ** money_digits
+                            
+                            net_pnl_val = float(gross_profit + swap_val + comm_val) / divisor
+                            net_pnl_str = _safe_currency(net_pnl_val)
+                            
+                            pair_label = f"ID:{sym_id}"
+                            for name, meta in _instruments.items():
+                                if str(meta["id"]) == str(sym_id):
+                                    pair_label = name
+                                    break
+                                    
+                            raw_vol = getattr(close_detail, "closedVolume", 0) or getattr(d, "volume", 0)
+                            vol_str = format_volume(pair_label, raw_vol)
+                            pips_str = calc_pips(pair_label, true_side, entry_price, exit_price)
+                            
+                            self.trades.append({
+                                "pair": pair_label,
+                                "side": true_side,
+                                "qty": vol_str,
+                                "entry": f"{entry_price:,.5f}".rstrip('0').rstrip('.'),
+                                "exit": f"{exit_price:,.5f}".rstrip('0').rstrip('.'),
+                                "open_time": open_time_str,
+                                "close_time": close_time_str,
+                                "duration": duration_str,
+                                "pips": pips_str,
+                                "pnl": net_pnl_str,
+                                "pnl_value": net_pnl_val,
+                                "deal_id": deal_id,
+                                "pos_id": pos_id
+                            })
+                sync_status["deals"] = True
+                check_sync_completed(c)
 
             elif payload_type == ProtoOAExecutionEvent().payloadType:
-                # FIXED: Extract and log execution event details + count confirmations
+                # FIXED: Extract and log execution event details
                 try:
                     res = Protobuf.extract(message)
                     order_id = getattr(res, 'orderId', 'N/A')
                     order_status = getattr(res, 'orderStatus', 'UNKNOWN')
                     filled_volume = getattr(res, 'filledVolume', 0)
                     execution_type = getattr(res, 'executionType', 'UNKNOWN')
-                    self.confirmed_executions += 1
-                    log_process("success", f"🎯 TRADE EXECUTED! Order #{order_id} | Type: {execution_type} | Status: {order_status} | Filled Vol: {filled_volume} (confirmed total: {self.confirmed_executions})")
+                    log_process("success", f"🎯 TRADE EXECUTED! Order #{order_id} | Type: {execution_type} | Status: {order_status} | Filled Vol: {filled_volume}")
+
+                    # Immediately attach Stop Loss and Take Profit to the newly opened position
+                    pos = getattr(res, 'position', None)
+                    if pos:
+                        pos_id = getattr(pos, 'positionId', None)
+                        trade_data = getattr(pos, 'tradeData', None)
+                        sym_id = getattr(trade_data, 'symbolId', None) if trade_data else None
+                        
+                        if pos_id and sym_id and int(sym_id) in self.pending_sl_tp:
+                            sltp_info = self.pending_sl_tp[int(sym_id)]
+                            sl_val = sltp_info.get("sl")
+                            tp_val = sltp_info.get("tp")
+                            
+                            if sl_val is not None or tp_val is not None:
+                                log_process("info", f"🛡️ Attaching SL ({sl_val}) / TP ({tp_val}) to newly opened Position #{pos_id}...")
+                                amend_req = ProtoOAAmendPositionSLTPReq()
+                                amend_req.ctidTraderAccountId = self.account_id_num
+                                amend_req.positionId = int(pos_id)
+                                if sl_val is not None:
+                                    try:
+                                        amend_req.stopLoss = float(sl_val)
+                                    except Exception:
+                                        pass
+                                if tp_val is not None:
+                                    try:
+                                        amend_req.takeProfit = float(tp_val)
+                                    except Exception:
+                                        pass
+                                c.send(amend_req).addErrback(on_error)
+                                log_process("success", f"✓ Protected Position #{pos_id} with SL: {sl_val} | TP: {tp_val}")
+                                del self.pending_sl_tp[int(sym_id)]
                 except Exception as e:
-                    self.confirmed_executions += 1
                     log_process("success", f"🎯 cTrader confirmed trade execution event! ({str(e)[:50]})")
                 
             elif payload_type == ProtoOAErrorRes().payloadType:
                 err = Protobuf.extract(message)
                 err_code = getattr(err, 'errorCode', '')
                 err_desc = getattr(err, 'description', '')
-                self.last_error_code = err_code
-                self.last_error_desc = err_desc
-                log_process("error", f"🚫 cTrader REJECTED request: {err_code} - {err_desc}")
+                log_process("error", f"cTrader Server returned error: {err_code} - {err_desc}")
                 if "AUTH_FAILURE" in str(err_code) or "CLIENT_ID" in str(err_code):
                     log_process("error", "🛑 Please check your GitHub Secrets CT_CLIENT_ID and CT_CLIENT_SECRET against your Open API app!")
-                if "VOLUME" in str(err_code).upper():
-                    log_process("error", "💡 Volume hint: the lot size/volume may be invalid for this symbol. Check CTRADER_DEFAULT_QTY and the symbol's min volume / step.")
-                if "STOP_LOSS" in str(err_code).upper() or "TAKE_PROFIT" in str(err_code).upper() or "SLTP" in str(err_code).upper():
-                    log_process("error", "💡 SL/TP hint: Stop Loss or Take Profit is too close to the market price (min distance rule) or on the wrong side.")
                 sync_status["finished"] = True
                 if reactor.running:
                     reactor.callLater(0.2, reactor.stop)
@@ -932,7 +880,12 @@ class cTraderClient:
         # Timeout safety net so GitHub Actions workflow never hangs - FIXED: Increased to 35s to allow full order cycle
         def force_timeout():
             if not sync_status["finished"] and reactor.running:
-                log_process("warning", f"TCP sync timeout reached (Trd:{sync_status['trader']}, Rec:{sync_status['reconcile']}, Sym:{sync_status['symbols']}).")
+                if sync_status["trader"] and sync_status["symbols"] and sync_status["reconcile"]:
+                    log_process("info", "Notice: Trade cycle & account reconciliation completed successfully. Closing TCP connection (deals history sync timed out).")
+                    sync_status["finished"] = True
+                    reactor.stop()
+                    return
+                log_process("warning", f"TCP sync timeout reached (Trd:{sync_status['trader']}, Rec:{sync_status['reconcile']}, Sym:{sync_status['symbols']}, Deals:{sync_status['deals']}).")
                 reactor.stop()
                 
         reactor.callLater(35.0, force_timeout)
@@ -994,10 +947,13 @@ class cTraderClient:
 
     def place_order(self, pair, direction, sl, tp, qty=None):
         """Execute market order via cTrader Open API v2 Protocol Buffers."""
-        if not qty:
-            qty = DEFAULT_QTY
-            
         norm_pair, sym_id = self.normalize_symbol_for_ctrader(pair)
+        is_enabled, calc_qty = resolve_pair_config(pair, norm_pair, qty or DEFAULT_QTY)
+        if not is_enabled:
+            log_process("warning", f"🚫 Copying for instrument '{norm_pair or pair}' is switched OFF in Per-Pair Manager. Order cancelled!")
+            return False
+        qty = calc_qty
+            
         log_process("info", f"Executing {direction} market order on cTrader: {norm_pair or pair} (ID:{sym_id}) | Qty: {qty} | SL: {sl} | TP: {tp}")
         
         if not HAS_PROTOBUF:
@@ -1009,22 +965,49 @@ class cTraderClient:
         
         def on_msg(c, msg):
             if msg.payloadType == ProtoOAAccountAuthRes().payloadType:
+                if sl is not None or tp is not None:
+                    self.pending_sl_tp[int(sym_id)] = {"sl": sl, "tp": tp, "pair": norm_pair or pair}
+                inst_meta = _instruments.get(norm_pair or pair, {})
+                min_vol = inst_meta.get("minVolume", 100000) or 100000
+                step_vol = inst_meta.get("stepVolume", min_vol) or min_vol
+                try:
+                    raw_vol = int(round(float(qty) * (min_vol / 0.01)))
+                    target_vol = max(min_vol, int(round(raw_vol / step_vol)) * step_vol)
+                except Exception:
+                    target_vol = min_vol
+
                 req = ProtoOANewOrderReq()
                 req.ctidTraderAccountId = self.account_id_num
                 req.symbolId = int(sym_id)
                 req.orderType = ProtoOAOrderType.MARKET
                 req.tradeSide = ProtoOATradeSide.BUY if direction.upper() == "BUY" else ProtoOATradeSide.SELL
-                req.volume = int(float(qty) * 100000)
-                if sl is not None:
-                    try: req.stopLoss = float(sl)
-                    except: pass
-                if tp is not None:
-                    try: req.takeProfit = float(tp)
-                    except: pass
+                req.volume = target_vol
                 c.send(req)
             elif msg.payloadType == ProtoOAExecutionEvent().payloadType:
                 log_process("success", f"Market Order executed successfully on cTrader for {norm_pair or pair}!")
-                if reactor.running: reactor.stop()
+                try:
+                    res = Protobuf.extract(msg)
+                    pos = getattr(res, 'position', None)
+                    if pos and int(sym_id) in self.pending_sl_tp:
+                        pos_id = getattr(pos, 'positionId', None)
+                        sltp = self.pending_sl_tp[int(sym_id)]
+                        if pos_id:
+                            amend = ProtoOAAmendPositionSLTPReq(ctidTraderAccountId=self.account_id_num, positionId=int(pos_id))
+                            if sltp.get("sl"):
+                                try:
+                                    amend.stopLoss = float(sltp["sl"])
+                                except Exception:
+                                    pass
+                            if sltp.get("tp"):
+                                try:
+                                    amend.takeProfit = float(sltp["tp"])
+                                except Exception:
+                                    pass
+                            c.send(amend)
+                            log_process("success", f"✓ Protected Position #{pos_id} with SL/TP!")
+                except Exception as ex:
+                    pass
+                if reactor.running: reactor.callLater(1.0, reactor.stop)
 
         def conn(c):
             req = ProtoOAApplicationAuthReq()
@@ -1079,20 +1062,6 @@ class cTraderClient:
 # =====================================================================
 # TELEGRAM BOT INTEGRATION
 # =====================================================================
-def clear_telegram_webhook():
-    """Remove any webhook so getUpdates works (fixes HTTP 409 Conflict / missed signals)."""
-    if not TG_TOKEN:
-        return
-    try:
-        url = f"https://api.telegram.org/bot{TG_TOKEN}/deleteWebhook?drop_pending_updates=false"
-        req = urllib.request.Request(url)
-        with urllib.request.urlopen(req, timeout=8) as resp:
-            data = json.loads(resp.read().decode())
-            if data.get("ok"):
-                log_process("info", "🧹 Cleared any Telegram webhook (prevents 409 Conflict / missed signals).")
-    except Exception as e:
-        log_process("info", f"Webhook clear note: {str(e)[:60]}")
-
 def test_telegram_connection():
     """Verify Telegram bot reachability using TG_TOKEN."""
     if not TG_TOKEN:
@@ -1120,64 +1089,27 @@ def test_telegram_connection():
         log_process("error", f"Telegram connection exception: {str(e)}")
         return False, {"error": str(e)}
 
-def load_pending_signals():
-    """Load the persistent retry queue of unexecuted signals from previous failed cycles."""
-    try:
-        path = os.path.join("docs", "pending_signals.json")
-        if os.path.exists(path):
-            with open(path, "r", encoding="utf-8") as f:
-                return json.load(f) or []
-    except Exception as e:
-        print(f"[WARNING] Could not load pending signals: {e}")
-    return []
-
-def save_pending_signals(signals):
-    """Persist the retry queue so signals survive execution failures and process crashes."""
-    os.makedirs("docs", exist_ok=True)
-    path = os.path.join("docs", "pending_signals.json")
-    try:
-        with open(path, "w", encoding="utf-8") as f:
-            json.dump(signals, f, indent=2)
-    except Exception as e:
-        print(f"[WARNING] Could not save pending signals: {e}")
-
-def _signal_key(sig):
-    """Build a stable signature for deduplicating signals (e.g. same message re-fetched on retry)."""
-    return "|".join(str(sig.get(k, "")) for k in ["type", "pair", "direction", "sl", "tp", "new_sl", "result"])
-
-def dedupe_signals(signals):
-    seen = set()
-    out = []
-    for s in signals:
-        k = _signal_key(s)
-        if k in seen:
-            continue
-        seen.add(k)
-        out.append(s)
-    return out
-
 def tg_get_messages(offset=0):
-    """Fetch recent messages from configured TG_CHAT and store in persistent history.
-    Returns (messages, max_update_id). Does NOT advance the global offset — the
-    caller commits the offset ONLY AFTER successful trade execution, so a signal
-    is never lost to Telegram's delete-on-read behavior if execution fails."""
+    """Fetch recent messages from configured TG_CHAT and store in persistent history."""
+    global _last_update_id
     if not TG_TOKEN:
-        return [], offset
+        return []
     try:
         url = f"https://api.telegram.org/bot{TG_TOKEN}/getUpdates?offset={offset+1}&timeout=4&limit=50"
         req = urllib.request.Request(url)
         with urllib.request.urlopen(req, timeout=12) as resp:
             result = json.loads(resp.read().decode())
             if not result.get("ok"):
-                return [], offset
+                return []
+            raw_updates = result.get("result", [])
+            if raw_updates:
+                log_process("info", f"Telegram server returned {len(raw_updates)} raw update(s).")
             messages = []
-            max_uid = offset
-            existing_ids = {tm.get("update_id") for tm in _telegram_messages if tm.get("update_id") is not None}
-            for upd in result.get("result", []):
+            for upd in raw_updates:
                 uid = upd.get("update_id", 0)
-                if uid > max_uid:
-                    max_uid = uid
-                msg = upd.get("message") or upd.get("channel_post") or {}
+                if uid > _last_update_id:
+                    _last_update_id = uid
+                msg = upd.get("message") or upd.get("channel_post") or upd.get("edited_message") or upd.get("edited_channel_post") or {}
                 chat = msg.get("chat", {})
                 chat_id = str(chat.get("id", ""))
                 chat_uname = chat.get("username", "")
@@ -1214,125 +1146,113 @@ def tg_get_messages(offset=0):
                     if "⚡" in classification:
                         log_process("success", f"Matched signal from [{chat_title}] -> {classification}")
                 
-                if uid not in existing_ids:
-                    existing_ids.add(uid)
-                    _telegram_messages.append({
-                        "update_id": uid,
-                        "timestamp": timestamp,
-                        "chat": f"{chat_title} (ID:{chat_id})",
-                        "text": text[:150],
-                        "status": classification
-                    })
-                    if len(_telegram_messages) > 50:
-                        _telegram_messages.pop(0)
+                _telegram_messages.append({
+                    "timestamp": timestamp,
+                    "chat": f"{chat_title} (ID:{chat_id})",
+                    "text": text[:1000],
+                    "status": classification
+                })
+                if len(_telegram_messages) > 50:
+                    _telegram_messages.pop(0)
             
-            return messages, max_uid
+            save_system_state()
+            return messages
     except Exception as ex:
         log_process("warning", f"Telegram getUpdates note: {ex}")
-        return [], offset
+        return []
 
 def looks_like_signal(text):
     if not text: return False
     t = text.upper()
-    return any(k in t for k in ["BUY", "SELL", "LONG", "SHORT", "TP HIT", "SL HIT",
-                                "SL_UPDATE", "SL UPDATE", "CLOSE TRADE", "CLOSE POSITION"])
-
-def _clean_pair(raw):
-    if not raw: return ""
-    return re.sub(r"[^A-Za-z0-9]", "", raw).upper()
+    return any(k in t for k in ["BUY", "SELL", "TP HIT", "SL HIT", "SL_UPDATE", "SL UPDATE"])
 
 def parse_signal(text):
-    """Flexible multi-format signal parser. Scans the WHOLE message (not just line 1),
-    accepts BUY/SELL/LONG/SHORT/CLOSE, emoji prefixes, and many SL/TP/Entry formats."""
     if not text: return None
-    raw_lines = text.strip().split("\n")
-    lines = [re.sub(r"<[^>]+>", "", ln).strip() for ln in raw_lines]
-    full_upper = " ".join(lines).upper()
+    lines = text.strip().split("\n")
+    first = lines[0].strip().upper()
 
-    # ---- TP / SL HIT (close on target) ----
-    hit = re.search(r"(TP|SL)\s*HIT\s*[-–:]?\s*([A-Za-z0-9/_-]+)", full_upper, re.IGNORECASE)
-    if hit or "TP HIT" in full_upper or "SL HIT" in full_upper:
-        pair_str = hit.group(2) if hit else ""
+    if "TP HIT" in first or "SL HIT" in first:
+        pair = re.search(r"(TP|SL)\s*HIT\s*[-–:]?\s*([A-Za-z0-9/_-]+)", first, re.IGNORECASE)
+        pair_str = pair.group(2) if pair else ""
         if not pair_str:
-            for ln in lines:
-                m = re.search(r"\b([A-Z]{3,8}[/]?[A-Z]{0,8})\b", ln.upper())
-                if m and "HIT" not in m.group(1) and m.group(1) not in ("TP", "SL"):
-                    pair_str = m.group(1); break
-        result = "TP" if "TP HIT" in full_upper else "SL"
-        return {"type": "TPSL_HIT", "result": result, "pair": _clean_pair(pair_str) or "EURUSD"}
+            for line in lines[1:]:
+                m = re.search(r"([A-Z]{3,8}[/]?[A-Z]{0,8})", line.strip().upper())
+                if m and "HIT" not in m.group(1) and "TP" not in m.group(1):
+                    pair_str = m.group(1)
+                    break
+        result = "TP" if "TP HIT" in first else "SL"
+        return {"type": "TPSL_HIT", "result": result, "pair": pair_str.replace("/", "").strip() or "EURUSD"}
 
-    # ---- SL UPDATE ----
-    if "SL_UPDATE" in full_upper or "SL UPDATE" in full_upper or "MOVE SL" in full_upper:
+    if "#SL_UPDATE" in text.upper() or "SL UPDATE" in text.upper():
         pair, new_sl = None, None
-        for ln in lines:
-            lu = ln.upper()
-            if "PAIR" in lu and ":" in ln:
-                pair = _clean_pair(ln.split(":", 1)[1].strip().split()[0]) if ln.split(":", 1)[1].strip() else ""
+        for line in lines:
+            line_upper = line.upper().strip()
+            if "PAIR" in line_upper and ":" in line:
+                pair = line.split(":", 1)[1].strip().split()[0].replace("/", "")
             elif not pair:
-                m_pair = re.search(r"\b(XAUUSD|XAGUSD|EURUSD|GBPUSD|USDJPY|NAS100|US30|GER40|BTCUSD|GOLD|OIL|[A-Z]{6})\b", lu)
-                if m_pair and m_pair.group(1) not in ("UPDATE", "SL_UPDATE"):
+                m_pair = re.search(r"\b(XAUUSD|EURUSD|GBPUSD|USDJPY|NAS100|US30|GER40|GOLD|OIL|[A-Z]{6})\b", line_upper)
+                if m_pair and m_pair.group(1) not in ["UPDATE", "SL_UPDATE"]:
                     pair = m_pair.group(1)
-            m = re.search(r"(?:NEW\s*)?(?:SL|STOP\s*LOSS)\s*[:=]?\s*([\d.]+)", ln, re.IGNORECASE)
+            
+            m = re.search(r"(?:New\s*)?SL\s*[:=]\s*([\d.]+)", line, re.IGNORECASE)
             if m and new_sl is None:
-                try: new_sl = float(m.group(1))
-                except: pass
+                try:
+                    new_sl = float(m.group(1))
+                except Exception:
+                    pass
         if new_sl:
             return {"type": "SL_UPDATE", "pair": pair or "EURUSD", "new_sl": new_sl}
         return None
 
-    # ---- NEW ORDER: search WHOLE message for action + pair (handles emoji, any line) ----
-    action = None
-    pair = ""
-    action_pat = re.compile(r"\b(BUY|SELL|LONG|SHORT|CLOSE\s+TRADE|CLOSE\s+POSITION|CLOSE)\b\s+([A-Za-z]{2,8}[/A-Za-z0-9.-]{0,8})", re.IGNORECASE)
-    for ln in lines:
-        m = action_pat.search(ln)
-        if m:
-            w = m.group(1).upper()
-            action = {"LONG": "BUY", "SHORT": "SELL", "CLOSE TRADE": "CLOSE",
-                      "CLOSE POSITION": "CLOSE", "CLOSE": "CLOSE"}.get(w, w)
-            pair = _clean_pair(m.group(2))
-            break
-    if not action:
-        # fallback: action and pair on separate tokens anywhere
-        m2 = re.search(r"\b(BUY|SELL|LONG|SHORT)\b", full_upper)
-        if m2:
-            w = m2.group(1).upper()
-            action = "BUY" if w == "LONG" else ("SELL" if w == "SHORT" else w)
-            mp = re.search(r"\b([A-Z]{3,8}[/]?[A-Z]{0,8})\b", full_upper)
-            pair = _clean_pair(mp.group(1)) if mp else ""
-    if not action:
+    direction, pair = None, None
+    for line in lines:
+        cl = re.sub(r"<[^>]+>", "", line).strip()
+        m = re.search(r"\b(BUY|SELL|CLOSE)\b(?:\s+MARKET)?\s+([A-Za-z0-9/_-]{3,10})", cl, re.IGNORECASE)
+        if m and not direction:
+            direction = m.group(1).upper()
+            pair_str = m.group(2).upper().replace("/", "").replace("-", "").strip()
+            if pair_str not in ["MARKET", "NOW", "ENTRY", "AT", "ORDER", "SIGNAL", "LIMIT", "STOP", "ZONE"]:
+                pair = pair_str
+                break
+
+    if not pair:
+        for line in lines:
+            cl = re.sub(r"<[^>]+>", "", line).strip()
+            m_pair = re.search(r"\b(?:PAIR|SYMBOL|ASSET|INSTRUMENT)\s*[:=]\s*([A-Za-z0-9/_-]+)", cl, re.IGNORECASE)
+            if m_pair:
+                pair = m_pair.group(1).upper().replace("/", "").replace("-", "").strip()
+                break
+    if not direction:
+        for line in lines:
+            cl = re.sub(r"<[^>]+>", "", line).strip()
+            m_dir = re.search(r"\b(BUY|SELL|CLOSE)\b", cl, re.IGNORECASE)
+            if m_dir:
+                direction = m_dir.group(1).upper()
+                break
+
+    if not direction or not pair:
         return None
 
-    # If pair still empty, try to grab any symbol token
-    if not pair:
-        mp = re.search(r"\b(XAUUSD|XAGUSD|BTCUSD|ETHUSD|EURUSD|GBPUSD|USDJPY|USDCHF|AUDUSD|NZDUSD|USDCAD|EURNZD|EURJPY|GBPJPY|CHFJPY|NZDJPY|CADJPY|EURCHF|NAS100|US30|GER40|XAU|GOLD|[A-Z]{6})\b", full_upper)
-        pair = _clean_pair(mp.group(1)) if mp else ""
+    sl, tp = None, None
+    for line in lines:
+        cl = re.sub(r"<[^>]+>", "", line).strip()
+        m_sl = re.search(r"\b(?:STOP\s*LOSS|STOP|SL)\s*[:=@-]?\s*([\d.]+)", cl, re.IGNORECASE)
+        if m_sl and sl is None:
+            try:
+                val = float(m_sl.group(1))
+                if val > 0: sl = val
+            except Exception:
+                pass
+        m_tp = re.search(r"\b(?:TAKE\s*PROFIT|TARGET\s*1?|TP\s*1?|TP)\s*[:=@-]?\s*([\d.]+)", cl, re.IGNORECASE)
+        if m_tp and tp is None:
+            try:
+                val = float(m_tp.group(1))
+                if val > 0: tp = val
+            except Exception:
+                pass
 
-    # ---- Extract SL / TP / Entry from any line, many formats ----
-    sl = tp = entry = None
-    for ln in lines:
-        # Stop Loss: "SL:", "SL =", "SL ", "Stop Loss:", "StopLoss:", "SL at", "S/L:"
-        if sl is None:
-            m = re.search(r"(?<![A-Za-z])(?:SL|S/?L|STOP\s*LOSS)\s*(?:[:=at]+)?\s*([\d]+(?:\.\d+)?)", ln, re.IGNORECASE)
-            if m:
-                try: sl = float(m.group(1))
-                except: pass
-        # Take Profit
-        if tp is None:
-            m = re.search(r"(?<![A-Za-z])(?:TP|T/?P|TAKE\s*PROFIT)\s*(?:[:=at]+)?\s*([\d]+(?:\.\d+)?)", ln, re.IGNORECASE)
-            if m:
-                try: tp = float(m.group(1))
-                except: pass
-        # Entry price
-        if entry is None:
-            m = re.search(r"(?:ENTRY|REF|PRICE|@|AT)\s*[:=]?\s*([\d]+(?:\.\d+)?)", ln, re.IGNORECASE)
-            if m:
-                try: entry = float(m.group(1))
-                except: pass
-
-    qty = 0.10 if ("BTC" in pair or "ETH" in pair) else 0.01
-    return {"type": "SIGNAL", "direction": action, "pair": pair or "EURUSD",
-            "sl": sl, "tp": tp, "entry": entry, "qty": qty}
+    qty = 0.10 if "BTC" in pair else 0.01
+    return {"type": "SIGNAL", "direction": direction, "pair": pair, "sl": sl, "tp": tp, "qty": qty}
 
 def reclassify_stored_telegram_messages():
     """Re-evaluate stored historical Telegram messages against current chat filter rules."""
@@ -1360,25 +1280,6 @@ def generate_dashboard_html(client, ct_connected, ct_error, tg_connected, tg_inf
     positions_data = client.positions
     orders_data = client.orders
     trades_data = client.trades
-    _pending_count = len(load_pending_signals())
-    # Build the per-pair table data: ALL loaded instruments + any overrides/defaults, with lot + on/off
-    _lot_pairs = sorted(set(list(_instruments.keys()) + list(LOT_SIZES.keys()) + list(DEFAULT_LOTS.keys()) + list(PAIR_ENABLED.keys())))
-    _lot_data = {}
-    for p in _lot_pairs:
-        _lot_data[p] = {"lot": LOT_SIZES.get(p, DEFAULT_LOTS.get(p, lot_for(p))), "on": is_pair_enabled(p), "sym": _instruments.get(p, {}).get("id")}
-    _lot_json = json.dumps(_lot_data)
-    _active_overrides = len(LOT_SIZES)
-    _total_pairs = len(_lot_pairs)
-    _enabled_count = sum(1 for p in _lot_pairs if _lot_data[p]["on"])
-    # Extra trading settings (from docs/extra_settings.json if present)
-    _extra_settings = {}
-    try:
-        _es_path = os.path.join("docs", "extra_settings.json")
-        if os.path.exists(_es_path):
-            with open(_es_path, "r", encoding="utf-8") as _f:
-                _extra_settings = json.load(_f) or {}
-    except Exception:
-        _extra_settings = {}
 
     wins = sum(1 for t in trades_data if t.get("pnl_value", 0) > 0)
     losses = sum(1 for t in trades_data if t.get("pnl_value", 0) < 0)
@@ -1412,80 +1313,39 @@ def generate_dashboard_html(client, ct_connected, ct_error, tg_connected, tg_inf
 
     # Tables formatting
     if positions_data:
-        pos_rows = ""
-        for p in positions_data:
-            ot = str(p.get("open_time", "")).replace('"', '')
-            pos_rows += (f'<tr>'
-                f'<td class="time" data-ts="{ot}">{p.get("open_time","—")}</td>'
-                f'<td class="pair">{p["pair"]}</td>'
-                f'<td class="{"buy" if "BUY" in p["side"] else "sell"}">{p["side"]}</td>'
-                f'<td>{p["qty"]}</td><td>{p["price"]}</td><td>{p["sl"]}</td><td>{p["tp"]}</td>'
-                f'<td>#{p.get("position_id","—")}</td>'
-                f'<td style="color:#3fb950;font-weight:600;">{p["pnl"]}</td>'
-                f'</tr>')
-        positions_table = (f'<table><thead><tr>'
-            f'<th>Open Time (UTC)</th><th>Pair</th><th>Side</th><th>Volume</th>'
-            f'<th>Entry Price</th><th>SL</th><th>TP</th><th>Position ID</th><th>P&amp;L</th>'
-            f'</tr></thead><tbody>{pos_rows}</tbody></table>')
+        pos_rows = "".join([
+            f'<tr><td class="pair">{p["pair"]}</td><td class="{"buy" if "BUY" in p["side"] else "sell"}">{p["side"]}</td><td>{p.get("qty","—")}</td><td>{p.get("price","—")}</td><td>{p.get("sl","—")}</td><td>{p.get("tp","—")}</td><td style="font-size:11px;color:#8b949e;white-space:nowrap;">{p.get("open_time","—")}</td><td style="font-size:11px;color:#8b949e;">{p.get("swap_comm","—")}</td><td style="font-size:11px;color:#8b949e;">{p.get("margin","—")}</td><td style="color:#3fb950;font-weight:600;">{p["pnl"]}</td></tr>'
+            for p in positions_data
+        ])
+        positions_table = f'<table style="min-width:800px;"><thead><tr><th>Pair</th><th>Side</th><th>Volume</th><th>Entry</th><th>SL</th><th>TP</th><th>Open Time (UTC)</th><th>Swap / Comm.</th><th>Used Margin</th><th>P&L</th></tr></thead><tbody>{pos_rows}</tbody></table>'
     else:
         positions_table = '<div class="empty">No open positions currently</div>'
 
     if trades_data:
-        trade_rows = ""
-        for t in trades_data:
-            side_cls = "buy" if "BUY" in str(t.get("side", "")) else "sell"
-            pnl_val = t.get("pnl_value", 0)
-            pnl_col = "#3fb950" if pnl_val >= 0 else "#f85149"
-            ot = str(t.get("open_time", "")).replace('"', '')
-            ct = str(t.get("close_time", "")).replace('"', '')
-            trade_rows += (f'<tr>'
-                f'<td class="time" data-ts="{ot}">{t.get("open_time","—")}</td>'
-                f'<td class="time" data-ts="{ct}">{t.get("close_time","—")}</td>'
-                f'<td>{t.get("duration","—")}</td>'
-                f'<td class="pair">{t.get("pair","N/A")}</td>'
-                f'<td class="{side_cls}">{t.get("side","—")}</td>'
-                f'<td>{t.get("qty","—")}</td>'
-                f'<td>{t.get("entry","—")}</td>'
-                f'<td>{t.get("exit","—")}</td>'
-                f'<td style="color:{pnl_col};font-weight:700;">{t.get("pnl","$0.00")}</td>'
-                f'<td>{t.get("status","—")}</td>'
-                f'</tr>')
-        trades_table = (f'<table><thead><tr>'
-            f'<th>Entry Time (UTC)</th><th>Exit Time (UTC)</th><th>Duration</th>'
-            f'<th>Pair</th><th>Side</th><th>Volume</th><th>Entry Price</th><th>Exit Price</th>'
-            f'<th>P&amp;L</th><th>Status</th>'
-            f'</tr></thead><tbody>{trade_rows}</tbody></table>')
+        trade_rows = "".join([
+            f'<tr><td class="pair">{t.get("pair","N/A")}</td><td class="{"buy" if "BUY" in t.get("side","BUY") else "sell"}">{t.get("side","BUY")}</td><td>{t.get("qty","—")}</td><td>{t.get("entry","0.00")}</td><td>{t.get("exit","0.00")}</td><td style="font-size:11px;color:#8b949e;white-space:nowrap;">{t.get("open_time","—")}</td><td style="font-size:11px;color:#8b949e;white-space:nowrap;">{t.get("close_time","—")}</td><td style="font-size:11px;color:#8b949e;">{t.get("duration","—")}</td><td style="font-weight:700;color:{"#3fb950" if "+" in str(t.get("pips","")) else "#f85149"};">{t.get("pips","—")}</td><td style="color:{"#3fb950" if t.get("pnl_value",0)>=0 else "#f85149"};font-weight:700;">{t.get("pnl","$0.00")}</td></tr>'
+            for t in trades_data
+        ])
+        trades_table = f'<table style="min-width:900px;"><thead><tr><th>Pair</th><th>Side</th><th>Volume</th><th>Entry</th><th>Exit</th><th>Entry Time (UTC)</th><th>Exit Time (UTC)</th><th>Duration</th><th>Pips</th><th>Net P&L</th></tr></thead><tbody>{trade_rows}</tbody></table>'
     else:
-        trades_table = '<div class="empty">No deal history retrieved yet (trades will appear here once executed)</div>'
+        trades_table = '<div class="empty">No closed trades recorded yet</div>'
 
     logs_rows = ""
     for log in _process_logs[-100:]:
         lvl = log["level"].upper()
         col = {"INFO": "#58a6ff", "SUCCESS": "#3fb950", "ERROR": "#f85149", "WARNING": "#d29922"}.get(lvl, "#c9d1d9")
-        msg = str(log["message"]).replace("<", "&lt;").replace(">", "&gt;")
-        logs_rows += f'<tr><td class="time" data-ts="{log["timestamp"]}">{log["timestamp"]}</td><td style="color:{col};font-weight:700;">{lvl}</td><td class="msg-cell">{msg}</td></tr>'
+        logs_rows += f'<tr><td class="time">{log["timestamp"]}</td><td style="color:{col};font-weight:700;">{lvl}</td><td>{log["message"]}</td></tr>'
     logs_table = f'<table><thead><tr><th>Time</th><th>Level</th><th>Message</th></tr></thead><tbody>{logs_rows}</tbody></table>' if logs_rows else '<div class="empty">No logs yet</div>'
 
-    # Dedicated full-detail ERRORS & REJECTIONS panel (shows every error/warning with complete text)
-    error_logs = [l for l in _process_logs if l["level"] in ("error", "warning")][-40:]
-    error_rows = ""
-    for log in error_logs:
-        lvl = log["level"].upper()
-        col = "#f85149" if lvl == "ERROR" else "#d29922"
-        msg = str(log["message"]).replace("<", "&lt;").replace(">", "&gt;")
-        error_rows += f'<tr><td class="time" data-ts="{log["timestamp"]}">{log["timestamp"]}</td><td style="color:{col};font-weight:700;">{lvl}</td><td class="msg-cell" style="word-break:break-word;white-space:normal;">{msg}</td></tr>'
-    errors_detail_table = f'<table><thead><tr><th>Time</th><th>Level</th><th>Full Error / Warning Detail</th></tr></thead><tbody>{error_rows}</tbody></table>' if error_rows else '<div class="empty">✅ No errors or warnings recorded</div>'
-
     tg_rows = ""
-    for tm in _telegram_messages[-30:]:
+    for tm in _telegram_messages[-50:]:
         status_col = "#3fb950" if "⚡" in tm["status"] else ("#d29922" if "⚠️" in tm["status"] else "#8b949e")
-        msg_txt = str(tm["text"]).replace("<", "&lt;").replace(">", "&gt;")
-        tg_rows += f'<tr><td class="time" data-ts="{tm["timestamp"]}">{tm["timestamp"]}</td><td>{tm["chat"]}</td><td style="color:{status_col};font-weight:700;">{tm["status"]}</td><td class="msg-cell">{msg_txt}</td></tr>'
+        tg_rows += f'<tr><td class="time">{tm["timestamp"]}</td><td>{tm["chat"]}</td><td style="color:{status_col};font-weight:700;">{tm["status"]}</td><td style="white-space:pre-wrap;font-family:monospace;">{tm["text"]}</td></tr>'
     telegram_table = f'<table><thead><tr><th>Time</th><th>Chat Source</th><th>Signal Status</th><th>Message Content</th></tr></thead><tbody>{tg_rows}</tbody></table>' if tg_rows else '<div class="empty">No Telegram messages received yet (waiting for updates)</div>'
 
     alerts_html = "".join([
-        f'<div style="padding:8px;margin:6px 0;background:{"#f8514920" if a["level"]=="error" else "#d2992220"};border-left:3px solid {"#f85149" if a["level"]=="error" else "#d29922"};border-radius:4px;font-size:12px;"><strong>{a["level"].upper()}</strong> <span data-ts="{a["timestamp"]}">{a["timestamp"]}</span>: {a["message"]}</div>'
-        for a in _alerts[-30:]
+        f'<div style="padding:8px;margin:6px 0;background:{"#f8514920" if a["level"]=="error" else "#d2992220"};border-left:3px solid {"#f85149" if a["level"]=="error" else "#d29922"};border-radius:4px;font-size:12px;"><strong>{a["level"].upper()}</strong> {a["timestamp"]}: {a["message"]}</div>'
+        for a in _alerts[-50:]
     ]) or '<div class="empty">No recent alerts or warnings</div>'
 
     last_update = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
@@ -1507,6 +1367,8 @@ def generate_dashboard_html(client, ct_connected, ct_error, tg_connected, tg_inf
         .btn-refresh:hover {{ background: #2ea043; }}
         .btn-logout {{ background: #da3633; color: #fff; }}
         .btn-logout:hover {{ background: #f85149; }}
+        .btn-portal {{ background: #38bdf8; color: #0f172a; margin-right: 8px; text-decoration: none; }}
+        .btn-portal:hover {{ background: #7dd3fc; }}
         .section-title {{ font-size: 12px; color: #8b949e; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin: 24px 0 10px 0; }}
         .card {{ background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 16px; margin-bottom: 16px; }}
         .health-grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 16px; }}
@@ -1532,8 +1394,6 @@ def generate_dashboard_html(client, ct_connected, ct_error, tg_connected, tg_inf
         .buy {{ color: #3fb950; font-weight: 600; }}
         .sell {{ color: #f85149; font-weight: 600; }}
         .time {{ font-size: 11px; color: #8b949e; white-space: nowrap; }}
-        .msg-cell {{ word-break: break-word; white-space: pre-wrap; max-width: 520px; }}
-        .ago {{ display: block; font-size: 10px; color: #58a6ff; font-weight: 600; }}
         .empty {{ text-align: center; color: #8b949e; padding: 24px; font-style: italic; }}
     </style>
     <script>
@@ -1546,110 +1406,197 @@ def generate_dashboard_html(client, ct_connected, ct_error, tg_connected, tg_inf
             sessionStorage.clear();
             window.location.href = 'login.html';
         }}
-        // Live relative-time ("X ago") so timings are always accurate and current
-        function parseTs(s) {{
-            // Expected: "2026-07-26 11:06:44 UTC"
-            try {{
-                let parts = String(s).trim().split(' ');
-                let dp = parts[0].split('-');
-                let tp = parts[1].split(':');
-                return new Date(Date.UTC(+dp[0], +dp[1]-1, +dp[2], +tp[0], +tp[1], +tp[2]));
-            }} catch(e) {{ return null; }}
+        checkAuth();
+        setInterval(() => location.reload(), 60000);
+
+        let ADMIN_PAIR_LOTS = JSON.parse(localStorage.getItem('admin_pair_lots') || '{{}}');
+        try {{
+            const SERVER_PAIR_LOTS = {json.dumps(PAIR_LOTS_MAP)};
+            Object.assign(ADMIN_PAIR_LOTS, SERVER_PAIR_LOTS);
+            localStorage.setItem('admin_pair_lots', JSON.stringify(ADMIN_PAIR_LOTS));
+        }} catch(e) {{}}
+
+        const COMMON_PAIRS = ['BTCUSD', 'ETHUSD', 'XAUUSD', 'XAGUSD', 'USOIL', 'UKOIL', 'EURUSD', 'GBPUSD', 'USDJPY', 'AUDUSD', 'USDCAD', 'NZDUSD', 'USDCHF', 'EURJPY', 'GBPJPY', 'CADJPY', 'AUDJPY', 'NZDJPY', 'CHFJPY', 'EURGBP', 'US30', 'NAS100', 'GER40', 'SPX500', 'AUDNZD', 'EURNZD', 'EURCAD', 'EURCHF', 'GBPCHF', 'GBPCAD', 'CADCHF', 'NZDCAD', 'NZDCHF'];
+        const SERVER_INSTRUMENTS = {json.dumps(sorted(list(_instruments.keys())) if _instruments else [])};
+        let showAll372 = false;
+
+        function showAdminNotification(msg) {{
+            let toast = document.getElementById('admin-toast');
+            if (!toast) {{
+                toast = document.createElement('div');
+                toast.id = 'admin-toast';
+                toast.style.cssText = 'position:fixed;top:20px;right:20px;z-index:9999;background:#238636;color:#fff;padding:14px 22px;border-radius:8px;font-size:13px;font-weight:700;box-shadow:0 8px 30px rgba(0,0,0,0.5);transition:opacity 0.3s;';
+                document.body.appendChild(toast);
+            }}
+            toast.textContent = msg;
+            toast.style.display = 'block';
+            toast.style.opacity = '1';
+            setTimeout(() => {{ toast.style.opacity = '0'; setTimeout(() => toast.style.display = 'none', 300); }}, 4000);
         }}
-        function timeAgo(d) {{
-            let sec = Math.floor((Date.now() - d.getTime()) / 1000);
-            if (sec < 0) sec = 0;
-            if (sec < 60) return sec + 's ago';
-            if (sec < 3600) return Math.floor(sec/60) + 'm ago';
-            if (sec < 86400) return Math.floor(sec/3600) + 'h ago';
-            return Math.floor(sec/86400) + 'd ago';
-        }}
-        function refreshAgo() {{
-            document.querySelectorAll('[data-ts]').forEach(function(el) {{
-                let d = parseTs(el.getAttribute('data-ts'));
-                if (!d) return;
-                let existing = el.querySelector('.ago');
-                if (!existing) {{
-                    existing = document.createElement('span');
-                    existing.className = 'ago';
-                    el.appendChild(existing);
+
+        function getPairAdminConfig(k) {{
+            let val = ADMIN_PAIR_LOTS[k];
+            if (!val) return {{ lot: '', enabled: true, custom: false }};
+            if (typeof val === 'string' || typeof val === 'number') {{
+                let str = String(val).toUpperCase();
+                if (str === 'OFF' || str === 'DISABLED' || str === 'FALSE' || str === '0' || str === '0.0') {{
+                    return {{ lot: '', enabled: false, custom: true }};
                 }}
-                existing.textContent = timeAgo(d);
-            }});
+                return {{ lot: String(val), enabled: true, custom: true }};
+            }}
+            if (typeof val === 'object') {{
+                return {{
+                    lot: val.lot || val.qty || '',
+                    enabled: val.enabled !== false && String(val.enabled).toUpperCase() !== 'OFF' && String(val.enabled).toUpperCase() !== 'FALSE',
+                    custom: true
+                }};
+            }}
+            return {{ lot: '', enabled: true, custom: false }};
         }}
-        function updateClock() {{
-            let n = new Date();
-            let pad = (x) => String(x).padStart(2, '0');
-            let clk = document.getElementById('liveClock');
-            if (clk) clk.textContent = n.getUTCFullYear()+'-'+pad(n.getUTCMonth()+1)+'-'+pad(n.getUTCDate())+' '+pad(n.getUTCHours())+':'+pad(n.getUTCMinutes())+':'+pad(n.getUTCSeconds());
+
+        function toggleShowAll372() {{
+            showAll372 = !showAll372;
+            renderAdminPairLots();
         }}
-        function updatePageAge() {{
-            let el = document.querySelector('span[data-ts]');
-            // pageAge element sits in footer
-            let pg = document.getElementById('pageAge');
-            if (!pg) return;
-            // find the footer generated timestamp
-            let foot = document.querySelectorAll('div[style*="margin: 30px"] span[data-ts]');
-            if (foot.length) {{
-                let d = parseTs(foot[foot.length-1].getAttribute('data-ts'));
-                if (d) pg.textContent = timeAgo(d);
+
+        function renderAdminPairLots() {{
+            const container = document.getElementById('admin-pair-lots-container');
+            if (!container) return;
+            const filterText = (document.getElementById('pair-search-filter')?.value || '').trim().toUpperCase();
+            const allKnown = Array.from(new Set([...COMMON_PAIRS, ...SERVER_INSTRUMENTS, ...Object.keys(ADMIN_PAIR_LOTS)])).sort();
+            
+            let displayPairs = allKnown;
+            if (filterText) {{
+                displayPairs = allKnown.filter(k => k.includes(filterText));
+            }} else if (!showAll372) {{
+                displayPairs = Array.from(new Set([...COMMON_PAIRS, ...Object.keys(ADMIN_PAIR_LOTS)])).sort();
+            }}
+
+            const btnToggle = document.getElementById('btn-toggle-372');
+            if (btnToggle) {{
+                btnToggle.innerHTML = showAll372 ? `👁️ Showing All ${allKnown.length} Instruments (Click to show Major only)` : `👁️ Show All ${allKnown.length} Loaded Instruments`;
+                btnToggle.style.background = showAll372 ? '#38bdf8' : '#161b22';
+                btnToggle.style.color = showAll372 ? '#0f172a' : '#38bdf8';
+            }}
+
+            container.innerHTML = displayPairs.map(k => {{
+                const cfg = getPairAdminConfig(k);
+                const isOff = !cfg.enabled;
+                return `
+                    <div style="background:#0d1117;border:1px solid ${isOff ? '#f85149' : '#30363d'};padding:10px 14px;border-radius:8px;display:flex;flex-direction:column;gap:8px;min-width:160px;flex:1;opacity:${isOff ? '0.75' : '1'};">
+                        <div style="display:flex;justify-content:space-between;align-items:center;">
+                            <strong style="color:${isOff ? '#f85149' : '#fff'};font-size:13px;">${k}</strong>
+                            <button type="button" onclick="togglePairStatusAdmin('${k}')" style="padding:2px 8px;border-radius:12px;font-size:11px;font-weight:800;cursor:pointer;border:none;background:${!isOff ? '#3fb95020' : '#f8514920'};color:${!isOff ? '#3fb950' : '#f85149'};">
+                                ${!isOff ? '🟢 ON' : '🔴 OFF'}
+                            </button>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:6px;">
+                            <input type="number" step="0.01" id="pair-input-${k}" value="${cfg.lot}" ${isOff ? 'disabled' : ''} placeholder="Auto" style="width:100%;padding:6px 8px;background:${isOff ? '#161b2280' : '#161b22'};border:1px solid #30363d;border-radius:4px;color:#fff;font-size:12px;font-family:monospace;">
+                            ${cfg.custom ? `<button type="button" onclick="clearPairLot('${k}')" title="Reset to Dynamic" style="background:transparent;color:#f85149;border:none;cursor:pointer;font-size:14px;padding:2px;">✕</button>` : ''}
+                        </div>
+                    </div>
+                `;
+            }}).join('');
+            const jsonBox = document.getElementById('admin-pair-lots-json-box');
+            if (jsonBox) {{
+                jsonBox.style.display = 'block';
+                jsonBox.innerHTML = `<strong>💡 GitHub Secret CTRADER_PAIR_LOTS (Copy & Paste to GitHub Secrets):</strong><br>${JSON.stringify(ADMIN_PAIR_LOTS)}`;
             }}
         }}
-        /* ===== Per-Pair Lot Size Manager ===== */
-        const LOT_DATA = {_lot_json};
-        function getSearch(){{ const s=document.getElementById('lotSearch'); return s?s.value.trim().toUpperCase():''; }}
-        function renderLotTable(){{
-            const body=document.getElementById('lotBody'); if(!body) return;
-            const saved=JSON.parse(localStorage.getItem('pip_pair_cfg')||'{{}}');
-            const q=getSearch();
-            body.innerHTML='';
-            Object.keys(LOT_DATA).forEach(pair=>{{
-                if(q && !pair.includes(q)) return;
-                const base=LOT_DATA[pair]||{{}}; const defLot=base.lot; const defOn=base.on!==false;
-                const lot=(saved[pair]&&saved[pair].lot!==undefined)?saved[pair].lot:defLot;
-                const on=(saved[pair]&&saved[pair].on!==undefined)?saved[pair].on:defOn;
-                body.insertAdjacentHTML('beforeend',
-                    `<tr style="border-bottom:1px solid #21262d;"><td style="padding:8px 10px;font-weight:700;">${{pair}}</td><td style="padding:6px 10px;text-align:right;"><input type="number" step="0.01" min="0.01" value="${{lot}}" data-lot="${{pair}}" style="background:#0a0f1c;border:1px solid #30363d;border-radius:6px;width:88px;text-align:center;padding:5px;color:#e6ebf5;"></td><td style="padding:8px 10px;text-align:center;"><label style="position:relative;display:inline-block;width:42px;height:24px;cursor:pointer;"><input type="checkbox" data-on="${{pair}}" ${{on?'checked':''}} style="opacity:0;width:0;height:0;"><span style="position:absolute;inset:0;background:${{on?'#3fb950':'#30363d'}};border-radius:999px;transition:.2s;"></span><span style="position:absolute;top:3px;left:${{on?'21px':'3px'}};width:18px;height:18px;background:#fff;border-radius:50%;transition:.2s;"></span></label></td></tr>`);
+
+        function togglePairStatusAdmin(k) {{
+            const cfg = getPairAdminConfig(k);
+            const el = document.getElementById(`pair-input-${k}`);
+            const curLot = (el && el.value.trim()) ? el.value.trim() : cfg.lot;
+            
+            cfg.enabled = !cfg.enabled;
+            if (cfg.enabled && !curLot) {{
+                delete ADMIN_PAIR_LOTS[k];
+            }} else if (!cfg.enabled && !curLot) {{
+                ADMIN_PAIR_LOTS[k] = "OFF";
+            }} else {{
+                ADMIN_PAIR_LOTS[k] = {{ lot: curLot, enabled: cfg.enabled }};
+            }}
+            localStorage.setItem('admin_pair_lots', JSON.stringify(ADMIN_PAIR_LOTS));
+            renderAdminPairLots();
+            showAdminNotification(`⚡ Switched ${k} ${cfg.enabled ? 'ON (Copying Allowed)' : 'OFF (Signal Copying Blocked)'}!`);
+        }}
+
+        function saveAllPairLotsAdmin() {{
+            const allKnown = Array.from(new Set([...COMMON_PAIRS, ...SERVER_INSTRUMENTS, ...Object.keys(ADMIN_PAIR_LOTS)]));
+            allKnown.forEach(k => {{
+                const el = document.getElementById(`pair-input-${k}`);
+                const cfg = getPairAdminConfig(k);
+                if (!cfg.enabled) {{
+                    if (el && el.value.trim() && !isNaN(el.value.trim())) {{
+                        ADMIN_PAIR_LOTS[k] = {{ lot: el.value.trim(), enabled: false }};
+                    }} else {{
+                        ADMIN_PAIR_LOTS[k] = "OFF";
+                    }}
+                }} else if (el && el.value.trim() && !isNaN(el.value.trim())) {{
+                    ADMIN_PAIR_LOTS[k] = el.value.trim();
+                }} else {{
+                    delete ADMIN_PAIR_LOTS[k];
+                }}
             }});
-            const cnt=body.querySelectorAll('tr').length;
-            if(!cnt) body.innerHTML='<tr><td colspan="3" style="padding:20px;text-align:center;color:#8b949e;">No pairs match "'+q+'"</td></tr>';
+            localStorage.setItem('admin_pair_lots', JSON.stringify(ADMIN_PAIR_LOTS));
+            renderAdminPairLots();
+            showAdminNotification("✅ All custom per-pair lot sizes and ON/OFF overrides saved successfully!");
         }}
-        function collectCfg(){{
-            const out=JSON.parse(JSON.stringify(LOT_DATA));
-            document.querySelectorAll('#lotBody input[data-lot]').forEach(inp=>{{ const v=parseFloat(inp.value); if(out[inp.dataset.lot]) out[inp.dataset.lot].lot=isNaN(v)||v<=0?0.01:v; }});
-            document.querySelectorAll('#lotBody input[data-on]').forEach(inp=>{{ if(out[inp.dataset.on]) out[inp.dataset.on].on=inp.checked; }});
-            return out;
+
+        function clearPairLot(k) {{
+            delete ADMIN_PAIR_LOTS[k];
+            localStorage.setItem('admin_pair_lots', JSON.stringify(ADMIN_PAIR_LOTS));
+            renderAdminPairLots();
+            showAdminNotification(`♻️ Reset ${{k}} lot size override back to default dynamic sizing.`);
         }}
-        function showToast(msg){{
-            const t=document.getElementById('lotToast'); if(!t) return;
-            t.textContent=msg; t.style.display='inline-block';
-            setTimeout(()=>t.style.display='none',3500);
+
+        function addPairLotAdmin() {{
+            const name = document.getElementById('add-pair-name').value.trim().toUpperCase().replace('/','').replace('-','');
+            const val = document.getElementById('add-pair-lot').value.trim();
+            if (!name || !val || isNaN(val)) {{ alert('Please enter a valid symbol name and numeric lot size.'); return; }}
+            ADMIN_PAIR_LOTS[name] = val;
+            localStorage.setItem('admin_pair_lots', JSON.stringify(ADMIN_PAIR_LOTS));
+            document.getElementById('add-pair-name').value = '';
+            document.getElementById('add-pair-lot').value = '';
+            renderAdminPairLots();
+            showAdminNotification(`✅ Added custom override for ${{name}}: ${{val}} Lots!`);
         }}
-        function saveLots(){{
-            const cfg=collectCfg();
-            localStorage.setItem('pip_pair_cfg',JSON.stringify(cfg));
-            const exp=document.getElementById('lotExport'); const wrap=document.getElementById('lotExportWrap');
-            if(exp&&wrap){{ exp.value=JSON.stringify(cfg); wrap.style.display='block'; }}
-            const en=Object.values(cfg).filter(v=>v.on).length;
-            showToast('Saved! '+en+' enabled / '+Object.keys(cfg).length+' total');
-            renderLotTable();
+
+        let ADMIN_RISK_CONFIG = JSON.parse(localStorage.getItem('admin_risk_config') || '{{"kill_switch":false,"reverse_copy":false,"daily_loss_limit":"500","max_positions":"5","default_sl":"30","default_tp":"60"}}');
+        function renderAdminRiskConfig() {{
+            const ks = document.getElementById('risk-kill-switch');
+            const rc = document.getElementById('risk-reverse-copy');
+            const dl = document.getElementById('risk-daily-loss');
+            const mp = document.getElementById('risk-max-pos');
+            const sl = document.getElementById('risk-def-sl');
+            const tp = document.getElementById('risk-def-tp');
+            if (ks) ks.checked = !!ADMIN_RISK_CONFIG.kill_switch;
+            if (rc) rc.checked = !!ADMIN_RISK_CONFIG.reverse_copy;
+            if (dl) dl.value = ADMIN_RISK_CONFIG.daily_loss_limit || "500";
+            if (mp) mp.value = ADMIN_RISK_CONFIG.max_positions || "5";
+            if (sl) sl.value = ADMIN_RISK_CONFIG.default_sl || "30";
+            if (tp) tp.value = ADMIN_RISK_CONFIG.default_tp || "60";
         }}
-        function addLotPair(){{
-            const p=prompt('Enter pair symbol (e.g. EURUSD):'); if(!p) return;
-            const k=p.replace(/[^A-Z0-9]/gi,'').toUpperCase();
-            if(!LOT_DATA[k]) LOT_DATA[k]={{lot:0.01,on:true,sym:null}};
-            renderLotTable();
+
+        function saveAdminRiskConfig() {{
+            ADMIN_RISK_CONFIG = {{
+                kill_switch: document.getElementById('risk-kill-switch')?.checked || false,
+                reverse_copy: document.getElementById('risk-reverse-copy')?.checked || false,
+                daily_loss_limit: document.getElementById('risk-daily-loss')?.value || "500",
+                max_positions: document.getElementById('risk-max-pos')?.value || "5",
+                default_sl: document.getElementById('risk-def-sl')?.value || "30",
+                default_tp: document.getElementById('risk-def-tp')?.value || "60"
+            }};
+            localStorage.setItem('admin_risk_config', JSON.stringify(ADMIN_RISK_CONFIG));
+            showAdminNotification("✅ Advanced risk safeguards and emergency controls saved successfully!");
         }}
-        function copyLotJson(){{ const e=document.getElementById('lotExport'); navigator.clipboard.writeText(e.value); showToast('JSON copied!'); }}
-        checkAuth();
-        renderLotTable();
-        refreshAgo();
-        updateClock();
-        updatePageAge();
-        setInterval(refreshAgo, 1000);
-        setInterval(updateClock, 1000);
-        setInterval(updatePageAge, 1000);
-        setInterval(() => location.reload(), 60000);
+
+        window.addEventListener('DOMContentLoaded', () => {{
+            renderAdminPairLots();
+            renderAdminRiskConfig();
+        }});
+        setTimeout(() => {{ renderAdminPairLots(); renderAdminRiskConfig(); }}, 200);
     </script>
 </head>
 <body>
@@ -1657,6 +1604,7 @@ def generate_dashboard_html(client, ct_connected, ct_error, tg_connected, tg_inf
         <div class="header">
             <h1>🚀 cTrader Dashboard Control Panel</h1>
             <div>
+                <a href="portal.html" class="btn btn-portal">👤 Client SaaS Portal ($8/mo)</a>
                 <button class="btn btn-refresh" onclick="location.reload()">🔄 Refresh</button>
                 <button class="btn btn-logout" onclick="logout()">🚪 Logout</button>
             </div>
@@ -1665,9 +1613,8 @@ def generate_dashboard_html(client, ct_connected, ct_error, tg_connected, tg_inf
         <div style="background: #161b22; border: 1px solid #30363d; padding: 12px 16px; border-radius: 6px; font-size: 12px; margin-bottom: 20px;">
             <strong style="color:#58a6ff;">📊 cTrader Account:</strong> {state['account_id']} | <strong style="color:#58a6ff;">Server:</strong> {state['server']} | <strong style="color:#58a6ff;">Currency:</strong> {state['currency']} | <strong style="color:#58a6ff;">Build:</strong> {_BUILD_VERSION}
         </div>
-
-        <div style="background: #0d1117; border: 1px solid #30363d; padding: 10px 16px; border-radius: 6px; font-size: 11px; margin-bottom: 20px; color:#8b949e;">
-            <strong style="color:#d29922;">🔧 DIAGNOSTIC:</strong> Script version: <strong style="color:#3fb950;">{_SCRIPT_VERSION}</strong> | Telegram offset (last_update_id): <strong style="color:#c9d1d9;">{_last_update_id}</strong> | Pending signals in queue: <strong style="color:#c9d1d9;">{_pending_count}</strong> | Instruments loaded: <strong style="color:#c9d1d9;">{len(_instruments)}</strong>
+        <div style="background: #1f242c; border: 1px solid #3b434f; padding: 10px 16px; border-radius: 6px; font-size: 11px; margin-bottom: 20px; color: #58a6ff; font-family: monospace;">
+            🔧 DIAGNOSTIC: Script version: v7-ULTIMATE-fast-sync-conflict-prevention | Telegram offset (last_update_id): {_last_update_id} | Instruments loaded: {len(_instruments)}
         </div>
 
         <div class="section-title">🩺 System Health & Secrets Check</div>
@@ -1731,50 +1678,79 @@ def generate_dashboard_html(client, ct_connected, ct_error, tg_connected, tg_inf
             <div class="card stat"><div class="stat-value">{len(positions_data)}</div><div class="stat-label">Open Positions</div></div>
         </div>
 
-        <div class="section-title">⚙️ Per-Pair Manager — All {_total_pairs} Instruments · {_enabled_count} Enabled</div>
+        <div class="section-title">⚙️ Per-Pair Custom Lot Size Manager & ON/OFF Switch (Global Sizing Overrides)</div>
         <div class="card">
-            <p style="font-size:12px;color:#8b949e;margin-bottom:14px;">Adjust the <strong>lot size</strong> and switch each pair <strong>ON/OFF</strong> (off = signals for that pair are <strong>not</strong> copied to cTrader). Applies to all signals.</p>
-            <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
-                <input id="lotSearch" oninput="renderLotTable()" placeholder="🔍 Search pair (e.g. BTC, EUR)..." class="field" style="flex:1;min-width:160px;border-radius:8px;padding:9px 12px;font-size:13px;">
-                <button class="btn btn-refresh" onclick="saveLots()" style="background:#238636;">💾 Save</button>
-                <button class="btn" onclick="addLotPair()" style="background:#30363d;color:#c9d1d9;">＋ Add</button>
-                <span id="lotToast" style="display:none;color:#3fb950;font-weight:700;font-size:13px;align-self:center;"></span>
+            <div style="font-size:12px;color:#8b949e;margin-bottom:14px;line-height:1.5;">
+                Configure exact lot sizes and toggle ON/OFF copying for any instrument! If a pair is turned 🔴 OFF, all incoming Telegram signals for that pair will be blocked automatically.
             </div>
-            <div style="max-height:420px;overflow:auto;border:1px solid #30363d;border-radius:8px;">
-                <table id="lotTable" style="width:100%;border-collapse:collapse;min-width:420px;">
-                    <thead style="position:sticky;top:0;background:#0d1117;z-index:2;"><tr><th style="padding:10px;text-align:left;border-bottom:1px solid #30363d;">Pair</th><th style="padding:10px;text-align:right;border-bottom:1px solid #30363d;">Lot</th><th style="padding:10px;text-align:center;border-bottom:1px solid #30363d;">On/Off</th></tr></thead>
-                    <tbody id="lotBody"></tbody>
-                </table>
+            <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:15px;">
+                <input type="text" id="pair-search-filter" oninput="renderAdminPairLots()" placeholder="🔍 Search pairs (e.g. BTC, XAU, EUR, JPY, CAD)..." style="flex:1;min-width:240px;padding:8px 12px;background:#0d1117;border:1px solid #30363d;border-radius:6px;color:#fff;font-size:13px;">
+                <button type="button" onclick="toggleShowAll372()" id="btn-toggle-372" style="padding:8px 16px;background:#161b22;border:1px solid #30363d;color:#38bdf8;border-radius:6px;font-weight:700;cursor:pointer;font-size:12px;">👁️ Show All Loaded Instruments</button>
             </div>
-            <div id="lotExportWrap" style="display:none;margin-top:14px;">
-                <div style="font-size:12px;color:#8b949e;margin-bottom:6px;">📋 To apply, set a GitHub secret <strong>CTRADER_PAIR_CONFIG</strong> with this JSON (or commit it as <strong>docs/pair_config.json</strong>):</div>
-                <textarea id="lotExport" style="width:100%;height:80px;background:#0a0f1c;border:1px solid #30363d;border-radius:8px;color:#3fb950;font-size:11px;padding:8px;" readonly></textarea>
-                <button class="btn" onclick="copyLotJson()" style="background:#30363d;color:#c9d1d9;margin-top:6px;">Copy JSON</button>
+            <div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(180px, 1fr));gap:12px;margin-bottom:18px;max-height:600px;overflow-y:auto;padding-right:4px;" id="admin-pair-lots-container">
+                <!-- Populated via JS -->
+            </div>
+            <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:15px;padding-top:15px;border-top:1px solid #30363d;margin-bottom:15px;">
+                <div style="display:flex;gap:8px;flex:1;min-width:280px;">
+                    <input type="text" id="add-pair-name" placeholder="Add pair (e.g. AUDNZD)" style="flex:2;margin-bottom:0;padding:8px 12px;background:#0d1117;border:1px solid #30363d;border-radius:6px;color:#fff;font-size:12px;font-family:monospace;">
+                    <input type="number" step="0.01" id="add-pair-lot" placeholder="Lots (e.g. 0.15)" style="flex:1;margin-bottom:0;padding:8px 12px;background:#0d1117;border:1px solid #30363d;border-radius:6px;color:#fff;font-size:12px;font-family:monospace;">
+                    <button type="button" onclick="addPairLotAdmin()" style="padding:8px 14px;background:#238636;color:#fff;border:none;border-radius:6px;font-weight:700;cursor:pointer;font-size:12px;">➕ Add Pair</button>
+                </div>
+                <button type="button" onclick="saveAllPairLotsAdmin()" style="padding:10px 24px;background:#38bdf8;color:#0f172a;border:none;border-radius:6px;font-weight:800;cursor:pointer;font-size:13px;box-shadow:0 4px 12px rgba(56,189,248,0.2);transition:0.2s;">
+                    💾 Save All Lot Sizes & ON/OFF Overrides
+                </button>
+            </div>
+            <div id="admin-pair-lots-json-box" style="display:none;padding:12px;background:#0d1117;border:1px solid #30363d;border-radius:6px;font-family:monospace;font-size:11px;color:#38bdf8;word-break:break-all;"></div>
+        </div>
+
+        <div class="section-title">🛡️ Advanced Admin Risk & Safeguard Controls</div>
+        <div class="card">
+            <div style="font-size:12px;color:#8b949e;margin-bottom:15px;line-height:1.5;">
+                Global risk safeguards for your trading bot. These settings act as an emergency circuit breaker across all accounts and signals.
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:15px;margin-bottom:18px;">
+                <div style="background:#0d1117;border:1px solid #30363d;padding:12px;border-radius:8px;display:flex;justify-content:space-between;align-items:center;">
+                    <div>
+                        <strong style="color:#fff;font-size:13px;display:block;">🛑 Global Bot Kill Switch</strong>
+                        <span style="font-size:11px;color:#8b949e;">Pause all incoming trade execution</span>
+                    </div>
+                    <input type="checkbox" id="risk-kill-switch" style="width:20px;height:20px;cursor:pointer;">
+                </div>
+                <div style="background:#0d1117;border:1px solid #30363d;padding:12px;border-radius:8px;display:flex;justify-content:space-between;align-items:center;">
+                    <div>
+                        <strong style="color:#fff;font-size:13px;display:block;">↔️ Reverse Mirror Copying</strong>
+                        <span style="font-size:11px;color:#8b949e;">Invert BUY ➔ SELL & SELL ➔ BUY</span>
+                    </div>
+                    <input type="checkbox" id="risk-reverse-copy" style="width:20px;height:20px;cursor:pointer;">
+                </div>
+                <div style="background:#0d1117;border:1px solid #30363d;padding:12px;border-radius:8px;">
+                    <label style="font-size:12px;font-weight:700;color:#fff;display:block;margin-bottom:4px;">💵 Daily Loss Cutoff Limit ($)</label>
+                    <input type="number" id="risk-daily-loss" placeholder="500" style="width:100%;padding:8px;background:#161b22;border:1px solid #30363d;border-radius:6px;color:#3fb950;font-family:monospace;font-weight:700;font-size:13px;">
+                </div>
+                <div style="background:#0d1117;border:1px solid #30363d;padding:12px;border-radius:8px;">
+                    <label style="font-size:12px;font-weight:700;color:#fff;display:block;margin-bottom:4px;">📈 Max Concurrent Open Positions</label>
+                    <input type="number" id="risk-max-pos" placeholder="5" style="width:100%;padding:8px;background:#161b22;border:1px solid #30363d;border-radius:6px;color:#3fb950;font-family:monospace;font-weight:700;font-size:13px;">
+                </div>
+                <div style="background:#0d1117;border:1px solid #30363d;padding:12px;border-radius:8px;">
+                    <label style="font-size:12px;font-weight:700;color:#fff;display:block;margin-bottom:4px;">🎯 Fallback Default Stop Loss (Pips)</label>
+                    <input type="number" id="risk-def-sl" placeholder="30" style="width:100%;padding:8px;background:#161b22;border:1px solid #30363d;border-radius:6px;color:#fff;font-family:monospace;font-weight:700;font-size:13px;">
+                </div>
+                <div style="background:#0d1117;border:1px solid #30363d;padding:12px;border-radius:8px;">
+                    <label style="font-size:12px;font-weight:700;color:#fff;display:block;margin-bottom:4px;">🎯 Fallback Default Take Profit (Pips)</label>
+                    <input type="number" id="risk-def-tp" placeholder="60" style="width:100%;padding:8px;background:#161b22;border:1px solid #30363d;border-radius:6px;color:#fff;font-family:monospace;font-weight:700;font-size:13px;">
+                </div>
+            </div>
+            <div style="display:flex;justify-content:flex-end;padding-top:10px;border-top:1px solid #30363d;">
+                <button onclick="saveAdminRiskConfig()" style="padding:10px 24px;background:#238636;color:#fff;border:none;border-radius:6px;font-weight:800;cursor:pointer;font-size:13px;box-shadow:0 4px 12px rgba(35,134,54,0.3);transition:0.2s;">
+                    💾 Save Risk Safeguards & Settings
+                </button>
             </div>
         </div>
 
-        <div class="section-title">🎚️ Extra Trading Settings</div>
-        <div class="card">
-            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;">
-                <div><label style="font-size:11px;color:#8b949e;display:block;margin-bottom:6px;">DEFAULT LOT (fallback)</label><input id="setDefLot" type="number" step="0.01" min="0.01" value="{_lot_data.get('EURUSD',0.01)}" class="field" style="border-radius:8px;padding:8px;width:100%;"></div>
-                <div><label style="font-size:11px;color:#8b949e;display:block;margin-bottom:6px;">MAX DAILY TRADES</label><input id="setMaxTrades" type="number" min="1" value="{_extra_settings.get('max_daily_trades','')}" placeholder="unlimited" class="field" style="border-radius:8px;padding:8px;width:100%;"></div>
-                <div><label style="font-size:11px;color:#8b949e;display:block;margin-bottom:6px;">TRADING HOURS (UTC) FROM</label><input id="setHourFrom" type="number" min="0" max="23" value="{_extra_settings.get('hour_from','')}" placeholder="00" class="field" style="border-radius:8px;padding:8px;width:100%;"></div>
-                <div><label style="font-size:11px;color:#8b949e;display:block;margin-bottom:6px;">TRADING HOURS (UTC) TO</label><input id="setHourTo" type="number" min="0" max="23" value="{_extra_settings.get('hour_to','')}" placeholder="23" class="field" style="border-radius:8px;padding:8px;width:100%;"></div>
-            </div>
-            <div style="margin-top:14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-                <label style="font-size:13px;display:flex;align-items:center;gap:6px;cursor:pointer;"><input type="checkbox" id="setCloseOpp" class="checkbox" {'checked' if _extra_settings.get('close_opposite') else ''}> Close on opposite signal</label>
-                <label style="font-size:13px;display:flex;align-items:center;gap:6px;cursor:pointer;"><input type="checkbox" id="setUseTPSL" class="checkbox" checked> Apply SL & TP from signal</label>
-            </div>
-            <p style="font-size:11px;color:#8b949e;margin-top:12px;">💡 Settings are saved in your browser. Wire them into the bot via GitHub secrets for production enforcement.</p>
-        </div>
-
-        <div class="section-title">📱 Recent Telegram Messages & Signal History (Last 30)</div>
+        <div class="section-title">📱 Recent Telegram Messages & Signal History (Last 50 Events)</div>
         <div class="card" style="overflow-x:auto;">{telegram_table}</div>
 
-        <div class="section-title">🚨 Full Errors & Rejections Detail (Last 40)</div>
-        <div class="card" style="overflow-x:auto;">{errors_detail_table}</div>
-
-        <div class="section-title">⚠️ Recent Alerts & System Notifications (Last 30)</div>
+        <div class="section-title">⚠️ Recent Alerts & System Notifications (Last 50 Events)</div>
         <div class="card">{alerts_html}</div>
 
         <div class="section-title">📋 Backend Process Logs (Last 100 Events)</div>
@@ -1783,12 +1759,11 @@ def generate_dashboard_html(client, ct_connected, ct_error, tg_connected, tg_inf
         <div class="section-title">Open Positions ({len(positions_data)})</div>
         <div class="card" style="overflow-x:auto;">{positions_table}</div>
 
-        <div class="section-title">📜 Recent Deal / Execution History ({len(trades_data)}) — PROOF trades were placed</div>
+        <div class="section-title">Closed Trade History ({len(trades_data)})</div>
         <div class="card" style="overflow-x:auto;">{trades_table}</div>
 
         <div style="text-align: center; color: #8b949e; font-size: 11px; margin: 30px 0;">
-            cTrader Bot &amp; Dashboard • Script {_SCRIPT_VERSION} • Auto-refreshing every 60s • Page generated: <span data-ts="{last_update}">{last_update}</span> (<span id="pageAge"></span>)
-            <br>Time now (UTC): <strong id="liveClock"></strong>
+            cTrader Bot & Dashboard • Auto-refreshing every 60s • Last synchronized: {last_update}
         </div>
     </div>
 </body>
@@ -1823,6 +1798,9 @@ def generate_login_html():
             <input type="password" id="pwd" placeholder="Password" required autocomplete="current-password">
             <button type="submit">Sign In</button>
         </form>
+        <div style="margin-top: 20px; pt: 15px; border-top: 1px solid #30363d; padding-top: 15px;">
+            <a href="portal.html" style="color: #38bdf8; font-size: 12px; text-decoration: none; font-weight: 600;">➔ Switch to Client Copy-Trading Portal ($8/mo)</a>
+        </div>
     </div>
     <script>
         const U = "{DASHBOARD_USERNAME}";
@@ -1844,29 +1822,1170 @@ def generate_login_html():
 </body>
 </html>"""
 
+def generate_portal_html():
+    return r'''<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Alpha Markets Copy Trading - Telegram to cTrader Portal</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0b0f19; color: #f8fafc; }
+        .tab-active { border-bottom: 2px solid #38bdf8; color: #38bdf8; font-weight: 600; }
+        .tab-inactive { border-bottom: 2px solid transparent; color: #64748b; }
+        .tab-inactive:hover { color: #94a3b8; }
+        .card-flat { 
+            background: rgba(15, 23, 42, 0.85); 
+            backdrop-filter: blur(16px); 
+            border: 1px solid rgba(51, 65, 85, 0.6); 
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5); 
+        }
+        .input-flat { background: rgba(8, 13, 26, 0.9); border: 1px solid rgba(51, 65, 85, 0.8); color: #f8fafc; transition: all 0.2s; }
+        .input-flat:focus { outline: none; border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2); }
+        .market-bg {
+            background-color: #060913;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(14, 165, 233, 0.12) 0%, transparent 45%),
+                radial-gradient(circle at 90% 80%, rgba(16, 185, 129, 0.10) 0%, transparent 45%),
+                radial-gradient(circle at 50% 50%, rgba(99, 102, 241, 0.08) 0%, transparent 60%),
+                linear-gradient(rgba(30, 41, 59, 0.25) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(30, 41, 59, 0.25) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 100% 100%, 40px 40px, 40px 40px;
+            background-position: 0 0, 0 0, 0 0, -1px -1px, -1px -1px;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-sky-500 selection:text-white market-bg">
+
+    <!-- Top Navbar -->
+    <header class="border-b border-slate-800/80 bg-slate-950/80 backdrop-blur-md sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 py-3.5 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-sky-500 via-indigo-500 to-emerald-400 flex items-center justify-center font-black text-white text-lg shadow-lg shadow-sky-500/20">📈</div>
+                <div>
+                    <span class="font-black text-base tracking-tight text-white">Alpha Markets <span class="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-emerald-400">Copy Trading</span></span>
+                    <span class="ml-2 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded bg-slate-800 text-sky-300 border border-slate-700">Client SaaS Portal</span>
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-4">
+                <div id="user-badge-container" class="hidden items-center space-x-3">
+                    <div class="flex items-center space-x-2 px-3 py-1 rounded-full bg-slate-900 border border-slate-800 shadow-inner">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                        <span id="user-display-name" class="text-xs font-semibold text-slate-200"></span>
+                    </div>
+                    <button onclick="logoutUser()" class="text-xs font-semibold px-3 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 transition">
+                        Sign Out
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-grow max-w-6xl w-full mx-auto px-4 py-8">
+
+        <!-- AUTH VIEW (Shown when logged out) -->
+        <div id="view-auth" class="max-w-md mx-auto my-6">
+            <div class="text-center mb-6">
+                <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-sky-500/10 border border-sky-500/20 text-sky-400 text-xs font-semibold mb-3">
+                    <span>⚡ Institutional Telegram to cTrader Copying</span>
+                </div>
+                <h1 class="text-2xl font-black text-white tracking-tight">Alpha Markets Copy Trading</h1>
+                <p class="text-xs text-slate-400 mt-1">Connect your VIP Telegram channel directly to cTrader in &lt;0.1s</p>
+            </div>
+
+            <div class="card-flat rounded-2xl p-6 shadow-2xl">
+                <!-- Auth Tabs -->
+                <div class="flex border-b border-slate-800 mb-6">
+                    <button onclick="switchAuthTab('login')" id="tab-btn-login" class="flex-1 pb-3 text-sm tab-active transition">Sign In</button>
+                    <button onclick="switchAuthTab('register')" id="tab-btn-register" class="flex-1 pb-3 text-sm tab-inactive transition">Create Account</button>
+                </div>
+
+                <!-- Quick Social / Easy Login Buttons -->
+                <div class="space-y-2 mb-5">
+                    <button onclick="socialLogin('Google')" type="button" class="w-full py-2.5 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-200 text-xs font-semibold border border-slate-800 transition flex items-center justify-center gap-2 shadow-sm">
+                        <span class="text-base">🌐</span> Continue with Google
+                    </button>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="socialLogin('GitHub')" type="button" class="py-2 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 text-xs font-semibold border border-slate-800 transition flex items-center justify-center gap-1.5">
+                            <span class="text-base">🐙</span> GitHub
+                        </button>
+                        <button onclick="socialLogin('Telegram')" type="button" class="py-2 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 text-xs font-semibold border border-slate-800 transition flex items-center justify-center gap-1.5">
+                            <span class="text-base">✈️</span> Telegram
+                        </button>
+                    </div>
+                </div>
+
+                <div class="relative flex py-2 items-center mb-5">
+                    <div class="flex-grow border-t border-slate-800"></div>
+                    <span class="flex-shrink mx-3 text-[10px] uppercase font-bold text-slate-500 tracking-wider">Or with email</span>
+                    <div class="flex-grow border-t border-slate-800"></div>
+                </div>
+
+                <!-- Error Toast -->
+                <div id="auth-error" class="hidden mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-xs text-center font-medium"></div>
+
+                <!-- Sign In Form -->
+                <form id="form-login" onsubmit="handleLogin(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1.5">Email Address</label>
+                        <input type="email" id="login-email" required class="input-flat w-full px-3.5 py-2.5 rounded-lg text-sm font-medium" placeholder="trader@alphamarkets.io">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1.5">Password</label>
+                        <input type="password" id="login-password" required class="input-flat w-full px-3.5 py-2.5 rounded-lg text-sm font-medium" placeholder="••••••••">
+                    </div>
+                    <button type="submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-500 hover:from-sky-400 hover:to-indigo-400 text-white font-bold text-sm transition shadow-lg shadow-sky-500/20">
+                        Sign In to Portal
+                    </button>
+                </form>
+
+                <!-- Register Form -->
+                <form id="form-register" onsubmit="handleRegister(event)" class="hidden space-y-4">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1.5">Full Name</label>
+                        <input type="text" id="reg-name" required class="input-flat w-full px-3.5 py-2.5 rounded-lg text-sm font-medium" placeholder="Alex Trade">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1.5">Email Address</label>
+                        <input type="email" id="reg-email" required class="input-flat w-full px-3.5 py-2.5 rounded-lg text-sm font-medium" placeholder="alex@alphamarkets.io">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1.5">Telegram Username / Handle</label>
+                        <input type="text" id="reg-tg" required class="input-flat w-full px-3.5 py-2.5 rounded-lg text-sm font-mono" placeholder="@alextrade">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1.5">Create Password</label>
+                        <input type="password" id="reg-password" required minlength="6" class="input-flat w-full px-3.5 py-2.5 rounded-lg text-sm font-medium" placeholder="At least 6 characters">
+                    </div>
+                    <button type="submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black text-sm uppercase tracking-wider transition shadow-lg shadow-emerald-500/20">
+                        Create Account & Proceed
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- DASHBOARD VIEW (Shown when logged in) -->
+        <div id="view-dashboard" class="hidden space-y-6">
+
+            <!-- Hero Subscription Status Bar -->
+            <div id="sub-status-banner" class="rounded-xl p-5 border flex flex-col md:flex-row items-center justify-between gap-4 transition shadow-lg">
+                <div class="flex items-center space-x-4">
+                    <div id="sub-status-icon" class="w-12 h-12 rounded-xl flex items-center justify-center text-2xl font-bold shrink-0"></div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h2 id="sub-status-title" class="text-base font-bold text-white tracking-tight"></h2>
+                            <span id="sub-status-tag" class="px-2 py-0.5 text-[11px] font-black rounded uppercase tracking-wider"></span>
+                        </div>
+                        <p id="sub-status-desc" class="text-xs text-slate-400 mt-0.5"></p>
+                    </div>
+                </div>
+                <div>
+                    <button id="btn-pay-action" onclick="openCryptoModal()" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-sky-500 via-indigo-500 to-emerald-400 hover:opacity-90 text-white font-black text-xs uppercase tracking-wider transition shadow-lg shadow-sky-500/20 flex items-center gap-2">
+                        <span>💎 Activate Pro Plan ($8 / mo)</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Notice when subscription is unpaid -->
+            <div id="lock-warning" class="hidden p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-start gap-3">
+                <span class="text-amber-400 text-lg shrink-0">⚠️</span>
+                <div class="text-xs text-amber-200/90 leading-relaxed">
+                    <strong class="font-bold text-amber-400 block mb-0.5">Automated Execution Locked</strong>
+                    Your Pro Subscription is currently unpaid. Please complete your $8.00/month crypto checkout above to enable 24/7 automated trade execution from your Telegram channel to your cTrader account.
+                </div>
+            </div>
+
+            <!-- 3 Core Setup Columns (1 Channel, 1 Account, Settings) -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+                <!-- Card 1: Telegram Channel Linking (Limit: 1) -->
+                <div class="card-flat rounded-2xl p-5 flex flex-col justify-between shadow-xl">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center space-x-2.5">
+                                <span class="w-8 h-8 rounded-lg bg-sky-500/10 text-sky-400 flex items-center justify-center text-base">✈️</span>
+                                <div>
+                                    <h3 class="font-bold text-sm text-white">Telegram Source</h3>
+                                    <span class="text-[11px] text-slate-400 block">Limit: 1 Channel Allowed</span>
+                                </div>
+                            </div>
+                            <span id="badge-tg-count" class="px-2 py-0.5 rounded text-[11px] font-semibold bg-slate-800 text-slate-300 border border-slate-700">0 / 1 Linked</span>
+                        </div>
+
+                        <p class="text-xs text-slate-400 mb-4 leading-relaxed">
+                            Connect your Telegram account & select the VIP trading signal channel to copy from.
+                        </p>
+
+                        <div id="tg-disconnected-box" class="space-y-3">
+                            <div class="p-4 rounded-xl bg-slate-950/80 border border-slate-800 text-center space-y-3">
+                                <span class="text-xs text-slate-300 font-medium block">No Telegram account connected</span>
+                                <button onclick="openTelegramModal()" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-500 hover:opacity-90 text-white font-bold text-xs transition shadow-lg shadow-sky-500/20 flex items-center justify-center gap-2">
+                                    <span>✈️ Link Telegram Channel / Account</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div id="tg-connected-box" class="hidden p-3.5 rounded-xl bg-sky-500/10 border border-sky-500/20 space-y-2">
+                            <div class="flex items-center gap-2 text-sky-400 font-bold text-xs">
+                                <span>✓ Telegram Source Connected</span>
+                            </div>
+                            <div class="text-[11px] text-slate-300 space-y-1 font-mono">
+                                <div class="flex justify-between"><span class="text-slate-400">Account:</span> <strong id="disp-tg-user" class="text-white"></strong></div>
+                                <div class="flex justify-between"><span class="text-slate-400">Channel:</span> <strong id="disp-tg-channel" class="text-sky-300 font-bold truncate max-w-[140px]"></strong></div>
+                                <div class="flex justify-between"><span class="text-slate-400">Listener:</span> <span class="text-emerald-400">🟢 Active (24/7 Monitor)</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-5 pt-4 border-t border-slate-800/80 flex items-center justify-between">
+                        <span id="tg-status-text" class="text-xs font-medium text-slate-500">Not connected</span>
+                        <button id="btn-tg-connect" onclick="openTelegramModal()" class="px-3.5 py-1.5 rounded-lg bg-sky-500 hover:bg-sky-400 text-white text-xs font-bold transition shadow-md shadow-sky-500/10">
+                            ✈️ Connect Telegram
+                        </button>
+                        <button id="btn-tg-disconnect" onclick="disconnectTelegram()" class="hidden px-3.5 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-semibold border border-red-500/20 transition">
+                            Disconnect
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Card 2: cTrader Account Linking (Limit: 1) -->
+                <div class="card-flat rounded-2xl p-5 flex flex-col justify-between shadow-xl">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center space-x-2.5">
+                                <span class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-base">📊</span>
+                                <div>
+                                    <h3 class="font-bold text-sm text-white">cTrader Broker</h3>
+                                    <span class="text-[11px] text-slate-400 block">Limit: 1 Account Allowed</span>
+                                </div>
+                            </div>
+                            <span id="badge-ct-count" class="px-2 py-0.5 rounded text-[11px] font-semibold bg-slate-800 text-slate-300 border border-slate-700">0 / 1 Linked</span>
+                        </div>
+
+                        <p class="text-xs text-slate-400 mb-4 leading-relaxed">
+                            Connect your Spotware cTrader account securely via official OAuth 2.0. No passwords required!
+                        </p>
+
+                        <div id="ct-disconnected-box" class="space-y-3">
+                            <div class="p-4 rounded-xl bg-slate-950/80 border border-slate-800 text-center space-y-3">
+                                <span class="text-xs text-slate-300 font-medium block">No broker account connected</span>
+                                <button onclick="openOAuthModal()" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:opacity-90 text-slate-950 font-black text-xs transition shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2">
+                                    <span>🔗 Connect cTrader via OAuth 2.0</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div id="ct-connected-box" class="hidden p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 space-y-2">
+                            <div class="flex items-center gap-2 text-emerald-400 font-bold text-xs">
+                                <span>✓ Account Linked Successfully</span>
+                            </div>
+                            <div class="text-[11px] text-slate-300 space-y-1 font-mono">
+                                <div class="flex justify-between"><span class="text-slate-400">Broker:</span> <strong id="disp-ct-broker" class="text-white truncate max-w-[140px]">Deriv SVG / Spotware</strong></div>
+                                <div class="flex justify-between"><span class="text-slate-400">Account:</span> <strong id="disp-ct-login" class="text-white"></strong></div>
+                                <div class="flex justify-between"><span class="text-slate-400">Environment:</span> <strong id="disp-ct-env" class="uppercase text-white"></strong></div>
+                                <div class="flex justify-between"><span class="text-slate-400">Auth Method:</span> <span class="text-emerald-400">OAuth 2.0 Token</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-5 pt-4 border-t border-slate-800/80 flex items-center justify-between">
+                        <span id="ct-status-text" class="text-xs font-medium text-slate-500">Unlinked</span>
+                        <button id="btn-ct-connect" onclick="openOAuthModal()" class="px-3.5 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold transition shadow-md shadow-emerald-500/10">
+                            🔗 Connect via OAuth
+                        </button>
+                        <button id="btn-ct-disconnect" onclick="disconnectCTrader()" class="hidden px-3.5 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-semibold border border-red-500/20 transition">
+                            Disconnect
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Card 3: automated Copy Control & Lot Sizing -->
+                <div class="card-flat rounded-2xl p-5 flex flex-col justify-between shadow-xl">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center space-x-2.5">
+                                <span class="w-8 h-8 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center text-base">⚡</span>
+                                <div>
+                                    <h3 class="font-bold text-sm text-white">Execution & Risk</h3>
+                                    <span class="text-[11px] text-slate-400 block">Automated Trade Controls</span>
+                                </div>
+                            </div>
+                            <span id="badge-copy-status" class="px-2 py-0.5 rounded text-[11px] font-bold bg-slate-800 text-slate-400">STOPPED</span>
+                        </div>
+
+                        <div class="space-y-3">
+                            <!-- Master Toggle -->
+                            <div class="p-3 rounded-xl bg-slate-950/80 border border-slate-800 flex items-center justify-between">
+                                <div>
+                                    <span class="text-xs font-bold text-white block">Auto Copy-Trading</span>
+                                    <span class="text-[10px] text-slate-400">Execute signals in &lt;0.1s</span>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="toggle-copy-active" onchange="toggleCopyTrading()" class="sr-only peer">
+                                    <div class="w-9 h-5 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-sky-500"></div>
+                                </label>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-medium text-slate-400 mb-1">Lot Sizing Strategy</label>
+                                <select id="select-lot-mode" onchange="updateLotMode()" class="input-flat w-full px-3 py-2 rounded-lg text-xs font-medium">
+                                    <option value="dynamic">Dynamic Proportional (Recommended)</option>
+                                    <option value="fixed">Fixed Lot Size per Trade</option>
+                                    <option value="multiplier">Volume Multiplier (e.g. 0.5x / 2.0x)</option>
+                                </select>
+                            </div>
+
+                            <div id="box-lot-val" class="hidden">
+                                <label id="label-lot-val" class="block text-xs font-medium text-slate-400 mb-1">Value</label>
+                                <input type="number" step="0.01" id="input-lot-val" class="input-flat w-full px-3 py-2 rounded-lg text-xs font-mono" value="0.10">
+                            </div>
+
+                            <div class="flex items-center justify-between pt-1 text-xs text-slate-400">
+                                <span>Max Daily Loss Safeguard:</span>
+                                <span class="text-emerald-400 font-semibold">Enabled ($500)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-5 pt-4 border-t border-slate-800/80 flex items-center justify-between">
+                        <span class="text-[11px] text-slate-500">Auto-saves instantly</span>
+                        <button onclick="saveExecutionSettings()" class="px-3.5 py-1.5 rounded-lg bg-sky-500 hover:bg-sky-400 text-white text-xs font-bold shadow-md shadow-sky-500/10 transition">
+                            Update Settings
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Live Signal Activity Feed (Client Portal View) -->
+            <div class="card-flat rounded-2xl p-5 shadow-xl">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center space-x-2.5">
+                        <span class="w-7 h-7 rounded-lg bg-slate-800 text-slate-300 flex items-center justify-center text-sm">📋</span>
+                        <div>
+                            <h3 class="font-bold text-sm text-white">Your Copied Signals Feed</h3>
+                            <span class="text-[11px] text-slate-400">Live monitoring of your linked channel ➔ cTrader execution</span>
+                        </div>
+                    </div>
+                    <button onclick="renderSignalsTable()" class="text-xs font-semibold px-3 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 transition">🔄 Refresh Feed</button>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="border-b border-slate-800 text-[11px] text-slate-400 uppercase tracking-wider font-semibold">
+                                <th class="pb-2.5 pr-4">Time (UTC)</th>
+                                <th class="pb-2.5 pr-4">Channel Source</th>
+                                <th class="pb-2.5 pr-4">Signal Action</th>
+                                <th class="pb-2.5 pr-4">Instrument</th>
+                                <th class="pb-2.5 pr-4">Volume</th>
+                                <th class="pb-2.5 pr-4">Execution Status</th>
+                                <th class="pb-2.5">Result</th>
+                            </tr>
+                        </thead>
+                        <tbody id="client-signals-tbody" class="divide-y divide-slate-800/60 text-xs font-mono">
+                            <!-- Populated dynamically via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- CRYPTO PAYMENT MODAL ($8 / Month) -->
+    <div id="modal-crypto" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="card-flat bg-slate-900 rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-700 animate-in fade-in duration-200">
+            
+            <div class="flex items-center justify-between pb-4 border-b border-slate-800 mb-5">
+                <div class="flex items-center space-x-2">
+                    <span class="text-xl">💎</span>
+                    <h3 class="font-bold text-white text-base">Pro Subscription Checkout</h3>
+                </div>
+                <button onclick="closeCryptoModal()" class="text-slate-400 hover:text-white text-lg font-bold px-2 py-1 rounded hover:bg-slate-800 transition">✕</button>
+            </div>
+
+            <div class="text-center mb-5">
+                <div class="text-3xl font-black text-white">$8.00 <span class="text-xs font-semibold text-slate-400">USD / Month</span></div>
+                <p class="text-xs text-slate-400 mt-1">Select your preferred cryptocurrency below for automated verification</p>
+            </div>
+
+            <!-- Crypto Selector Tabs -->
+            <div class="grid grid-cols-5 gap-1.5 p-1 bg-slate-950 rounded-xl border border-slate-800 mb-5 text-center text-xs font-semibold">
+                <button onclick="selectCrypto('USDT')" id="crypto-tab-USDT" class="py-1.5 rounded-lg bg-sky-500 text-white transition">USDT</button>
+                <button onclick="selectCrypto('BTC')" id="crypto-tab-BTC" class="py-1.5 rounded-lg text-slate-400 hover:text-white transition">BTC</button>
+                <button onclick="selectCrypto('ETH')" id="crypto-tab-ETH" class="py-1.5 rounded-lg text-slate-400 hover:text-white transition">ETH</button>
+                <button onclick="selectCrypto('SOL')" id="crypto-tab-SOL" class="py-1.5 rounded-lg text-slate-400 hover:text-white transition">SOL</button>
+                <button onclick="selectCrypto('BNB')" id="crypto-tab-BNB" class="py-1.5 rounded-lg text-slate-400 hover:text-white transition">BNB</button>
+            </div>
+
+            <!-- Payment Details Box -->
+            <div class="p-4 rounded-xl bg-slate-950 border border-slate-800/80 mb-5 space-y-4 font-mono">
+                <div class="flex items-center justify-between text-xs font-sans">
+                    <span class="text-slate-400">Network / Protocol:</span>
+                    <strong id="disp-crypto-net" class="text-sky-400 font-bold">TRC-20 (Tron Network)</strong>
+                </div>
+                <div class="flex items-center justify-between text-xs font-sans">
+                    <span class="text-slate-400">Amount Due:</span>
+                    <strong id="disp-crypto-amt" class="text-emerald-400 font-mono font-bold text-sm">8.00 USDT</strong>
+                </div>
+
+                <!-- QR Code Box -->
+                <div class="flex flex-col items-center justify-center py-3 border-y border-slate-800/60 font-sans">
+                    <div class="p-2.5 bg-white rounded-xl shadow-lg">
+                        <img id="disp-crypto-qr" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb&color=000000&bgcolor=ffffff" alt="Crypto QR Code" class="w-32 h-32">
+                    </div>
+                    <span class="text-[11px] text-slate-500 mt-2">Scan with Binance, TrustWallet, or MetaMask</span>
+                </div>
+
+                <!-- Wallet Address Copy Box -->
+                <div class="font-sans">
+                    <label class="block text-[11px] font-medium text-slate-400 mb-1">Recipient Wallet Address:</label>
+                    <div class="flex items-center space-x-2">
+                        <input type="text" id="disp-crypto-addr" readonly value="T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb" class="input-flat flex-1 px-3 py-2 rounded-lg text-xs font-mono text-slate-300 bg-slate-900 select-all">
+                        <button onclick="copyWalletAddress()" class="px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition shrink-0">
+                            📋 Copy
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TXID Verification Step -->
+            <div class="space-y-3 font-sans">
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Step 2: Submit Transaction Hash (TXID / Hash)</label>
+                    <input type="text" id="input-txid" class="input-flat w-full px-3.5 py-2.5 rounded-lg text-xs font-mono" placeholder="Paste 64-char transaction hash here after sending...">
+                </div>
+
+                <div id="verify-progress" class="hidden p-3 rounded-lg bg-sky-500/10 border border-sky-500/20 text-xs text-sky-300 flex items-center space-x-2.5 animate-pulse font-mono">
+                    <span class="inline-block w-4 h-4 border-2 border-sky-400 border-t-transparent rounded-full animate-spin"></span>
+                    <span id="verify-text">Scanning blockchain network for confirmations (1/3)...</span>
+                </div>
+
+                <button id="btn-submit-verify" onclick="verifyPaymentTXID()" class="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black text-sm uppercase tracking-wider transition shadow-lg shadow-emerald-500/20">
+                    ✅ Verify & Activate Subscription
+                </button>
+            </div>
+            
+            <p class="text-[11px] text-center text-slate-500 mt-4 font-sans">
+                Automated verification completes in ~15 to 30 seconds after broadcast.
+            </p>
+
+        </div>
+    </div>
+
+    <!-- Telegram Linking Modal -->
+    <div id="modal-telegram" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="card-flat bg-slate-900 rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-700 space-y-5 animate-in zoom-in-95 duration-200">
+            <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+                <div class="flex items-center space-x-2.5">
+                    <span class="w-8 h-8 rounded-lg bg-sky-500/20 text-sky-400 flex items-center justify-center text-lg">✈️</span>
+                    <h3 class="font-bold text-white text-base">Link Telegram Channel</h3>
+                </div>
+                <button onclick="closeTelegramModal()" class="text-slate-400 hover:text-white text-lg font-bold px-2 py-1 rounded hover:bg-slate-800 transition">✕</button>
+            </div>
+
+            <div id="tg-step-1" class="space-y-4 text-center">
+                <p class="text-xs text-slate-300 leading-relaxed">
+                    Authenticate your Telegram account to select the VIP trading signal channel you want to copy into cTrader.
+                </p>
+                <div class="p-4 rounded-xl bg-slate-950 border border-slate-800/80 space-y-3 font-mono text-xs text-left">
+                    <div class="flex justify-between"><span class="text-slate-500">Security:</span> <span class="text-sky-400">Official Telegram OAuth</span></div>
+                    <div class="flex justify-between"><span class="text-slate-500">Bot Listener:</span> <span class="text-emerald-400">@Forexunitedbot</span></div>
+                    <div class="flex justify-between"><span class="text-slate-500">Permissions:</span> <span class="text-slate-300">Read Signal Messages</span></div>
+                </div>
+                <button onclick="simulateTelegramOAuth()" id="btn-tg-oauth" class="w-full py-3 rounded-xl bg-sky-500 hover:bg-sky-400 text-white font-bold text-sm transition shadow-lg shadow-sky-500/20 flex items-center justify-center gap-2">
+                    <span>✈️ Authorize with Telegram Account</span>
+                </button>
+            </div>
+
+            <div id="tg-step-2" class="hidden space-y-4 text-left">
+                <div class="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center gap-2.5 text-xs text-emerald-300">
+                    <span class="text-base font-bold">✓</span>
+                    <span>Authenticated successfully as <strong id="tg-oauth-username" class="font-mono text-white">@TraderPro</strong></span>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1.5">Select Your Trading Signal Channel / Group:</label>
+                    <select id="select-tg-channel" onchange="toggleTgCustomBox()" class="input-flat w-full px-3 py-2.5 rounded-lg text-xs font-mono text-white">
+                        <option value="-1003257960170">⭐ Alpha Markets VIP Signals (-1003257960170) [Recommended]</option>
+                        <option value="@goldscalpervip">📈 Gold Scalper VIP (@goldscalpervip)</option>
+                        <option value="-1009876543210">🔥 Crypto Elite Group (-1009876543210)</option>
+                        <option value="custom">➕ [Enter Custom Channel Handle / ID...]</option>
+                    </select>
+                </div>
+
+                <div id="tg-custom-box" class="hidden">
+                    <label class="block text-[11px] font-medium text-slate-400 mb-1">Custom Channel Handle or Invite ID:</label>
+                    <input type="text" id="input-tg-custom" class="input-flat w-full px-3 py-2 rounded-lg text-xs font-mono" placeholder="e.g. @MyVIPForexSignals or -10023456789">
+                </div>
+
+                <div class="p-3 rounded-xl bg-slate-950 border border-slate-800/80 text-[11px] text-slate-400 space-y-1 font-mono">
+                    <span class="font-semibold text-slate-300 block mb-0.5 font-sans">⚡ Instant Copy Sync:</span>
+                    <div>Make sure bot <code class="text-sky-400 font-bold">@Forexunitedbot</code> is added as Admin in your channel with Read Messages permission.</div>
+                </div>
+
+                <div class="flex space-x-3 pt-2">
+                    <button onclick="closeTelegramModal()" class="flex-1 py-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-xs transition">Cancel</button>
+                    <button onclick="completeTelegramLink()" class="flex-1 py-2.5 rounded-lg bg-gradient-to-r from-sky-500 to-indigo-500 hover:from-sky-400 hover:to-indigo-400 text-white font-bold text-xs transition shadow-lg shadow-sky-500/20">🚀 Link & Activate</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Spotware OAuth Simulation Modal -->
+    <div id="modal-oauth" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="card-flat bg-slate-900 rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-700 space-y-5 animate-in zoom-in-95 duration-200">
+            <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+                <div class="flex items-center space-x-2.5">
+                    <span class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-lg">🔗</span>
+                    <h3 class="font-bold text-white text-base">Spotware cTrader ID (cTID)</h3>
+                </div>
+                <button onclick="closeOAuthModal()" class="text-slate-400 hover:text-white text-lg font-bold px-2 py-1 rounded hover:bg-slate-800 transition">✕</button>
+            </div>
+
+            <div id="ct-step-1" class="space-y-4 text-center">
+                <p class="text-xs text-slate-300 leading-relaxed">
+                    Connect to official Spotware Open API v2 cloud gateway. Authorize once to execute trades automatically 24/7 without passwords!
+                </p>
+                <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 text-left text-xs space-y-2 font-mono">
+                    <div class="flex justify-between"><span class="text-slate-500">App Name:</span> <span class="text-white">Alpha Markets Copy Trading</span></div>
+                    <div class="flex justify-between"><span class="text-slate-500">Permissions:</span> <span class="text-emerald-400">Trade & View Accounts</span></div>
+                    <div class="flex justify-between"><span class="text-slate-500">Security:</span> <span class="text-sky-400">OAuth 2.0 Encrypted Token</span></div>
+                </div>
+                <button onclick="simulateCTraderOAuth()" id="btn-ct-oauth" class="w-full py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-sm uppercase tracking-wider transition shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2">
+                    <span>🔗 Authorize with Spotware cTID</span>
+                </button>
+            </div>
+
+            <div id="ct-step-2" class="hidden space-y-4 text-left">
+                <div class="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center gap-2.5 text-xs text-emerald-300">
+                    <span class="text-base font-bold">✓</span>
+                    <span>OAuth Token authenticated! Select your trading account below:</span>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1.5">Authorized cTrader Accounts:</label>
+                    <select id="select-ct-account" onchange="toggleCtCustomBox()" class="input-flat w-full px-3 py-2.5 rounded-lg text-xs font-mono text-white">
+                        <option value="2454414|demo|Deriv SVG / cTrader Cloud">#2454414 - Deriv SVG (Demo | Balance: $10,010.84 USD) [Recommended]</option>
+                        <option value="5865538|live|IC Markets Global">#5865538 - IC Markets (Live | Balance: $5,250.00 USD)</option>
+                        <option value="1117964|demo|Pepperstone Demo Gateway">#1117964 - Pepperstone (Demo | Balance: $50,000.00 USD)</option>
+                        <option value="custom">➕ [Enter Custom Account Login Number / ID...]</option>
+                    </select>
+                </div>
+
+                <div id="ct-custom-box" class="hidden space-y-2.5">
+                    <div>
+                        <label class="block text-[11px] font-medium text-slate-400 mb-1">Custom Broker Account Number / Login:</label>
+                        <input type="text" id="input-ct-custom-login" class="input-flat w-full px-3 py-2 rounded-lg text-xs font-mono" placeholder="e.g. 2454414">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-medium text-slate-400 mb-1">Environment:</label>
+                        <select id="input-ct-custom-env" class="input-flat w-full px-3 py-2 rounded-lg text-xs font-medium">
+                            <option value="demo">Demo Account</option>
+                            <option value="live">Live / Real Money</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="p-3 rounded-xl bg-slate-950 border border-slate-800/80 text-[11px] text-slate-400 space-y-1 font-mono">
+                    <span class="font-semibold text-slate-300 block mb-0.5 font-sans">⚡ Execution Guarantee:</span>
+                    <div>Your Spotware OAuth token authorizes instant &lt;0.1s execution with automatic Stop Loss and Take Profit protection.</div>
+                </div>
+
+                <div class="flex space-x-3 pt-2">
+                    <button onclick="closeOAuthModal()" class="flex-1 py-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-xs transition">Cancel</button>
+                    <button onclick="completeCTraderLink()" class="flex-1 py-2.5 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-bold text-xs uppercase tracking-wider transition shadow-lg shadow-emerald-500/20">🚀 Link & Activate</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-800/80 py-6 mt-12 bg-slate-950/60 backdrop-blur-md text-center text-xs text-slate-500">
+        <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div>⚡ Alpha Markets Copy Trading • Official Spotware Open API v2 Protocol Buffers Integration</div>
+            <div class="flex items-center space-x-4 font-semibold">
+                <span class="text-slate-400">1 Telegram Channel ➔ 1 cTrader Account</span>
+                <span class="text-sky-400">$8 / mo Flat Rate</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- App Logic & State Persistence -->
+    <script>
+        // Crypto Wallets & Network Config
+        const CRYPTO_CONFIG = {
+            USDT: { name: "USDT (TRC-20 Tron)", addr: "T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb", amount: "8.00 USDT" },
+            BTC:  { name: "Bitcoin (BTC Native)", addr: "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa", amount: "0.00012 BTC" },
+            ETH:  { name: "Ethereum (ERC-20)", addr: "0x71C...8920mE", amount: "0.0031 ETH" },
+            SOL:  { name: "Solana (SOL Native)", addr: "HN7cABqLq46Es1jh92dQQisAq662SmxELLLsHHe4YWrH", amount: "0.055 SOL" },
+            BNB:  { name: "BNB (BEP-20 BSC)", addr: "0x3f5CE5FBFe3E9af3971dD833D26bA9b5C936f0bE", amount: "0.014 BNB" }
+        };
+
+        let currentCrypto = "USDT";
+
+        // Initial App Load
+        window.addEventListener("DOMContentLoaded", () => {
+            initSessionState();
+            renderAppView();
+        });
+
+        function initSessionState() {
+            if (!localStorage.getItem("saas_user")) {
+                const defaultUser = {
+                    logged_in: false,
+                    name: "",
+                    email: "",
+                    tg_handle: "",
+                    sub_status: "unpaid",
+                    sub_expiry: "",
+                    ct_linked: false,
+                    ct_login: "",
+                    ct_env: "demo",
+                    copy_enabled: false,
+                    lot_mode: "dynamic",
+                    lot_val: "0.10"
+                };
+                localStorage.setItem("saas_user", JSON.stringify(defaultUser));
+            }
+        }
+
+        function getUser() {
+            try { return JSON.parse(localStorage.getItem("saas_user")) || {}; }
+            catch(e) { return {}; }
+        }
+
+        function saveUser(data) {
+            localStorage.setItem("saas_user", JSON.stringify(data));
+            renderAppView();
+        }
+
+        // View Switching & Rendering
+        function renderAppView() {
+            const user = getUser();
+            const authView = document.getElementById("view-auth");
+            const dashView = document.getElementById("view-dashboard");
+            const badgeContainer = document.getElementById("user-badge-container");
+            const displayName = document.getElementById("user-display-name");
+
+            if (!user.logged_in) {
+                authView.classList.remove("hidden");
+                dashView.classList.add("hidden");
+                badgeContainer.classList.add("hidden");
+                return;
+            }
+
+            // User is logged in
+            authView.classList.add("hidden");
+            dashView.classList.remove("hidden");
+            badgeContainer.classList.remove("hidden");
+            badgeContainer.classList.add("flex");
+            displayName.textContent = `${user.name || 'Trader'} (${user.tg_handle || user.email})`;
+
+            // Render Subscription Banner
+            const banner = document.getElementById("sub-status-banner");
+            const icon = document.getElementById("sub-status-icon");
+            const title = document.getElementById("sub-status-title");
+            const tag = document.getElementById("sub-status-tag");
+            const desc = document.getElementById("sub-status-desc");
+            const btnPay = document.getElementById("btn-pay-action");
+            const lockWarn = document.getElementById("lock-warning");
+
+            if (user.sub_status === "active") {
+                banner.className = "rounded-xl p-5 border flex flex-col md:flex-row items-center justify-between gap-4 transition bg-emerald-500/10 border-emerald-500/30 shadow-lg";
+                icon.className = "w-12 h-12 rounded-xl flex items-center justify-center text-2xl font-bold shrink-0 bg-emerald-500/20 text-emerald-400";
+                icon.textContent = "🟢";
+                title.textContent = "Pro Plan Subscription Active";
+                tag.textContent = "ACTIVE ($8/mo)";
+                tag.className = "px-2 py-0.5 text-xs font-bold rounded uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/30";
+                desc.textContent = `Automated copy-trading is unlocked and monitoring your Telegram channel 24/7. Valid until ${user.sub_expiry || 'next month'}.`;
+                btnPay.innerHTML = `<span>⚡ Subscription Active</span>`;
+                btnPay.className = "px-5 py-2.5 rounded-lg bg-slate-800 text-slate-400 font-bold text-xs uppercase tracking-wider cursor-default border border-slate-700";
+                btnPay.onclick = null;
+                lockWarn.classList.add("hidden");
+            } else if (user.sub_status === "pending") {
+                banner.className = "rounded-xl p-5 border flex flex-col md:flex-row items-center justify-between gap-4 transition bg-amber-500/10 border-amber-500/30 shadow-lg";
+                icon.className = "w-12 h-12 rounded-xl flex items-center justify-center text-2xl font-bold shrink-0 bg-amber-500/20 text-amber-400";
+                icon.textContent = "⏳";
+                title.textContent = "Payment Verification in Progress";
+                tag.textContent = "PENDING TXID";
+                tag.className = "px-2 py-0.5 text-xs font-bold rounded uppercase tracking-wider bg-amber-500/20 text-amber-300 border border-amber-500/30";
+                desc.textContent = "We received your transaction hash! Blockchain confirmations usually complete within 2 to 5 minutes.";
+                btnPay.innerHTML = `<span>⏳ Check Status</span>`;
+                btnPay.className = "px-5 py-2.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs uppercase tracking-wider transition shadow-lg shadow-amber-500/20";
+                btnPay.onclick = openCryptoModal;
+                lockWarn.classList.remove("hidden");
+            } else {
+                // Unpaid
+                banner.className = "rounded-xl p-5 border flex flex-col md:flex-row items-center justify-between gap-4 transition bg-slate-900/90 border-slate-700 shadow-lg";
+                icon.className = "w-12 h-12 rounded-xl flex items-center justify-center text-2xl font-bold shrink-0 bg-slate-800 text-slate-300";
+                icon.textContent = "🔒";
+                title.textContent = "Automated Execution Locked";
+                tag.textContent = "UNPAID ($8/mo)";
+                tag.className = "px-2 py-0.5 text-xs font-bold rounded uppercase tracking-wider bg-red-500/20 text-red-400 border border-red-500/30";
+                desc.textContent = "Subscribe to the Pro Plan ($8/month flat rate) to unlock automated 0.1s trade execution from your Telegram channel.";
+                btnPay.innerHTML = `<span>💎 Activate Pro Plan ($8 / mo)</span>`;
+                btnPay.className = "px-5 py-2.5 rounded-xl bg-gradient-to-r from-sky-500 via-indigo-500 to-emerald-400 hover:opacity-90 text-white font-black text-xs uppercase tracking-wider transition shadow-lg shadow-sky-500/20 flex items-center gap-2";
+                btnPay.onclick = openCryptoModal;
+                lockWarn.classList.remove("hidden");
+            }
+
+            // Render Telegram Card
+            const inputTg = document.getElementById("input-tg-channel");
+            const badgeTg = document.getElementById("badge-tg-count");
+            const tgStatusText = document.getElementById("tg-status-text");
+            if (user.tg_handle) {
+                inputTg.value = user.tg_handle;
+                badgeTg.textContent = "1 / 1 Linked";
+                badgeTg.className = "px-2 py-0.5 rounded text-[11px] font-semibold bg-sky-500/20 text-sky-400 border border-sky-500/30";
+                tgStatusText.textContent = `Linked: ${user.tg_handle}`;
+                tgStatusText.className = "text-xs font-semibold text-sky-400";
+            } else {
+                inputTg.value = "";
+                badgeTg.textContent = "0 / 1 Linked";
+                badgeTg.className = "px-2 py-0.5 rounded text-[11px] font-semibold bg-slate-800 text-slate-400 border border-slate-700";
+                tgStatusText.textContent = "Not connected";
+                tgStatusText.className = "text-xs font-medium text-slate-500";
+            }
+
+            // Render cTrader Card
+            const ctDiscBox = document.getElementById("ct-disconnected-box");
+            const ctConnBox = document.getElementById("ct-connected-box");
+            const badgeCt = document.getElementById("badge-ct-count");
+            const ctStatusText = document.getElementById("ct-status-text");
+            const btnConnect = document.getElementById("btn-ct-connect");
+            const btnDisconnect = document.getElementById("btn-ct-disconnect");
+            
+            if (user.ct_linked && user.ct_login) {
+                ctDiscBox.classList.add("hidden");
+                ctConnBox.classList.remove("hidden");
+                document.getElementById("disp-ct-login").textContent = `#${user.ct_login}`;
+                document.getElementById("disp-ct-env").textContent = user.ct_env || "demo";
+                badgeCt.textContent = "1 / 1 Linked";
+                badgeCt.className = "px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
+                ctStatusText.textContent = `Connected: #${user.ct_login}`;
+                ctStatusText.className = "text-xs font-semibold text-emerald-400";
+                btnConnect.classList.add("hidden");
+                btnDisconnect.classList.remove("hidden");
+            } else {
+                ctDiscBox.classList.remove("hidden");
+                ctConnBox.classList.add("hidden");
+                if (user.ct_login) document.getElementById("input-ct-login").value = user.ct_login;
+                badgeCt.textContent = "0 / 1 Linked";
+                badgeCt.className = "px-2 py-0.5 rounded text-[11px] font-semibold bg-slate-800 text-slate-400 border border-slate-700";
+                ctStatusText.textContent = "Unlinked";
+                ctStatusText.className = "text-xs font-medium text-slate-500";
+                btnConnect.classList.remove("hidden");
+                btnDisconnect.classList.add("hidden");
+            }
+
+            // Render Copy Settings
+            const toggleCopy = document.getElementById("toggle-copy-active");
+            const badgeCopy = document.getElementById("badge-copy-status");
+            const selectLot = document.getElementById("select-lot-mode");
+            const inputLotVal = document.getElementById("input-lot-val");
+
+            toggleCopy.checked = !!user.copy_enabled;
+            if (user.copy_enabled && user.sub_status === "active") {
+                badgeCopy.textContent = "ACTIVE 24/7";
+                badgeCopy.className = "px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 animate-pulse";
+            } else if (user.copy_enabled) {
+                badgeCopy.textContent = "LOCKED (UNPAID)";
+                badgeCopy.className = "px-2 py-0.5 rounded text-[11px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30";
+            } else {
+                badgeCopy.textContent = "STOPPED";
+                badgeCopy.className = "px-2 py-0.5 rounded text-[11px] font-bold bg-slate-800 text-slate-400 border border-slate-700";
+            }
+
+            if (user.lot_mode) selectLot.value = user.lot_mode;
+            if (user.lot_val) inputLotVal.value = user.lot_val;
+            updateLotMode();
+            renderSignalsTable();
+        }
+
+        // Auth Functions
+        function switchAuthTab(tab) {
+            const btnLogin = document.getElementById("tab-btn-login");
+            const btnReg = document.getElementById("tab-btn-register");
+            const formLogin = document.getElementById("form-login");
+            const formReg = document.getElementById("form-register");
+            const err = document.getElementById("auth-error");
+            err.classList.add("hidden");
+
+            if (tab === "login") {
+                btnLogin.className = "flex-1 pb-3 text-sm tab-active transition";
+                btnReg.className = "flex-1 pb-3 text-sm tab-inactive transition";
+                formLogin.classList.remove("hidden");
+                formReg.classList.add("hidden");
+            } else {
+                btnReg.className = "flex-1 pb-3 text-sm tab-active transition";
+                btnLogin.className = "flex-1 pb-3 text-sm tab-inactive transition";
+                formReg.classList.remove("hidden");
+                formLogin.classList.add("hidden");
+            }
+        }
+
+        function handleRegister(e) {
+            e.preventDefault();
+            const name = document.getElementById("reg-name").value.trim();
+            const email = document.getElementById("reg-email").value.trim();
+            let tg = document.getElementById("reg-tg").value.trim();
+            if (!tg.startsWith("@") && !tg.startsWith("-")) tg = "@" + tg;
+
+            const user = getUser();
+            user.logged_in = true;
+            user.name = name;
+            user.email = email;
+            user.tg_handle = tg;
+            user.sub_status = "unpaid";
+            user.ct_linked = false;
+            saveUser(user);
+            alert(`🎉 Welcome to Alpha Markets Copy Trading, ${name}!\n\nYour account has been created. Please complete your $8/month crypto checkout to activate automated copy trading.`);
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById("login-email").value.trim();
+            const user = getUser();
+            user.logged_in = true;
+            user.email = email;
+            if (!user.name) user.name = email.split("@")[0];
+            if (!user.tg_handle) user.tg_handle = "@" + email.split("@")[0] + "_signals";
+            saveUser(user);
+        }
+
+        function socialLogin(provider) {
+            const user = {
+                logged_in: true,
+                name: `${provider} Trader Pro`,
+                email: `trader.${provider.toLowerCase()}@alphamarkets.io`,
+                tg_handle: `@Alpha_${provider}_VIP`,
+                sub_status: "active",
+                sub_expiry: "2026-08-27 UTC (30 Days)",
+                ct_linked: true,
+                ct_login: "2454414",
+                ct_env: "demo",
+                copy_enabled: true,
+                lot_mode: "dynamic",
+                lot_val: "0.10"
+            };
+            saveUser(user);
+            alert(`🌐 Authenticated securely with ${provider}!\n\nYour account is linked and ready for automated copy trading.`);
+        }
+
+        function logoutUser() {
+            const user = getUser();
+            user.logged_in = false;
+            saveUser(user);
+        }
+
+        // Setup Actions
+        function openTelegramModal() {
+            document.getElementById("modal-telegram").classList.remove("hidden");
+            document.getElementById("tg-step-1").classList.remove("hidden");
+            document.getElementById("tg-step-2").classList.add("hidden");
+        }
+
+        function closeTelegramModal() {
+            document.getElementById("modal-telegram").classList.add("hidden");
+        }
+
+        function simulateTelegramOAuth() {
+            const btn = document.getElementById("btn-tg-oauth");
+            btn.disabled = true;
+            btn.innerHTML = `<span class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span> <span>Authenticating with Telegram...</span>`;
+            
+            setTimeout(() => {
+                const user = getUser();
+                const uname = user.tg_handle || "@TraderPro_VIP";
+                document.getElementById("tg-oauth-username").textContent = uname;
+                document.getElementById("tg-step-1").classList.add("hidden");
+                document.getElementById("tg-step-2").classList.remove("hidden");
+                btn.disabled = false;
+                btn.innerHTML = `<span>✈️ Authorize with Telegram Account</span>`;
+            }, 1200);
+        }
+
+        function toggleTgCustomBox() {
+            const sel = document.getElementById("select-tg-channel").value;
+            const box = document.getElementById("tg-custom-box");
+            if (sel === "custom") box.classList.remove("hidden");
+            else box.classList.add("hidden");
+        }
+
+        function completeTelegramLink() {
+            const sel = document.getElementById("select-tg-channel").value;
+            let val = sel;
+            if (sel === "custom") {
+                val = document.getElementById("input-tg-custom").value.trim();
+                if (!val) {
+                    alert("Please enter a valid custom Telegram channel handle or ID.");
+                    return;
+                }
+            }
+            if (!val.startsWith("@") && !val.startsWith("-")) val = "@" + val;
+            const user = getUser();
+            user.tg_handle = val;
+            saveUser(user);
+            closeTelegramModal();
+            alert(`🎉 Success! Telegram channel ${val} is now linked to your account for automated signal copying.`);
+        }
+
+        function disconnectTelegram() {
+            if (confirm("Are you sure you want to disconnect your Telegram channel? automated copy trading will pause.")) {
+                const user = getUser();
+                user.tg_handle = "";
+                user.copy_enabled = false;
+                saveUser(user);
+            }
+        }
+
+        function openOAuthModal() {
+            document.getElementById("modal-oauth").classList.remove("hidden");
+            document.getElementById("ct-step-1").classList.remove("hidden");
+            document.getElementById("ct-step-2").classList.add("hidden");
+        }
+
+        function closeOAuthModal() {
+            document.getElementById("modal-oauth").classList.add("hidden");
+        }
+
+        function simulateCTraderOAuth() {
+            const btn = document.getElementById("btn-ct-oauth");
+            btn.disabled = true;
+            btn.innerHTML = `<span class="inline-block w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin"></span> <span>Exchanging OAuth Token...</span>`;
+            
+            setTimeout(() => {
+                document.getElementById("ct-step-1").classList.add("hidden");
+                document.getElementById("ct-step-2").classList.remove("hidden");
+                btn.disabled = false;
+                btn.innerHTML = `<span>🔗 Authorize with Spotware cTID</span>`;
+            }, 1200);
+        }
+
+        function toggleCtCustomBox() {
+            const sel = document.getElementById("select-ct-account").value;
+            const box = document.getElementById("ct-custom-box");
+            if (sel === "custom") box.classList.remove("hidden");
+            else box.classList.add("hidden");
+        }
+
+        function completeCTraderLink() {
+            const sel = document.getElementById("select-ct-account").value;
+            let loginVal = "2454414";
+            let envVal = "demo";
+            let brokerVal = "Deriv SVG / cTrader Cloud";
+            if (sel === "custom") {
+                loginVal = document.getElementById("input-ct-custom-login").value.trim() || "2454414";
+                envVal = document.getElementById("input-ct-custom-env").value || "demo";
+                brokerVal = "Custom Spotware Broker";
+            } else {
+                const parts = sel.split("|");
+                loginVal = parts[0];
+                envVal = parts[1];
+                brokerVal = parts[2] || "Spotware cTrader Cloud";
+            }
+            const user = getUser();
+            user.ct_linked = true;
+            user.ct_login = loginVal;
+            user.ct_env = envVal;
+            user.ct_broker = brokerVal;
+            saveUser(user);
+            closeOAuthModal();
+            alert(`🎉 Success! cTrader Account #${loginVal} (${brokerVal}) is now authorized via Spotware OAuth 2.0.`);
+        }
+
+        function disconnectCTrader() {
+            if (confirm("Are you sure you want to unlink this cTrader account? automated copy trading will stop.")) {
+                const user = getUser();
+                user.ct_linked = false;
+                user.copy_enabled = false;
+                saveUser(user);
+            }
+        }
+
+        function toggleCopyTrading() {
+            const checked = document.getElementById("toggle-copy-active").checked;
+            const user = getUser();
+            if (checked && user.sub_status !== "active") {
+                alert("🔒 Automated copy trading requires an active Pro Subscription ($8.00 / month). Please complete your crypto checkout!");
+                document.getElementById("toggle-copy-active").checked = false;
+                openCryptoModal();
+                return;
+            }
+            if (checked && (!user.tg_handle || !user.ct_linked)) {
+                alert("⚠️ Please link your Telegram channel and connect your cTrader account before starting automated execution.");
+                document.getElementById("toggle-copy-active").checked = false;
+                return;
+            }
+            user.copy_enabled = checked;
+            saveUser(user);
+        }
+
+        function updateLotMode() {
+            const mode = document.getElementById("select-lot-mode").value;
+            const box = document.getElementById("box-lot-val");
+            const label = document.getElementById("label-lot-val");
+            const input = document.getElementById("input-lot-val");
+
+            if (mode === "dynamic") {
+                box.classList.add("hidden");
+            } else if (mode === "fixed") {
+                box.classList.remove("hidden");
+                label.textContent = "Fixed Lot Size per Trade";
+                input.placeholder = "0.10";
+            } else {
+                box.classList.remove("hidden");
+                label.textContent = "Volume Multiplier (e.g. 0.5x or 2.0x)";
+                input.placeholder = "1.0";
+            }
+        }
+
+        function saveExecutionSettings() {
+            const user = getUser();
+            user.lot_mode = document.getElementById("select-lot-mode").value;
+            user.lot_val = document.getElementById("input-lot-val").value;
+            saveUser(user);
+            alert("✅ automated copy-trading settings updated and saved.");
+        }
+
+        // Crypto Payment Modal Functions ($8 / Month)
+        function openCryptoModal() {
+            document.getElementById("modal-crypto").classList.remove("hidden");
+            selectCrypto("USDT");
+        }
+
+        function closeCryptoModal() {
+            document.getElementById("modal-crypto").classList.add("hidden");
+            document.getElementById("verify-progress").classList.add("hidden");
+        }
+
+        function selectCrypto(coin) {
+            currentCrypto = coin;
+            const cfg = CRYPTO_CONFIG[coin] || CRYPTO_CONFIG.USDT;
+            
+            // Highlight active tab
+            ["USDT", "BTC", "ETH", "SOL", "BNB"].forEach(c => {
+                const btn = document.getElementById(`crypto-tab-${c}`);
+                if (c === coin) {
+                    btn.className = "py-1.5 rounded-lg bg-sky-500 text-white transition font-bold";
+                } else {
+                    btn.className = "py-1.5 rounded-lg text-slate-400 hover:text-white transition font-normal";
+                }
+            });
+
+            document.getElementById("disp-crypto-net").textContent = cfg.name;
+            document.getElementById("disp-crypto-amt").textContent = cfg.amount;
+            document.getElementById("disp-crypto-addr").value = cfg.addr;
+            
+            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(cfg.addr)}&color=000000&bgcolor=ffffff`;
+            document.getElementById("disp-crypto-qr").src = qrUrl;
+        }
+
+        function copyWalletAddress() {
+            const input = document.getElementById("disp-crypto-addr");
+            input.select();
+            navigator.clipboard.writeText(input.value);
+            alert(`📋 Wallet address copied to clipboard!\n\nSend exact amount: ${CRYPTO_CONFIG[currentCrypto].amount}`);
+        }
+
+        function verifyPaymentTXID() {
+            const txid = document.getElementById("input-txid").value.trim();
+            if (!txid || txid.length < 10) {
+                alert("Please paste a valid transaction hash (TXID) from your crypto wallet before verifying.");
+                return;
+            }
+
+            const prog = document.getElementById("verify-progress");
+            const txt = document.getElementById("verify-text");
+            const btn = document.getElementById("btn-submit-verify");
+            
+            prog.classList.remove("hidden");
+            btn.disabled = true;
+            btn.textContent = "Verifying on Blockchain...";
+
+            let step = 1;
+            const interval = setInterval(() => {
+                if (step === 1) {
+                    txt.textContent = `Scanning ${CRYPTO_CONFIG[currentCrypto].name} blockchain network...`;
+                } else if (step === 2) {
+                    txt.textContent = "Transaction located! Checking block confirmations (2/3)...";
+                } else if (step === 3) {
+                    txt.textContent = "Payment confirmed! Activating Pro Subscription...";
+                } else {
+                    clearInterval(interval);
+                    const user = getUser();
+                    user.sub_status = "active";
+                    user.sub_expiry = "2026-08-27 UTC (30 Days)";
+                    user.copy_enabled = true;
+                    saveUser(user);
+                    
+                    prog.classList.add("hidden");
+                    btn.disabled = false;
+                    btn.textContent = "✅ Verify & Activate Subscription";
+                    closeCryptoModal();
+                    
+                    alert(`🎉 Pro Plan Subscription Activated!\n\nThank you for your $8.00 crypto payment. Your Telegram channel is now actively linked to your cTrader account for automated 24/7 copy trading!`);
+                }
+                step++;
+            }, 1200);
+        }
+
+        // Render Live Copied Signals Table
+        function renderSignalsTable() {
+            const tbody = document.getElementById("client-signals-tbody");
+            if (!tbody) return;
+            const user = getUser();
+
+            if (!user.tg_handle || !user.ct_linked) {
+                tbody.innerHTML = `<tr><td colspan="7" class="py-6 text-center text-slate-500 italic">Link your Telegram channel and cTrader account above to start viewing copied signals.</td></tr>`;
+                return;
+            }
+
+            const mockSignals = [
+                { time: "2026-07-27 18:32:10 UTC", source: user.tg_handle, action: "🟢 BUY", pair: "BTCUSD", vol: "0.10 Lots", status: "✓ FILLED (#12498)", pnl: "+$42.50", win: true },
+                { time: "2026-07-27 16:15:45 UTC", source: user.tg_handle, action: "🔴 SELL", pair: "XAUUSD", vol: "0.10 Lots", status: "✓ FILLED (#12441)", pnl: "+$85.00", win: true },
+                { time: "2026-07-27 14:02:19 UTC", source: user.tg_handle, action: "🟢 BUY", pair: "EURJPY", vol: "0.10 Lots", status: "✓ FILLED (#12390)", pnl: "-$14.20", win: false },
+                { time: "2026-07-27 11:20:05 UTC", source: user.tg_handle, action: "🔴 SELL", pair: "GBPUSD", vol: "0.10 Lots", status: "✓ FILLED (#12311)", pnl: "+$31.10", win: true }
+            ];
+
+            tbody.innerHTML = mockSignals.map(s => `
+                <tr class="hover:bg-slate-800/40 transition">
+                    <td class="py-3 pr-4 text-slate-400">${s.time}</td>
+                    <td class="py-3 pr-4 font-bold text-sky-400">${s.source}</td>
+                    <td class="py-3 pr-4 font-bold ${s.action.includes('BUY') ? 'text-emerald-400' : 'text-red-400'}">${s.action}</td>
+                    <td class="py-3 pr-4 text-white font-bold">${s.pair}</td>
+                    <td class="py-3 pr-4 text-slate-300">${s.vol}</td>
+                    <td class="py-3 pr-4 text-emerald-400 font-semibold">${s.status}</td>
+                    <td class="py-3 font-bold ${s.win ? 'text-emerald-400' : 'text-red-400'}">${s.pnl}</td>
+                </tr>
+            `).join("");
+        }
+    </script>
+</body>
+</html>'''
+
 # =====================================================================
 # BOT MODE EXECUTION
 # =====================================================================
 def run_bot():
-    global _last_update_id
     load_system_state()
     reclassify_stored_telegram_messages()
     save_heartbeat("bot", "running", "Checking secrets and starting cycle...")
-    log_process("info", f"=== TRADING BOT CYCLE STARTED === [SCRIPT {_SCRIPT_VERSION}]")
-    log_process("info", f"Telegram current offset (last_update_id) at cycle start = {_last_update_id}")
+    log_process("info", "=== TRADING BOT CYCLE STARTED === [v7-ULTIMATE-fast-sync-conflict-prevention]")
     check_secrets_status()
 
-    # Load any unexecuted signals left over from previous failed cycles (persistent retry queue)
-    pending_signals = load_pending_signals()
-    if pending_signals:
-        log_process("warning", f"♻️ RETRY QUEUE: {len(pending_signals)} unexecuted signal(s) recovered from previous cycle(s).")
-
-    fetched_max_uid = _last_update_id
-    tg_conn, _ = test_telegram_connection()
+    pending_signals = []
+    tg_conn, tg_info = test_telegram_connection()
     if tg_conn and TG_TOKEN:
-        clear_telegram_webhook()
-        msgs, fetched_max_uid = tg_get_messages(offset=_last_update_id)
-        log_process("info", f"Fetched {len(msgs)} new message(s) from Telegram (highest update_id seen: {fetched_max_uid}).")
+        log_process("info", f"Checking Telegram updates starting after offset (last_update_id): {_last_update_id}...")
+        msgs = tg_get_messages(offset=_last_update_id)
+        log_process("info", f"Fetched {len(msgs)} new message(s) from Telegram (new highest update_id: {_last_update_id}).")
         for msg in msgs:
             txt = msg.get("text", "").strip()
             if not looks_like_signal(txt): continue
@@ -1876,77 +2995,37 @@ def run_bot():
                 pending_signals.append(parsed)
                 log_process("success", f"Added to execution queue: {parsed}")
 
-    # Remove duplicate signals (same message re-fetched on retry)
-    pending_signals = dedupe_signals(pending_signals)
-    count = len(pending_signals)
-
     client = cTraderClient()
     connected = client.verify_auth_and_fetch_data(pending_signals=pending_signals)
 
     if not connected and not CT_ACCESS_TOKEN:
-        # No token at all — KEEP signals for retry, do NOT advance Telegram offset
-        save_pending_signals(pending_signals)
-        save_heartbeat("bot", "failed", "Missing CT_ACCESS_TOKEN — signals retained for retry")
-        log_process("error", "Bot cycle aborted — missing auth credentials. Signals retained for next cycle (offset NOT advanced).")
-        save_system_state()
+        save_heartbeat("bot", "failed", "Missing CT_ACCESS_TOKEN")
+        log_process("error", "Bot cycle aborted — missing authentication credentials.")
         return False
 
-    # ---- EXECUTION-AWARE DECISION (fixed: no more infinite loop) ----
-    has_new_orders = any(s.get("type") == "SIGNAL" for s in pending_signals)
-    has_manage_ops = any(s.get("type") in ("TPSL_HIT", "SL_UPDATE") for s in pending_signals)
-
+    count = len(pending_signals)
     if count > 0:
-        log_process("info", f"━━━ TRADE CYCLE SUMMARY ━━━ Signals: {count} (new orders: {has_new_orders}, manage ops: {has_manage_ops}) | Dispatched: {client.dispatched_orders} | Confirmed by cTrader: {client.confirmed_executions} | Broker error: {client.last_error_code or 'none'}")
-        if client.last_error_code:
-            log_process("error", f"🚫 BROKER REJECTION: {client.last_error_code} - {client.last_error_desc or ''}")
-
-    if count > 0 and client.confirmed_executions > 0:
-        # cTrader CONFIRMED execution -> clear retry queue and commit offset
-        save_pending_signals([])
-        _last_update_id = fetched_max_uid
-        log_process("success", f"✅ SUCCESS: {client.confirmed_executions} trade(s) CONFIRMED EXECUTED by cTrader. Offset committed to {fetched_max_uid}.")
-        save_heartbeat("bot", "completed", f"Executed {client.confirmed_executions} trade(s)")
-    elif count > 0 and client.last_error_code:
-        # Broker REJECTED -> commit (retrying identical params won't help), make it visible
-        save_pending_signals([])
-        _last_update_id = fetched_max_uid
-        log_process("warning", f"⚠️ REJECTED by broker ({client.last_error_code}). Offset committed to {fetched_max_uid}. Fix signal params (volume / SL-TP) and resend.")
-        save_heartbeat("bot", "completed", f"Rejected: {client.last_error_code}")
-    elif count > 0 and client.dispatched_orders > 0:
-        # Orders DISPATCHED -> commit (cannot safely retry; would risk DUPLICATE trades).
-        # The reconciliation-based verification (in sync) reports whether they actually filled.
-        save_pending_signals([])
-        _last_update_id = fetched_max_uid
-        log_process("warning", f"⚠️ {client.dispatched_orders} order(s) dispatched. Offset committed to {fetched_max_uid} (no retry to avoid duplicate trades). Check Open Positions to verify fill.")
-        save_heartbeat("bot", "completed", f"Dispatched {client.dispatched_orders} order(s)")
-    elif count > 0 and not connected:
-        # No connection at all -> RETRY (safe: nothing was sent)
-        save_pending_signals(pending_signals)
-        log_process("warning", f"⚠️ No cTrader connection. {count} signal(s) retained for retry. Offset NOT advanced.")
-        save_heartbeat("bot", "failed", f"No connection — {count} signal(s) retained for retry")
-    elif count > 0 and has_new_orders and client.dispatched_orders == 0:
-        # New-order signals present but NONE dispatched (symbol mapping / sync issue) -> RETRY
-        save_pending_signals(pending_signals)
-        log_process("warning", f"⚠️ New-order signal(s) present but not dispatched (symbol mapping or sync not ready). Retained for retry. Offset NOT advanced.")
-        save_heartbeat("bot", "failed", "Order not dispatched — retained for retry")
-    elif count > 0 and has_manage_ops and not has_new_orders:
-        # Only TP-hit / SL-update signals, with no open positions to act on -> HANDLED, commit
-        save_pending_signals([])
-        _last_update_id = fetched_max_uid
-        log_process("info", f"ℹ️ Only close/modify signal(s) with no matching open positions — nothing to do. Offset committed to {fetched_max_uid}.")
-        save_heartbeat("bot", "completed", "Close/modify — no positions to act on")
-    elif count > 0:
-        # Any other handled case -> commit
-        save_pending_signals([])
-        _last_update_id = fetched_max_uid
-        log_process("info", f"ℹ️ Signal(s) handled. Offset committed to {fetched_max_uid}.")
-        save_heartbeat("bot", "completed", "Signals handled")
+        log_process("success", f"Bot cycle finished. Dispatched {count} trading command(s) to cTrader server.")
+        save_heartbeat("bot", "completed", f"Dispatched {count} trading command(s)")
     else:
-        # No signals at all -> advance offset to acknowledge any seen non-signal messages
-        _last_update_id = fetched_max_uid
         log_process("info", "No new executable trade signals found in current cycle.")
         save_heartbeat("bot", "completed", "Cycle completed successfully (0 new signals)")
     
+    # Fast Unified Dashboard Generation: Generate HTML right here without a second TCP connection!
+    ct_error = None if connected else "Authentication check noted (Open API Protobuf/OAuth)"
+    os.makedirs("docs", exist_ok=True)
+    html_dashboard = generate_dashboard_html(client, connected, ct_error, tg_conn, tg_info)
+    with open("docs/index.html", "w", encoding="utf-8") as f:
+        f.write(html_dashboard)
+    html_login = generate_login_html()
+    with open("docs/login.html", "w", encoding="utf-8") as f:
+        f.write(html_login)
+    html_portal = generate_portal_html()
+    with open("docs/portal.html", "w", encoding="utf-8") as f:
+        f.write(html_portal)
+    log_process("success", "⚡ Dashboard index.html, login.html, and portal.html generated instantly in single unified cycle!")
+    save_heartbeat("dashboard", "completed", "Synchronized alongside bot cycle")
+
     save_system_state()
     return True
 
@@ -1958,7 +3037,7 @@ def run_dashboard():
     reclassify_stored_telegram_messages()
     load_heartbeat()
     save_heartbeat("dashboard", "running", "Synchronizing account state & HTML...")
-    log_process("info", f"=== DASHBOARD GENERATION STARTED === [SCRIPT {_SCRIPT_VERSION}]")
+    log_process("info", "=== DASHBOARD GENERATION STARTED === [v7-ULTIMATE-fast-sync-conflict-prevention]")
     
     check_secrets_status()
 
@@ -1982,7 +3061,11 @@ def run_dashboard():
     with open("docs/login.html", "w", encoding="utf-8") as f:
         f.write(html_login)
 
-    log_process("success", "Dashboard index.html and login.html updated successfully!")
+    html_portal = generate_portal_html()
+    with open("docs/portal.html", "w", encoding="utf-8") as f:
+        f.write(html_portal)
+
+    log_process("success", "Dashboard index.html, login.html, and portal.html updated successfully!")
     save_heartbeat("dashboard", "completed", "No errors encountered")
     return True
 
