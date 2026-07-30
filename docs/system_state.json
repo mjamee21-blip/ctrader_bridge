@@ -1,236 +1,6 @@
 {
   "logs": [
     {
-      "timestamp": "2026-07-30 20:31:15 UTC",
-      "level": "success",
-      "message": "\u2713 Market order SENT to cTrader: BUY 0.01 NZDJPY | Vol=1000 | SL=94.987 | TP=95.339 | Acct=48038510 | SymID=21 (dispatched total: 6)"
-    },
-    {
-      "timestamp": "2026-07-30 20:31:15 UTC",
-      "level": "info",
-      "message": "Symbol 'CADJPY' found exact match in cTrader (ID: 15)"
-    },
-    {
-      "timestamp": "2026-07-30 20:31:15 UTC",
-      "level": "info",
-      "message": "\ud83c\udfaf Sending ProtoOANewOrderReq: SELL CADJPY (SymbolID: 15) | Vol: 1000..."
-    },
-    {
-      "timestamp": "2026-07-30 20:31:15 UTC",
-      "level": "info",
-      "message": "  \u2514\u2500 Stop Loss set: 116.128"
-    },
-    {
-      "timestamp": "2026-07-30 20:31:15 UTC",
-      "level": "info",
-      "message": "  \u2514\u2500 Take Profit set: 115.811"
-    },
-    {
-      "timestamp": "2026-07-30 20:31:15 UTC",
-      "level": "success",
-      "message": "\u2713 Market order SENT to cTrader: SELL 0.01 CADJPY | Vol=1000 | SL=116.128 | TP=115.811 | Acct=48038510 | SymID=15 (dispatched total: 7)"
-    },
-    {
-      "timestamp": "2026-07-30 20:31:15 UTC",
-      "level": "info",
-      "message": "Symbol 'EURNZD' found exact match in cTrader (ID: 26)"
-    },
-    {
-      "timestamp": "2026-07-30 20:31:15 UTC",
-      "level": "info",
-      "message": "\ud83c\udfaf Sending ProtoOANewOrderReq: SELL EURNZD (SymbolID: 26) | Vol: 1000..."
-    },
-    {
-      "timestamp": "2026-07-30 20:31:15 UTC",
-      "level": "info",
-      "message": "  \u2514\u2500 Stop Loss set: 1.96912"
-    },
-    {
-      "timestamp": "2026-07-30 20:31:15 UTC",
-      "level": "info",
-      "message": "  \u2514\u2500 Take Profit set: 1.96291"
-    },
-    {
-      "timestamp": "2026-07-30 20:31:15 UTC",
-      "level": "success",
-      "message": "\u2713 Market order SENT to cTrader: SELL 0.01 EURNZD | Vol=1000 | SL=1.96912 | TP=1.96291 | Acct=48038510 | SymID=26 (dispatched total: 8)"
-    },
-    {
-      "timestamp": "2026-07-30 20:31:15 UTC",
-      "level": "info",
-      "message": "Symbol 'NZDJPY' found exact match in cTrader (ID: 21)"
-    },
-    {
-      "timestamp": "2026-07-30 20:31:15 UTC",
-      "level": "info",
-      "message": "Processing SL HIT -> Scanning positions for NZDJPY (ID:21)..."
-    },
-    {
-      "timestamp": "2026-07-30 20:31:15 UTC",
-      "level": "info",
-      "message": "Symbol 'CADJPY' found exact match in cTrader (ID: 15)"
-    },
-    {
-      "timestamp": "2026-07-30 20:31:15 UTC",
-      "level": "info",
-      "message": "Processing TP HIT -> Scanning positions for CADJPY (ID:15)..."
-    },
-    {
-      "timestamp": "2026-07-30 20:31:15 UTC",
-      "level": "info",
-      "message": "Symbol 'EURNZD' found exact match in cTrader (ID: 26)"
-    },
-    {
-      "timestamp": "2026-07-30 20:31:15 UTC",
-      "level": "info",
-      "message": "Processing TP HIT -> Scanning positions for EURNZD (ID:26)..."
-    },
-    {
-      "timestamp": "2026-07-30 20:31:15 UTC",
-      "level": "info",
-      "message": "Symbol 'EURJPY' found exact match in cTrader (ID: 3)"
-    },
-    {
-      "timestamp": "2026-07-30 20:31:15 UTC",
-      "level": "info",
-      "message": "Processing TP HIT -> Scanning positions for EURJPY (ID:3)..."
-    },
-    {
-      "timestamp": "2026-07-30 20:31:15 UTC",
-      "level": "info",
-      "message": "Symbol 'USDJPY' found exact match in cTrader (ID: 4)"
-    },
-    {
-      "timestamp": "2026-07-30 20:31:15 UTC",
-      "level": "info",
-      "message": "Processing TP HIT -> Scanning positions for USDJPY (ID:4)..."
-    },
-    {
-      "timestamp": "2026-07-30 20:31:15 UTC",
-      "level": "info",
-      "message": "\ud83d\udd0d 8 order(s) dispatched. Scheduling verification reconcile in 3s (positions before: 0)..."
-    },
-    {
-      "timestamp": "2026-07-30 20:31:15 UTC",
-      "level": "success",
-      "message": "\ud83d\udcdc Retrieved 8 trade(s) (16 deals) from cTrader \u2014 trades ARE executing!"
-    },
-    {
-      "timestamp": "2026-07-30 20:31:18 UTC",
-      "level": "info",
-      "message": "\ud83d\udd0d Verification reconcile sent. Waiting for broker position snapshot..."
-    },
-    {
-      "timestamp": "2026-07-30 20:31:20 UTC",
-      "level": "error",
-      "message": "Order Dispatch Error: [Failure instance: Traceback: <class 'twisted.internet.defer.TimeoutError'>: (5, 'Deferred')\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:798:timeItOut\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:957:cancel\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:916:errback\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:984:_startRunCallbacks\n--- <exception caught here> ---\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:1078:_runCallbacks\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:809:convertCancelled\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:293:_cancelledToTimedOutError\n]"
-    },
-    {
-      "timestamp": "2026-07-30 20:31:20 UTC",
-      "level": "error",
-      "message": "Order Dispatch Error: [Failure instance: Traceback: <class 'twisted.internet.defer.TimeoutError'>: (5, 'Deferred')\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:798:timeItOut\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:957:cancel\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:916:errback\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:984:_startRunCallbacks\n--- <exception caught here> ---\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:1078:_runCallbacks\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:809:convertCancelled\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:293:_cancelledToTimedOutError\n]"
-    },
-    {
-      "timestamp": "2026-07-30 20:31:20 UTC",
-      "level": "error",
-      "message": "Order Dispatch Error: [Failure instance: Traceback: <class 'twisted.internet.defer.TimeoutError'>: (5, 'Deferred')\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:798:timeItOut\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:957:cancel\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:916:errback\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:984:_startRunCallbacks\n--- <exception caught here> ---\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:1078:_runCallbacks\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:809:convertCancelled\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:293:_cancelledToTimedOutError\n]"
-    },
-    {
-      "timestamp": "2026-07-30 20:31:20 UTC",
-      "level": "error",
-      "message": "Order Dispatch Error: [Failure instance: Traceback: <class 'twisted.internet.defer.TimeoutError'>: (5, 'Deferred')\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:798:timeItOut\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:957:cancel\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:916:errback\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:984:_startRunCallbacks\n--- <exception caught here> ---\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:1078:_runCallbacks\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:809:convertCancelled\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:293:_cancelledToTimedOutError\n]"
-    },
-    {
-      "timestamp": "2026-07-30 20:31:20 UTC",
-      "level": "error",
-      "message": "Order Dispatch Error: [Failure instance: Traceback: <class 'twisted.internet.defer.TimeoutError'>: (5, 'Deferred')\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:798:timeItOut\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:957:cancel\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:916:errback\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:984:_startRunCallbacks\n--- <exception caught here> ---\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:1078:_runCallbacks\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:809:convertCancelled\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:293:_cancelledToTimedOutError\n]"
-    },
-    {
-      "timestamp": "2026-07-30 20:31:20 UTC",
-      "level": "error",
-      "message": "Order Dispatch Error: [Failure instance: Traceback: <class 'twisted.internet.defer.TimeoutError'>: (5, 'Deferred')\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:798:timeItOut\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:957:cancel\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:916:errback\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:984:_startRunCallbacks\n--- <exception caught here> ---\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:1078:_runCallbacks\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:809:convertCancelled\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:293:_cancelledToTimedOutError\n]"
-    },
-    {
-      "timestamp": "2026-07-30 20:31:20 UTC",
-      "level": "error",
-      "message": "Order Dispatch Error: [Failure instance: Traceback: <class 'twisted.internet.defer.TimeoutError'>: (5, 'Deferred')\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:798:timeItOut\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:957:cancel\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:916:errback\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:984:_startRunCallbacks\n--- <exception caught here> ---\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:1078:_runCallbacks\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:809:convertCancelled\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:293:_cancelledToTimedOutError\n]"
-    },
-    {
-      "timestamp": "2026-07-30 20:31:20 UTC",
-      "level": "error",
-      "message": "Order Dispatch Error: [Failure instance: Traceback: <class 'twisted.internet.defer.TimeoutError'>: (5, 'Deferred')\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:798:timeItOut\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:957:cancel\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:916:errback\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:984:_startRunCallbacks\n--- <exception caught here> ---\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:1078:_runCallbacks\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:809:convertCancelled\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:293:_cancelledToTimedOutError\n]"
-    },
-    {
-      "timestamp": "2026-07-30 20:31:23 UTC",
-      "level": "warning",
-      "message": "\u23f3 A cTrader request timed out/disconnected (intermittent network). Continuing to wait for other responses... ([Failure instance: Traceback: <class 'twisted.internet.defer.TimeoutError'>: (5, 'Deferred)"
-    },
-    {
-      "timestamp": "2026-07-30 20:31:43 UTC",
-      "level": "warning",
-      "message": "TCP sync timeout reached (Trd:True, Rec:True, Sym:True)."
-    },
-    {
-      "timestamp": "2026-07-30 20:31:43 UTC",
-      "level": "info",
-      "message": "\u2501\u2501\u2501 TRADE CYCLE SUMMARY \u2501\u2501\u2501 Signals: 18 (new orders: True, manage ops: True) | Dispatched: 8 | Confirmed by cTrader: 0 | Broker error: none"
-    },
-    {
-      "timestamp": "2026-07-30 20:31:43 UTC",
-      "level": "warning",
-      "message": "\u26a0\ufe0f 8 order(s) dispatched. Offset committed to 841819915 (no retry to avoid duplicate trades). Check Open Positions to verify fill."
-    },
-    {
-      "timestamp": "2026-07-30 20:31:44 UTC",
-      "level": "info",
-      "message": "=== DASHBOARD GENERATION STARTED === [SCRIPT v11-clear-webhook-fix-409-missed-signals]"
-    },
-    {
-      "timestamp": "2026-07-30 20:31:44 UTC",
-      "level": "success",
-      "message": "\u2705 All 10 GitHub repository secrets detected successfully!"
-    },
-    {
-      "timestamp": "2026-07-30 20:31:44 UTC",
-      "level": "info",
-      "message": "\ud83d\udd12 Diagnostics -> Client ID: 337***NU (len: 56) | Secret: ner***Bn (len: 50) | AccessToken: GXG***LM (len: 43)"
-    },
-    {
-      "timestamp": "2026-07-30 20:31:44 UTC",
-      "level": "info",
-      "message": "\ud83d\udcca cTrader Target Account: 2454414 | Server Environment: DEMO"
-    },
-    {
-      "timestamp": "2026-07-30 20:31:44 UTC",
-      "level": "info",
-      "message": "\ud83d\udcf1 Telegram Config: Token present | Chat Target: -1003257960170"
-    },
-    {
-      "timestamp": "2026-07-30 20:31:44 UTC",
-      "level": "info",
-      "message": "Connecting to cTrader Open API (DEMO TCP Server)..."
-    },
-    {
-      "timestamp": "2026-07-30 20:31:44 UTC",
-      "level": "info",
-      "message": "TCP Connected. Sending application authentication..."
-    },
-    {
-      "timestamp": "2026-07-30 20:31:45 UTC",
-      "level": "info",
-      "message": "Application authorized. Discovering authorized cTID accounts for access token..."
-    },
-    {
-      "timestamp": "2026-07-30 20:31:46 UTC",
-      "level": "info",
-      "message": "\ud83d\udccb cTrader token returned 4 linked account(s)."
-    },
-    {
-      "timestamp": "2026-07-30 20:31:46 UTC",
-      "level": "info",
-      "message": "Discovered Accounts -> ID:47951199 (Login:5313108 | DEMO), ID:48013992 (Login:5865538 | DEMO), ID:48029390 (Login:1117964 | DEMO), ID:48038510 (Login:2454414 | DEMO)"
-    },
-    {
       "timestamp": "2026-07-30 20:31:46 UTC",
       "level": "info",
       "message": "Sending Account Authorization for cTID Account 48038510..."
@@ -747,6 +517,236 @@
     },
     {
       "timestamp": "2026-07-30 20:34:56 UTC",
+      "level": "success",
+      "message": "Dashboard index.html and login.html updated successfully!"
+    },
+    {
+      "timestamp": "2026-07-30 20:36:37 UTC",
+      "level": "info",
+      "message": "=== TRADING BOT CYCLE STARTED === [SCRIPT v11-clear-webhook-fix-409-missed-signals]"
+    },
+    {
+      "timestamp": "2026-07-30 20:36:37 UTC",
+      "level": "info",
+      "message": "Telegram current offset (last_update_id) at cycle start = 841819915"
+    },
+    {
+      "timestamp": "2026-07-30 20:36:37 UTC",
+      "level": "success",
+      "message": "\u2705 All 10 GitHub repository secrets detected successfully!"
+    },
+    {
+      "timestamp": "2026-07-30 20:36:37 UTC",
+      "level": "info",
+      "message": "\ud83d\udd12 Diagnostics -> Client ID: 337***NU (len: 56) | Secret: ner***Bn (len: 50) | AccessToken: GXG***LM (len: 43)"
+    },
+    {
+      "timestamp": "2026-07-30 20:36:37 UTC",
+      "level": "info",
+      "message": "\ud83d\udcca cTrader Target Account: 2454414 | Server Environment: DEMO"
+    },
+    {
+      "timestamp": "2026-07-30 20:36:37 UTC",
+      "level": "info",
+      "message": "\ud83d\udcf1 Telegram Config: Token present | Chat Target: -1003257960170"
+    },
+    {
+      "timestamp": "2026-07-30 20:36:38 UTC",
+      "level": "success",
+      "message": "Telegram Bot verified successfully! (@Forexunitedbot) | Chat Target: -1003257960170"
+    },
+    {
+      "timestamp": "2026-07-30 20:36:38 UTC",
+      "level": "info",
+      "message": "\ud83e\uddf9 Cleared any Telegram webhook (prevents 409 Conflict / missed signals)."
+    },
+    {
+      "timestamp": "2026-07-30 20:36:42 UTC",
+      "level": "info",
+      "message": "Fetched 0 new message(s) from Telegram (highest update_id seen: 841819915)."
+    },
+    {
+      "timestamp": "2026-07-30 20:36:42 UTC",
+      "level": "info",
+      "message": "Connecting to cTrader Open API (DEMO TCP Server)..."
+    },
+    {
+      "timestamp": "2026-07-30 20:36:42 UTC",
+      "level": "info",
+      "message": "TCP Connected. Sending application authentication..."
+    },
+    {
+      "timestamp": "2026-07-30 20:36:43 UTC",
+      "level": "info",
+      "message": "Application authorized. Discovering authorized cTID accounts for access token..."
+    },
+    {
+      "timestamp": "2026-07-30 20:36:44 UTC",
+      "level": "info",
+      "message": "\ud83d\udccb cTrader token returned 4 linked account(s)."
+    },
+    {
+      "timestamp": "2026-07-30 20:36:44 UTC",
+      "level": "info",
+      "message": "Discovered Accounts -> ID:47951199 (Login:5313108 | DEMO), ID:48013992 (Login:5865538 | DEMO), ID:48029390 (Login:1117964 | DEMO), ID:48038510 (Login:2454414 | DEMO)"
+    },
+    {
+      "timestamp": "2026-07-30 20:36:44 UTC",
+      "level": "info",
+      "message": "Sending Account Authorization for cTID Account 48038510..."
+    },
+    {
+      "timestamp": "2026-07-30 20:36:45 UTC",
+      "level": "success",
+      "message": "cTrader Account 48038510 authorized successfully!"
+    },
+    {
+      "timestamp": "2026-07-30 20:36:46 UTC",
+      "level": "info",
+      "message": "Synced Trader State -> Live Balance: $2,219.16"
+    },
+    {
+      "timestamp": "2026-07-30 20:36:46 UTC",
+      "level": "info",
+      "message": "Reconciliation retrieved: 1 open positions, 0 orders."
+    },
+    {
+      "timestamp": "2026-07-30 20:36:46 UTC",
+      "level": "success",
+      "message": "Loaded 382 instruments from cTrader server!"
+    },
+    {
+      "timestamp": "2026-07-30 20:36:46 UTC",
+      "level": "success",
+      "message": "\u2705 Complete Account & Position Data synchronized via TCP Protobuf! Standing by for execution confirmations..."
+    },
+    {
+      "timestamp": "2026-07-30 20:36:46 UTC",
+      "level": "info",
+      "message": "\u23f1\ufe0f  Waiting 0.5s for cTrader execution confirmations before closing connection..."
+    },
+    {
+      "timestamp": "2026-07-30 20:36:46 UTC",
+      "level": "success",
+      "message": "\ud83d\udcdc Retrieved 9 trade(s) (17 deals) from cTrader \u2014 trades ARE executing!"
+    },
+    {
+      "timestamp": "2026-07-30 20:36:47 UTC",
+      "level": "info",
+      "message": "cTrader TCP connection disconnected safely."
+    },
+    {
+      "timestamp": "2026-07-30 20:36:47 UTC",
+      "level": "info",
+      "message": "No new executable trade signals found in current cycle."
+    },
+    {
+      "timestamp": "2026-07-30 20:36:47 UTC",
+      "level": "info",
+      "message": "=== DASHBOARD GENERATION STARTED === [SCRIPT v11-clear-webhook-fix-409-missed-signals]"
+    },
+    {
+      "timestamp": "2026-07-30 20:36:47 UTC",
+      "level": "success",
+      "message": "\u2705 All 10 GitHub repository secrets detected successfully!"
+    },
+    {
+      "timestamp": "2026-07-30 20:36:47 UTC",
+      "level": "info",
+      "message": "\ud83d\udd12 Diagnostics -> Client ID: 337***NU (len: 56) | Secret: ner***Bn (len: 50) | AccessToken: GXG***LM (len: 43)"
+    },
+    {
+      "timestamp": "2026-07-30 20:36:47 UTC",
+      "level": "info",
+      "message": "\ud83d\udcca cTrader Target Account: 2454414 | Server Environment: DEMO"
+    },
+    {
+      "timestamp": "2026-07-30 20:36:47 UTC",
+      "level": "info",
+      "message": "\ud83d\udcf1 Telegram Config: Token present | Chat Target: -1003257960170"
+    },
+    {
+      "timestamp": "2026-07-30 20:36:47 UTC",
+      "level": "info",
+      "message": "Connecting to cTrader Open API (DEMO TCP Server)..."
+    },
+    {
+      "timestamp": "2026-07-30 20:36:47 UTC",
+      "level": "info",
+      "message": "TCP Connected. Sending application authentication..."
+    },
+    {
+      "timestamp": "2026-07-30 20:36:49 UTC",
+      "level": "info",
+      "message": "Application authorized. Discovering authorized cTID accounts for access token..."
+    },
+    {
+      "timestamp": "2026-07-30 20:36:50 UTC",
+      "level": "info",
+      "message": "\ud83d\udccb cTrader token returned 4 linked account(s)."
+    },
+    {
+      "timestamp": "2026-07-30 20:36:50 UTC",
+      "level": "info",
+      "message": "Discovered Accounts -> ID:47951199 (Login:5313108 | DEMO), ID:48013992 (Login:5865538 | DEMO), ID:48029390 (Login:1117964 | DEMO), ID:48038510 (Login:2454414 | DEMO)"
+    },
+    {
+      "timestamp": "2026-07-30 20:36:50 UTC",
+      "level": "info",
+      "message": "Sending Account Authorization for cTID Account 48038510..."
+    },
+    {
+      "timestamp": "2026-07-30 20:36:51 UTC",
+      "level": "success",
+      "message": "cTrader Account 48038510 authorized successfully!"
+    },
+    {
+      "timestamp": "2026-07-30 20:36:52 UTC",
+      "level": "info",
+      "message": "Synced Trader State -> Live Balance: $2,219.16"
+    },
+    {
+      "timestamp": "2026-07-30 20:36:52 UTC",
+      "level": "info",
+      "message": "Reconciliation retrieved: 1 open positions, 0 orders."
+    },
+    {
+      "timestamp": "2026-07-30 20:36:52 UTC",
+      "level": "success",
+      "message": "Loaded 382 instruments from cTrader server!"
+    },
+    {
+      "timestamp": "2026-07-30 20:36:52 UTC",
+      "level": "success",
+      "message": "\u2705 Complete Account & Position Data synchronized via TCP Protobuf! Standing by for execution confirmations..."
+    },
+    {
+      "timestamp": "2026-07-30 20:36:52 UTC",
+      "level": "info",
+      "message": "\u23f1\ufe0f  Waiting 0.5s for cTrader execution confirmations before closing connection..."
+    },
+    {
+      "timestamp": "2026-07-30 20:36:52 UTC",
+      "level": "success",
+      "message": "\ud83d\udcdc Retrieved 9 trade(s) (17 deals) from cTrader \u2014 trades ARE executing!"
+    },
+    {
+      "timestamp": "2026-07-30 20:36:52 UTC",
+      "level": "info",
+      "message": "cTrader TCP connection disconnected safely."
+    },
+    {
+      "timestamp": "2026-07-30 20:36:53 UTC",
+      "level": "success",
+      "message": "Telegram Bot verified successfully! (@Forexunitedbot) | Chat Target: -1003257960170"
+    },
+    {
+      "timestamp": "2026-07-30 20:36:53 UTC",
+      "level": "success",
+      "message": "Telegram Connected (@Forexunitedbot)"
+    },
+    {
+      "timestamp": "2026-07-30 20:36:53 UTC",
       "level": "success",
       "message": "Dashboard index.html and login.html updated successfully!"
     }
