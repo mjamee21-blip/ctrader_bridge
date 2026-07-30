@@ -1595,7 +1595,7 @@ def generate_dashboard_html(client, ct_connected, ct_error, tg_connected, tg_inf
 
             const btnToggle = document.getElementById('btn-toggle-372');
             if (btnToggle) {{
-                btnToggle.innerHTML = showAll372 ? `👁️ Showing All ${allKnown.length} Instruments (Click to show Major only)` : `👁️ Show All ${allKnown.length} Loaded Instruments`;
+                btnToggle.innerHTML = showAll372 ? `👁️ Showing All ${{allKnown.length}} Instruments (Click to show Major only)` : `👁️ Show All ${{allKnown.length}} Loaded Instruments`;
                 btnToggle.style.background = showAll372 ? '#38bdf8' : '#161b22';
                 btnToggle.style.color = showAll372 ? '#0f172a' : '#38bdf8';
             }}
@@ -1603,17 +1603,26 @@ def generate_dashboard_html(client, ct_connected, ct_error, tg_connected, tg_inf
             container.innerHTML = displayPairs.map(k => {{
                 const cfg = getPairAdminConfig(k);
                 const isOff = !cfg.enabled;
+                const borderCol = isOff ? '#f85149' : '#30363d';
+                const opacityVal = isOff ? '0.75' : '1';
+                const textCol = isOff ? '#f85149' : '#fff';
+                const btnBg = !isOff ? '#3fb95020' : '#f8514920';
+                const btnCol = !isOff ? '#3fb950' : '#f85149';
+                const btnText = !isOff ? '🟢 ON' : '🔴 OFF';
+                const inputBg = isOff ? '#161b2280' : '#161b22';
+                const inputDis = isOff ? 'disabled' : '';
+                const clearBtn = cfg.custom ? `<button type="button" onclick="clearPairLot('${{k}}')" title="Reset to Dynamic" style="background:transparent;color:#f85149;border:none;cursor:pointer;font-size:14px;padding:2px;">✕</button>` : '';
                 return `
-                    <div style="background:#0d1117;border:1px solid ${isOff ? '#f85149' : '#30363d'};padding:10px 14px;border-radius:8px;display:flex;flex-direction:column;gap:8px;min-width:160px;flex:1;opacity:${isOff ? '0.75' : '1'};">
+                    <div style="background:#0d1117;border:1px solid ${{borderCol}};padding:10px 14px;border-radius:8px;display:flex;flex-direction:column;gap:8px;min-width:160px;flex:1;opacity:${{opacityVal}};">
                         <div style="display:flex;justify-content:space-between;align-items:center;">
-                            <strong style="color:${isOff ? '#f85149' : '#fff'};font-size:13px;">${k}</strong>
-                            <button type="button" onclick="togglePairStatusAdmin('${k}')" style="padding:2px 8px;border-radius:12px;font-size:11px;font-weight:800;cursor:pointer;border:none;background:${!isOff ? '#3fb95020' : '#f8514920'};color:${!isOff ? '#3fb950' : '#f85149'};">
-                                ${!isOff ? '🟢 ON' : '🔴 OFF'}
+                            <strong style="color:${{textCol}};font-size:13px;">${{k}}</strong>
+                            <button type="button" onclick="togglePairStatusAdmin('${{k}}')" style="padding:2px 8px;border-radius:12px;font-size:11px;font-weight:800;cursor:pointer;border:none;background:${{btnBg}};color:${{btnCol}};">
+                                ${{btnText}}
                             </button>
                         </div>
                         <div style="display:flex;align-items:center;gap:6px;">
-                            <input type="number" step="0.01" id="pair-input-${k}" value="${cfg.lot}" ${isOff ? 'disabled' : ''} placeholder="Auto" style="width:100%;padding:6px 8px;background:${isOff ? '#161b2280' : '#161b22'};border:1px solid #30363d;border-radius:4px;color:#fff;font-size:12px;font-family:monospace;">
-                            ${cfg.custom ? `<button type="button" onclick="clearPairLot('${k}')" title="Reset to Dynamic" style="background:transparent;color:#f85149;border:none;cursor:pointer;font-size:14px;padding:2px;">✕</button>` : ''}
+                            <input type="number" step="0.01" id="pair-input-${{k}}" value="${{cfg.lot}}" ${{inputDis}} placeholder="Auto" style="width:100%;padding:6px 8px;background:${{inputBg}};border:1px solid #30363d;border-radius:4px;color:#fff;font-size:12px;font-family:monospace;">
+                            ${{clearBtn}}
                         </div>
                     </div>
                 `;
@@ -1621,13 +1630,13 @@ def generate_dashboard_html(client, ct_connected, ct_error, tg_connected, tg_inf
             const jsonBox = document.getElementById('admin-pair-lots-json-box');
             if (jsonBox) {{
                 jsonBox.style.display = 'block';
-                jsonBox.innerHTML = `<strong>💡 GitHub Secret CTRADER_PAIR_LOTS (Copy & Paste to GitHub Secrets):</strong><br>${JSON.stringify(ADMIN_PAIR_LOTS)}`;
+                jsonBox.innerHTML = `<strong>💡 GitHub Secret CTRADER_PAIR_LOTS (Copy & Paste to GitHub Secrets):</strong><br>${{JSON.stringify(ADMIN_PAIR_LOTS)}}`;
             }}
         }}
 
         function togglePairStatusAdmin(k) {{
             const cfg = getPairAdminConfig(k);
-            const el = document.getElementById(`pair-input-${k}`);
+            const el = document.getElementById(`pair-input-${{k}}`);
             const curLot = (el && el.value.trim()) ? el.value.trim() : cfg.lot;
             
             cfg.enabled = !cfg.enabled;
@@ -1640,13 +1649,14 @@ def generate_dashboard_html(client, ct_connected, ct_error, tg_connected, tg_inf
             }}
             localStorage.setItem('admin_pair_lots', JSON.stringify(ADMIN_PAIR_LOTS));
             renderAdminPairLots();
-            showAdminNotification(`⚡ Switched ${k} ${cfg.enabled ? 'ON (Copying Allowed)' : 'OFF (Signal Copying Blocked)'}!`);
+            const statusMsg = cfg.enabled ? 'ON (Copying Allowed)' : 'OFF (Signal Copying Blocked)';
+            showAdminNotification(`⚡ Switched ${{k}} ${{statusMsg}}!`);
         }}
 
         function saveAllPairLotsAdmin() {{
             const allKnown = Array.from(new Set([...COMMON_PAIRS, ...SERVER_INSTRUMENTS, ...Object.keys(ADMIN_PAIR_LOTS)]));
             allKnown.forEach(k => {{
-                const el = document.getElementById(`pair-input-${k}`);
+                const el = document.getElementById(`pair-input-${{k}}`);
                 const cfg = getPairAdminConfig(k);
                 if (!cfg.enabled) {{
                     if (el && el.value.trim() && !isNaN(el.value.trim())) {{
