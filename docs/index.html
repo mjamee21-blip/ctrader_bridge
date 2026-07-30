@@ -1,845 +1,642 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Alpha Markets Copy Trading</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
-        rel="stylesheet">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>cTrader Dashboard Control Panel</title>
     <style>
-        :root {
-            --bg: #04070f;
-            --border: #1b2540;
-            --emerald: #10b981;
-            --gold: #f5b942;
-            --text: #e8edf7;
-            --muted: #8893ad
-        }
-
-        * {
-            font-family: 'Inter', system-ui, sans-serif
-        }
-
-        html {
-            scroll-behavior: smooth
-        }
-
-        body {
-            background: var(--bg);
-            color: var(--text);
-            overflow-x: hidden;
-            position: relative
-        }
-
-        body::before {
-            content: '';
-            position: fixed;
-            inset: 0;
-            z-index: 0;
-            pointer-events: none;
-            background:
-                radial-gradient(900px 500px at 80% -10%, rgba(245, 185, 66, .10), transparent 60%),
-                radial-gradient(800px 500px at 10% 110%, rgba(16, 185, 129, .12), transparent 60%),
-                linear-gradient(rgba(40, 60, 100, .07) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(40, 60, 100, .07) 1px, transparent 1px);
-            background-size: auto, auto, 46px 46px, 46px 46px
-        }
-
-        .orb {
-            position: fixed;
-            border-radius: 50%;
-            filter: blur(120px);
-            z-index: 0;
-            pointer-events: none;
-            animation: float 14s ease-in-out infinite
-        }
-
-        @keyframes float {
-
-            0%,
-            100% {
-                transform: translate(0, 0)
-            }
-
-            50% {
-                transform: translate(30px, -30px)
-            }
-        }
-
-        .skyline {
-            position: fixed;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            height: 46vh;
-            z-index: 0;
-            pointer-events: none;
-            opacity: .5
-        }
-
-        .skyline svg {
-            width: 100%;
-            height: 100%
-        }
-
-        .candle {
-            transform-origin: bottom;
-            animation: grow 3s ease-in-out infinite
-        }
-
-        @keyframes grow {
-
-            0%,
-            100% {
-                transform: scaleY(.7);
-                opacity: .5
-            }
-
-            50% {
-                transform: scaleY(1);
-                opacity: .9
-            }
-        }
-
-        .glass {
-            background: linear-gradient(180deg, rgba(16, 23, 40, .85), rgba(9, 14, 26, .9));
-            backdrop-filter: blur(18px);
-            border: 1px solid var(--border)
-        }
-
-        .glass-strong {
-            background: linear-gradient(180deg, rgba(20, 28, 48, .92), rgba(11, 16, 30, .95));
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--border);
-            box-shadow: 0 24px 60px -20px rgba(0, 0, 0, .7)
-        }
-
-        .grad-text {
-            background: linear-gradient(100deg, #34d399 10%, #f5b942 90%);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent
-        }
-
-        .grad-btn {
-            background: linear-gradient(100deg, #10b981, #f5b942);
-            transition: transform .2s, box-shadow .2s, filter .2s;
-            color: #06120c
-        }
-
-        .grad-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 14px 34px -8px rgba(245, 185, 66, .5);
-            filter: brightness(1.07)
-        }
-
-        .grad-btn:active {
-            transform: translateY(0)
-        }
-
-        .field {
-            background: rgba(6, 11, 22, .8);
-            border: 1px solid var(--border);
-            transition: border .2s, box-shadow .2s
-        }
-
-        .field:focus {
-            outline: none;
-            border-color: #10b981;
-            box-shadow: 0 0 0 3px rgba(16, 185, 129, .18)
-        }
-
-        .view {
-            display: none;
-            animation: fade .5s ease
-        }
-
-        .view.active {
-            display: block
-        }
-
-        @keyframes fade {
-            from {
-                opacity: 0;
-                transform: translateY(14px)
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0)
-            }
-        }
-
-        .spin {
-            animation: sp 1s linear infinite
-        }
-
-        @keyframes sp {
-            to {
-                transform: rotate(360deg)
-            }
-        }
-
-        .pulse-dot {
-            animation: pd 1.6s ease-in-out infinite
-        }
-
-        @keyframes pd {
-
-            0%,
-            100% {
-                opacity: 1
-            }
-
-            50% {
-                opacity: .3
-            }
-        }
-
-        .card-hover {
-            transition: transform .25s, border-color .25s, box-shadow .25s
-        }
-
-        .card-hover:hover {
-            transform: translateY(-5px);
-            border-color: rgba(16, 185, 129, .5);
-            box-shadow: 0 18px 40px -16px rgba(16, 185, 129, .25)
-        }
-
-        ::-webkit-scrollbar {
-            width: 9px
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #1b2540;
-            border-radius: 9px
-        }
-
-        .badge {
-            font-size: 11px;
-            font-weight: 700;
-            padding: 4px 11px;
-            border-radius: 999px
-        }
-
-        input::placeholder {
-            color: #56607a
-        }
-
-        .ticker {
-            overflow: hidden;
-            white-space: nowrap;
-            border-top: 1px solid var(--border);
-            border-bottom: 1px solid var(--border);
-            background: rgba(4, 7, 15, .9);
-            backdrop-filter: blur(8px)
-        }
-
-        .ticker-track {
-            display: inline-block;
-            padding-left: 100%;
-            animation: tk 40s linear infinite
-        }
-
-        .ticker:hover .ticker-track {
-            animation-play-state: paused
-        }
-
-        @keyframes tk {
-            0% {
-                transform: translateX(0)
-            }
-
-            100% {
-                transform: translateX(-100%)
-            }
-        }
-
-        .tk-item {
-            display: inline-block;
-            margin: 0 22px;
-            font-size: 13px;
-            font-weight: 600
-        }
-
-        .oauth-btn {
-            transition: all .2s;
-            border: 1px solid var(--border);
-            background: rgba(10, 15, 28, .5)
-        }
-
-        .oauth-btn:hover {
-            background: rgba(20, 28, 48, .8);
-            border-color: #3a4a6e;
-            transform: translateY(-1px)
-        }
-
-        .shine {
-            position: relative;
-            overflow: hidden
-        }
-
-        .shine::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -150%;
-            width: 50%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .12), transparent);
-            transform: skewX(-20deg);
-            animation: sh 4s infinite
-        }
-
-        @keyframes sh {
-            0% {
-                left: -150%
-            }
-
-            60%,
-            100% {
-                left: 150%
-            }
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0d1117; color: #c9d1d9; font-size: 13px; line-height: 1.5; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; background: #161b22; border: 1px solid #30363d; border-radius: 8px; margin-bottom: 20px; }
+        .header h1 { font-size: 18px; font-weight: 700; color: #58a6ff; }
+        .btn { padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; text-decoration: none; display: inline-block; }
+        .btn-refresh { background: #238636; color: #fff; margin-right: 8px; }
+        .btn-refresh:hover { background: #2ea043; }
+        .btn-logout { background: #da3633; color: #fff; }
+        .btn-logout:hover { background: #f85149; }
+        .section-title { font-size: 12px; color: #8b949e; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin: 24px 0 10px 0; }
+        .card { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 16px; margin-bottom: 16px; }
+        .health-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 16px; }
+        .health-item { background: #161b22; border: 1px solid #30363d; border-radius: 6px; padding: 12px 16px; display: flex; align-items: center; gap: 12px; }
+        .health-icon { font-size: 18px; }
+        .health-label { flex: 1; font-weight: 600; }
+        .conn-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; margin-bottom: 16px; }
+        .conn-card { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 16px; }
+        .conn-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .conn-title { font-size: 13px; font-weight: 700; }
+        .conn-badge { font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 12px; }
+        .conn-detail { font-size: 11px; color: #8b949e; }
+        .cron-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; margin-bottom: 16px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 15px; margin-bottom: 16px; }
+        .stat { text-align: center; padding: 16px; }
+        .stat-value { font-size: 22px; font-weight: 800; color: #58a6ff; }
+        .stat-label { font-size: 11px; color: #8b949e; margin-top: 6px; text-transform: uppercase; }
+        table { width: 100%; border-collapse: collapse; }
+        th { padding: 10px 12px; background: #0d1117; color: #8b949e; font-size: 11px; text-transform: uppercase; text-align: left; border-bottom: 1px solid #30363d; }
+        td { padding: 10px 12px; border-bottom: 1px solid #30363d; font-size: 12px; }
+        tr:hover td { background: #1c2128; }
+        .pair { font-weight: 600; color: #fff; }
+        .buy { color: #3fb950; font-weight: 600; }
+        .sell { color: #f85149; font-weight: 600; }
+        .time { font-size: 11px; color: #8b949e; white-space: nowrap; }
+        .msg-cell { word-break: break-word; white-space: pre-wrap; max-width: 520px; }
+        .ago { display: block; font-size: 10px; color: #58a6ff; font-weight: 600; }
+        .empty { text-align: center; color: #8b949e; padding: 24px; font-style: italic; }
     </style>
-</head>
-
-<body>
-    <div class="orb" style="width:460px;height:460px;background:#10b981;top:-140px;left:-100px;opacity:.28"></div>
-    <div class="orb"
-        style="width:520px;height:520px;background:#f5b942;top:40%;right:-180px;opacity:.16;animation-delay:3s"></div>
-    <div class="orb"
-        style="width:380px;height:380px;background:#6366f1;bottom:-120px;left:30%;opacity:.14;animation-delay:6s"></div>
-
-    <div class="skyline">
-        <svg viewBox="0 0 1200 400" preserveAspectRatio="none">
-            <defs>
-                <linearGradient id="lg" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0" stop-color="#10b981" stop-opacity=".5" />
-                    <stop offset="1" stop-color="#10b981" stop-opacity="0" />
-                </linearGradient>
-            </defs>
-            <polygon
-                points="0,400 0,300 60,260 120,285 180,200 240,235 300,160 360,195 420,120 480,160 540,95 600,140 660,80 720,125 780,70 840,115 900,60 960,100 1020,55 1080,95 1140,45 1200,80 1200,400"
-                fill="url(#lg)" />
-            <polyline
-                points="0,300 60,260 120,285 180,200 240,235 300,160 360,195 420,120 480,160 540,95 600,140 660,80 720,125 780,70 840,115 900,60 960,100 1020,55 1080,95 1140,45 1200,80"
-                fill="none" stroke="#10b981" stroke-width="2" opacity=".7" />
-            <g fill="#10b981">
-                <rect class="candle" x="50" y="265" width="8" height="40" style="animation-delay:0s" />
-                <line x1="54" y1="250" x2="54" y2="315" stroke="#10b981" opacity=".6" />
-                <rect class="candle" x="170" y="205" width="8" height="38" style="animation-delay:.4s" />
-                <line x1="174" y1="190" x2="174" y2="250" stroke="#10b981" opacity=".6" />
-                <rect class="candle" x="290" y="165" width="8" height="42" style="animation-delay:.8s" />
-                <line x1="294" y1="150" x2="294" y2="215" stroke="#10b981" opacity=".6" />
-                <rect class="candle" x="410" y="125" width="8" height="38" style="animation-delay:1.2s" />
-                <line x1="414" y1="110" x2="414" y2="170" stroke="#10b981" opacity=".6" />
-                <rect class="candle" x="530" y="100" width="8" height="45" style="animation-delay:1.6s" />
-                <line x1="534" y1="85" x2="534" y2="155" stroke="#10b981" opacity=".6" />
-                <rect class="candle" x="650" y="85" width="8" height="38" style="animation-delay:2.0s" />
-                <line x1="654" y1="70" x2="654" y2="130" stroke="#10b981" opacity=".6" />
-                <rect class="candle" x="770" y="75" width="8" height="40" style="animation-delay:2.4s" />
-                <line x1="774" y1="60" x2="774" y2="125" stroke="#10b981" opacity=".6" />
-                <rect class="candle" x="890" y="65" width="8" height="40" style="animation-delay:2.8s" />
-                <line x1="894" y1="50" x2="894" y2="115" stroke="#10b981" opacity=".6" />
-                <rect class="candle" x="1010" y="58" width="8" height="40" style="animation-delay:3.2s" />
-                <line x1="1014" y1="43" x2="1014" y2="108" stroke="#10b981" opacity=".6" />
-            </g>
-        </svg>
-    </div>
-
-    <div class="ticker relative z-10">
-        <div class="ticker-track" id="tickerTrack"></div>
-    </div>
-
-    <nav class="relative z-20 max-w-7xl mx-auto flex items-center justify-between px-5 py-4">
-        <div class="flex items-center gap-2.5 cursor-pointer" onclick="go('landing')">
-            <div class="w-10 h-10 rounded-xl grad-btn flex items-center justify-center font-black text-xl shine">α</div>
-            <div class="leading-tight">
-                <div class="text-base font-extrabold tracking-tight">Alpha Markets</div>
-                <div class="text-[10px] font-semibold grad-text -mt-0.5 tracking-widest">COPY TRADING</div>
-            </div>
-        </div>
-        <div id="navActions" class="flex items-center gap-3">
-            <button onclick="go('login')"
-                class="text-sm font-semibold text-[var(--muted)] hover:text-white transition px-3 py-2">Log in</button>
-            <button onclick="go('register')" class="grad-btn text-sm font-bold px-5 py-2.5 rounded-xl">Get
-                started</button>
-        </div>
-        <div id="navUser" class="hidden items-center gap-3">
-            <span id="navEmail" class="text-sm text-[var(--muted)] hidden sm:block"></span>
-            <div class="w-9 h-9 rounded-full grad-btn flex items-center justify-center font-bold cursor-pointer"
-                id="navAvatar" onclick="go('dashboard')">U</div>
-            <button onclick="logout()"
-                class="text-xs font-semibold text-[var(--muted)] hover:text-red-400 transition">Logout</button>
-        </div>
-    </nav>
-
-    <main class="relative z-10 max-w-7xl mx-auto px-5 pb-20">
-
-        <section id="view-landing" class="view active">
-            <div class="text-center max-w-3xl mx-auto pt-10 md:pt-16">
-                <div
-                    class="inline-flex items-center gap-2 glass px-4 py-1.5 rounded-full text-xs font-semibold text-[var(--muted)] mb-6">
-                    <span class="w-2 h-2 rounded-full bg-emerald-400 pulse-dot"></span> Auto-copy trading signals — pay
-                    with crypto</div>
-                <h1 class="text-4xl md:text-6xl font-black leading-[1.05] tracking-tight">Trade the markets<br>on <span
-                        class="grad-text">autopilot</span></h1>
-                <p class="text-[var(--muted)] text-lg mt-6 max-w-2xl mx-auto">Alpha Markets Copy Trading links your
-                    Telegram signal channel to your cTrader account. Every signal executes instantly — with your custom
-                    lot size, SL & TP. Just <span class="text-white font-semibold">$8/month</span> in crypto.</p>
-                <div class="flex flex-col sm:flex-row items-center justify-center gap-3 mt-9">
-                    <button onclick="go('register')"
-                        class="grad-btn font-bold px-8 py-4 rounded-xl text-base w-full sm:w-auto shine">Start for
-                        $8/month →</button>
-                    <button onclick="go('login')"
-                        class="glass text-white font-semibold px-8 py-4 rounded-xl text-base w-full sm:w-auto">I have an
-                        account</button>
-                </div>
-                <div class="flex items-center justify-center gap-6 mt-7 text-xs text-[var(--muted)] flex-wrap"><span>✓
-                        Email / Google / GitHub</span><span>✓ BTC · ETH · USDT</span><span>✓ Custom lot
-                        sizes</span><span>✓ Cancel anytime</span></div>
-            </div>
-            <div class="mt-16 max-w-4xl mx-auto glass-strong rounded-2xl p-2">
-                <div class="rounded-xl bg-[#070c16]/80 p-6 md:p-8 grid md:grid-cols-2 gap-5">
-                    <div class="rounded-xl border border-[var(--border)] p-5">
-                        <div class="text-xs text-[var(--muted)] font-semibold mb-3">TELEGRAM SIGNAL</div>
-                        <div class="text-emerald-400 font-bold text-lg">🟢 BUY BTC/USD</div>
-                        <div class="text-sm text-[var(--muted)] mt-1">Entry: MARKET · SL: 65039 · TP: 65604</div>
-                    </div>
-                    <div class="rounded-xl border border-[var(--border)] p-5">
-                        <div class="text-xs text-[var(--muted)] font-semibold mb-3">cTRADER EXECUTION</div>
-                        <div class="flex items-center gap-2"><span class="text-emerald-400">⚡</span><span
-                                class="font-bold">Filled · 0.10 lots</span></div>
-                        <div class="badge bg-emerald-500/15 text-emerald-400 mt-3 inline-block">EXECUTED</div>
-                    </div>
-                </div>
-            </div>
-            <div class="grid md:grid-cols-3 gap-5 mt-20 max-w-5xl mx-auto">
-                <div class="glass card-hover rounded-2xl p-6">
-                    <div class="text-3xl mb-3">🔗</div>
-                    <h3 class="font-bold text-lg">1 Channel · 1 Account</h3>
-                    <p class="text-sm text-[var(--muted)] mt-2">Link one Telegram channel to one cTrader account. Simple
-                        and focused.</p>
-                </div>
-                <div class="glass card-hover rounded-2xl p-6">
-                    <div class="text-3xl mb-3">🎚️</div>
-                    <h3 class="font-bold text-lg">Lot size per pair</h3>
-                    <p class="text-sm text-[var(--muted)] mt-2">Custom lot size for BTCUSD, XAUUSD, EURUSD and every
-                        pair.</p>
-                </div>
-                <div class="glass card-hover rounded-2xl p-6">
-                    <div class="text-3xl mb-3">🔐</div>
-                    <h3 class="font-bold text-lg">Easy sign-up</h3>
-                    <p class="text-sm text-[var(--muted)] mt-2">Register with email, or one-tap Google / GitHub.</p>
-                </div>
-            </div>
-            <div class="max-w-md mx-auto mt-20 glass-strong rounded-3xl p-8 text-center relative overflow-hidden">
-                <div class="absolute -top-16 -right-16 w-48 h-48 rounded-full"
-                    style="background:radial-gradient(circle,#f5b94244,transparent)"></div>
-                <div class="badge grad-btn inline-block mb-4">MOST POPULAR</div>
-                <div class="text-5xl font-black">$8<span class="text-lg font-semibold text-[var(--muted)]">/month</span>
-                </div>
-                <ul class="text-left mt-7 space-y-3 text-sm">
-                    <li class="flex items-center gap-3"><span class="text-emerald-400">✓</span> 1 Telegram channel + 1
-                        cTrader account</li>
-                    <li class="flex items-center gap-3"><span class="text-emerald-400">✓</span> Automatic signal
-                        execution</li>
-                    <li class="flex items-center gap-3"><span class="text-emerald-400">✓</span> Custom lot size per pair
-                    </li>
-                    <li class="flex items-center gap-3"><span class="text-emerald-400">✓</span> Live trades dashboard
-                    </li>
-                    <li class="flex items-center gap-3"><span class="text-emerald-400">✓</span> BTC / ETH / USDT
-                        (auto-verified)</li>
-                </ul>
-                <button onclick="go('register')" class="grad-btn font-bold w-full py-4 rounded-xl mt-8 shine">Get
-                    started now</button>
-            </div>
-        </section>
-
-        <section id="view-register" class="view">
-            <div class="max-w-md mx-auto pt-10">
-                <div class="text-center mb-7">
-                    <h2 class="text-3xl font-black">Create your account</h2>
-                    <p class="text-[var(--muted)] mt-2">Free to sign up — $8/mo to activate</p>
-                </div>
-                <div class="glass-strong rounded-2xl p-7">
-                    <div class="space-y-3 mb-5">
-                        <button onclick="oauth('Google')"
-                            class="oauth-btn w-full rounded-xl py-3 flex items-center justify-center gap-3 font-semibold text-sm"><span
-                                class="text-lg">🔵</span> Continue with Google</button>
-                        <button onclick="oauth('GitHub')"
-                            class="oauth-btn w-full rounded-xl py-3 flex items-center justify-center gap-3 font-semibold text-sm"><span
-                                class="text-lg">⚫</span> Continue with GitHub</button>
-                    </div>
-                    <div class="flex items-center gap-3 my-5">
-                        <div class="flex-1 h-px bg-[var(--border)]"></div><span
-                            class="text-xs text-[var(--muted)]">OR</span>
-                        <div class="flex-1 h-px bg-[var(--border)]"></div>
-                    </div>
-                    <form id="registerForm" class="space-y-4">
-                        <div><label class="text-xs font-semibold text-[var(--muted)]">FULL NAME</label><input id="rName"
-                                type="text" required class="field w-full rounded-xl px-4 py-3 mt-1.5 text-sm"
-                                placeholder="John Trader"></div>
-                        <div><label class="text-xs font-semibold text-[var(--muted)]">EMAIL</label><input id="rEmail"
-                                type="email" required class="field w-full rounded-xl px-4 py-3 mt-1.5 text-sm"
-                                placeholder="you@email.com"></div>
-                        <div><label class="text-xs font-semibold text-[var(--muted)]">CREATE PASSWORD</label><input
-                                id="rPass" type="password" required minlength="6"
-                                class="field w-full rounded-xl px-4 py-3 mt-1.5 text-sm"
-                                placeholder="At least 6 characters"></div>
-                        <div><label class="text-xs font-semibold text-[var(--muted)]">CONFIRM PASSWORD</label><input
-                                id="rPass2" type="password" required
-                                class="field w-full rounded-xl px-4 py-3 mt-1.5 text-sm" placeholder="Repeat password">
-                        </div>
-                        <div id="rError" class="hidden text-red-400 text-sm font-semibold"></div>
-                        <button type="submit" class="grad-btn font-bold w-full py-3.5 rounded-xl">Continue to payment
-                            →</button>
-                    </form>
-                </div>
-                <p class="text-center text-sm text-[var(--muted)] mt-5">Already have an account? <a
-                        onclick="go('login')" class="text-emerald-400 font-semibold cursor-pointer">Log in</a></p>
-            </div>
-        </section>
-
-        <section id="view-payment" class="view">
-            <div class="max-w-lg mx-auto pt-10">
-                <div class="text-center mb-8">
-                    <h2 class="text-3xl font-black">Pay with crypto</h2>
-                    <p class="text-[var(--muted)] mt-2">Send <span class="text-white font-semibold">$8.00</span> —
-                        verified automatically</p>
-                </div>
-                <div class="glass-strong rounded-2xl p-7">
-                    <div class="grid grid-cols-3 gap-3 mb-6" id="coinTabs"></div>
-                    <div
-                        class="flex items-center justify-between rounded-xl bg-[#070c16] border border-[var(--border)] px-4 py-3 mb-5">
-                        <span class="text-sm text-[var(--muted)]">Amount due</span><span class="font-bold"><span
-                                id="payCryptoAmt">0.0001234</span> <span id="payCryptoSym">BTC</span> <span
-                                class="text-[var(--muted)] text-xs">≈ $8.00</span></span></div>
-                    <div class="flex flex-col items-center">
-                        <div class="bg-white p-3 rounded-2xl mb-4"><img id="qrImg" src="" alt="QR"
-                                class="w-40 h-40 rounded-lg"></div>
-                        <div class="text-xs text-[var(--muted)] font-semibold mb-1.5">SEND ONLY <span
-                                id="payNet">Bitcoin</span> TO THIS ADDRESS</div>
-                        <div
-                            class="w-full flex items-center gap-2 rounded-xl bg-[#070c16] border border-[var(--border)] px-4 py-3">
-                            <code id="payAddr" class="text-xs flex-1 truncate text-emerald-400">...</code><button
-                                onclick="copyAddr()"
-                                class="text-xs font-bold text-amber-400 hover:text-amber-300 whitespace-nowrap">COPY</button>
-                        </div>
-                    </div>
-                    <div id="payWaiting"
-                        class="rounded-xl bg-[#070c16] border border-[var(--border)] px-4 py-4 mt-5 text-center">
-                        <div class="flex items-center justify-center gap-2 text-sm font-semibold"><span
-                                class="spin inline-block w-4 h-4 border-2 border-emerald-400/30 border-t-emerald-400 rounded-full"></span>
-                            Scanning blockchain for your payment…</div>
-                        <div class="text-xs text-[var(--muted)] mt-2">Auto-confirming in <span id="payCountdown"
-                                class="text-emerald-400 font-bold">12</span>s (demo)</div>
-                    </div>
-                    <div id="payDone"
-                        class="hidden rounded-xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 px-4 py-4 mt-5 text-center font-bold">
-                        ✅ Payment verified! Activating subscription…</div>
-                    <p class="text-center text-xs text-[var(--muted)] mt-4">🔒 Demo auto-verifies. For live
-                        auto-verification connect NOWPayments/Coinbase Commerce on your backend.</p>
-                </div>
-            </div>
-        </section>
-
-        <section id="view-login" class="view">
-            <div class="max-w-md mx-auto pt-10">
-                <div class="text-center mb-7">
-                    <h2 class="text-3xl font-black">Welcome back</h2>
-                    <p class="text-[var(--muted)] mt-2">Log in to your account</p>
-                </div>
-                <div class="glass-strong rounded-2xl p-7">
-                    <div class="space-y-3 mb-5">
-                        <button onclick="oauth('Google')"
-                            class="oauth-btn w-full rounded-xl py-3 flex items-center justify-center gap-3 font-semibold text-sm"><span
-                                class="text-lg">🔵</span> Continue with Google</button>
-                        <button onclick="oauth('GitHub')"
-                            class="oauth-btn w-full rounded-xl py-3 flex items-center justify-center gap-3 font-semibold text-sm"><span
-                                class="text-lg">⚫</span> Continue with GitHub</button>
-                    </div>
-                    <div class="flex items-center gap-3 my-5">
-                        <div class="flex-1 h-px bg-[var(--border)]"></div><span
-                            class="text-xs text-[var(--muted)]">OR</span>
-                        <div class="flex-1 h-px bg-[var(--border)]"></div>
-                    </div>
-                    <form id="loginForm" class="space-y-4">
-                        <div><label class="text-xs font-semibold text-[var(--muted)]">EMAIL</label><input id="lEmail"
-                                type="text" required class="field w-full rounded-xl px-4 py-3 mt-1.5 text-sm"
-                                placeholder="you@email.com"></div>
-                        <div><label class="text-xs font-semibold text-[var(--muted)]">PASSWORD</label><input id="lPass"
-                                type="password" required class="field w-full rounded-xl px-4 py-3 mt-1.5 text-sm"
-                                placeholder="Your password"></div>
-                        <div id="lError" class="hidden text-red-400 text-sm font-semibold"></div>
-                        <button type="submit" class="grad-btn font-bold w-full py-3.5 rounded-xl">Log in</button>
-                    </form>
-                </div>
-                <p class="text-center text-sm text-[var(--muted)] mt-5">No account yet? <a onclick="go('register')"
-                        class="text-emerald-400 font-semibold cursor-pointer">Sign up</a></p>
-            </div>
-        </section>
-
-        <section id="view-dashboard" class="view">
-            <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4 pt-8 mb-8">
-                <div>
-                    <h2 class="text-3xl font-black">Dashboard</h2>
-                    <p class="text-[var(--muted)] mt-1">Welcome back, <span id="dashName"
-                            class="text-white font-semibold">Trader</span> 👋</p>
-                </div>
-                <div class="glass rounded-xl px-5 py-3 flex items-center gap-3"><span
-                        class="w-2.5 h-2.5 rounded-full bg-emerald-400 pulse-dot"></span>
-                    <div>
-                        <div class="text-xs text-[var(--muted)]">Subscription</div>
-                        <div class="font-bold text-sm">Active · <span id="dashRenew" class="text-emerald-400">renews
-                                soon</span></div>
-                    </div>
-                </div>
-            </div>
-            <div class="grid lg:grid-cols-2 gap-5">
-                <div class="glass rounded-2xl p-6">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="flex items-center gap-3">
-                            <div class="w-11 h-11 rounded-xl bg-sky-500/15 flex items-center justify-center text-2xl">✈️
-                            </div>
-                            <div>
-                                <h3 class="font-bold">Telegram Channel</h3>
-                                <p class="text-xs text-[var(--muted)]">Source of signals (1 allowed)</p>
-                            </div>
-                        </div><span id="tgBadge" class="badge bg-zinc-500/20 text-zinc-400">NOT CONNECTED</span>
-                    </div>
-                    <div id="tgConnected" class="hidden">
-                        <div class="rounded-xl bg-[#070c16] border border-[var(--border)] p-4 mb-3">
-                            <div class="text-xs text-[var(--muted)]">Connected channel</div>
-                            <div class="font-bold text-sky-400 text-lg" id="tgChannelName">@channel</div>
-                        </div><button onclick="disconnect('telegram')"
-                            class="text-sm font-semibold text-red-400 hover:text-red-300">Disconnect channel</button>
-                    </div>
-                    <div id="tgForm" class="space-y-3">
-                        <div class="rounded-xl bg-[#070c16] border border-[var(--border)] p-4 text-center">
-                            <div class="text-4xl mb-2">✈️</div>
-                            <p class="text-sm text-[var(--muted)] mb-3">Tap the button, open Telegram, and press
-                                <b>Start</b> on the bot. Your channel links automatically.</p>
-                            <button onclick="openTelegramBot()"
-                                class="grad-btn font-bold w-full py-3 rounded-xl flex items-center justify-center gap-2">🔗
-                                Connect with Telegram</button>
-                            <ol class="text-left text-xs text-[var(--muted)] mt-4 space-y-1.5 list-decimal list-inside">
-                                <li>Tap <b>Connect with Telegram</b> above</li>
-                                <li>Press <b>Start</b> in the Telegram chat</li>
-                                <li>The bot confirms your channel is linked</li>
-                            </ol>
-                            <button onclick="finishTelegramLink()"
-                                class="w-full mt-4 py-2.5 rounded-xl border border-emerald-500/40 text-emerald-300 text-sm font-semibold hover:bg-emerald-500/10">✓
-                                I've started the bot — complete linking</button>
-                        </div>
-                    </div>
-                </div>
-                <div class="glass rounded-2xl p-6">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="flex items-center gap-3">
-                            <div
-                                class="w-11 h-11 rounded-xl bg-emerald-500/15 flex items-center justify-center text-2xl">
-                                📊</div>
-                            <div>
-                                <h3 class="font-bold">cTrader Account</h3>
-                                <p class="text-xs text-[var(--muted)]">Where trades execute (1 allowed)</p>
-                            </div>
-                        </div><span id="ctBadge" class="badge bg-zinc-500/20 text-zinc-400">NOT CONNECTED</span>
-                    </div>
-                    <div id="ctConnected" class="hidden">
-                        <div class="rounded-xl bg-[#070c16] border border-[var(--border)] p-4 mb-3">
-                            <div class="text-xs text-[var(--muted)]">Connected account</div>
-                            <div class="font-bold text-emerald-400 text-lg" id="ctAccountName">Login #2454414</div>
-                            <div class="text-xs text-[var(--muted)] mt-1" id="ctAccountServer">DerivSVG-Server · DEMO
-                            </div>
-                        </div><button onclick="disconnect('ctrader')"
-                            class="text-sm font-semibold text-red-400 hover:text-red-300">Disconnect account</button>
-                    </div>
-                    <div id="ctForm" class="space-y-3">
-                        <div class="rounded-xl bg-[#070c16] border border-[var(--border)] p-4 text-center">
-                            <div class="text-4xl mb-2">📊</div>
-                            <p class="text-sm text-[var(--muted)] mb-3">One-tap secure OAuth. Sign in to cTrader and
-                                authorize — no password shared with us.</p>
-                            <button onclick="connectCtrader()"
-                                class="grad-btn font-bold w-full py-3 rounded-xl flex items-center justify-center gap-2">🔗
-                                Connect cTrader Account</button>
-                            <p class="text-[11px] text-[var(--muted)] mt-3">You'll be redirected to the official cTrader
-                                login, then back here — fully linked.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="glass rounded-2xl p-6 mt-5">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="font-bold">🎚️ Lot size per pair</h3><button onclick="addLot()"
-                        class="text-xs font-bold text-amber-400 border border-amber-500/40 rounded-lg px-3 py-2 hover:bg-amber-500/10">+
-                        Add pair</button>
-                </div>
-                <div id="lotGrid" class="grid sm:grid-cols-2 md:grid-cols-3 gap-3"></div>
-                <div class="flex items-center gap-3 mt-4"><button onclick="saveLots()"
-                        class="grad-btn font-bold px-6 py-2.5 rounded-xl text-sm">Save lot sizes</button><span
-                        id="lotSaved" class="hidden text-emerald-400 text-sm font-semibold">✓ Saved</span></div>
-            </div>
-            <div class="glass rounded-2xl p-6 mt-5">
-                <h3 class="font-bold mb-4">Bridge status</h3>
-                <div class="grid sm:grid-cols-3 gap-4">
-                    <div class="rounded-xl bg-[#070c16] border border-[var(--border)] p-4">
-                        <div class="text-xs text-[var(--muted)]">Channel</div>
-                        <div id="stTg" class="font-bold mt-1">—</div>
-                    </div>
-                    <div class="rounded-xl bg-[#070c16] border border-[var(--border)] p-4">
-                        <div class="text-xs text-[var(--muted)]">Account</div>
-                        <div id="stCt" class="font-bold mt-1">—</div>
-                    </div>
-                    <div class="rounded-xl bg-[#070c16] border border-[var(--border)] p-4">
-                        <div class="text-xs text-[var(--muted)]">Auto-copy</div>
-                        <div id="stActive" class="font-bold mt-1">Inactive</div>
-                    </div>
-                </div>
-                <div id="bridgeReady"
-                    class="hidden mt-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-sm px-4 py-3">
-                    ✅ Your bridge is live — incoming signals copy to cTrader using your lot sizes.</div>
-                <div id="bridgeNotReady"
-                    class="mt-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-sm px-4 py-3">
-                    ⚠️ Connect both a Telegram channel and a cTrader account to activate auto-copy.</div>
-            </div>
-            <div class="flex justify-center mt-8"><button onclick="go('landing')"
-                    class="text-sm text-[var(--muted)] hover:text-white">← Back to home</button></div>
-        </section>
-
-        <section id="view-admin" class="view">
-            <div class="flex items-center justify-between pt-8 mb-8 flex-wrap gap-3">
-                <div>
-                    <h2 class="text-3xl font-black">⚙️ Control Panel</h2>
-                    <p class="text-[var(--muted)] mt-1">Alpha Markets — manage users, payments & lot sizes</p>
-                </div>
-                <span class="badge grad-btn">STAFF</span>
-            </div>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                <div class="glass rounded-2xl p-5">
-                    <div class="text-3xl font-black" id="aTotal">0</div>
-                    <div class="text-xs text-[var(--muted)] mt-1">Total users</div>
-                </div>
-                <div class="glass rounded-2xl p-5">
-                    <div class="text-3xl font-black text-emerald-400" id="aActive">0</div>
-                    <div class="text-xs text-[var(--muted)] mt-1">Active subs</div>
-                </div>
-                <div class="glass rounded-2xl p-5">
-                    <div class="text-3xl font-black text-amber-400" id="aPending">0</div>
-                    <div class="text-xs text-[var(--muted)] mt-1">Pending pay</div>
-                </div>
-                <div class="glass rounded-2xl p-5">
-                    <div class="text-3xl font-black grad-text" id="aRevenue">$0</div>
-                    <div class="text-xs text-[var(--muted)] mt-1">Monthly revenue</div>
-                </div>
-            </div>
-            <div class="glass rounded-2xl p-6 mb-6">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="font-bold">🎚️ Global lot sizes</h3><button onclick="addLotAdmin()"
-                        class="text-xs font-bold text-amber-400 border border-amber-500/40 rounded-lg px-3 py-2 hover:bg-amber-500/10">+
-                        Add pair</button>
-                </div>
-                <div id="adminLotGrid" class="grid sm:grid-cols-2 md:grid-cols-3 gap-3"></div>
-                <div class="flex items-center gap-3 mt-4"><button onclick="saveLots()"
-                        class="grad-btn font-bold px-6 py-2.5 rounded-xl text-sm">Save lot sizes</button><span
-                        id="lotSaved2" class="hidden text-emerald-400 text-sm font-semibold">✓ Saved globally</span>
-                </div>
-            </div>
-            <div class="glass rounded-2xl p-6">
-                <h3 class="font-bold mb-4">Users</h3>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-sm">
-                        <thead>
-                            <tr class="text-left text-[var(--muted)] text-xs uppercase border-b border-[var(--border)]">
-                                <th class="py-2 pr-3">Name</th>
-                                <th class="py-2 pr-3">Email</th>
-                                <th class="py-2 pr-3">Subscription</th>
-                                <th class="py-2 pr-3">Channel</th>
-                                <th class="py-2 pr-3">cTrader</th>
-                                <th class="py-2">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody id="adminUsers"></tbody>
-                    </table>
-                </div>
-                <div id="noUsers" class="text-center text-[var(--muted)] text-sm py-6">No registered users yet.</div>
-            </div>
-            <div class="flex justify-center mt-8"><button onclick="logout()"
-                    class="text-sm text-[var(--muted)] hover:text-white">Logout</button></div>
-        </section>
-
-    </main>
-    <footer class="relative z-10 text-center text-xs text-[var(--muted)] py-8 border-t border-[var(--border)] mx-5">
-        Alpha Markets Copy Trading · Telegram → cTrader · <span class="grad-text font-semibold">$8/month</span></footer>
-
     <script>
-        const PRICE_USD = 8;
-        const ADMIN = { username: '%%DASHBOARD_USERNAME%%', password: '%%DASHBOARD_PASSWORD%%' };
-        // Easy-link config (BOT_USERNAME / CT_CLIENT_ID can be injected from GitHub secrets at deploy)
-        const CFG = {
-            botUsername: ('%%BOT_USERNAME%%'.includes('%%')) ? 'Forexunitedbot' : '%%BOT_USERNAME%%',
-            ctraderClientId: ('%%CT_CLIENT_ID%%'.includes('%%')) ? '' : '%%CT_CLIENT_ID%%',
-            get redirect() { return window.location.origin + window.location.pathname; }
-        };
-        const CRYPTO = { BTC: { name: 'Bitcoin', net: 'Bitcoin', addr: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh', icon: '₿', rate: 0.0000124 }, ETH: { name: 'Ethereum', net: 'ERC-20', addr: '0x71C7656EC7ab88b098defB751B7401B5f6d8976F', icon: 'Ξ', rate: 0.00031 }, USDT: { name: 'Tether', net: 'TRC-20', addr: 'TQn9Y2khEsLJW1ChVWFMSMeRDow5KcbLSE', icon: '₮', rate: 8.0 } };
-        const DEFAULT_LOTS = { BTCUSD: 0.10, ETHUSD: 0.10, XAUUSD: 0.05, XAGUSD: 0.10, EURUSD: 0.01, GBPUSD: 0.01, USDJPY: 0.01, USDCHF: 0.01, AUDUSD: 0.01, NZDUSD: 0.01, USDCAD: 0.01, EURJPY: 0.01, GBPJPY: 0.01, EURGBP: 0.01, EURCHF: 0.01, CHFJPY: 0.01, NZDJPY: 0.01, CADJPY: 0.01, EURNZD: 0.01, NAS100: 0.10, US30: 0.10, GER40: 0.10 };
-        let selectedCoin = 'BTC', pendingUser = null, payTimer = null, countdown = 12;
-        const SK = 'amct_session', LK = 'amct_users', LOTK = 'amct_lots';
-        const Store = { all() { return JSON.parse(localStorage.getItem(LK) || '{}') }, save(u) { const a = this.all(); a[u.email.toLowerCase()] = u; localStorage.setItem(LK, JSON.stringify(a)) }, get(e) { return this.all()[e.toLowerCase()] }, del(e) { const a = this.all(); delete a[e.toLowerCase()]; localStorage.setItem(LK, JSON.stringify(a)) }, getLots() { const s = localStorage.getItem(LOTK); return s ? JSON.parse(s) : { ...DEFAULT_LOTS } }, setLots(o) { localStorage.setItem(LOTK, JSON.stringify(o)) }, session: null };
-
-        (function buildTicker() { const items = [['BTCUSD', '65,432', '+1.24%', 1], ['ETHUSD', '3,245', '-0.51%', 0], ['XAUUSD', '2,034.5', '+0.82%', 1], ['EURUSD', '1.0856', '+0.12%', 1], ['GBPUSD', '1.2734', '-0.09%', 0], ['USDJPY', '149.82', '+0.34%', 1], ['NAS100', '18,234', '+0.67%', 1], ['US30', '39,456', '-0.21%', 0], ['GER40', '18,920', '+0.45%', 1], ['USOIL', '78.34', '-1.10%', 0], ['SPX500', '4,712', '+0.38%', 1]]; document.getElementById('tickerTrack').innerHTML = items.map(([s, p, c, up]) => `<span class="tk-item">${s} <span class="text-white font-bold">${p}</span> <span style="color:${up ? '#10b981' : '#ef4444'}">${up ? '▲' : '▼'} ${c}</span></span>`).join(''); })();
-
-        function go(view) { if (view === 'dashboard' && Store.session && !Store.session.admin && Store.session.subscription !== 'active') { pendingUser = Store.session; go('payment'); return; } document.querySelectorAll('.view').forEach(v => v.classList.remove('active')); document.getElementById('view-' + view).classList.add('active'); window.scrollTo({ top: 0, behavior: 'smooth' }); refreshNav(); if (view === 'dashboard') renderDashboard(); if (view === 'payment') startPayment(); if (view === 'admin') renderAdmin(); }
-        function refreshNav() { const logged = !!Store.session; document.getElementById('navActions').classList.toggle('hidden', logged); document.getElementById('navUser').classList.toggle('hidden', !logged); document.getElementById('navUser').classList.toggle('flex', logged); if (logged) { document.getElementById('navEmail').textContent = Store.session.admin ? 'Staff' : Store.session.email; document.getElementById('navAvatar').textContent = Store.session.admin ? 'S' : (Store.session.name || 'U')[0].toUpperCase(); } }
-
-        document.getElementById('registerForm').addEventListener('submit', e => { e.preventDefault(); const name = rName.value.trim(), email = rEmail.value.trim().toLowerCase(), pass = rPass.value; const err = document.getElementById('rError'); err.classList.add('hidden'); if (pass.length < 6) { err.textContent = 'Password must be at least 6 characters.'; err.classList.remove('hidden'); return; } if (pass !== rPass2.value) { err.textContent = 'Passwords do not match.'; err.classList.remove('hidden'); return; } if (!ADMIN.username.includes('%%') && email === ADMIN.username.toLowerCase()) { err.textContent = 'This email is reserved.'; err.classList.remove('hidden'); return; } if (Store.get(email)) { err.textContent = 'Account already exists — log in instead.'; err.classList.remove('hidden'); return; } pendingUser = { name, email, password: pass, provider: 'email', subscription: 'pending', created: Date.now(), telegram: null, ctrader: null }; go('payment'); });
-        document.getElementById('loginForm').addEventListener('submit', e => { e.preventDefault(); const id = lEmail.value.trim(), pass = lPass.value; const err = document.getElementById('lError'); err.classList.add('hidden'); if (!ADMIN.username.includes('%%') && id.toLowerCase() === ADMIN.username.toLowerCase() && pass === ADMIN.password) { Store.session = { admin: true, name: 'Staff' }; localStorage.setItem(SK, 'admin'); go('admin'); return; } const u = Store.get(id); if (!u || u.password !== pass) { err.textContent = 'Invalid email or password.'; err.classList.remove('hidden'); return; } Store.session = u; localStorage.setItem(SK, u.email); go(u.subscription === 'active' ? 'dashboard' : 'payment'); });
-        function oauth(provider) { const email = prompt('Continue with ' + provider + '\n\n(demo) Enter your ' + provider + ' email to sign in:', 'you@gmail.com'); if (!email) return; const e = email.trim().toLowerCase(); let u = Store.get(e); if (!u) { u = { name: email.split('@')[0], email: e, password: 'oauth:' + provider + ':' + Date.now(), provider, subscription: 'pending', created: Date.now(), telegram: null, ctrader: null }; Store.save(u); } Store.session = u; localStorage.setItem(SK, u.email); go(u.subscription === 'active' ? 'dashboard' : 'payment'); }
-        function logout() { Store.session = null; localStorage.removeItem(SK); go('landing'); }
-
-        function startPayment() { if (payTimer) { clearInterval(payTimer); payTimer = null; } document.getElementById('payWaiting').classList.remove('hidden'); document.getElementById('payDone').classList.add('hidden'); renderCoins(); countdown = 12; document.getElementById('payCountdown').textContent = countdown; payTimer = setInterval(() => { countdown--; document.getElementById('payCountdown').textContent = countdown; if (countdown <= 0) { clearInterval(payTimer); payTimer = null; document.getElementById('payWaiting').classList.add('hidden'); document.getElementById('payDone').classList.remove('hidden'); const u = { ...(pendingUser || Store.session), subscription: 'active', subStart: Date.now(), subRenew: Date.now() + 30 * 864e5 }; Store.save(u); Store.session = u; localStorage.setItem(SK, u.email); pendingUser = null; setTimeout(() => go('dashboard'), 1600); } }, 1000); }
-        function renderCoins() { const tabs = document.getElementById('coinTabs'); tabs.innerHTML = ''; Object.keys(CRYPTO).forEach(k => { const c = CRYPTO[k], a = k === selectedCoin; tabs.insertAdjacentHTML('beforeend', `<button onclick="selectCoin('${k}')" class="rounded-xl p-3 border transition ${a ? 'border-emerald-500 bg-emerald-500/10' : 'border-[var(--border)] hover:border-[var(--muted)]'}"><div class="text-2xl">${c.icon}</div><div class="text-xs font-bold mt-1">${k}</div><div class="text-[10px] text-[var(--muted)]">${c.net}</div></button>`); }); const c = CRYPTO[selectedCoin]; document.getElementById('payCryptoSym').textContent = selectedCoin; document.getElementById('payCryptoAmt').textContent = c.rate.toFixed(selectedCoin === 'USDT' ? 2 : 8); document.getElementById('payNet').textContent = c.net.toUpperCase(); document.getElementById('payAddr').textContent = c.addr; document.getElementById('qrImg').src = 'https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=' + encodeURIComponent(c.addr); }
-        function selectCoin(k) { selectedCoin = k; renderCoins(); }
-        function copyAddr() { navigator.clipboard.writeText(CRYPTO[selectedCoin].addr); const b = event.target, t = b.textContent; b.textContent = 'COPIED ✓'; setTimeout(() => b.textContent = t, 1500); }
-
-        function renderDashboard() { const u = Store.session; if (!u) { go('login'); return; } document.getElementById('dashName').textContent = u.name || 'Trader'; document.getElementById('dashRenew').textContent = 'renews ' + new Date(u.subRenew || Date.now()).toLocaleDateString(); const tg = u.telegram; setBadge('tgBadge', !!tg); document.getElementById('tgForm').classList.toggle('hidden', !!tg); document.getElementById('tgConnected').classList.toggle('hidden', !tg); if (tg) document.getElementById('tgChannelName').textContent = tg.channel; const ct = u.ctrader; setBadge('ctBadge', !!ct); document.getElementById('ctForm').classList.toggle('hidden', !!ct); document.getElementById('ctConnected').classList.toggle('hidden', !ct); if (ct) { document.getElementById('ctAccountName').textContent = 'Login #' + ct.login; document.getElementById('ctAccountServer').textContent = ct.server + ' · ' + (ct.env || 'DEMO'); } document.getElementById('stTg').innerHTML = tg ? `<span class="text-sky-400">${tg.channel}</span>` : '<span class="text-zinc-500">Not set</span>'; document.getElementById('stCt').innerHTML = ct ? `<span class="text-emerald-400">#${ct.login}</span>` : '<span class="text-zinc-500">Not set</span>'; const ready = tg && ct; document.getElementById('stActive').innerHTML = ready ? '<span class="text-emerald-400">● Active</span>' : '<span class="text-amber-400">Inactive</span>'; document.getElementById('bridgeReady').classList.toggle('hidden', !ready); document.getElementById('bridgeNotReady').classList.toggle('hidden', ready); renderLots('lotGrid'); }
-        function setBadge(id, on) { const b = document.getElementById(id); b.className = 'badge ' + (on ? 'bg-emerald-500/15 text-emerald-400' : 'bg-zinc-500/20 text-zinc-400'); b.textContent = on ? 'CONNECTED' : 'NOT CONNECTED'; }
-        function openTelegramBot() { window.open('https://t.me/' + CFG.botUsername + '?start=link', '_blank'); }
-        function finishTelegramLink() { const u = Store.session; if (!u) return; u.telegram = { channel: '@' + CFG.botUsername, linked: true }; Store.save(u); renderDashboard(); }
-        function connectCtrader() {
-            const u = Store.session; if (!u) return;
-            if (CFG.ctraderClientId) {
-                sessionStorage.setItem('amct_ct_pending', u.email);
-                const oauth = 'https://openapi.ctrader.com/apps/auth?client_id=' + encodeURIComponent(CFG.ctraderClientId) + '&redirect_uri=' + encodeURIComponent(CFG.redirect) + '&scope=trade&brand=AlphaMarkets';
-                window.location.href = oauth; return;
+        function checkAuth() {
+            if (sessionStorage.getItem('dashboard_authenticated') !== 'true') {
+                window.location.href = 'login.html';
             }
-            const login = prompt('Connect cTrader\nSign in to cTrader and enter your Login ID to link:', '2454414');
-            if (!login) return;
-            u.ctrader = { login: String(login).trim(), server: 'DerivSVG-Server', env: 'DEMO' }; Store.save(u); renderDashboard();
         }
-        function disconnect(type) { const u = Store.session; if (!u) return; if (confirm('Disconnect ' + type + '?')) { u[type] = null; Store.save(u); renderDashboard(); } }
-
-        function renderLots(target) { const lots = Store.getLots(); const grid = document.getElementById(target); grid.innerHTML = ''; Object.keys(lots).forEach(pair => { grid.insertAdjacentHTML('beforeend', `<div class="rounded-xl bg-[#070c16] border border-[var(--border)] p-3 flex items-center justify-between"><span class="font-bold text-sm">${pair}</span><div class="flex items-center gap-2"><input type="number" step="0.01" min="0.01" value="${lots[pair]}" data-pair="${pair}" class="field text-sm rounded-lg px-2 py-1.5 w-20 text-center font-bold"><button onclick="removeLot('${pair}')" class="text-red-400/60 hover:text-red-400 text-xs">✕</button></div></div>`); }); }
-        function addLot() { const p = prompt('New pair symbol (e.g. EURUSD):', ''); if (!p) return; const k = p.replace(/[^A-Z0-9]/gi, '').toUpperCase(); const lots = Store.getLots(); if (!lots[k]) lots[k] = 0.01; Store.setLots(lots); renderLots('lotGrid'); }
-        function addLotAdmin() { const p = prompt('New pair symbol (e.g. EURUSD):', ''); if (!p) return; const k = p.replace(/[^A-Z0-9]/gi, '').toUpperCase(); const lots = Store.getLots(); if (!lots[k]) lots[k] = 0.01; Store.setLots(lots); renderLots('adminLotGrid'); }
-        function removeLot(pair) { const lots = Store.getLots(); delete lots[pair]; Store.setLots(lots); renderLots(document.getElementById('view-admin').classList.contains('active') ? 'adminLotGrid' : 'lotGrid'); }
-        function saveLots() { document.querySelectorAll('[data-pair]').forEach(inp => { const lots = Store.getLots(); lots[inp.dataset.pair] = parseFloat(inp.value) || 0.01; Store.setLots(lots); });['lotSaved', 'lotSaved2'].forEach(id => { const e = document.getElementById(id); if (e) { e.classList.remove('hidden'); setTimeout(() => e.classList.add('hidden'), 2500); } }); }
-
-        function renderAdmin() { const users = Object.values(Store.all()); const active = users.filter(u => u.subscription === 'active').length; const pending = users.filter(u => u.subscription === 'pending').length; document.getElementById('aTotal').textContent = users.length; document.getElementById('aActive').textContent = active; document.getElementById('aPending').textContent = pending; document.getElementById('aRevenue').textContent = '$' + (active * PRICE_USD); const tb = document.getElementById('adminUsers'); tb.innerHTML = ''; document.getElementById('noUsers').classList.toggle('hidden', users.length > 0); users.forEach(u => { tb.insertAdjacentHTML('beforeend', `<tr class="border-b border-[var(--border)]/60"><td class="py-2 pr-3 font-semibold">${u.name || '-'}${u.provider && u.provider !== 'email' ? ' <span class="text-[10px] text-[var(--muted)]">' + u.provider + '</span>' : ''}</td><td class="py-2 pr-3 text-[var(--muted)]">${u.email}</td><td class="py-2 pr-3">${u.subscription === 'active' ? '<span class="badge bg-emerald-500/15 text-emerald-400">ACTIVE</span>' : '<span class="badge bg-amber-500/15 text-amber-400">PENDING</span>'}</td><td class="py-2 pr-3 text-sky-400">${u.telegram ? u.telegram.channel : '—'}</td><td class="py-2 pr-3 text-emerald-400">${u.ctrader ? '#' + u.ctrader.login : '—'}</td><td class="py-2"><button onclick="delUser('${u.email}')" class="text-xs font-semibold text-red-400 hover:text-red-300">Delete</button></td></tr>`); }); renderLots('adminLotGrid'); }
-        function delUser(email) { if (confirm('Delete user ' + email + '?')) { Store.del(email); renderAdmin(); } }
-
-        // detect cTrader OAuth return (?code=...) and complete the link
-        (function handleOAuthReturn() {
-            const params = new URLSearchParams(window.location.search);
-            const code = params.get('code'); const email = sessionStorage.getItem('amct_ct_pending');
-            if (code && email) { const u = Store.get(email); if (u) { u.ctrader = { login: 'Authorized', server: 'Linked via cTrader OAuth', env: 'DEMO', code: code }; Store.save(u); Store.session = u; localStorage.setItem(SK, email); } sessionStorage.removeItem('amct_ct_pending'); history.replaceState({}, document.title, CFG.redirect); }
-        })();
-        (function init() { const e = localStorage.getItem(SK); if (e) { if (e === 'admin') { Store.session = { admin: true, name: 'Staff' }; } else { const u = Store.get(e); if (u) Store.session = u; } } refreshNav(); })();
+        function logout() {
+            sessionStorage.clear();
+            window.location.href = 'login.html';
+        }
+        // Live relative-time ("X ago") so timings are always accurate and current
+        function parseTs(s) {
+            // Expected: "2026-07-26 11:06:44 UTC"
+            try {
+                let parts = String(s).trim().split(' ');
+                let dp = parts[0].split('-');
+                let tp = parts[1].split(':');
+                return new Date(Date.UTC(+dp[0], +dp[1]-1, +dp[2], +tp[0], +tp[1], +tp[2]));
+            } catch(e) { return null; }
+        }
+        function timeAgo(d) {
+            let sec = Math.floor((Date.now() - d.getTime()) / 1000);
+            if (sec < 0) sec = 0;
+            if (sec < 60) return sec + 's ago';
+            if (sec < 3600) return Math.floor(sec/60) + 'm ago';
+            if (sec < 86400) return Math.floor(sec/3600) + 'h ago';
+            return Math.floor(sec/86400) + 'd ago';
+        }
+        function refreshAgo() {
+            document.querySelectorAll('[data-ts]').forEach(function(el) {
+                let d = parseTs(el.getAttribute('data-ts'));
+                if (!d) return;
+                let existing = el.querySelector('.ago');
+                if (!existing) {
+                    existing = document.createElement('span');
+                    existing.className = 'ago';
+                    el.appendChild(existing);
+                }
+                existing.textContent = timeAgo(d);
+            });
+        }
+        function updateClock() {
+            let n = new Date();
+            let pad = (x) => String(x).padStart(2, '0');
+            let clk = document.getElementById('liveClock');
+            if (clk) clk.textContent = n.getUTCFullYear()+'-'+pad(n.getUTCMonth()+1)+'-'+pad(n.getUTCDate())+' '+pad(n.getUTCHours())+':'+pad(n.getUTCMinutes())+':'+pad(n.getUTCSeconds());
+        }
+        function updatePageAge() {
+            let el = document.querySelector('span[data-ts]');
+            // pageAge element sits in footer
+            let pg = document.getElementById('pageAge');
+            if (!pg) return;
+            // find the footer generated timestamp
+            let foot = document.querySelectorAll('div[style*="margin: 30px"] span[data-ts]');
+            if (foot.length) {
+                let d = parseTs(foot[foot.length-1].getAttribute('data-ts'));
+                if (d) pg.textContent = timeAgo(d);
+            }
+        }
+        /* ===== Per-Pair Lot Size Manager ===== */
+        const LOT_DATA = {"AAL": {"lot": 0.01, "on": true, "sym": 2304}, "AAPL": {"lot": 0.01, "on": true, "sym": 2329}, "AAVUSD": {"lot": 0.01, "on": true, "sym": 2588}, "ABNB": {"lot": 0.01, "on": true, "sym": 2330}, "ADAUSD": {"lot": 0.1, "on": true, "sym": 2382}, "ADCB.AD": {"lot": 0.01, "on": true, "sym": 2655}, "ADIB.AD": {"lot": 0.01, "on": true, "sym": 2656}, "ADNOCDRILL.AD": {"lot": 0.01, "on": true, "sym": 2657}, "ADNOCLS.AD": {"lot": 0.01, "on": true, "sym": 2658}, "ADPORTS.AD": {"lot": 0.01, "on": true, "sym": 2659}, "ADS": {"lot": 0.01, "on": true, "sym": 2291}, "AGG.US": {"lot": 0.01, "on": true, "sym": 2351}, "AIG": {"lot": 0.01, "on": true, "sym": 2331}, "AIR": {"lot": 0.01, "on": true, "sym": 2292}, "AIRF": {"lot": 0.01, "on": true, "sym": 2293}, "ALDAR.AD": {"lot": 0.01, "on": true, "sym": 2660}, "ALGUSD": {"lot": 0.01, "on": true, "sym": 2383}, "AMC": {"lot": 0.01, "on": true, "sym": 2536}, "AMD": {"lot": 0.01, "on": true, "sym": 2332}, "AMZN": {"lot": 0.01, "on": true, "sym": 2333}, "APEUSD": {"lot": 0.01, "on": true, "sym": 2589}, "APTUSD": {"lot": 0.01, "on": true, "sym": 2590}, "ARKK.US": {"lot": 0.01, "on": true, "sym": 2352}, "AUD BASKET": {"lot": 0.01, "on": true, "sym": 2427}, "AUDCAD": {"lot": 0.01, "on": true, "sym": 18}, "AUDCHF": {"lot": 0.01, "on": true, "sym": 23}, "AUDJPY": {"lot": 0.01, "on": true, "sym": 11}, "AUDNZD": {"lot": 0.01, "on": true, "sym": 20}, "AUDSGD": {"lot": 0.01, "on": true, "sym": 2472}, "AUDUSD": {"lot": 0.01, "on": true, "sym": 5}, "AUDUSD DFX 10 INDEX": {"lot": 0.01, "on": true, "sym": 2418}, "AUDUSD DFX 20 INDEX": {"lot": 0.01, "on": true, "sym": 2456}, "AUSTRALIA 200": {"lot": 0.1, "on": true, "sym": 2510}, "AVAUSD": {"lot": 0.1, "on": true, "sym": 2384}, "BA": {"lot": 0.01, "on": true, "sym": 2334}, "BABA": {"lot": 0.01, "on": true, "sym": 2335}, "BAC": {"lot": 0.01, "on": true, "sym": 2336}, "BATUSD": {"lot": 0.01, "on": true, "sym": 2385}, "BAY": {"lot": 0.01, "on": true, "sym": 2294}, "BB": {"lot": 0.01, "on": true, "sym": 2537}, "BCHUSD": {"lot": 0.01, "on": true, "sym": 2386}, "BIIB": {"lot": 0.01, "on": true, "sym": 2337}, "BMW": {"lot": 0.01, "on": true, "sym": 2295}, "BNBUSD": {"lot": 0.01, "on": true, "sym": 2387}, "BOOM 100 INDEX": {"lot": 0.01, "on": true, "sym": 2635}, "BOOM 1000 INDEX": {"lot": 0.01, "on": true, "sym": 2444}, "BOOM 150 INDEX": {"lot": 0.01, "on": true, "sym": 2620}, "BOOM 200 INDEX": {"lot": 0.01, "on": true, "sym": 2636}, "BOOM 300 INDEX": {"lot": 0.01, "on": true, "sym": 2446}, "BOOM 50 INDEX": {"lot": 0.01, "on": true, "sym": 2645}, "BOOM 500 INDEX": {"lot": 0.01, "on": true, "sym": 2442}, "BOOM 600 INDEX": {"lot": 0.01, "on": true, "sym": 2507}, "BOOM 900 INDEX": {"lot": 0.01, "on": true, "sym": 2508}, "BOOM 99 INDEX": {"lot": 0.01, "on": true, "sym": 2634}, "BTCETH": {"lot": 0.1, "on": true, "sym": 2388}, "BTCLTC": {"lot": 0.1, "on": true, "sym": 2389}, "BTCUSD": {"lot": 0.1, "on": true, "sym": 101}, "BTCUSD RSI PULLBACK INDEX": {"lot": 0.1, "on": true, "sym": 2608}, "BTCUSD RSI REBOUND INDEX": {"lot": 0.1, "on": true, "sym": 2609}, "BTCUSD RSI TREND DOWN INDEX": {"lot": 0.1, "on": true, "sym": 2611}, "BTCUSD RSI TREND UP INDEX": {"lot": 0.1, "on": true, "sym": 2610}, "BYND": {"lot": 0.01, "on": true, "sym": 2538}, "C": {"lot": 0.01, "on": true, "sym": 2339}, "CADCHF": {"lot": 0.01, "on": true, "sym": 27}, "CADJPY": {"lot": 0.01, "on": true, "sym": 15}, "CHFJPY": {"lot": 0.01, "on": true, "sym": 13}, "CHFSGD": {"lot": 0.01, "on": true, "sym": 2488}, "CHINA H SHARES": {"lot": 0.01, "on": true, "sym": 2525}, "CL_BRENT": {"lot": 0.01, "on": true, "sym": 2273}, "COCOA": {"lot": 0.01, "on": true, "sym": 2560}, "COFFEEARAB": {"lot": 0.01, "on": true, "sym": 2559}, "COFFEEROBU": {"lot": 0.01, "on": true, "sym": 2558}, "COIN": {"lot": 0.01, "on": true, "sym": 2552}, "COMUSD": {"lot": 0.01, "on": true, "sym": 2591}, "CONG": {"lot": 0.01, "on": true, "sym": 2297}, "COTTON": {"lot": 0.01, "on": true, "sym": 2562}, "CRASH 100 INDEX": {"lot": 0.01, "on": true, "sym": 2638}, "CRASH 1000 INDEX": {"lot": 0.01, "on": true, "sym": 2445}, "CRASH 150 INDEX": {"lot": 0.01, "on": true, "sym": 2619}, "CRASH 200 INDEX": {"lot": 0.01, "on": true, "sym": 2639}, "CRASH 300 INDEX": {"lot": 0.01, "on": true, "sym": 2447}, "CRASH 50 INDEX": {"lot": 0.01, "on": true, "sym": 2646}, "CRASH 500 INDEX": {"lot": 0.01, "on": true, "sym": 2443}, "CRASH 600 INDEX": {"lot": 0.01, "on": true, "sym": 2505}, "CRASH 900 INDEX": {"lot": 0.01, "on": true, "sym": 2506}, "CRASH 99 INDEX": {"lot": 0.01, "on": true, "sym": 2637}, "CRASH BOOM FLIP 1000 INDEX": {"lot": 0.01, "on": true, "sym": 2644}, "CRASH BOOM FLIP 150 INDEX": {"lot": 0.01, "on": true, "sym": 2641}, "CRASH BOOM FLIP 300 INDEX": {"lot": 0.01, "on": true, "sym": 2642}, "CRASH BOOM FLIP 500 INDEX": {"lot": 0.01, "on": true, "sym": 2643}, "CRM": {"lot": 0.01, "on": true, "sym": 2349}, "CSCO": {"lot": 0.01, "on": true, "sym": 2340}, "DAL": {"lot": 0.01, "on": true, "sym": 2341}, "DBK": {"lot": 0.01, "on": true, "sym": 2298}, "DEX 1500 DOWN INDEX": {"lot": 0.01, "on": true, "sym": 2465}, "DEX 1500 UP INDEX": {"lot": 0.01, "on": true, "sym": 2466}, "DEX 600 DOWN INDEX": {"lot": 0.01, "on": true, "sym": 2467}, "DEX 600 UP INDEX": {"lot": 0.01, "on": true, "sym": 2468}, "DEX 900 DOWN INDEX": {"lot": 0.01, "on": true, "sym": 2461}, "DEX 900 UP INDEX": {"lot": 0.01, "on": true, "sym": 2462}, "DIA.US": {"lot": 0.01, "on": true, "sym": 2353}, "DIS": {"lot": 0.01, "on": true, "sym": 2342}, "DOGUSD": {"lot": 0.01, "on": true, "sym": 2390}, "DOTUSD": {"lot": 0.01, "on": true, "sym": 2391}, "DRIFT SWITCH INDEX 10": {"lot": 0.01, "on": true, "sym": 2464}, "DRIFT SWITCH INDEX 20": {"lot": 0.01, "on": true, "sym": 2469}, "DRIFT SWITCH INDEX 30": {"lot": 0.01, "on": true, "sym": 2470}, "DSHUSD": {"lot": 0.01, "on": true, "sym": 2392}, "DXYUSD": {"lot": 0.01, "on": true, "sym": 2626}, "EAND.AD": {"lot": 0.01, "on": true, "sym": 2661}, "EBAY": {"lot": 0.01, "on": true, "sym": 2343}, "EEM.US": {"lot": 0.01, "on": true, "sym": 2354}, "EFA.US": {"lot": 0.01, "on": true, "sym": 2355}, "ERX.US": {"lot": 0.01, "on": true, "sym": 2356}, "ESHRAQ.AD": {"lot": 0.01, "on": true, "sym": 2662}, "ETCUSD": {"lot": 0.01, "on": true, "sym": 2394}, "ETHUSD": {"lot": 0.1, "on": true, "sym": 102}, "ETHUSD RSI PULLBACK INDEX": {"lot": 0.1, "on": true, "sym": 2612}, "ETHUSD RSI REBOUND INDEX": {"lot": 0.1, "on": true, "sym": 2613}, "ETHUSD RSI TREND DOWN INDEX": {"lot": 0.1, "on": true, "sym": 2615}, "ETHUSD RSI TREND UP INDEX": {"lot": 0.1, "on": true, "sym": 2614}, "EUR BASKET": {"lot": 0.01, "on": true, "sym": 2425}, "EURAUD": {"lot": 0.01, "on": true, "sym": 14}, "EURCAD": {"lot": 0.01, "on": true, "sym": 17}, "EURCHF": {"lot": 0.01, "on": true, "sym": 10}, "EURCZK": {"lot": 0.01, "on": true, "sym": 2489}, "EURGBP": {"lot": 0.01, "on": true, "sym": 9}, "EURHKD": {"lot": 0.01, "on": true, "sym": 2473}, "EURHUF": {"lot": 0.01, "on": true, "sym": 2490}, "EURJPY": {"lot": 0.01, "on": true, "sym": 3}, "EURMXN": {"lot": 0.01, "on": true, "sym": 2475}, "EURNOK": {"lot": 0.01, "on": true, "sym": 33}, "EURNZD": {"lot": 0.01, "on": true, "sym": 26}, "EUROPE 50": {"lot": 0.01, "on": true, "sym": 2511}, "EURPLN": {"lot": 0.01, "on": true, "sym": 51}, "EURSEK": {"lot": 0.01, "on": true, "sym": 31}, "EURSGD": {"lot": 0.01, "on": true, "sym": 2476}, "EURTRY": {"lot": 0.01, "on": true, "sym": 2491}, "EURUSD": {"lot": 0.01, "on": true, "sym": 1}, "EURUSD BB REBOUND INDEX": {"lot": 0.01, "on": true, "sym": 2627}, "EURUSD BB TREND UP INDEX": {"lot": 0.01, "on": true, "sym": 2629}, "EURUSD DFX 10 INDEX": {"lot": 0.01, "on": true, "sym": 2419}, "EURUSD DFX 20 INDEX": {"lot": 0.01, "on": true, "sym": 2457}, "EURUSD RSI PULLBACK INDEX": {"lot": 0.01, "on": true, "sym": 2599}, "EURUSD RSI REBOUND INDEX": {"lot": 0.01, "on": true, "sym": 2598}, "EURUSD RSI TREND DOWN INDEX": {"lot": 0.01, "on": true, "sym": 2601}, "EURUSD RSI TREND UP INDEX": {"lot": 0.01, "on": true, "sym": 2600}, "EURZAR": {"lot": 0.01, "on": true, "sym": 2477}, "EXPONENTIAL GROWTH INDEX 1": {"lot": 0.01, "on": true, "sym": 2621}, "EXPONENTIAL GROWTH INDEX 2": {"lot": 0.01, "on": true, "sym": 2622}, "FAB.AD": {"lot": 0.01, "on": true, "sym": 2663}, "FDX": {"lot": 0.01, "on": true, "sym": 2345}, "FETUSD": {"lot": 0.01, "on": true, "sym": 2587}, "FILUSD": {"lot": 0.01, "on": true, "sym": 2395}, "FOX": {"lot": 0.01, "on": true, "sym": 2346}, "FRANCE 40": {"lot": 0.01, "on": true, "sym": 2513}, "GBP BASKET": {"lot": 0.01, "on": true, "sym": 2426}, "GBPAUD": {"lot": 0.01, "on": true, "sym": 16}, "GBPCAD": {"lot": 0.01, "on": true, "sym": 19}, "GBPCHF": {"lot": 0.01, "on": true, "sym": 40}, "GBPJPY": {"lot": 0.01, "on": true, "sym": 7}, "GBPNOK": {"lot": 0.01, "on": true, "sym": 37}, "GBPNZD": {"lot": 0.01, "on": true, "sym": 25}, "GBPPLN": {"lot": 0.01, "on": true, "sym": 2493}, "GBPSEK": {"lot": 0.01, "on": true, "sym": 61}, "GBPSGD": {"lot": 0.01, "on": true, "sym": 2478}, "GBPTRY": {"lot": 0.01, "on": true, "sym": 2494}, "GBPUSD": {"lot": 0.01, "on": true, "sym": 2}, "GBPUSD DFX 10 INDEX": {"lot": 0.01, "on": true, "sym": 2420}, "GBPUSD DFX 20 INDEX": {"lot": 0.01, "on": true, "sym": 2458}, "GBPUSD RSI PULLBACK INDEX": {"lot": 0.01, "on": true, "sym": 2603}, "GBPUSD RSI REBOUND INDEX": {"lot": 0.01, "on": true, "sym": 2602}, "GBPUSD RSI TREND DOWN INDEX": {"lot": 0.01, "on": true, "sym": 2605}, "GBPUSD RSI TREND UP INDEX": {"lot": 0.01, "on": true, "sym": 2604}, "GDX.US": {"lot": 0.01, "on": true, "sym": 2357}, "GER40": {"lot": 0.1, "on": true, "sym": null}, "GERMANY 40": {"lot": 0.1, "on": true, "sym": 2512}, "GLD.US": {"lot": 0.01, "on": true, "sym": 2358}, "GM": {"lot": 0.01, "on": true, "sym": 2347}, "GME": {"lot": 0.01, "on": true, "sym": 2535}, "GOLD BASKET": {"lot": 0.01, "on": true, "sym": 2423}, "GOLD RSI PULLBACK INDEX": {"lot": 0.01, "on": true, "sym": 2582}, "GOLD RSI REBOUND INDEX": {"lot": 0.01, "on": true, "sym": 2581}, "GOLD RSI TREND DOWN INDEX": {"lot": 0.01, "on": true, "sym": 2584}, "GOLD RSI TREND UP INDEX": {"lot": 0.01, "on": true, "sym": 2583}, "GOOG": {"lot": 0.01, "on": true, "sym": 2348}, "GS": {"lot": 0.01, "on": true, "sym": 2328}, "HD": {"lot": 0.01, "on": true, "sym": 2338}, "HIGH FREQUENCY VOL 10 INDEX": {"lot": 0.01, "on": true, "sym": 2654}, "HIGH FREQUENCY VOL 100 INDEX": {"lot": 0.01, "on": true, "sym": 2650}, "HIGH FREQUENCY VOL 25 INDEX": {"lot": 0.01, "on": true, "sym": 2653}, "HIGH FREQUENCY VOL 50 INDEX": {"lot": 0.01, "on": true, "sym": 2652}, "HIGH FREQUENCY VOL 75 INDEX": {"lot": 0.01, "on": true, "sym": 2651}, "HKDCNH": {"lot": 0.01, "on": true, "sym": 2495}, "HKDJPY": {"lot": 0.01, "on": true, "sym": 2479}, "HONG KONG 50": {"lot": 0.01, "on": true, "sym": 2514}, "HPQ": {"lot": 0.01, "on": true, "sym": 2327}, "HYG.US": {"lot": 0.01, "on": true, "sym": 2359}, "IBM": {"lot": 0.01, "on": true, "sym": 2314}, "IEMG.US": {"lot": 0.01, "on": true, "sym": 2360}, "IJR.US": {"lot": 0.01, "on": true, "sym": 2361}, "IMXUSD": {"lot": 0.01, "on": true, "sym": 2592}, "INTC": {"lot": 0.01, "on": true, "sym": 2305}, "IOTUSD": {"lot": 0.01, "on": true, "sym": 2396}, "IVV.US": {"lot": 0.01, "on": true, "sym": 2362}, "IVW.US": {"lot": 0.01, "on": true, "sym": 2363}, "IWM.US": {"lot": 0.01, "on": true, "sym": 2364}, "JAPAN 225": {"lot": 0.01, "on": true, "sym": 2515}, "JNJ": {"lot": 0.01, "on": true, "sym": 2306}, "JPM": {"lot": 0.01, "on": true, "sym": 2307}, "JUMP 10 INDEX": {"lot": 0.01, "on": true, "sym": 2451}, "JUMP 100 INDEX": {"lot": 0.01, "on": true, "sym": 2455}, "JUMP 25 INDEX": {"lot": 0.01, "on": true, "sym": 2452}, "JUMP 50 INDEX": {"lot": 0.01, "on": true, "sym": 2453}, "JUMP 75 INDEX": {"lot": 0.01, "on": true, "sym": 2454}, "KO": {"lot": 0.01, "on": true, "sym": 2308}, "LHAG": {"lot": 0.01, "on": true, "sym": 2299}, "LNKUSD": {"lot": 0.01, "on": true, "sym": 2397}, "LQD.US": {"lot": 0.01, "on": true, "sym": 2365}, "LTCUSD": {"lot": 0.01, "on": true, "sym": 2398}, "MA": {"lot": 0.01, "on": true, "sym": 2309}, "MCD": {"lot": 0.01, "on": true, "sym": 2310}, "META": {"lot": 0.01, "on": true, "sym": 2471}, "MRNA": {"lot": 0.01, "on": true, "sym": 2311}, "MSFT": {"lot": 0.01, "on": true, "sym": 2312}, "MSTR": {"lot": 0.01, "on": true, "sym": 2543}, "MU": {"lot": 0.01, "on": true, "sym": 2546}, "MULTI STEP 2 INDEX": {"lot": 0.01, "on": true, "sym": 2565}, "MULTI STEP 3 INDEX": {"lot": 0.01, "on": true, "sym": 2534}, "MULTI STEP 4 INDEX": {"lot": 0.01, "on": true, "sym": 2566}, "NAS100": {"lot": 0.1, "on": true, "sym": null}, "NEOUSD": {"lot": 0.01, "on": true, "sym": 2401}, "NERUSD": {"lot": 0.01, "on": true, "sym": 2585}, "NETHERLANDS 25": {"lot": 0.1, "on": true, "sym": 2526}, "NFLX": {"lot": 0.01, "on": true, "sym": 2313}, "NGAS": {"lot": 0.01, "on": true, "sym": 2533}, "NKE": {"lot": 0.01, "on": true, "sym": 2315}, "NMDC.AD": {"lot": 0.01, "on": true, "sym": 2664}, "NOK": {"lot": 0.01, "on": true, "sym": 2539}, "NVDA": {"lot": 0.01, "on": true, "sym": 2325}, "NZDCAD": {"lot": 0.01, "on": true, "sym": 30}, "NZDCHF": {"lot": 0.01, "on": true, "sym": 2480}, "NZDJPY": {"lot": 0.01, "on": true, "sym": 21}, "NZDSGD": {"lot": 0.01, "on": true, "sym": 2481}, "NZDUSD": {"lot": 0.01, "on": true, "sym": 12}, "PEP": {"lot": 0.01, "on": true, "sym": 2316}, "PFE": {"lot": 0.01, "on": true, "sym": 2317}, "PG": {"lot": 0.01, "on": true, "sym": 2318}, "PLTR": {"lot": 0.01, "on": true, "sym": 2541}, "PSHG": {"lot": 0.01, "on": true, "sym": 2302}, "PUMG": {"lot": 0.01, "on": true, "sym": 2303}, "PYPL": {"lot": 0.01, "on": true, "sym": 2319}, "QID.US": {"lot": 0.01, "on": true, "sym": 2366}, "RANGE BREAK 100 INDEX": {"lot": 0.01, "on": true, "sym": 2449}, "RANGE BREAK 200 INDEX": {"lot": 0.01, "on": true, "sym": 2450}, "RIVN": {"lot": 0.01, "on": true, "sym": 2554}, "SANUSD": {"lot": 0.01, "on": true, "sym": 2593}, "SDS.US": {"lot": 0.01, "on": true, "sym": 2367}, "SGDJPY": {"lot": 0.01, "on": true, "sym": 2482}, "SILVER RSI PULLBACK INDEX": {"lot": 0.01, "on": true, "sym": 2578}, "SILVER RSI REBOUND INDEX": {"lot": 0.01, "on": true, "sym": 2577}, "SILVER RSI TREND DOWN INDEX": {"lot": 0.01, "on": true, "sym": 2580}, "SILVER RSI TREND UP INDEX": {"lot": 0.01, "on": true, "sym": 2579}, "SKEW STEP INDEX 4 DOWN": {"lot": 0.01, "on": true, "sym": 2576}, "SKEW STEP INDEX 4 UP": {"lot": 0.01, "on": true, "sym": 2575}, "SKEW STEP INDEX 5 DOWN": {"lot": 0.01, "on": true, "sym": 2574}, "SKEW STEP INDEX 5 UP": {"lot": 0.01, "on": true, "sym": 2569}, "SLV.US": {"lot": 0.01, "on": true, "sym": 2368}, "SMCI": {"lot": 0.01, "on": true, "sym": 2553}, "SOLUSD": {"lot": 0.01, "on": true, "sym": 2403}, "SONY": {"lot": 0.01, "on": true, "sym": 2320}, "SPAIN 35": {"lot": 0.01, "on": true, "sym": 2532}, "SPCE": {"lot": 0.01, "on": true, "sym": 2542}, "SPCX": {"lot": 0.01, "on": true, "sym": 2640}, "SPOT UP - VOLATILITY DOWN INDEX": {"lot": 0.01, "on": true, "sym": 2624}, "SPOT UP - VOLATILITY UP INDEX": {"lot": 0.01, "on": true, "sym": 2623}, "SPX500": {"lot": 0.1, "on": true, "sym": null}, "SPXS.US": {"lot": 0.1, "on": true, "sym": 2369}, "SPY.US": {"lot": 0.01, "on": true, "sym": 2370}, "STEP INDEX": {"lot": 0.01, "on": true, "sym": 2448}, "STEP INDEX 200": {"lot": 0.01, "on": true, "sym": 2563}, "STEP INDEX 300": {"lot": 0.01, "on": true, "sym": 2530}, "STEP INDEX 400": {"lot": 0.01, "on": true, "sym": 2531}, "STEP INDEX 500": {"lot": 0.01, "on": true, "sym": 2564}, "SUGAR": {"lot": 0.01, "on": true, "sym": 2561}, "SWISS 20": {"lot": 0.01, "on": true, "sym": 2527}, "TBT.US": {"lot": 0.01, "on": true, "sym": 2371}, "TEVA": {"lot": 0.01, "on": true, "sym": 2321}, "TONUSD": {"lot": 0.01, "on": true, "sym": 2586}, "TQQQ.US": {"lot": 0.01, "on": true, "sym": 2372}, "TREK DOWN INDEX": {"lot": 0.01, "on": true, "sym": 2607}, "TREK UP INDEX": {"lot": 0.01, "on": true, "sym": 2606}, "TRXUSD": {"lot": 0.01, "on": true, "sym": 2404}, "TRYJPY": {"lot": 0.01, "on": true, "sym": 2496}, "TSLA": {"lot": 0.01, "on": true, "sym": 2322}, "UBER": {"lot": 0.01, "on": true, "sym": 2323}, "UK 100": {"lot": 0.01, "on": true, "sym": 2516}, "UK BRENT OIL": {"lot": 0.1, "on": true, "sym": 2529}, "UK100": {"lot": 0.1, "on": true, "sym": null}, "UKOIL": {"lot": 0.1, "on": true, "sym": null}, "UNG.US": {"lot": 0.01, "on": true, "sym": 2373}, "UNIUSD": {"lot": 0.01, "on": true, "sym": 2405}, "US MID CAP 400": {"lot": 0.01, "on": true, "sym": 2522}, "US OIL": {"lot": 0.1, "on": true, "sym": 2528}, "US SMALL CAP 2000": {"lot": 0.01, "on": true, "sym": 2521}, "US SP 500": {"lot": 0.01, "on": true, "sym": 2517}, "US TECH 100": {"lot": 0.01, "on": true, "sym": 2518}, "US30": {"lot": 0.1, "on": true, "sym": null}, "USD BASKET": {"lot": 0.01, "on": true, "sym": 2424}, "USDCAD": {"lot": 0.01, "on": true, "sym": 8}, "USDCHF": {"lot": 0.01, "on": true, "sym": 6}, "USDCHF DFX 10 INDEX": {"lot": 0.01, "on": true, "sym": 2421}, "USDCHF DFX 20 INDEX": {"lot": 0.01, "on": true, "sym": 2459}, "USDCNH": {"lot": 0.01, "on": true, "sym": 60}, "USDCZK": {"lot": 0.01, "on": true, "sym": 2497}, "USDDKK": {"lot": 0.01, "on": true, "sym": 2498}, "USDHKD": {"lot": 0.01, "on": true, "sym": 2483}, "USDJPY": {"lot": 0.01, "on": true, "sym": 4}, "USDJPY DFX 10 INDEX": {"lot": 0.01, "on": true, "sym": 2422}, "USDJPY DFX 20 INDEX": {"lot": 0.01, "on": true, "sym": 2460}, "USDJPY RSI PULLBACK INDEX": {"lot": 0.01, "on": true, "sym": 2595}, "USDJPY RSI REBOUND INDEX": {"lot": 0.01, "on": true, "sym": 2594}, "USDJPY RSI TREND DOWN INDEX": {"lot": 0.01, "on": true, "sym": 2597}, "USDJPY RSI TREND UP INDEX": {"lot": 0.01, "on": true, "sym": 2596}, "USDMXN": {"lot": 0.01, "on": true, "sym": 24}, "USDNOK": {"lot": 0.01, "on": true, "sym": 22}, "USDPLN": {"lot": 0.01, "on": true, "sym": 35}, "USDRUB": {"lot": 0.01, "on": true, "sym": 2500}, "USDSEK": {"lot": 0.01, "on": true, "sym": 29}, "USDSGD": {"lot": 0.01, "on": true, "sym": 2485}, "USDTHB": {"lot": 0.01, "on": true, "sym": 2486}, "USDTRY": {"lot": 0.01, "on": true, "sym": 2501}, "USDZAR": {"lot": 0.01, "on": true, "sym": 49}, "USOIL": {"lot": 0.1, "on": true, "sym": null}, "V": {"lot": 0.01, "on": true, "sym": 2324}, "VEA.US": {"lot": 0.01, "on": true, "sym": 2374}, "VIXUSD": {"lot": 0.01, "on": true, "sym": 2625}, "VNQ.US": {"lot": 0.01, "on": true, "sym": 2375}, "VOL OVER BOOM 400": {"lot": 0.01, "on": true, "sym": 2571}, "VOL OVER BOOM 550": {"lot": 0.01, "on": true, "sym": 2568}, "VOL OVER BOOM 750": {"lot": 0.01, "on": true, "sym": 2573}, "VOL OVER CRASH 400": {"lot": 0.01, "on": true, "sym": 2570}, "VOL OVER CRASH 550": {"lot": 0.01, "on": true, "sym": 2567}, "VOL OVER CRASH 750": {"lot": 0.01, "on": true, "sym": 2572}, "VOLATILITY 10 (1S) INDEX": {"lot": 0.01, "on": true, "sym": 2429}, "VOLATILITY 10 INDEX": {"lot": 0.01, "on": true, "sym": 2428}, "VOLATILITY 100 (1S) INDEX": {"lot": 0.01, "on": true, "sym": 2437}, "VOLATILITY 100 INDEX": {"lot": 0.01, "on": true, "sym": 2436}, "VOLATILITY 15 (1S) INDEX": {"lot": 0.01, "on": true, "sym": 2502}, "VOLATILITY 15 INDEX": {"lot": 0.01, "on": true, "sym": 2649}, "VOLATILITY 150 (1S) INDEX": {"lot": 0.01, "on": true, "sym": 2438}, "VOLATILITY 25 (1S) INDEX": {"lot": 0.01, "on": true, "sym": 2431}, "VOLATILITY 25 INDEX": {"lot": 0.01, "on": true, "sym": 2430}, "VOLATILITY 250 (1S) INDEX": {"lot": 0.01, "on": true, "sym": 2440}, "VOLATILITY 30 (1S) INDEX": {"lot": 0.01, "on": true, "sym": 2503}, "VOLATILITY 30 INDEX": {"lot": 0.01, "on": true, "sym": 2648}, "VOLATILITY 5 (1S) INDEX": {"lot": 0.01, "on": true, "sym": 2633}, "VOLATILITY 5 INDEX": {"lot": 0.01, "on": true, "sym": 2632}, "VOLATILITY 50 (1S) INDEX": {"lot": 0.01, "on": true, "sym": 2433}, "VOLATILITY 50 INDEX": {"lot": 0.01, "on": true, "sym": 2432}, "VOLATILITY 75 (1S) INDEX": {"lot": 0.01, "on": true, "sym": 2435}, "VOLATILITY 75 INDEX": {"lot": 0.01, "on": true, "sym": 2434}, "VOLATILITY 90 (1S) INDEX": {"lot": 0.01, "on": true, "sym": 2504}, "VOLATILITY 90 INDEX": {"lot": 0.01, "on": true, "sym": 2647}, "VOLSWITCH HIGH VOL INDEX": {"lot": 0.01, "on": true, "sym": 2618}, "VOLSWITCH LOW VOL INDEX": {"lot": 0.01, "on": true, "sym": 2616}, "VOLSWITCH MEDIUM VOL INDEX": {"lot": 0.01, "on": true, "sym": 2617}, "VOO.US": {"lot": 0.01, "on": true, "sym": 2376}, "VTI.US": {"lot": 0.01, "on": true, "sym": 2377}, "VWO.US": {"lot": 0.01, "on": true, "sym": 2378}, "WALL STREET 30": {"lot": 0.01, "on": true, "sym": 2509}, "WMT": {"lot": 0.01, "on": true, "sym": 2326}, "WTI_OIL": {"lot": 0.1, "on": true, "sym": 2274}, "XAGEUR": {"lot": 0.05, "on": true, "sym": 92}, "XAGUSD": {"lot": 0.1, "on": true, "sym": 42}, "XAUEUR": {"lot": 0.05, "on": true, "sym": 93}, "XAUUSD": {"lot": 0.05, "on": true, "sym": 41}, "XCUUSD": {"lot": 0.01, "on": true, "sym": 2278}, "XLE.US": {"lot": 0.01, "on": true, "sym": 2379}, "XLF.US": {"lot": 0.01, "on": true, "sym": 2380}, "XLK.US": {"lot": 0.01, "on": true, "sym": 2381}, "XLMUSD": {"lot": 0.01, "on": true, "sym": 2406}, "XMRUSD": {"lot": 0.01, "on": true, "sym": 2407}, "XPDUSD": {"lot": 0.01, "on": true, "sym": 95}, "XPTUSD": {"lot": 0.01, "on": true, "sym": 97}, "XRPUSD": {"lot": 0.01, "on": true, "sym": 2408}, "XTZUSD": {"lot": 0.01, "on": true, "sym": 2409}, "ZECUSD": {"lot": 0.01, "on": true, "sym": 2272}, "ZM": {"lot": 0.01, "on": true, "sym": 2350}};
+        function getSearch(){ const s=document.getElementById('lotSearch'); return s?s.value.trim().toUpperCase():''; }
+        function renderLotTable(){
+            const body=document.getElementById('lotBody'); if(!body) return;
+            const saved=JSON.parse(localStorage.getItem('pip_pair_cfg')||'{}');
+            const q=getSearch();
+            body.innerHTML='';
+            Object.keys(LOT_DATA).forEach(pair=>{
+                if(q && !pair.includes(q)) return;
+                const base=LOT_DATA[pair]||{}; const defLot=base.lot; const defOn=base.on!==false;
+                const lot=(saved[pair]&&saved[pair].lot!==undefined)?saved[pair].lot:defLot;
+                const on=(saved[pair]&&saved[pair].on!==undefined)?saved[pair].on:defOn;
+                body.insertAdjacentHTML('beforeend',
+                    `<tr style="border-bottom:1px solid #21262d;"><td style="padding:8px 10px;font-weight:700;">${pair}</td><td style="padding:6px 10px;text-align:right;"><input type="number" step="0.01" min="0.01" value="${lot}" data-lot="${pair}" style="background:#0a0f1c;border:1px solid #30363d;border-radius:6px;width:88px;text-align:center;padding:5px;color:#e6ebf5;"></td><td style="padding:8px 10px;text-align:center;"><label style="position:relative;display:inline-block;width:42px;height:24px;cursor:pointer;"><input type="checkbox" data-on="${pair}" ${on?'checked':''} style="opacity:0;width:0;height:0;"><span style="position:absolute;inset:0;background:${on?'#3fb950':'#30363d'};border-radius:999px;transition:.2s;"></span><span style="position:absolute;top:3px;left:${on?'21px':'3px'};width:18px;height:18px;background:#fff;border-radius:50%;transition:.2s;"></span></label></td></tr>`);
+            });
+            const cnt=body.querySelectorAll('tr').length;
+            if(!cnt) body.innerHTML='<tr><td colspan="3" style="padding:20px;text-align:center;color:#8b949e;">No pairs match "'+q+'"</td></tr>';
+        }
+        function collectCfg(){
+            const out=JSON.parse(JSON.stringify(LOT_DATA));
+            document.querySelectorAll('#lotBody input[data-lot]').forEach(inp=>{ const v=parseFloat(inp.value); if(out[inp.dataset.lot]) out[inp.dataset.lot].lot=isNaN(v)||v<=0?0.01:v; });
+            document.querySelectorAll('#lotBody input[data-on]').forEach(inp=>{ if(out[inp.dataset.on]) out[inp.dataset.on].on=inp.checked; });
+            return out;
+        }
+        function showToast(msg){
+            const t=document.getElementById('lotToast'); if(!t) return;
+            t.textContent=msg; t.style.display='inline-block';
+            setTimeout(()=>t.style.display='none',3500);
+        }
+        function saveLots(){
+            const cfg=collectCfg();
+            localStorage.setItem('pip_pair_cfg',JSON.stringify(cfg));
+            const exp=document.getElementById('lotExport'); const wrap=document.getElementById('lotExportWrap');
+            if(exp&&wrap){ exp.value=JSON.stringify(cfg); wrap.style.display='block'; }
+            const en=Object.values(cfg).filter(v=>v.on).length;
+            showToast('Saved! '+en+' enabled / '+Object.keys(cfg).length+' total');
+            renderLotTable();
+        }
+        function addLotPair(){
+            const p=prompt('Enter pair symbol (e.g. EURUSD):'); if(!p) return;
+            const k=p.replace(/[^A-Z0-9]/gi,'').toUpperCase();
+            if(!LOT_DATA[k]) LOT_DATA[k]={lot:0.01,on:true,sym:null};
+            renderLotTable();
+        }
+        function copyLotJson(){ const e=document.getElementById('lotExport'); navigator.clipboard.writeText(e.value); showToast('JSON copied!'); }
+        checkAuth();
+        renderLotTable();
+        refreshAgo();
+        updateClock();
+        updatePageAge();
+        setInterval(refreshAgo, 1000);
+        setInterval(updateClock, 1000);
+        setInterval(updatePageAge, 1000);
+        setInterval(() => location.reload(), 60000);
     </script>
-</body>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 cTrader Dashboard Control Panel</h1>
+            <div>
+                <button class="btn btn-refresh" onclick="location.reload()">🔄 Refresh</button>
+                <button class="btn btn-logout" onclick="logout()">🚪 Logout</button>
+            </div>
+        </div>
 
+        <div style="background: #161b22; border: 1px solid #30363d; padding: 12px 16px; border-radius: 6px; font-size: 12px; margin-bottom: 20px;">
+            <strong style="color:#58a6ff;">📊 cTrader Account:</strong> 48038510 | <strong style="color:#58a6ff;">Server:</strong> DEMO | <strong style="color:#58a6ff;">Currency:</strong> USD | <strong style="color:#58a6ff;">Build:</strong> 20260730203144
+        </div>
+
+        <div style="background: #0d1117; border: 1px solid #30363d; padding: 10px 16px; border-radius: 6px; font-size: 11px; margin-bottom: 20px; color:#8b949e;">
+            <strong style="color:#d29922;">🔧 DIAGNOSTIC:</strong> Script version: <strong style="color:#3fb950;">v11-clear-webhook-fix-409-missed-signals</strong> | Telegram offset (last_update_id): <strong style="color:#c9d1d9;">841819915</strong> | Pending signals in queue: <strong style="color:#c9d1d9;">0</strong> | Instruments loaded: <strong style="color:#c9d1d9;">382</strong>
+        </div>
+
+        <div class="section-title">🩺 System Health & Secrets Check</div>
+        <div class="health-grid"><div class="health-item"><span class="health-icon">🔐</span><span class="health-label">cTrader OAuth</span><span style="color:#3fb950;font-weight:700;">✓ OK</span></div><div class="health-item"><span class="health-icon">📱</span><span class="health-label">Telegram Bot</span><span style="color:#3fb950;font-weight:700;">✓ OK</span></div><div class="health-item"><span class="health-icon">🔑</span><span class="health-label">API Secrets Set</span><span style="color:#3fb950;font-weight:700;">✓ OK</span></div><div class="health-item"><span class="health-icon">⚡</span><span class="health-label">System Healthy</span><span style="color:#3fb950;font-weight:700;">✓ OK</span></div></div>
+
+        <div class="section-title">Connection Status</div>
+        <div class="conn-grid">
+            <div class="conn-card">
+                <div class="conn-header">
+                    <span class="conn-title">📊 cTrader Open API v2</span>
+                    <span class="conn-badge" style="background:#3fb95020;color:#3fb950;">✓ Connected</span>
+                </div>
+                <div class="conn-detail">Account ID: 2454414 | Env: DEMO</div>
+            </div>
+            <div class="conn-card">
+                <div class="conn-header">
+                    <span class="conn-title">✈️ Telegram Signal Receiver</span>
+                    <span class="conn-badge" style="background:#3fb95020;color:#3fb950;">✓ Connected</span>
+                </div>
+                <div class="conn-detail">Bot: @Forexunitedbot</div>
+            </div>
+        </div>
+
+        <div class="section-title">Cron Job Execution Status</div>
+        <div class="cron-grid">
+            <div class="conn-card">
+                <div class="conn-header">
+                    <span class="conn-title">🤖 Trading Bot Cycle</span>
+                    <span style="font-size:11px;color:#8b949e;">5s ago</span>
+                </div>
+                <div style="font-weight:700;color:#3fb950;font-size:12px;">COMPLETED</div>
+                <div class="conn-detail" style="margin-top:4px;">Dispatched 8 order(s)</div>
+            </div>
+            <div class="conn-card">
+                <div class="conn-header">
+                    <span class="conn-title">📈 Dashboard Updater</span>
+                    <span style="font-size:11px;color:#8b949e;">5s ago</span>
+                </div>
+                <div style="font-weight:700;color:#8b949e;font-size:12px;">RUNNING</div>
+                <div class="conn-detail" style="margin-top:4px;">Synchronizing account state & HTML...</div>
+            </div>
+        </div>
+
+        <div class="section-title">Account Overview</div>
+        <div class="grid">
+            <div class="card stat"><div class="stat-value">$2,219.16</div><div class="stat-label">Balance</div></div>
+            <div class="card stat"><div class="stat-value">$2,219.16</div><div class="stat-label">Equity</div></div>
+            <div class="card stat"><div class="stat-value">$256.90</div><div class="stat-label">Used Margin</div></div>
+            <div class="card stat"><div class="stat-value">$1,962.26</div><div class="stat-label">Free Margin</div></div>
+            <div class="card stat"><div class="stat-value">863.8%</div><div class="stat-label">Margin Level</div></div>
+            <div class="card stat"><div class="stat-value">$0.00</div><div class="stat-label">Day P&L</div></div>
+        </div>
+
+        <div class="section-title">Trade Statistics</div>
+        <div class="grid">
+            <div class="card stat"><div class="stat-value">9</div><div class="stat-label">Total Trades</div></div>
+            <div class="card stat"><div class="stat-value">0</div><div class="stat-label">Wins</div></div>
+            <div class="card stat"><div class="stat-value">0</div><div class="stat-label">Losses</div></div>
+            <div class="card stat"><div class="stat-value">0.0%</div><div class="stat-label">Win Rate</div></div>
+            <div class="card stat"><div class="stat-value">$+0.00</div><div class="stat-label">Open P&L</div></div>
+            <div class="card stat"><div class="stat-value">1</div><div class="stat-label">Open Positions</div></div>
+        </div>
+
+        <div class="section-title">⚙️ Per-Pair Manager — All 389 Instruments · 389 Enabled</div>
+        <div class="card">
+            <p style="font-size:12px;color:#8b949e;margin-bottom:14px;">Adjust the <strong>lot size</strong> and switch each pair <strong>ON/OFF</strong> (off = signals for that pair are <strong>not</strong> copied to cTrader). Applies to all signals.</p>
+            <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
+                <input id="lotSearch" oninput="renderLotTable()" placeholder="🔍 Search pair (e.g. BTC, EUR)..." class="field" style="flex:1;min-width:160px;border-radius:8px;padding:9px 12px;font-size:13px;">
+                <button class="btn btn-refresh" onclick="saveLots()" style="background:#238636;">💾 Save</button>
+                <button class="btn" onclick="addLotPair()" style="background:#30363d;color:#c9d1d9;">＋ Add</button>
+                <span id="lotToast" style="display:none;color:#3fb950;font-weight:700;font-size:13px;align-self:center;"></span>
+            </div>
+            <div style="max-height:420px;overflow:auto;border:1px solid #30363d;border-radius:8px;">
+                <table id="lotTable" style="width:100%;border-collapse:collapse;min-width:420px;">
+                    <thead style="position:sticky;top:0;background:#0d1117;z-index:2;"><tr><th style="padding:10px;text-align:left;border-bottom:1px solid #30363d;">Pair</th><th style="padding:10px;text-align:right;border-bottom:1px solid #30363d;">Lot</th><th style="padding:10px;text-align:center;border-bottom:1px solid #30363d;">On/Off</th></tr></thead>
+                    <tbody id="lotBody"></tbody>
+                </table>
+            </div>
+            <div id="lotExportWrap" style="display:none;margin-top:14px;">
+                <div style="font-size:12px;color:#8b949e;margin-bottom:6px;">📋 To apply, set a GitHub secret <strong>CTRADER_PAIR_CONFIG</strong> with this JSON (or commit it as <strong>docs/pair_config.json</strong>):</div>
+                <textarea id="lotExport" style="width:100%;height:80px;background:#0a0f1c;border:1px solid #30363d;border-radius:8px;color:#3fb950;font-size:11px;padding:8px;" readonly></textarea>
+                <button class="btn" onclick="copyLotJson()" style="background:#30363d;color:#c9d1d9;margin-top:6px;">Copy JSON</button>
+            </div>
+        </div>
+
+        <div class="section-title">🎚️ Extra Trading Settings</div>
+        <div class="card">
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;">
+                <div><label style="font-size:11px;color:#8b949e;display:block;margin-bottom:6px;">DEFAULT LOT (fallback)</label><input id="setDefLot" type="number" step="0.01" min="0.01" value="{'lot': 0.01, 'on': True, 'sym': 1}" class="field" style="border-radius:8px;padding:8px;width:100%;"></div>
+                <div><label style="font-size:11px;color:#8b949e;display:block;margin-bottom:6px;">MAX DAILY TRADES</label><input id="setMaxTrades" type="number" min="1" value="" placeholder="unlimited" class="field" style="border-radius:8px;padding:8px;width:100%;"></div>
+                <div><label style="font-size:11px;color:#8b949e;display:block;margin-bottom:6px;">TRADING HOURS (UTC) FROM</label><input id="setHourFrom" type="number" min="0" max="23" value="" placeholder="00" class="field" style="border-radius:8px;padding:8px;width:100%;"></div>
+                <div><label style="font-size:11px;color:#8b949e;display:block;margin-bottom:6px;">TRADING HOURS (UTC) TO</label><input id="setHourTo" type="number" min="0" max="23" value="" placeholder="23" class="field" style="border-radius:8px;padding:8px;width:100%;"></div>
+            </div>
+            <div style="margin-top:14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+                <label style="font-size:13px;display:flex;align-items:center;gap:6px;cursor:pointer;"><input type="checkbox" id="setCloseOpp" class="checkbox" > Close on opposite signal</label>
+                <label style="font-size:13px;display:flex;align-items:center;gap:6px;cursor:pointer;"><input type="checkbox" id="setUseTPSL" class="checkbox" checked> Apply SL & TP from signal</label>
+            </div>
+            <p style="font-size:11px;color:#8b949e;margin-top:12px;">💡 Settings are saved in your browser. Wire them into the bot via GitHub secrets for production enforcement.</p>
+        </div>
+
+        <div class="section-title">📱 Recent Telegram Messages & Signal History (Last 30)</div>
+        <div class="card" style="overflow-x:auto;"><table><thead><tr><th>Time</th><th>Chat Source</th><th>Signal Status</th><th>Message Content</th></tr></thead><tbody><tr><td class="time" data-ts="2026-07-29 02:32:33 UTC">2026-07-29 02:32:33 UTC</td><td>Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)</td><td style="color:#3fb950;font-weight:700;">⚡ TPSL_HIT (XAUUSD)</td><td class="msg-cell">❌ SL HIT - XAU/USD
+Direction: SELL
+Pips: -10.1</td></tr><tr><td class="time" data-ts="2026-07-29 03:02:34 UTC">2026-07-29 03:02:34 UTC</td><td>Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)</td><td style="color:#3fb950;font-weight:700;">⚡ SIGNAL (XAUUSD)</td><td class="msg-cell">🔴 SELL XAU/USD
+
+Entry: MARKET (Ref: 4030.93)
+SL: 4043.03
+TP: 4016.24
+RR: 1:1.21
+
+Signals are news-filtered and system-link compatible.
+
+Users may use their own copy system by their own choice. Some solutions are available here: Telegram Bot</td></tr><tr><td class="time" data-ts="2026-07-29 03:22:37 UTC">2026-07-29 03:22:37 UTC</td><td>Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)</td><td style="color:#3fb950;font-weight:700;">⚡ TPSL_HIT (EURJPY)</td><td class="msg-cell">✅ TP HIT - EUR/JPY
+Direction: BUY
+Pips: +13.1</td></tr><tr><td class="time" data-ts="2026-07-29 03:22:37 UTC">2026-07-29 03:22:37 UTC</td><td>Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)</td><td style="color:#3fb950;font-weight:700;">⚡ TPSL_HIT (USDJPY)</td><td class="msg-cell">✅ TP HIT - USD/JPY
+Direction: BUY
+Pips: +11.6</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:08 UTC">2026-07-30 20:31:08 UTC</td><td>Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)</td><td style="color:#3fb950;font-weight:700;">⚡ SIGNAL (USDJPY)</td><td class="msg-cell">🔴 SELL USD/JPY
+
+Entry: MARKET (Ref: 163.327)
+SL: 163.490
+TP: 163.144
+RR: 1:1.13
+
+Signals are news-filtered and system-link compatible.
+
+Users may use </td></tr><tr><td class="time" data-ts="2026-07-30 20:31:08 UTC">2026-07-30 20:31:08 UTC</td><td>Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)</td><td style="color:#3fb950;font-weight:700;">⚡ SIGNAL (XAUUSD)</td><td class="msg-cell">🟢 BUY XAU/USD
+
+Entry: MARKET (Ref: 4085.42)
+SL: 4061.69
+TP: 4112.32
+RR: 1:1.13
+
+Signals are news-filtered and system-link compatible.
+
+Users may use t</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:08 UTC">2026-07-30 20:31:08 UTC</td><td>Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)</td><td style="color:#3fb950;font-weight:700;">⚡ SIGNAL (CHFJPY)</td><td class="msg-cell">🟢 BUY CHF/JPY
+
+Entry: MARKET (Ref: 200.777)
+SL: 200.471
+TP: 201.125
+RR: 1:1.13
+
+Signals are news-filtered and system-link compatible.
+
+Users may use t</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:08 UTC">2026-07-30 20:31:08 UTC</td><td>Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)</td><td style="color:#3fb950;font-weight:700;">⚡ TPSL_HIT (USDJPY)</td><td class="msg-cell">❌ SL HIT - USD/JPY
+Direction: SELL
+Pips: -16.2</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:08 UTC">2026-07-30 20:31:08 UTC</td><td>Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)</td><td style="color:#3fb950;font-weight:700;">⚡ SIGNAL (EURJPY)</td><td class="msg-cell">🟢 BUY EUR/JPY
+
+Entry: MARKET (Ref: 187.246)
+SL: 187.052
+TP: 187.466
+RR: 1:1.13
+
+Signals are news-filtered and system-link compatible.
+
+Users may use t</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:08 UTC">2026-07-30 20:31:08 UTC</td><td>Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)</td><td style="color:#3fb950;font-weight:700;">⚡ TPSL_HIT (XAUUSD)</td><td class="msg-cell">❌ SL HIT - XAU/USD
+Direction: BUY
+Pips: -23.7</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:08 UTC">2026-07-30 20:31:08 UTC</td><td>Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)</td><td style="color:#3fb950;font-weight:700;">⚡ TPSL_HIT (CHFJPY)</td><td class="msg-cell">❌ SL HIT - CHF/JPY
+Direction: BUY
+Pips: -30.7</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:08 UTC">2026-07-30 20:31:08 UTC</td><td>Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)</td><td style="color:#3fb950;font-weight:700;">⚡ SIGNAL (NZDJPY)</td><td class="msg-cell">🟢 BUY NZD/JPY
+
+Entry: MARKET (Ref: 95.086)
+SL: 94.930
+TP: 95.262
+RR: 1:1.13
+
+Signals are news-filtered and system-link compatible.
+
+Users may use thei</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:08 UTC">2026-07-30 20:31:08 UTC</td><td>Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)</td><td style="color:#3fb950;font-weight:700;">⚡ TPSL_HIT (NZDJPY)</td><td class="msg-cell">✅ TP HIT - NZD/JPY
+Direction: BUY
+Pips: +17.6</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:08 UTC">2026-07-30 20:31:08 UTC</td><td>Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)</td><td style="color:#3fb950;font-weight:700;">⚡ TPSL_HIT (EURJPY)</td><td class="msg-cell">❌ SL HIT - EUR/JPY
+Direction: BUY
+Pips: -19.4</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:08 UTC">2026-07-30 20:31:08 UTC</td><td>Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)</td><td style="color:#3fb950;font-weight:700;">⚡ SIGNAL (NZDJPY)</td><td class="msg-cell">🟢 BUY NZD/JPY
+
+Entry: MARKET (Ref: 95.152)
+SL: 94.987
+TP: 95.339
+RR: 1:1.13
+
+Signals are news-filtered and system-link compatible.
+
+Users may use thei</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:08 UTC">2026-07-30 20:31:08 UTC</td><td>Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)</td><td style="color:#3fb950;font-weight:700;">⚡ SIGNAL (CADJPY)</td><td class="msg-cell">🔴 SELL CAD/JPY
+
+Entry: MARKET (Ref: 115.979)
+SL: 116.128
+TP: 115.811
+RR: 1:1.13
+
+Signals are news-filtered and system-link compatible.
+
+Users may use </td></tr><tr><td class="time" data-ts="2026-07-30 20:31:08 UTC">2026-07-30 20:31:08 UTC</td><td>Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)</td><td style="color:#3fb950;font-weight:700;">⚡ SIGNAL (EURNZD)</td><td class="msg-cell">🔴 SELL EUR/NZD
+
+Entry: MARKET (Ref: 1.96621)
+SL: 1.96912
+TP: 1.96291
+RR: 1:1.13
+
+Signals are news-filtered and system-link compatible.
+
+Users may use </td></tr><tr><td class="time" data-ts="2026-07-30 20:31:08 UTC">2026-07-30 20:31:08 UTC</td><td>Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)</td><td style="color:#3fb950;font-weight:700;">⚡ TPSL_HIT (NZDJPY)</td><td class="msg-cell">❌ SL HIT - NZD/JPY
+Direction: BUY
+Pips: -16.5</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:08 UTC">2026-07-30 20:31:08 UTC</td><td>Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)</td><td style="color:#3fb950;font-weight:700;">⚡ TPSL_HIT (CADJPY)</td><td class="msg-cell">✅ TP HIT - CAD/JPY
+Direction: SELL
+Pips: +16.9</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:08 UTC">2026-07-30 20:31:08 UTC</td><td>Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)</td><td style="color:#3fb950;font-weight:700;">⚡ TPSL_HIT (EURNZD)</td><td class="msg-cell">✅ TP HIT - EUR/NZD
+Direction: SELL
+Pips: +33.0</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:08 UTC">2026-07-30 20:31:08 UTC</td><td>Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)</td><td style="color:#3fb950;font-weight:700;">⚡ TPSL_HIT (EURJPY)</td><td class="msg-cell">✅ TP HIT - EUR/JPY
+Direction: BUY
+Pips: +13.1</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:08 UTC">2026-07-30 20:31:08 UTC</td><td>Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)</td><td style="color:#3fb950;font-weight:700;">⚡ TPSL_HIT (USDJPY)</td><td class="msg-cell">✅ TP HIT - USD/JPY
+Direction: BUY
+Pips: +11.6</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:08 UTC">2026-07-30 20:31:08 UTC</td><td>Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)</td><td style="color:#3fb950;font-weight:700;">⚡ TPSL_HIT (EURJPY)</td><td class="msg-cell">✅ TP HIT - EUR/JPY
+Direction: BUY
+Pips: +13.1</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:08 UTC">2026-07-30 20:31:08 UTC</td><td>Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)</td><td style="color:#3fb950;font-weight:700;">⚡ TPSL_HIT (USDJPY)</td><td class="msg-cell">✅ TP HIT - USD/JPY
+Direction: BUY
+Pips: +11.6</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:08 UTC">2026-07-30 20:31:08 UTC</td><td>Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)</td><td style="color:#3fb950;font-weight:700;">⚡ TPSL_HIT (EURJPY)</td><td class="msg-cell">✅ TP HIT - EUR/JPY
+Direction: BUY
+Pips: +13.1</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:08 UTC">2026-07-30 20:31:08 UTC</td><td>Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)</td><td style="color:#3fb950;font-weight:700;">⚡ TPSL_HIT (USDJPY)</td><td class="msg-cell">✅ TP HIT - USD/JPY
+Direction: BUY
+Pips: +11.6</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:08 UTC">2026-07-30 20:31:08 UTC</td><td>Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)</td><td style="color:#3fb950;font-weight:700;">⚡ TPSL_HIT (EURJPY)</td><td class="msg-cell">✅ TP HIT - EUR/JPY
+Direction: BUY
+Pips: +13.1</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:08 UTC">2026-07-30 20:31:08 UTC</td><td>Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)</td><td style="color:#3fb950;font-weight:700;">⚡ TPSL_HIT (USDJPY)</td><td class="msg-cell">✅ TP HIT - USD/JPY
+Direction: BUY
+Pips: +11.6</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:08 UTC">2026-07-30 20:31:08 UTC</td><td>Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)</td><td style="color:#3fb950;font-weight:700;">⚡ TPSL_HIT (EURJPY)</td><td class="msg-cell">✅ TP HIT - EUR/JPY
+Direction: BUY
+Pips: +13.1</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:08 UTC">2026-07-30 20:31:08 UTC</td><td>Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)</td><td style="color:#3fb950;font-weight:700;">⚡ TPSL_HIT (USDJPY)</td><td class="msg-cell">✅ TP HIT - USD/JPY
+Direction: BUY
+Pips: +11.6</td></tr></tbody></table></div>
+
+        <div class="section-title">🚨 Full Errors & Rejections Detail (Last 40)</div>
+        <div class="card" style="overflow-x:auto;"><table><thead><tr><th>Time</th><th>Level</th><th>Full Error / Warning Detail</th></tr></thead><tbody><tr><td class="time" data-ts="2026-07-30 20:31:20 UTC">2026-07-30 20:31:20 UTC</td><td style="color:#f85149;font-weight:700;">ERROR</td><td class="msg-cell" style="word-break:break-word;white-space:normal;">Order Dispatch Error: [Failure instance: Traceback: &lt;class 'twisted.internet.defer.TimeoutError'&gt;: (5, 'Deferred')
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:798:timeItOut
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:957:cancel
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:916:errback
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:984:_startRunCallbacks
+--- &lt;exception caught here&gt; ---
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:1078:_runCallbacks
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:809:convertCancelled
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:293:_cancelledToTimedOutError
+]</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:20 UTC">2026-07-30 20:31:20 UTC</td><td style="color:#f85149;font-weight:700;">ERROR</td><td class="msg-cell" style="word-break:break-word;white-space:normal;">Order Dispatch Error: [Failure instance: Traceback: &lt;class 'twisted.internet.defer.TimeoutError'&gt;: (5, 'Deferred')
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:798:timeItOut
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:957:cancel
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:916:errback
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:984:_startRunCallbacks
+--- &lt;exception caught here&gt; ---
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:1078:_runCallbacks
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:809:convertCancelled
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:293:_cancelledToTimedOutError
+]</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:20 UTC">2026-07-30 20:31:20 UTC</td><td style="color:#f85149;font-weight:700;">ERROR</td><td class="msg-cell" style="word-break:break-word;white-space:normal;">Order Dispatch Error: [Failure instance: Traceback: &lt;class 'twisted.internet.defer.TimeoutError'&gt;: (5, 'Deferred')
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:798:timeItOut
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:957:cancel
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:916:errback
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:984:_startRunCallbacks
+--- &lt;exception caught here&gt; ---
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:1078:_runCallbacks
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:809:convertCancelled
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:293:_cancelledToTimedOutError
+]</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:20 UTC">2026-07-30 20:31:20 UTC</td><td style="color:#f85149;font-weight:700;">ERROR</td><td class="msg-cell" style="word-break:break-word;white-space:normal;">Order Dispatch Error: [Failure instance: Traceback: &lt;class 'twisted.internet.defer.TimeoutError'&gt;: (5, 'Deferred')
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:798:timeItOut
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:957:cancel
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:916:errback
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:984:_startRunCallbacks
+--- &lt;exception caught here&gt; ---
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:1078:_runCallbacks
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:809:convertCancelled
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:293:_cancelledToTimedOutError
+]</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:20 UTC">2026-07-30 20:31:20 UTC</td><td style="color:#f85149;font-weight:700;">ERROR</td><td class="msg-cell" style="word-break:break-word;white-space:normal;">Order Dispatch Error: [Failure instance: Traceback: &lt;class 'twisted.internet.defer.TimeoutError'&gt;: (5, 'Deferred')
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:798:timeItOut
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:957:cancel
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:916:errback
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:984:_startRunCallbacks
+--- &lt;exception caught here&gt; ---
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:1078:_runCallbacks
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:809:convertCancelled
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:293:_cancelledToTimedOutError
+]</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:20 UTC">2026-07-30 20:31:20 UTC</td><td style="color:#f85149;font-weight:700;">ERROR</td><td class="msg-cell" style="word-break:break-word;white-space:normal;">Order Dispatch Error: [Failure instance: Traceback: &lt;class 'twisted.internet.defer.TimeoutError'&gt;: (5, 'Deferred')
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:798:timeItOut
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:957:cancel
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:916:errback
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:984:_startRunCallbacks
+--- &lt;exception caught here&gt; ---
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:1078:_runCallbacks
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:809:convertCancelled
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:293:_cancelledToTimedOutError
+]</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:20 UTC">2026-07-30 20:31:20 UTC</td><td style="color:#f85149;font-weight:700;">ERROR</td><td class="msg-cell" style="word-break:break-word;white-space:normal;">Order Dispatch Error: [Failure instance: Traceback: &lt;class 'twisted.internet.defer.TimeoutError'&gt;: (5, 'Deferred')
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:798:timeItOut
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:957:cancel
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:916:errback
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:984:_startRunCallbacks
+--- &lt;exception caught here&gt; ---
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:1078:_runCallbacks
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:809:convertCancelled
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:293:_cancelledToTimedOutError
+]</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:20 UTC">2026-07-30 20:31:20 UTC</td><td style="color:#f85149;font-weight:700;">ERROR</td><td class="msg-cell" style="word-break:break-word;white-space:normal;">Order Dispatch Error: [Failure instance: Traceback: &lt;class 'twisted.internet.defer.TimeoutError'&gt;: (5, 'Deferred')
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:798:timeItOut
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:957:cancel
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:916:errback
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:984:_startRunCallbacks
+--- &lt;exception caught here&gt; ---
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:1078:_runCallbacks
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:809:convertCancelled
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:293:_cancelledToTimedOutError
+]</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:23 UTC">2026-07-30 20:31:23 UTC</td><td style="color:#d29922;font-weight:700;">WARNING</td><td class="msg-cell" style="word-break:break-word;white-space:normal;">⏳ A cTrader request timed out/disconnected (intermittent network). Continuing to wait for other responses... ([Failure instance: Traceback: &lt;class 'twisted.internet.defer.TimeoutError'&gt;: (5, 'Deferred)</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:43 UTC">2026-07-30 20:31:43 UTC</td><td style="color:#d29922;font-weight:700;">WARNING</td><td class="msg-cell" style="word-break:break-word;white-space:normal;">TCP sync timeout reached (Trd:True, Rec:True, Sym:True).</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:43 UTC">2026-07-30 20:31:43 UTC</td><td style="color:#d29922;font-weight:700;">WARNING</td><td class="msg-cell" style="word-break:break-word;white-space:normal;">⚠️ 8 order(s) dispatched. Offset committed to 841819915 (no retry to avoid duplicate trades). Check Open Positions to verify fill.</td></tr></tbody></table></div>
+
+        <div class="section-title">⚠️ Recent Alerts & System Notifications (Last 30)</div>
+        <div class="card"><div style="padding:8px;margin:6px 0;background:#d2992220;border-left:3px solid #d29922;border-radius:4px;font-size:12px;"><strong>WARNING</strong> <span data-ts="2026-07-27 12:51:08 UTC">2026-07-27 12:51:08 UTC</span>: ⏳ A cTrader request timed out/disconnected (intermittent network). Continuing to wait for other responses... ([Failure instance: Traceback: <class 'twisted.internet.defer.TimeoutError'>: (5, 'Deferred)</div><div style="padding:8px;margin:6px 0;background:#d2992220;border-left:3px solid #d29922;border-radius:4px;font-size:12px;"><strong>WARNING</strong> <span data-ts="2026-07-27 13:02:41 UTC">2026-07-27 13:02:41 UTC</span>: ⚠️ Verify reconcile: positions unchanged (0 -> 0). The dispatched order did NOT open a position (rejected or not processed by broker).</div><div style="padding:8px;margin:6px 0;background:#d2992220;border-left:3px solid #d29922;border-radius:4px;font-size:12px;"><strong>WARNING</strong> <span data-ts="2026-07-27 13:02:42 UTC">2026-07-27 13:02:42 UTC</span>: ⚠️ 1 order(s) dispatched. Offset committed to 841819844 (no retry to avoid duplicate trades). Check Open Positions to verify fill.</div><div style="padding:8px;margin:6px 0;background:#d2992220;border-left:3px solid #d29922;border-radius:4px;font-size:12px;"><strong>WARNING</strong> <span data-ts="2026-07-27 13:13:17 UTC">2026-07-27 13:13:17 UTC</span>: TCP sync timeout reached (Trd:False, Rec:False, Sym:False).</div><div style="padding:8px;margin:6px 0;background:#d2992220;border-left:3px solid #d29922;border-radius:4px;font-size:12px;"><strong>WARNING</strong> <span data-ts="2026-07-27 13:33:02 UTC">2026-07-27 13:33:02 UTC</span>: ⚠️ Verify reconcile: positions unchanged (0 -> 0). The dispatched order did NOT open a position (rejected or not processed by broker).</div><div style="padding:8px;margin:6px 0;background:#d2992220;border-left:3px solid #d29922;border-radius:4px;font-size:12px;"><strong>WARNING</strong> <span data-ts="2026-07-27 13:33:03 UTC">2026-07-27 13:33:03 UTC</span>: ⚠️ 3 order(s) dispatched. Offset committed to 841819848 (no retry to avoid duplicate trades). Check Open Positions to verify fill.</div><div style="padding:8px;margin:6px 0;background:#d2992220;border-left:3px solid #d29922;border-radius:4px;font-size:12px;"><strong>WARNING</strong> <span data-ts="2026-07-27 14:02:43 UTC">2026-07-27 14:02:43 UTC</span>: ⚠️ Verify reconcile: positions unchanged (0 -> 0). The dispatched order did NOT open a position (rejected or not processed by broker).</div><div style="padding:8px;margin:6px 0;background:#d2992220;border-left:3px solid #d29922;border-radius:4px;font-size:12px;"><strong>WARNING</strong> <span data-ts="2026-07-27 14:02:44 UTC">2026-07-27 14:02:44 UTC</span>: ⚠️ 1 order(s) dispatched. Offset committed to 841819850 (no retry to avoid duplicate trades). Check Open Positions to verify fill.</div><div style="padding:8px;margin:6px 0;background:#d2992220;border-left:3px solid #d29922;border-radius:4px;font-size:12px;"><strong>WARNING</strong> <span data-ts="2026-07-27 14:18:57 UTC">2026-07-27 14:18:57 UTC</span>: ⏳ A cTrader request timed out/disconnected (intermittent network). Continuing to wait for other responses... ([Failure instance: Traceback: <class 'twisted.internet.defer.TimeoutError'>: (5, 'Deferred)</div><div style="padding:8px;margin:6px 0;background:#d2992220;border-left:3px solid #d29922;border-radius:4px;font-size:12px;"><strong>WARNING</strong> <span data-ts="2026-07-27 15:25:12 UTC">2026-07-27 15:25:12 UTC</span>: TCP sync timeout reached (Trd:False, Rec:False, Sym:False).</div><div style="padding:8px;margin:6px 0;background:#d2992220;border-left:3px solid #d29922;border-radius:4px;font-size:12px;"><strong>WARNING</strong> <span data-ts="2026-07-27 16:45:22 UTC">2026-07-27 16:45:22 UTC</span>: TCP sync timeout reached (Trd:False, Rec:False, Sym:False).</div><div style="padding:8px;margin:6px 0;background:#d2992220;border-left:3px solid #d29922;border-radius:4px;font-size:12px;"><strong>WARNING</strong> <span data-ts="2026-07-28 00:31:43 UTC">2026-07-28 00:31:43 UTC</span>: TCP sync timeout reached (Trd:False, Rec:False, Sym:False).</div><div style="padding:8px;margin:6px 0;background:#f8514920;border-left:3px solid #f85149;border-radius:4px;font-size:12px;"><strong>ERROR</strong> <span data-ts="2026-07-28 01:12:41 UTC">2026-07-28 01:12:41 UTC</span>: Telegram connection exception: The read operation timed out</div><div style="padding:8px;margin:6px 0;background:#d2992220;border-left:3px solid #d29922;border-radius:4px;font-size:12px;"><strong>WARNING</strong> <span data-ts="2026-07-28 21:03:12 UTC">2026-07-28 21:03:12 UTC</span>: TCP sync timeout reached (Trd:False, Rec:False, Sym:False).</div><div style="padding:8px;margin:6px 0;background:#d2992220;border-left:3px solid #d29922;border-radius:4px;font-size:12px;"><strong>WARNING</strong> <span data-ts="2026-07-28 23:14:34 UTC">2026-07-28 23:14:34 UTC</span>: Telegram getUpdates note: HTTP Error 409: Conflict</div><div style="padding:8px;margin:6px 0;background:#d2992220;border-left:3px solid #d29922;border-radius:4px;font-size:12px;"><strong>WARNING</strong> <span data-ts="2026-07-28 23:19:15 UTC">2026-07-28 23:19:15 UTC</span>: TCP sync timeout reached (Trd:False, Rec:False, Sym:False).</div><div style="padding:8px;margin:6px 0;background:#d2992220;border-left:3px solid #d29922;border-radius:4px;font-size:12px;"><strong>WARNING</strong> <span data-ts="2026-07-29 00:47:17 UTC">2026-07-29 00:47:17 UTC</span>: TCP sync timeout reached (Trd:False, Rec:False, Sym:False).</div><div style="padding:8px;margin:6px 0;background:#d2992220;border-left:3px solid #d29922;border-radius:4px;font-size:12px;"><strong>WARNING</strong> <span data-ts="2026-07-29 02:11:31 UTC">2026-07-29 02:11:31 UTC</span>: TCP sync timeout reached (Trd:False, Rec:False, Sym:False).</div><div style="padding:8px;margin:6px 0;background:#d2992220;border-left:3px solid #d29922;border-radius:4px;font-size:12px;"><strong>WARNING</strong> <span data-ts="2026-07-29 03:21:38 UTC">2026-07-29 03:21:38 UTC</span>: TCP sync timeout reached (Trd:False, Rec:False, Sym:False).</div><div style="padding:8px;margin:6px 0;background:#f8514920;border-left:3px solid #f85149;border-radius:4px;font-size:12px;"><strong>ERROR</strong> <span data-ts="2026-07-30 20:31:20 UTC">2026-07-30 20:31:20 UTC</span>: Order Dispatch Error: [Failure instance: Traceback: <class 'twisted.internet.defer.TimeoutError'>: (5, 'Deferred')
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:798:timeItOut
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:957:cancel
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:916:errback
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:984:_startRunCallbacks
+--- <exception caught here> ---
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:1078:_runCallbacks
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:809:convertCancelled
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:293:_cancelledToTimedOutError
+]</div><div style="padding:8px;margin:6px 0;background:#f8514920;border-left:3px solid #f85149;border-radius:4px;font-size:12px;"><strong>ERROR</strong> <span data-ts="2026-07-30 20:31:20 UTC">2026-07-30 20:31:20 UTC</span>: Order Dispatch Error: [Failure instance: Traceback: <class 'twisted.internet.defer.TimeoutError'>: (5, 'Deferred')
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:798:timeItOut
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:957:cancel
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:916:errback
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:984:_startRunCallbacks
+--- <exception caught here> ---
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:1078:_runCallbacks
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:809:convertCancelled
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:293:_cancelledToTimedOutError
+]</div><div style="padding:8px;margin:6px 0;background:#f8514920;border-left:3px solid #f85149;border-radius:4px;font-size:12px;"><strong>ERROR</strong> <span data-ts="2026-07-30 20:31:20 UTC">2026-07-30 20:31:20 UTC</span>: Order Dispatch Error: [Failure instance: Traceback: <class 'twisted.internet.defer.TimeoutError'>: (5, 'Deferred')
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:798:timeItOut
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:957:cancel
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:916:errback
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:984:_startRunCallbacks
+--- <exception caught here> ---
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:1078:_runCallbacks
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:809:convertCancelled
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:293:_cancelledToTimedOutError
+]</div><div style="padding:8px;margin:6px 0;background:#f8514920;border-left:3px solid #f85149;border-radius:4px;font-size:12px;"><strong>ERROR</strong> <span data-ts="2026-07-30 20:31:20 UTC">2026-07-30 20:31:20 UTC</span>: Order Dispatch Error: [Failure instance: Traceback: <class 'twisted.internet.defer.TimeoutError'>: (5, 'Deferred')
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:798:timeItOut
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:957:cancel
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:916:errback
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:984:_startRunCallbacks
+--- <exception caught here> ---
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:1078:_runCallbacks
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:809:convertCancelled
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:293:_cancelledToTimedOutError
+]</div><div style="padding:8px;margin:6px 0;background:#f8514920;border-left:3px solid #f85149;border-radius:4px;font-size:12px;"><strong>ERROR</strong> <span data-ts="2026-07-30 20:31:20 UTC">2026-07-30 20:31:20 UTC</span>: Order Dispatch Error: [Failure instance: Traceback: <class 'twisted.internet.defer.TimeoutError'>: (5, 'Deferred')
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:798:timeItOut
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:957:cancel
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:916:errback
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:984:_startRunCallbacks
+--- <exception caught here> ---
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:1078:_runCallbacks
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:809:convertCancelled
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:293:_cancelledToTimedOutError
+]</div><div style="padding:8px;margin:6px 0;background:#f8514920;border-left:3px solid #f85149;border-radius:4px;font-size:12px;"><strong>ERROR</strong> <span data-ts="2026-07-30 20:31:20 UTC">2026-07-30 20:31:20 UTC</span>: Order Dispatch Error: [Failure instance: Traceback: <class 'twisted.internet.defer.TimeoutError'>: (5, 'Deferred')
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:798:timeItOut
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:957:cancel
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:916:errback
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:984:_startRunCallbacks
+--- <exception caught here> ---
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:1078:_runCallbacks
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:809:convertCancelled
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:293:_cancelledToTimedOutError
+]</div><div style="padding:8px;margin:6px 0;background:#f8514920;border-left:3px solid #f85149;border-radius:4px;font-size:12px;"><strong>ERROR</strong> <span data-ts="2026-07-30 20:31:20 UTC">2026-07-30 20:31:20 UTC</span>: Order Dispatch Error: [Failure instance: Traceback: <class 'twisted.internet.defer.TimeoutError'>: (5, 'Deferred')
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:798:timeItOut
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:957:cancel
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:916:errback
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:984:_startRunCallbacks
+--- <exception caught here> ---
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:1078:_runCallbacks
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:809:convertCancelled
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:293:_cancelledToTimedOutError
+]</div><div style="padding:8px;margin:6px 0;background:#f8514920;border-left:3px solid #f85149;border-radius:4px;font-size:12px;"><strong>ERROR</strong> <span data-ts="2026-07-30 20:31:20 UTC">2026-07-30 20:31:20 UTC</span>: Order Dispatch Error: [Failure instance: Traceback: <class 'twisted.internet.defer.TimeoutError'>: (5, 'Deferred')
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:798:timeItOut
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:957:cancel
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:916:errback
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:984:_startRunCallbacks
+--- <exception caught here> ---
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:1078:_runCallbacks
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:809:convertCancelled
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:293:_cancelledToTimedOutError
+]</div><div style="padding:8px;margin:6px 0;background:#d2992220;border-left:3px solid #d29922;border-radius:4px;font-size:12px;"><strong>WARNING</strong> <span data-ts="2026-07-30 20:31:23 UTC">2026-07-30 20:31:23 UTC</span>: ⏳ A cTrader request timed out/disconnected (intermittent network). Continuing to wait for other responses... ([Failure instance: Traceback: <class 'twisted.internet.defer.TimeoutError'>: (5, 'Deferred)</div><div style="padding:8px;margin:6px 0;background:#d2992220;border-left:3px solid #d29922;border-radius:4px;font-size:12px;"><strong>WARNING</strong> <span data-ts="2026-07-30 20:31:43 UTC">2026-07-30 20:31:43 UTC</span>: TCP sync timeout reached (Trd:True, Rec:True, Sym:True).</div><div style="padding:8px;margin:6px 0;background:#d2992220;border-left:3px solid #d29922;border-radius:4px;font-size:12px;"><strong>WARNING</strong> <span data-ts="2026-07-30 20:31:43 UTC">2026-07-30 20:31:43 UTC</span>: ⚠️ 8 order(s) dispatched. Offset committed to 841819915 (no retry to avoid duplicate trades). Check Open Positions to verify fill.</div></div>
+
+        <div class="section-title">📋 Backend Process Logs (Last 100 Events)</div>
+        <div class="card" style="overflow-x:auto;"><table><thead><tr><th>Time</th><th>Level</th><th>Message</th></tr></thead><tbody><tr><td class="time" data-ts="2026-07-30 20:31:15 UTC">2026-07-30 20:31:15 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">Synced Trader State -&gt; Live Balance: $2,219.16</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:15 UTC">2026-07-30 20:31:15 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">Reconciliation retrieved: 0 open positions, 0 orders.</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:15 UTC">2026-07-30 20:31:15 UTC</td><td style="color:#3fb950;font-weight:700;">SUCCESS</td><td class="msg-cell">Loaded 382 instruments from cTrader server!</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:15 UTC">2026-07-30 20:31:15 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">⚡ Executing 18 pending trading command(s) over live TCP stream...</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:15 UTC">2026-07-30 20:31:15 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">Symbol 'USDJPY' found exact match in cTrader (ID: 4)</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:15 UTC">2026-07-30 20:31:15 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">🎯 Sending ProtoOANewOrderReq: SELL USDJPY (SymbolID: 4) | Vol: 1000...</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:15 UTC">2026-07-30 20:31:15 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">  └─ Stop Loss set: 163.49</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:15 UTC">2026-07-30 20:31:15 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">  └─ Take Profit set: 163.144</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:15 UTC">2026-07-30 20:31:15 UTC</td><td style="color:#3fb950;font-weight:700;">SUCCESS</td><td class="msg-cell">✓ Market order SENT to cTrader: SELL 0.01 USDJPY | Vol=1000 | SL=163.49 | TP=163.144 | Acct=48038510 | SymID=4 (dispatched total: 1)</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:15 UTC">2026-07-30 20:31:15 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">Symbol 'XAUUSD' found exact match in cTrader (ID: 41)</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:15 UTC">2026-07-30 20:31:15 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">🎯 Sending ProtoOANewOrderReq: BUY XAUUSD (SymbolID: 41) | Vol: 5000...</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:15 UTC">2026-07-30 20:31:15 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">  └─ Stop Loss set: 4061.69</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:15 UTC">2026-07-30 20:31:15 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">  └─ Take Profit set: 4112.32</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:15 UTC">2026-07-30 20:31:15 UTC</td><td style="color:#3fb950;font-weight:700;">SUCCESS</td><td class="msg-cell">✓ Market order SENT to cTrader: BUY 0.05 XAUUSD | Vol=5000 | SL=4061.69 | TP=4112.32 | Acct=48038510 | SymID=41 (dispatched total: 2)</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:15 UTC">2026-07-30 20:31:15 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">Symbol 'CHFJPY' found exact match in cTrader (ID: 13)</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:15 UTC">2026-07-30 20:31:15 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">🎯 Sending ProtoOANewOrderReq: BUY CHFJPY (SymbolID: 13) | Vol: 1000...</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:15 UTC">2026-07-30 20:31:15 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">  └─ Stop Loss set: 200.471</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:15 UTC">2026-07-30 20:31:15 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">  └─ Take Profit set: 201.125</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:15 UTC">2026-07-30 20:31:15 UTC</td><td style="color:#3fb950;font-weight:700;">SUCCESS</td><td class="msg-cell">✓ Market order SENT to cTrader: BUY 0.01 CHFJPY | Vol=1000 | SL=200.471 | TP=201.125 | Acct=48038510 | SymID=13 (dispatched total: 3)</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:15 UTC">2026-07-30 20:31:15 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">Symbol 'USDJPY' found exact match in cTrader (ID: 4)</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:15 UTC">2026-07-30 20:31:15 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">Processing SL HIT -&gt; Scanning positions for USDJPY (ID:4)...</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:15 UTC">2026-07-30 20:31:15 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">Symbol 'EURJPY' found exact match in cTrader (ID: 3)</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:15 UTC">2026-07-30 20:31:15 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">🎯 Sending ProtoOANewOrderReq: BUY EURJPY (SymbolID: 3) | Vol: 1000...</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:15 UTC">2026-07-30 20:31:15 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">  └─ Stop Loss set: 187.052</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:15 UTC">2026-07-30 20:31:15 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">  └─ Take Profit set: 187.466</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:15 UTC">2026-07-30 20:31:15 UTC</td><td style="color:#3fb950;font-weight:700;">SUCCESS</td><td class="msg-cell">✓ Market order SENT to cTrader: BUY 0.01 EURJPY | Vol=1000 | SL=187.052 | TP=187.466 | Acct=48038510 | SymID=3 (dispatched total: 4)</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:15 UTC">2026-07-30 20:31:15 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">Symbol 'XAUUSD' found exact match in cTrader (ID: 41)</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:15 UTC">2026-07-30 20:31:15 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">Processing SL HIT -&gt; Scanning positions for XAUUSD (ID:41)...</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:15 UTC">2026-07-30 20:31:15 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">Symbol 'CHFJPY' found exact match in cTrader (ID: 13)</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:15 UTC">2026-07-30 20:31:15 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">Processing SL HIT -&gt; Scanning positions for CHFJPY (ID:13)...</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:15 UTC">2026-07-30 20:31:15 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">Symbol 'NZDJPY' found exact match in cTrader (ID: 21)</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:15 UTC">2026-07-30 20:31:15 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">🎯 Sending ProtoOANewOrderReq: BUY NZDJPY (SymbolID: 21) | Vol: 1000...</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:15 UTC">2026-07-30 20:31:15 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">  └─ Stop Loss set: 94.93</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:15 UTC">2026-07-30 20:31:15 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">  └─ Take Profit set: 95.262</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:15 UTC">2026-07-30 20:31:15 UTC</td><td style="color:#3fb950;font-weight:700;">SUCCESS</td><td class="msg-cell">✓ Market order SENT to cTrader: BUY 0.01 NZDJPY | Vol=1000 | SL=94.93 | TP=95.262 | Acct=48038510 | SymID=21 (dispatched total: 5)</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:15 UTC">2026-07-30 20:31:15 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">Symbol 'NZDJPY' found exact match in cTrader (ID: 21)</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:15 UTC">2026-07-30 20:31:15 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">Processing TP HIT -&gt; Scanning positions for NZDJPY (ID:21)...</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:15 UTC">2026-07-30 20:31:15 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">Symbol 'EURJPY' found exact match in cTrader (ID: 3)</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:15 UTC">2026-07-30 20:31:15 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">Processing SL HIT -&gt; Scanning positions for EURJPY (ID:3)...</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:15 UTC">2026-07-30 20:31:15 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">Symbol 'NZDJPY' found exact match in cTrader (ID: 21)</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:15 UTC">2026-07-30 20:31:15 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">🎯 Sending ProtoOANewOrderReq: BUY NZDJPY (SymbolID: 21) | Vol: 1000...</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:15 UTC">2026-07-30 20:31:15 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">  └─ Stop Loss set: 94.987</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:15 UTC">2026-07-30 20:31:15 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">  └─ Take Profit set: 95.339</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:15 UTC">2026-07-30 20:31:15 UTC</td><td style="color:#3fb950;font-weight:700;">SUCCESS</td><td class="msg-cell">✓ Market order SENT to cTrader: BUY 0.01 NZDJPY | Vol=1000 | SL=94.987 | TP=95.339 | Acct=48038510 | SymID=21 (dispatched total: 6)</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:15 UTC">2026-07-30 20:31:15 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">Symbol 'CADJPY' found exact match in cTrader (ID: 15)</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:15 UTC">2026-07-30 20:31:15 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">🎯 Sending ProtoOANewOrderReq: SELL CADJPY (SymbolID: 15) | Vol: 1000...</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:15 UTC">2026-07-30 20:31:15 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">  └─ Stop Loss set: 116.128</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:15 UTC">2026-07-30 20:31:15 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">  └─ Take Profit set: 115.811</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:15 UTC">2026-07-30 20:31:15 UTC</td><td style="color:#3fb950;font-weight:700;">SUCCESS</td><td class="msg-cell">✓ Market order SENT to cTrader: SELL 0.01 CADJPY | Vol=1000 | SL=116.128 | TP=115.811 | Acct=48038510 | SymID=15 (dispatched total: 7)</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:15 UTC">2026-07-30 20:31:15 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">Symbol 'EURNZD' found exact match in cTrader (ID: 26)</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:15 UTC">2026-07-30 20:31:15 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">🎯 Sending ProtoOANewOrderReq: SELL EURNZD (SymbolID: 26) | Vol: 1000...</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:15 UTC">2026-07-30 20:31:15 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">  └─ Stop Loss set: 1.96912</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:15 UTC">2026-07-30 20:31:15 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">  └─ Take Profit set: 1.96291</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:15 UTC">2026-07-30 20:31:15 UTC</td><td style="color:#3fb950;font-weight:700;">SUCCESS</td><td class="msg-cell">✓ Market order SENT to cTrader: SELL 0.01 EURNZD | Vol=1000 | SL=1.96912 | TP=1.96291 | Acct=48038510 | SymID=26 (dispatched total: 8)</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:15 UTC">2026-07-30 20:31:15 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">Symbol 'NZDJPY' found exact match in cTrader (ID: 21)</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:15 UTC">2026-07-30 20:31:15 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">Processing SL HIT -&gt; Scanning positions for NZDJPY (ID:21)...</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:15 UTC">2026-07-30 20:31:15 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">Symbol 'CADJPY' found exact match in cTrader (ID: 15)</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:15 UTC">2026-07-30 20:31:15 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">Processing TP HIT -&gt; Scanning positions for CADJPY (ID:15)...</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:15 UTC">2026-07-30 20:31:15 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">Symbol 'EURNZD' found exact match in cTrader (ID: 26)</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:15 UTC">2026-07-30 20:31:15 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">Processing TP HIT -&gt; Scanning positions for EURNZD (ID:26)...</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:15 UTC">2026-07-30 20:31:15 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">Symbol 'EURJPY' found exact match in cTrader (ID: 3)</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:15 UTC">2026-07-30 20:31:15 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">Processing TP HIT -&gt; Scanning positions for EURJPY (ID:3)...</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:15 UTC">2026-07-30 20:31:15 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">Symbol 'USDJPY' found exact match in cTrader (ID: 4)</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:15 UTC">2026-07-30 20:31:15 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">Processing TP HIT -&gt; Scanning positions for USDJPY (ID:4)...</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:15 UTC">2026-07-30 20:31:15 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">🔍 8 order(s) dispatched. Scheduling verification reconcile in 3s (positions before: 0)...</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:15 UTC">2026-07-30 20:31:15 UTC</td><td style="color:#3fb950;font-weight:700;">SUCCESS</td><td class="msg-cell">📜 Retrieved 8 trade(s) (16 deals) from cTrader — trades ARE executing!</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:18 UTC">2026-07-30 20:31:18 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">🔍 Verification reconcile sent. Waiting for broker position snapshot...</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:20 UTC">2026-07-30 20:31:20 UTC</td><td style="color:#f85149;font-weight:700;">ERROR</td><td class="msg-cell">Order Dispatch Error: [Failure instance: Traceback: &lt;class 'twisted.internet.defer.TimeoutError'&gt;: (5, 'Deferred')
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:798:timeItOut
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:957:cancel
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:916:errback
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:984:_startRunCallbacks
+--- &lt;exception caught here&gt; ---
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:1078:_runCallbacks
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:809:convertCancelled
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:293:_cancelledToTimedOutError
+]</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:20 UTC">2026-07-30 20:31:20 UTC</td><td style="color:#f85149;font-weight:700;">ERROR</td><td class="msg-cell">Order Dispatch Error: [Failure instance: Traceback: &lt;class 'twisted.internet.defer.TimeoutError'&gt;: (5, 'Deferred')
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:798:timeItOut
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:957:cancel
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:916:errback
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:984:_startRunCallbacks
+--- &lt;exception caught here&gt; ---
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:1078:_runCallbacks
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:809:convertCancelled
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:293:_cancelledToTimedOutError
+]</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:20 UTC">2026-07-30 20:31:20 UTC</td><td style="color:#f85149;font-weight:700;">ERROR</td><td class="msg-cell">Order Dispatch Error: [Failure instance: Traceback: &lt;class 'twisted.internet.defer.TimeoutError'&gt;: (5, 'Deferred')
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:798:timeItOut
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:957:cancel
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:916:errback
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:984:_startRunCallbacks
+--- &lt;exception caught here&gt; ---
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:1078:_runCallbacks
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:809:convertCancelled
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:293:_cancelledToTimedOutError
+]</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:20 UTC">2026-07-30 20:31:20 UTC</td><td style="color:#f85149;font-weight:700;">ERROR</td><td class="msg-cell">Order Dispatch Error: [Failure instance: Traceback: &lt;class 'twisted.internet.defer.TimeoutError'&gt;: (5, 'Deferred')
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:798:timeItOut
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:957:cancel
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:916:errback
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:984:_startRunCallbacks
+--- &lt;exception caught here&gt; ---
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:1078:_runCallbacks
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:809:convertCancelled
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:293:_cancelledToTimedOutError
+]</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:20 UTC">2026-07-30 20:31:20 UTC</td><td style="color:#f85149;font-weight:700;">ERROR</td><td class="msg-cell">Order Dispatch Error: [Failure instance: Traceback: &lt;class 'twisted.internet.defer.TimeoutError'&gt;: (5, 'Deferred')
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:798:timeItOut
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:957:cancel
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:916:errback
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:984:_startRunCallbacks
+--- &lt;exception caught here&gt; ---
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:1078:_runCallbacks
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:809:convertCancelled
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:293:_cancelledToTimedOutError
+]</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:20 UTC">2026-07-30 20:31:20 UTC</td><td style="color:#f85149;font-weight:700;">ERROR</td><td class="msg-cell">Order Dispatch Error: [Failure instance: Traceback: &lt;class 'twisted.internet.defer.TimeoutError'&gt;: (5, 'Deferred')
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:798:timeItOut
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:957:cancel
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:916:errback
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:984:_startRunCallbacks
+--- &lt;exception caught here&gt; ---
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:1078:_runCallbacks
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:809:convertCancelled
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:293:_cancelledToTimedOutError
+]</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:20 UTC">2026-07-30 20:31:20 UTC</td><td style="color:#f85149;font-weight:700;">ERROR</td><td class="msg-cell">Order Dispatch Error: [Failure instance: Traceback: &lt;class 'twisted.internet.defer.TimeoutError'&gt;: (5, 'Deferred')
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:798:timeItOut
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:957:cancel
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:916:errback
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:984:_startRunCallbacks
+--- &lt;exception caught here&gt; ---
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:1078:_runCallbacks
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:809:convertCancelled
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:293:_cancelledToTimedOutError
+]</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:20 UTC">2026-07-30 20:31:20 UTC</td><td style="color:#f85149;font-weight:700;">ERROR</td><td class="msg-cell">Order Dispatch Error: [Failure instance: Traceback: &lt;class 'twisted.internet.defer.TimeoutError'&gt;: (5, 'Deferred')
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:798:timeItOut
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:957:cancel
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:916:errback
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:984:_startRunCallbacks
+--- &lt;exception caught here&gt; ---
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:1078:_runCallbacks
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:809:convertCancelled
+/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:293:_cancelledToTimedOutError
+]</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:23 UTC">2026-07-30 20:31:23 UTC</td><td style="color:#d29922;font-weight:700;">WARNING</td><td class="msg-cell">⏳ A cTrader request timed out/disconnected (intermittent network). Continuing to wait for other responses... ([Failure instance: Traceback: &lt;class 'twisted.internet.defer.TimeoutError'&gt;: (5, 'Deferred)</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:43 UTC">2026-07-30 20:31:43 UTC</td><td style="color:#d29922;font-weight:700;">WARNING</td><td class="msg-cell">TCP sync timeout reached (Trd:True, Rec:True, Sym:True).</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:43 UTC">2026-07-30 20:31:43 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">━━━ TRADE CYCLE SUMMARY ━━━ Signals: 18 (new orders: True, manage ops: True) | Dispatched: 8 | Confirmed by cTrader: 0 | Broker error: none</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:43 UTC">2026-07-30 20:31:43 UTC</td><td style="color:#d29922;font-weight:700;">WARNING</td><td class="msg-cell">⚠️ 8 order(s) dispatched. Offset committed to 841819915 (no retry to avoid duplicate trades). Check Open Positions to verify fill.</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:44 UTC">2026-07-30 20:31:44 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">=== DASHBOARD GENERATION STARTED === [SCRIPT v11-clear-webhook-fix-409-missed-signals]</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:44 UTC">2026-07-30 20:31:44 UTC</td><td style="color:#3fb950;font-weight:700;">SUCCESS</td><td class="msg-cell">✅ All 10 GitHub repository secrets detected successfully!</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:44 UTC">2026-07-30 20:31:44 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">🔒 Diagnostics -&gt; Client ID: 337***NU (len: 56) | Secret: ner***Bn (len: 50) | AccessToken: GXG***LM (len: 43)</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:44 UTC">2026-07-30 20:31:44 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">📊 cTrader Target Account: 2454414 | Server Environment: DEMO</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:44 UTC">2026-07-30 20:31:44 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">📱 Telegram Config: Token present | Chat Target: -1003257960170</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:44 UTC">2026-07-30 20:31:44 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">Connecting to cTrader Open API (DEMO TCP Server)...</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:44 UTC">2026-07-30 20:31:44 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">TCP Connected. Sending application authentication...</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:45 UTC">2026-07-30 20:31:45 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">Application authorized. Discovering authorized cTID accounts for access token...</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:46 UTC">2026-07-30 20:31:46 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">📋 cTrader token returned 4 linked account(s).</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:46 UTC">2026-07-30 20:31:46 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">Discovered Accounts -&gt; ID:47951199 (Login:5313108 | DEMO), ID:48013992 (Login:5865538 | DEMO), ID:48029390 (Login:1117964 | DEMO), ID:48038510 (Login:2454414 | DEMO)</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:46 UTC">2026-07-30 20:31:46 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">Sending Account Authorization for cTID Account 48038510...</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:47 UTC">2026-07-30 20:31:47 UTC</td><td style="color:#3fb950;font-weight:700;">SUCCESS</td><td class="msg-cell">cTrader Account 48038510 authorized successfully!</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:48 UTC">2026-07-30 20:31:48 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">Synced Trader State -&gt; Live Balance: $2,219.16</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:48 UTC">2026-07-30 20:31:48 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">Reconciliation retrieved: 1 open positions, 0 orders.</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:48 UTC">2026-07-30 20:31:48 UTC</td><td style="color:#3fb950;font-weight:700;">SUCCESS</td><td class="msg-cell">Loaded 382 instruments from cTrader server!</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:48 UTC">2026-07-30 20:31:48 UTC</td><td style="color:#3fb950;font-weight:700;">SUCCESS</td><td class="msg-cell">✅ Complete Account & Position Data synchronized via TCP Protobuf! Standing by for execution confirmations...</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:48 UTC">2026-07-30 20:31:48 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">⏱️  Waiting 0.5s for cTrader execution confirmations before closing connection...</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:48 UTC">2026-07-30 20:31:48 UTC</td><td style="color:#3fb950;font-weight:700;">SUCCESS</td><td class="msg-cell">📜 Retrieved 9 trade(s) (17 deals) from cTrader — trades ARE executing!</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:49 UTC">2026-07-30 20:31:49 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">cTrader TCP connection disconnected safely.</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:49 UTC">2026-07-30 20:31:49 UTC</td><td style="color:#3fb950;font-weight:700;">SUCCESS</td><td class="msg-cell">Telegram Bot verified successfully! (@Forexunitedbot) | Chat Target: -1003257960170</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:49 UTC">2026-07-30 20:31:49 UTC</td><td style="color:#3fb950;font-weight:700;">SUCCESS</td><td class="msg-cell">Telegram Connected (@Forexunitedbot)</td></tr></tbody></table></div>
+
+        <div class="section-title">Open Positions (1)</div>
+        <div class="card" style="overflow-x:auto;"><table><thead><tr><th>Open Time (UTC)</th><th>Pair</th><th>Side</th><th>Volume</th><th>Entry Price</th><th>SL</th><th>TP</th><th>Position ID</th><th>P&amp;L</th></tr></thead><tbody><tr><td class="time" data-ts="1970-01-01 00:00:00 UTC">1970-01-01 00:00:00 UTC</td><td class="pair">XAUUSD</td><td class="buy">BUY</td><td>0.05</td><td>4110.38</td><td>4061.69</td><td>4112.32</td><td>#96058687</td><td style="color:#3fb950;font-weight:600;">$0.00</td></tr></tbody></table></div>
+
+        <div class="section-title">📜 Recent Deal / Execution History (9) — PROOF trades were placed</div>
+        <div class="card" style="overflow-x:auto;"><table><thead><tr><th>Entry Time (UTC)</th><th>Exit Time (UTC)</th><th>Duration</th><th>Pair</th><th>Side</th><th>Volume</th><th>Entry Price</th><th>Exit Price</th><th>P&amp;L</th><th>Status</th></tr></thead><tbody><tr><td class="time" data-ts="2026-07-30 20:31:16 UTC">2026-07-30 20:31:16 UTC</td><td class="time" data-ts="— (open)">— (open)</td><td>open</td><td class="pair">XAUUSD</td><td class="buy">BUY</td><td>0.05</td><td>4110.38</td><td>—</td><td style="color:#3fb950;font-weight:700;">$+0.00</td><td>OPEN</td></tr><tr><td class="time" data-ts="2026-07-29 03:02:39 UTC">2026-07-29 03:02:39 UTC</td><td class="time" data-ts="2026-07-29 05:30:14 UTC">2026-07-29 05:30:14 UTC</td><td>2h 27m</td><td class="pair">XAUUSD</td><td class="sell">SELL</td><td>1</td><td>4029.71</td><td>4034.47</td><td style="color:#3fb950;font-weight:700;">$+0.00</td><td>CLOSED</td></tr><tr><td class="time" data-ts="2026-07-28 22:32:36 UTC">2026-07-28 22:32:36 UTC</td><td class="time" data-ts="2026-07-29 01:39:39 UTC">2026-07-29 01:39:39 UTC</td><td>3h 7m</td><td class="pair">XAUUSD</td><td class="sell">SELL</td><td>1</td><td>4014.17</td><td>4030.79</td><td style="color:#3fb950;font-weight:700;">$+0.00</td><td>CLOSED</td></tr><tr><td class="time" data-ts="2026-07-28 15:02:50 UTC">2026-07-28 15:02:50 UTC</td><td class="time" data-ts="2026-07-28 15:20:28 UTC">2026-07-28 15:20:28 UTC</td><td>17m</td><td class="pair">XAUUSD</td><td class="sell">SELL</td><td>1</td><td>4026.15</td><td>4039.35</td><td style="color:#3fb950;font-weight:700;">$+0.00</td><td>CLOSED</td></tr><tr><td class="time" data-ts="2026-07-28 13:32:39 UTC">2026-07-28 13:32:39 UTC</td><td class="time" data-ts="2026-07-28 14:21:14 UTC">2026-07-28 14:21:14 UTC</td><td>48m</td><td class="pair">XAUUSD</td><td class="sell">SELL</td><td>1</td><td>4028.35</td><td>4015.59</td><td style="color:#3fb950;font-weight:700;">$+0.00</td><td>CLOSED</td></tr><tr><td class="time" data-ts="2026-07-28 07:02:39 UTC">2026-07-28 07:02:39 UTC</td><td class="time" data-ts="2026-07-28 09:35:23 UTC">2026-07-28 09:35:23 UTC</td><td>2h 32m</td><td class="pair">XAUUSD</td><td class="sell">SELL</td><td>1</td><td>4049.99</td><td>4035.96</td><td style="color:#3fb950;font-weight:700;">$+0.00</td><td>CLOSED</td></tr><tr><td class="time" data-ts="2026-07-28 07:02:39 UTC">2026-07-28 07:02:39 UTC</td><td class="time" data-ts="2026-07-28 07:21:15 UTC">2026-07-28 07:21:15 UTC</td><td>18m</td><td class="pair">NZDJPY</td><td class="sell">SELL</td><td>1</td><td>94.475</td><td>94.592</td><td style="color:#3fb950;font-weight:700;">$+0.00</td><td>CLOSED</td></tr><tr><td class="time" data-ts="2026-07-28 05:02:36 UTC">2026-07-28 05:02:36 UTC</td><td class="time" data-ts="2026-07-28 07:01:28 UTC">2026-07-28 07:01:28 UTC</td><td>1h 58m</td><td class="pair">NZDJPY</td><td class="sell">SELL</td><td>1</td><td>94.425</td><td>94.487</td><td style="color:#3fb950;font-weight:700;">$+0.00</td><td>CLOSED</td></tr><tr><td class="time" data-ts="2026-07-28 02:32:37 UTC">2026-07-28 02:32:37 UTC</td><td class="time" data-ts="2026-07-28 03:15:17 UTC">2026-07-28 03:15:17 UTC</td><td>42m</td><td class="pair">NZDJPY</td><td class="sell">SELL</td><td>1</td><td>94.473</td><td>94.569</td><td style="color:#3fb950;font-weight:700;">$+0.00</td><td>CLOSED</td></tr></tbody></table></div>
+
+        <div style="text-align: center; color: #8b949e; font-size: 11px; margin: 30px 0;">
+            cTrader Bot &amp; Dashboard • Script v11-clear-webhook-fix-409-missed-signals • Auto-refreshing every 60s • Page generated: <span data-ts="2026-07-30 20:31:49 UTC">2026-07-30 20:31:49 UTC</span> (<span id="pageAge"></span>)
+            <br>Time now (UTC): <strong id="liveClock"></strong>
+        </div>
+    </div>
+</body>
 </html>

@@ -1,812 +1,757 @@
 {
   "logs": [
     {
-      "timestamp": "2026-07-29 03:28:45 UTC",
+      "timestamp": "2026-07-30 20:31:08 UTC",
       "level": "info",
-      "message": "Deals history retrieved: 23 historical deals."
+      "message": "Signal identified in queue: \u274c SL HIT - XAU/USD\nDirection: BUY\nPips: -23.7..."
     },
     {
-      "timestamp": "2026-07-29 03:28:45 UTC",
+      "timestamp": "2026-07-30 20:31:08 UTC",
       "level": "success",
-      "message": "\u2705 Complete Account, Position & Deals Data synchronized via TCP Protobuf! Standing by for execution confirmations..."
+      "message": "Added to execution queue: {'type': 'TPSL_HIT', 'result': 'SL', 'pair': 'XAUUSD'}"
     },
     {
-      "timestamp": "2026-07-29 03:28:45 UTC",
+      "timestamp": "2026-07-30 20:31:08 UTC",
       "level": "info",
-      "message": "\u23f1\ufe0f  Waiting 0.5s for cTrader execution confirmations before closing connection..."
+      "message": "Signal identified in queue: \u274c SL HIT - CHF/JPY\nDirection: BUY\nPips: -30.7..."
     },
     {
-      "timestamp": "2026-07-29 03:28:45 UTC",
-      "level": "info",
-      "message": "cTrader TCP connection disconnected safely."
-    },
-    {
-      "timestamp": "2026-07-29 03:28:45 UTC",
-      "level": "info",
-      "message": "No new executable trade signals found in current cycle."
-    },
-    {
-      "timestamp": "2026-07-29 03:28:45 UTC",
+      "timestamp": "2026-07-30 20:31:08 UTC",
       "level": "success",
-      "message": "\u26a1 Dashboard index.html, login.html, and portal.html generated instantly in single unified cycle!"
+      "message": "Added to execution queue: {'type': 'TPSL_HIT', 'result': 'SL', 'pair': 'CHFJPY'}"
     },
     {
-      "timestamp": "2026-07-29 03:31:09 UTC",
+      "timestamp": "2026-07-30 20:31:08 UTC",
       "level": "info",
-      "message": "=== TRADING BOT CYCLE STARTED === [v6-FINAL-closed-deals-history-complete]"
+      "message": "Signal identified in queue: \ud83d\udfe2 BUY NZD/JPY\n\nEntry: MARKET (Ref: 95.086)\nSL: 94.930\nTP: 95.262\nRR: 1:1.13\n\nSignals are news-filtered and system-link c..."
     },
     {
-      "timestamp": "2026-07-29 03:31:09 UTC",
+      "timestamp": "2026-07-30 20:31:08 UTC",
       "level": "success",
-      "message": "\u2705 All 10 GitHub repository secrets detected successfully!"
+      "message": "Added to execution queue: {'type': 'SIGNAL', 'direction': 'BUY', 'pair': 'NZDJPY', 'sl': 94.93, 'tp': 95.262, 'entry': 95.086, 'qty': 0.01}"
     },
     {
-      "timestamp": "2026-07-29 03:31:09 UTC",
+      "timestamp": "2026-07-30 20:31:08 UTC",
       "level": "info",
-      "message": "\ud83d\udd12 Diagnostics -> Client ID: 337***NU (len: 56) | Secret: ner***Bn (len: 50) | AccessToken: GXG***LM (len: 43)"
+      "message": "Signal identified in queue: \u2705 TP HIT - NZD/JPY\nDirection: BUY\nPips: +17.6..."
     },
     {
-      "timestamp": "2026-07-29 03:31:09 UTC",
-      "level": "info",
-      "message": "\ud83d\udcca cTrader Target Account: 2454414 | Server Environment: DEMO"
-    },
-    {
-      "timestamp": "2026-07-29 03:31:09 UTC",
-      "level": "info",
-      "message": "\ud83d\udcf1 Telegram Config: Token present | Chat Target: -1003257960170"
-    },
-    {
-      "timestamp": "2026-07-29 03:31:10 UTC",
+      "timestamp": "2026-07-30 20:31:08 UTC",
       "level": "success",
-      "message": "Telegram Bot verified successfully! (@Forexunitedbot) | Chat Target: -1003257960170"
+      "message": "Added to execution queue: {'type': 'TPSL_HIT', 'result': 'TP', 'pair': 'NZDJPY'}"
     },
     {
-      "timestamp": "2026-07-29 03:31:10 UTC",
+      "timestamp": "2026-07-30 20:31:08 UTC",
       "level": "info",
-      "message": "Checking Telegram updates starting after offset (last_update_id): 841819883..."
+      "message": "Signal identified in queue: \u274c SL HIT - EUR/JPY\nDirection: BUY\nPips: -19.4..."
     },
     {
-      "timestamp": "2026-07-29 03:31:14 UTC",
+      "timestamp": "2026-07-30 20:31:08 UTC",
+      "level": "success",
+      "message": "Added to execution queue: {'type': 'TPSL_HIT', 'result': 'SL', 'pair': 'EURJPY'}"
+    },
+    {
+      "timestamp": "2026-07-30 20:31:08 UTC",
       "level": "info",
-      "message": "Fetched 0 new message(s) from Telegram (new highest update_id: 841819883)."
+      "message": "Signal identified in queue: \ud83d\udfe2 BUY NZD/JPY\n\nEntry: MARKET (Ref: 95.152)\nSL: 94.987\nTP: 95.339\nRR: 1:1.13\n\nSignals are news-filtered and system-link c..."
     },
     {
-      "timestamp": "2026-07-29 03:31:14 UTC",
+      "timestamp": "2026-07-30 20:31:08 UTC",
+      "level": "success",
+      "message": "Added to execution queue: {'type': 'SIGNAL', 'direction': 'BUY', 'pair': 'NZDJPY', 'sl': 94.987, 'tp': 95.339, 'entry': 95.152, 'qty': 0.01}"
+    },
+    {
+      "timestamp": "2026-07-30 20:31:08 UTC",
+      "level": "info",
+      "message": "Signal identified in queue: \ud83d\udd34 SELL CAD/JPY\n\nEntry: MARKET (Ref: 115.979)\nSL: 116.128\nTP: 115.811\nRR: 1:1.13\n\nSignals are news-filtered and system-li..."
+    },
+    {
+      "timestamp": "2026-07-30 20:31:08 UTC",
+      "level": "success",
+      "message": "Added to execution queue: {'type': 'SIGNAL', 'direction': 'SELL', 'pair': 'CADJPY', 'sl': 116.128, 'tp': 115.811, 'entry': 115.979, 'qty': 0.01}"
+    },
+    {
+      "timestamp": "2026-07-30 20:31:08 UTC",
+      "level": "info",
+      "message": "Signal identified in queue: \ud83d\udd34 SELL EUR/NZD\n\nEntry: MARKET (Ref: 1.96621)\nSL: 1.96912\nTP: 1.96291\nRR: 1:1.13\n\nSignals are news-filtered and system-li..."
+    },
+    {
+      "timestamp": "2026-07-30 20:31:08 UTC",
+      "level": "success",
+      "message": "Added to execution queue: {'type': 'SIGNAL', 'direction': 'SELL', 'pair': 'EURNZD', 'sl': 1.96912, 'tp': 1.96291, 'entry': 1.96621, 'qty': 0.01}"
+    },
+    {
+      "timestamp": "2026-07-30 20:31:08 UTC",
+      "level": "info",
+      "message": "Signal identified in queue: \u274c SL HIT - NZD/JPY\nDirection: BUY\nPips: -16.5..."
+    },
+    {
+      "timestamp": "2026-07-30 20:31:08 UTC",
+      "level": "success",
+      "message": "Added to execution queue: {'type': 'TPSL_HIT', 'result': 'SL', 'pair': 'NZDJPY'}"
+    },
+    {
+      "timestamp": "2026-07-30 20:31:08 UTC",
+      "level": "info",
+      "message": "Signal identified in queue: \u2705 TP HIT - CAD/JPY\nDirection: SELL\nPips: +16.9..."
+    },
+    {
+      "timestamp": "2026-07-30 20:31:08 UTC",
+      "level": "success",
+      "message": "Added to execution queue: {'type': 'TPSL_HIT', 'result': 'TP', 'pair': 'CADJPY'}"
+    },
+    {
+      "timestamp": "2026-07-30 20:31:08 UTC",
+      "level": "info",
+      "message": "Signal identified in queue: \u2705 TP HIT - EUR/NZD\nDirection: SELL\nPips: +33.0..."
+    },
+    {
+      "timestamp": "2026-07-30 20:31:08 UTC",
+      "level": "success",
+      "message": "Added to execution queue: {'type': 'TPSL_HIT', 'result': 'TP', 'pair': 'EURNZD'}"
+    },
+    {
+      "timestamp": "2026-07-30 20:31:08 UTC",
+      "level": "info",
+      "message": "Signal identified in queue: \u2705 TP HIT - EUR/JPY\nDirection: BUY\nPips: +13.1..."
+    },
+    {
+      "timestamp": "2026-07-30 20:31:08 UTC",
+      "level": "success",
+      "message": "Added to execution queue: {'type': 'TPSL_HIT', 'result': 'TP', 'pair': 'EURJPY'}"
+    },
+    {
+      "timestamp": "2026-07-30 20:31:08 UTC",
+      "level": "info",
+      "message": "Signal identified in queue: \u2705 TP HIT - USD/JPY\nDirection: BUY\nPips: +11.6..."
+    },
+    {
+      "timestamp": "2026-07-30 20:31:08 UTC",
+      "level": "success",
+      "message": "Added to execution queue: {'type': 'TPSL_HIT', 'result': 'TP', 'pair': 'USDJPY'}"
+    },
+    {
+      "timestamp": "2026-07-30 20:31:08 UTC",
+      "level": "info",
+      "message": "Signal identified in queue: \u2705 TP HIT - EUR/JPY\nDirection: BUY\nPips: +13.1..."
+    },
+    {
+      "timestamp": "2026-07-30 20:31:08 UTC",
+      "level": "success",
+      "message": "Added to execution queue: {'type': 'TPSL_HIT', 'result': 'TP', 'pair': 'EURJPY'}"
+    },
+    {
+      "timestamp": "2026-07-30 20:31:08 UTC",
+      "level": "info",
+      "message": "Signal identified in queue: \u2705 TP HIT - USD/JPY\nDirection: BUY\nPips: +11.6..."
+    },
+    {
+      "timestamp": "2026-07-30 20:31:08 UTC",
+      "level": "success",
+      "message": "Added to execution queue: {'type': 'TPSL_HIT', 'result': 'TP', 'pair': 'USDJPY'}"
+    },
+    {
+      "timestamp": "2026-07-30 20:31:08 UTC",
+      "level": "info",
+      "message": "Signal identified in queue: \u2705 TP HIT - EUR/JPY\nDirection: BUY\nPips: +13.1..."
+    },
+    {
+      "timestamp": "2026-07-30 20:31:08 UTC",
+      "level": "success",
+      "message": "Added to execution queue: {'type': 'TPSL_HIT', 'result': 'TP', 'pair': 'EURJPY'}"
+    },
+    {
+      "timestamp": "2026-07-30 20:31:08 UTC",
+      "level": "info",
+      "message": "Signal identified in queue: \u2705 TP HIT - USD/JPY\nDirection: BUY\nPips: +11.6..."
+    },
+    {
+      "timestamp": "2026-07-30 20:31:08 UTC",
+      "level": "success",
+      "message": "Added to execution queue: {'type': 'TPSL_HIT', 'result': 'TP', 'pair': 'USDJPY'}"
+    },
+    {
+      "timestamp": "2026-07-30 20:31:08 UTC",
+      "level": "info",
+      "message": "Signal identified in queue: \u2705 TP HIT - EUR/JPY\nDirection: BUY\nPips: +13.1..."
+    },
+    {
+      "timestamp": "2026-07-30 20:31:08 UTC",
+      "level": "success",
+      "message": "Added to execution queue: {'type': 'TPSL_HIT', 'result': 'TP', 'pair': 'EURJPY'}"
+    },
+    {
+      "timestamp": "2026-07-30 20:31:08 UTC",
+      "level": "info",
+      "message": "Signal identified in queue: \u2705 TP HIT - USD/JPY\nDirection: BUY\nPips: +11.6..."
+    },
+    {
+      "timestamp": "2026-07-30 20:31:08 UTC",
+      "level": "success",
+      "message": "Added to execution queue: {'type': 'TPSL_HIT', 'result': 'TP', 'pair': 'USDJPY'}"
+    },
+    {
+      "timestamp": "2026-07-30 20:31:08 UTC",
+      "level": "info",
+      "message": "Signal identified in queue: \u2705 TP HIT - EUR/JPY\nDirection: BUY\nPips: +13.1..."
+    },
+    {
+      "timestamp": "2026-07-30 20:31:08 UTC",
+      "level": "success",
+      "message": "Added to execution queue: {'type': 'TPSL_HIT', 'result': 'TP', 'pair': 'EURJPY'}"
+    },
+    {
+      "timestamp": "2026-07-30 20:31:08 UTC",
+      "level": "info",
+      "message": "Signal identified in queue: \u2705 TP HIT - USD/JPY\nDirection: BUY\nPips: +11.6..."
+    },
+    {
+      "timestamp": "2026-07-30 20:31:08 UTC",
+      "level": "success",
+      "message": "Added to execution queue: {'type': 'TPSL_HIT', 'result': 'TP', 'pair': 'USDJPY'}"
+    },
+    {
+      "timestamp": "2026-07-30 20:31:08 UTC",
       "level": "info",
       "message": "Connecting to cTrader Open API (DEMO TCP Server)..."
     },
     {
-      "timestamp": "2026-07-29 03:31:14 UTC",
+      "timestamp": "2026-07-30 20:31:09 UTC",
       "level": "info",
       "message": "TCP Connected. Sending application authentication..."
     },
     {
-      "timestamp": "2026-07-29 03:31:15 UTC",
+      "timestamp": "2026-07-30 20:31:12 UTC",
       "level": "info",
       "message": "Application authorized. Discovering authorized cTID accounts for access token..."
     },
     {
-      "timestamp": "2026-07-29 03:31:16 UTC",
+      "timestamp": "2026-07-30 20:31:13 UTC",
       "level": "info",
       "message": "\ud83d\udccb cTrader token returned 4 linked account(s)."
     },
     {
-      "timestamp": "2026-07-29 03:31:16 UTC",
+      "timestamp": "2026-07-30 20:31:13 UTC",
       "level": "info",
       "message": "Discovered Accounts -> ID:47951199 (Login:5313108 | DEMO), ID:48013992 (Login:5865538 | DEMO), ID:48029390 (Login:1117964 | DEMO), ID:48038510 (Login:2454414 | DEMO)"
     },
     {
-      "timestamp": "2026-07-29 03:31:16 UTC",
+      "timestamp": "2026-07-30 20:31:13 UTC",
       "level": "info",
-      "message": "Sending Account Authorization for cTID Account 48038510 (Login: 2454414)..."
+      "message": "Sending Account Authorization for cTID Account 48038510..."
     },
     {
-      "timestamp": "2026-07-29 03:31:17 UTC",
+      "timestamp": "2026-07-30 20:31:14 UTC",
       "level": "success",
       "message": "cTrader Account 48038510 authorized successfully!"
     },
     {
-      "timestamp": "2026-07-29 03:31:18 UTC",
+      "timestamp": "2026-07-30 20:31:15 UTC",
       "level": "info",
-      "message": "Synced Trader State -> Live Balance: $6,979.16"
+      "message": "Synced Trader State -> Live Balance: $2,219.16"
     },
     {
-      "timestamp": "2026-07-29 03:31:19 UTC",
+      "timestamp": "2026-07-30 20:31:15 UTC",
       "level": "info",
-      "message": "Reconciliation retrieved: 1 open positions, 0 orders."
+      "message": "Reconciliation retrieved: 0 open positions, 0 orders."
     },
     {
-      "timestamp": "2026-07-29 03:31:19 UTC",
+      "timestamp": "2026-07-30 20:31:15 UTC",
       "level": "success",
-      "message": "Loaded 372 instruments from cTrader server!"
+      "message": "Loaded 382 instruments from cTrader server!"
     },
     {
-      "timestamp": "2026-07-29 03:31:19 UTC",
+      "timestamp": "2026-07-30 20:31:15 UTC",
       "level": "info",
-      "message": "Deals history retrieved: 23 historical deals."
+      "message": "\u26a1 Executing 18 pending trading command(s) over live TCP stream..."
     },
     {
-      "timestamp": "2026-07-29 03:31:19 UTC",
+      "timestamp": "2026-07-30 20:31:15 UTC",
+      "level": "info",
+      "message": "Symbol 'USDJPY' found exact match in cTrader (ID: 4)"
+    },
+    {
+      "timestamp": "2026-07-30 20:31:15 UTC",
+      "level": "info",
+      "message": "\ud83c\udfaf Sending ProtoOANewOrderReq: SELL USDJPY (SymbolID: 4) | Vol: 1000..."
+    },
+    {
+      "timestamp": "2026-07-30 20:31:15 UTC",
+      "level": "info",
+      "message": "  \u2514\u2500 Stop Loss set: 163.49"
+    },
+    {
+      "timestamp": "2026-07-30 20:31:15 UTC",
+      "level": "info",
+      "message": "  \u2514\u2500 Take Profit set: 163.144"
+    },
+    {
+      "timestamp": "2026-07-30 20:31:15 UTC",
       "level": "success",
-      "message": "\u2705 Complete Account, Position & Deals Data synchronized via TCP Protobuf! Standing by for execution confirmations..."
+      "message": "\u2713 Market order SENT to cTrader: SELL 0.01 USDJPY | Vol=1000 | SL=163.49 | TP=163.144 | Acct=48038510 | SymID=4 (dispatched total: 1)"
     },
     {
-      "timestamp": "2026-07-29 03:31:19 UTC",
+      "timestamp": "2026-07-30 20:31:15 UTC",
       "level": "info",
-      "message": "\u23f1\ufe0f  Waiting 0.5s for cTrader execution confirmations before closing connection..."
+      "message": "Symbol 'XAUUSD' found exact match in cTrader (ID: 41)"
     },
     {
-      "timestamp": "2026-07-29 03:31:20 UTC",
+      "timestamp": "2026-07-30 20:31:15 UTC",
       "level": "info",
-      "message": "cTrader TCP connection disconnected safely."
+      "message": "\ud83c\udfaf Sending ProtoOANewOrderReq: BUY XAUUSD (SymbolID: 41) | Vol: 5000..."
     },
     {
-      "timestamp": "2026-07-29 03:31:20 UTC",
+      "timestamp": "2026-07-30 20:31:15 UTC",
       "level": "info",
-      "message": "No new executable trade signals found in current cycle."
+      "message": "  \u2514\u2500 Stop Loss set: 4061.69"
     },
     {
-      "timestamp": "2026-07-29 03:31:20 UTC",
+      "timestamp": "2026-07-30 20:31:15 UTC",
+      "level": "info",
+      "message": "  \u2514\u2500 Take Profit set: 4112.32"
+    },
+    {
+      "timestamp": "2026-07-30 20:31:15 UTC",
       "level": "success",
-      "message": "\u26a1 Dashboard index.html, login.html, and portal.html generated instantly in single unified cycle!"
+      "message": "\u2713 Market order SENT to cTrader: BUY 0.05 XAUUSD | Vol=5000 | SL=4061.69 | TP=4112.32 | Acct=48038510 | SymID=41 (dispatched total: 2)"
     },
     {
-      "timestamp": "2026-07-29 03:32:34 UTC",
+      "timestamp": "2026-07-30 20:31:15 UTC",
       "level": "info",
-      "message": "=== TRADING BOT CYCLE STARTED === [v6-FINAL-closed-deals-history-complete]"
+      "message": "Symbol 'CHFJPY' found exact match in cTrader (ID: 13)"
     },
     {
-      "timestamp": "2026-07-29 03:32:34 UTC",
+      "timestamp": "2026-07-30 20:31:15 UTC",
+      "level": "info",
+      "message": "\ud83c\udfaf Sending ProtoOANewOrderReq: BUY CHFJPY (SymbolID: 13) | Vol: 1000..."
+    },
+    {
+      "timestamp": "2026-07-30 20:31:15 UTC",
+      "level": "info",
+      "message": "  \u2514\u2500 Stop Loss set: 200.471"
+    },
+    {
+      "timestamp": "2026-07-30 20:31:15 UTC",
+      "level": "info",
+      "message": "  \u2514\u2500 Take Profit set: 201.125"
+    },
+    {
+      "timestamp": "2026-07-30 20:31:15 UTC",
       "level": "success",
-      "message": "\u2705 All 10 GitHub repository secrets detected successfully!"
+      "message": "\u2713 Market order SENT to cTrader: BUY 0.01 CHFJPY | Vol=1000 | SL=200.471 | TP=201.125 | Acct=48038510 | SymID=13 (dispatched total: 3)"
     },
     {
-      "timestamp": "2026-07-29 03:32:34 UTC",
+      "timestamp": "2026-07-30 20:31:15 UTC",
       "level": "info",
-      "message": "\ud83d\udd12 Diagnostics -> Client ID: 337***NU (len: 56) | Secret: ner***Bn (len: 50) | AccessToken: GXG***LM (len: 43)"
+      "message": "Symbol 'USDJPY' found exact match in cTrader (ID: 4)"
     },
     {
-      "timestamp": "2026-07-29 03:32:34 UTC",
+      "timestamp": "2026-07-30 20:31:15 UTC",
       "level": "info",
-      "message": "\ud83d\udcca cTrader Target Account: 2454414 | Server Environment: DEMO"
+      "message": "Processing SL HIT -> Scanning positions for USDJPY (ID:4)..."
     },
     {
-      "timestamp": "2026-07-29 03:32:34 UTC",
+      "timestamp": "2026-07-30 20:31:15 UTC",
       "level": "info",
-      "message": "\ud83d\udcf1 Telegram Config: Token present | Chat Target: -1003257960170"
+      "message": "Symbol 'EURJPY' found exact match in cTrader (ID: 3)"
     },
     {
-      "timestamp": "2026-07-29 03:32:34 UTC",
+      "timestamp": "2026-07-30 20:31:15 UTC",
+      "level": "info",
+      "message": "\ud83c\udfaf Sending ProtoOANewOrderReq: BUY EURJPY (SymbolID: 3) | Vol: 1000..."
+    },
+    {
+      "timestamp": "2026-07-30 20:31:15 UTC",
+      "level": "info",
+      "message": "  \u2514\u2500 Stop Loss set: 187.052"
+    },
+    {
+      "timestamp": "2026-07-30 20:31:15 UTC",
+      "level": "info",
+      "message": "  \u2514\u2500 Take Profit set: 187.466"
+    },
+    {
+      "timestamp": "2026-07-30 20:31:15 UTC",
       "level": "success",
-      "message": "Telegram Bot verified successfully! (@Forexunitedbot) | Chat Target: -1003257960170"
+      "message": "\u2713 Market order SENT to cTrader: BUY 0.01 EURJPY | Vol=1000 | SL=187.052 | TP=187.466 | Acct=48038510 | SymID=3 (dispatched total: 4)"
     },
     {
-      "timestamp": "2026-07-29 03:32:34 UTC",
+      "timestamp": "2026-07-30 20:31:15 UTC",
       "level": "info",
-      "message": "Checking Telegram updates starting after offset (last_update_id): 841819883..."
+      "message": "Symbol 'XAUUSD' found exact match in cTrader (ID: 41)"
     },
     {
-      "timestamp": "2026-07-29 03:32:39 UTC",
+      "timestamp": "2026-07-30 20:31:15 UTC",
       "level": "info",
-      "message": "Fetched 0 new message(s) from Telegram (new highest update_id: 841819883)."
+      "message": "Processing SL HIT -> Scanning positions for XAUUSD (ID:41)..."
     },
     {
-      "timestamp": "2026-07-29 03:32:39 UTC",
+      "timestamp": "2026-07-30 20:31:15 UTC",
       "level": "info",
-      "message": "Connecting to cTrader Open API (DEMO TCP Server)..."
+      "message": "Symbol 'CHFJPY' found exact match in cTrader (ID: 13)"
     },
     {
-      "timestamp": "2026-07-29 03:32:39 UTC",
+      "timestamp": "2026-07-30 20:31:15 UTC",
       "level": "info",
-      "message": "TCP Connected. Sending application authentication..."
+      "message": "Processing SL HIT -> Scanning positions for CHFJPY (ID:13)..."
     },
     {
-      "timestamp": "2026-07-29 03:32:40 UTC",
+      "timestamp": "2026-07-30 20:31:15 UTC",
       "level": "info",
-      "message": "Application authorized. Discovering authorized cTID accounts for access token..."
+      "message": "Symbol 'NZDJPY' found exact match in cTrader (ID: 21)"
     },
     {
-      "timestamp": "2026-07-29 03:32:41 UTC",
+      "timestamp": "2026-07-30 20:31:15 UTC",
       "level": "info",
-      "message": "\ud83d\udccb cTrader token returned 4 linked account(s)."
+      "message": "\ud83c\udfaf Sending ProtoOANewOrderReq: BUY NZDJPY (SymbolID: 21) | Vol: 1000..."
     },
     {
-      "timestamp": "2026-07-29 03:32:41 UTC",
+      "timestamp": "2026-07-30 20:31:15 UTC",
       "level": "info",
-      "message": "Discovered Accounts -> ID:47951199 (Login:5313108 | DEMO), ID:48013992 (Login:5865538 | DEMO), ID:48029390 (Login:1117964 | DEMO), ID:48038510 (Login:2454414 | DEMO)"
+      "message": "  \u2514\u2500 Stop Loss set: 94.93"
     },
     {
-      "timestamp": "2026-07-29 03:32:41 UTC",
+      "timestamp": "2026-07-30 20:31:15 UTC",
       "level": "info",
-      "message": "Sending Account Authorization for cTID Account 48038510 (Login: 2454414)..."
+      "message": "  \u2514\u2500 Take Profit set: 95.262"
     },
     {
-      "timestamp": "2026-07-29 03:32:42 UTC",
+      "timestamp": "2026-07-30 20:31:15 UTC",
       "level": "success",
-      "message": "cTrader Account 48038510 authorized successfully!"
+      "message": "\u2713 Market order SENT to cTrader: BUY 0.01 NZDJPY | Vol=1000 | SL=94.93 | TP=95.262 | Acct=48038510 | SymID=21 (dispatched total: 5)"
     },
     {
-      "timestamp": "2026-07-29 03:32:43 UTC",
+      "timestamp": "2026-07-30 20:31:15 UTC",
       "level": "info",
-      "message": "Synced Trader State -> Live Balance: $6,979.16"
+      "message": "Symbol 'NZDJPY' found exact match in cTrader (ID: 21)"
     },
     {
-      "timestamp": "2026-07-29 03:32:43 UTC",
+      "timestamp": "2026-07-30 20:31:15 UTC",
       "level": "info",
-      "message": "Reconciliation retrieved: 1 open positions, 0 orders."
+      "message": "Processing TP HIT -> Scanning positions for NZDJPY (ID:21)..."
     },
     {
-      "timestamp": "2026-07-29 03:32:43 UTC",
+      "timestamp": "2026-07-30 20:31:15 UTC",
+      "level": "info",
+      "message": "Symbol 'EURJPY' found exact match in cTrader (ID: 3)"
+    },
+    {
+      "timestamp": "2026-07-30 20:31:15 UTC",
+      "level": "info",
+      "message": "Processing SL HIT -> Scanning positions for EURJPY (ID:3)..."
+    },
+    {
+      "timestamp": "2026-07-30 20:31:15 UTC",
+      "level": "info",
+      "message": "Symbol 'NZDJPY' found exact match in cTrader (ID: 21)"
+    },
+    {
+      "timestamp": "2026-07-30 20:31:15 UTC",
+      "level": "info",
+      "message": "\ud83c\udfaf Sending ProtoOANewOrderReq: BUY NZDJPY (SymbolID: 21) | Vol: 1000..."
+    },
+    {
+      "timestamp": "2026-07-30 20:31:15 UTC",
+      "level": "info",
+      "message": "  \u2514\u2500 Stop Loss set: 94.987"
+    },
+    {
+      "timestamp": "2026-07-30 20:31:15 UTC",
+      "level": "info",
+      "message": "  \u2514\u2500 Take Profit set: 95.339"
+    },
+    {
+      "timestamp": "2026-07-30 20:31:15 UTC",
       "level": "success",
-      "message": "Loaded 372 instruments from cTrader server!"
+      "message": "\u2713 Market order SENT to cTrader: BUY 0.01 NZDJPY | Vol=1000 | SL=94.987 | TP=95.339 | Acct=48038510 | SymID=21 (dispatched total: 6)"
     },
     {
-      "timestamp": "2026-07-29 03:32:43 UTC",
+      "timestamp": "2026-07-30 20:31:15 UTC",
       "level": "info",
-      "message": "Deals history retrieved: 23 historical deals."
+      "message": "Symbol 'CADJPY' found exact match in cTrader (ID: 15)"
     },
     {
-      "timestamp": "2026-07-29 03:32:43 UTC",
+      "timestamp": "2026-07-30 20:31:15 UTC",
+      "level": "info",
+      "message": "\ud83c\udfaf Sending ProtoOANewOrderReq: SELL CADJPY (SymbolID: 15) | Vol: 1000..."
+    },
+    {
+      "timestamp": "2026-07-30 20:31:15 UTC",
+      "level": "info",
+      "message": "  \u2514\u2500 Stop Loss set: 116.128"
+    },
+    {
+      "timestamp": "2026-07-30 20:31:15 UTC",
+      "level": "info",
+      "message": "  \u2514\u2500 Take Profit set: 115.811"
+    },
+    {
+      "timestamp": "2026-07-30 20:31:15 UTC",
       "level": "success",
-      "message": "\u2705 Complete Account, Position & Deals Data synchronized via TCP Protobuf! Standing by for execution confirmations..."
+      "message": "\u2713 Market order SENT to cTrader: SELL 0.01 CADJPY | Vol=1000 | SL=116.128 | TP=115.811 | Acct=48038510 | SymID=15 (dispatched total: 7)"
     },
     {
-      "timestamp": "2026-07-29 03:32:43 UTC",
+      "timestamp": "2026-07-30 20:31:15 UTC",
       "level": "info",
-      "message": "\u23f1\ufe0f  Waiting 0.5s for cTrader execution confirmations before closing connection..."
+      "message": "Symbol 'EURNZD' found exact match in cTrader (ID: 26)"
     },
     {
-      "timestamp": "2026-07-29 03:32:43 UTC",
+      "timestamp": "2026-07-30 20:31:15 UTC",
       "level": "info",
-      "message": "cTrader TCP connection disconnected safely."
+      "message": "\ud83c\udfaf Sending ProtoOANewOrderReq: SELL EURNZD (SymbolID: 26) | Vol: 1000..."
     },
     {
-      "timestamp": "2026-07-29 03:32:43 UTC",
+      "timestamp": "2026-07-30 20:31:15 UTC",
       "level": "info",
-      "message": "No new executable trade signals found in current cycle."
+      "message": "  \u2514\u2500 Stop Loss set: 1.96912"
     },
     {
-      "timestamp": "2026-07-29 03:32:43 UTC",
+      "timestamp": "2026-07-30 20:31:15 UTC",
+      "level": "info",
+      "message": "  \u2514\u2500 Take Profit set: 1.96291"
+    },
+    {
+      "timestamp": "2026-07-30 20:31:15 UTC",
       "level": "success",
-      "message": "\u26a1 Dashboard index.html, login.html, and portal.html generated instantly in single unified cycle!"
+      "message": "\u2713 Market order SENT to cTrader: SELL 0.01 EURNZD | Vol=1000 | SL=1.96912 | TP=1.96291 | Acct=48038510 | SymID=26 (dispatched total: 8)"
     },
     {
-      "timestamp": "2026-07-29 03:34:33 UTC",
+      "timestamp": "2026-07-30 20:31:15 UTC",
       "level": "info",
-      "message": "=== TRADING BOT CYCLE STARTED === [v6-FINAL-closed-deals-history-complete]"
+      "message": "Symbol 'NZDJPY' found exact match in cTrader (ID: 21)"
     },
     {
-      "timestamp": "2026-07-29 03:34:33 UTC",
+      "timestamp": "2026-07-30 20:31:15 UTC",
+      "level": "info",
+      "message": "Processing SL HIT -> Scanning positions for NZDJPY (ID:21)..."
+    },
+    {
+      "timestamp": "2026-07-30 20:31:15 UTC",
+      "level": "info",
+      "message": "Symbol 'CADJPY' found exact match in cTrader (ID: 15)"
+    },
+    {
+      "timestamp": "2026-07-30 20:31:15 UTC",
+      "level": "info",
+      "message": "Processing TP HIT -> Scanning positions for CADJPY (ID:15)..."
+    },
+    {
+      "timestamp": "2026-07-30 20:31:15 UTC",
+      "level": "info",
+      "message": "Symbol 'EURNZD' found exact match in cTrader (ID: 26)"
+    },
+    {
+      "timestamp": "2026-07-30 20:31:15 UTC",
+      "level": "info",
+      "message": "Processing TP HIT -> Scanning positions for EURNZD (ID:26)..."
+    },
+    {
+      "timestamp": "2026-07-30 20:31:15 UTC",
+      "level": "info",
+      "message": "Symbol 'EURJPY' found exact match in cTrader (ID: 3)"
+    },
+    {
+      "timestamp": "2026-07-30 20:31:15 UTC",
+      "level": "info",
+      "message": "Processing TP HIT -> Scanning positions for EURJPY (ID:3)..."
+    },
+    {
+      "timestamp": "2026-07-30 20:31:15 UTC",
+      "level": "info",
+      "message": "Symbol 'USDJPY' found exact match in cTrader (ID: 4)"
+    },
+    {
+      "timestamp": "2026-07-30 20:31:15 UTC",
+      "level": "info",
+      "message": "Processing TP HIT -> Scanning positions for USDJPY (ID:4)..."
+    },
+    {
+      "timestamp": "2026-07-30 20:31:15 UTC",
+      "level": "info",
+      "message": "\ud83d\udd0d 8 order(s) dispatched. Scheduling verification reconcile in 3s (positions before: 0)..."
+    },
+    {
+      "timestamp": "2026-07-30 20:31:15 UTC",
       "level": "success",
-      "message": "\u2705 All 10 GitHub repository secrets detected successfully!"
+      "message": "\ud83d\udcdc Retrieved 8 trade(s) (16 deals) from cTrader \u2014 trades ARE executing!"
     },
     {
-      "timestamp": "2026-07-29 03:34:33 UTC",
+      "timestamp": "2026-07-30 20:31:18 UTC",
       "level": "info",
-      "message": "\ud83d\udd12 Diagnostics -> Client ID: 337***NU (len: 56) | Secret: ner***Bn (len: 50) | AccessToken: GXG***LM (len: 43)"
+      "message": "\ud83d\udd0d Verification reconcile sent. Waiting for broker position snapshot..."
     },
     {
-      "timestamp": "2026-07-29 03:34:33 UTC",
-      "level": "info",
-      "message": "\ud83d\udcca cTrader Target Account: 2454414 | Server Environment: DEMO"
-    },
-    {
-      "timestamp": "2026-07-29 03:34:33 UTC",
-      "level": "info",
-      "message": "\ud83d\udcf1 Telegram Config: Token present | Chat Target: -1003257960170"
-    },
-    {
-      "timestamp": "2026-07-29 03:34:33 UTC",
-      "level": "success",
-      "message": "Telegram Bot verified successfully! (@Forexunitedbot) | Chat Target: -1003257960170"
-    },
-    {
-      "timestamp": "2026-07-29 03:34:33 UTC",
-      "level": "info",
-      "message": "Checking Telegram updates starting after offset (last_update_id): 841819883..."
-    },
-    {
-      "timestamp": "2026-07-29 03:34:38 UTC",
-      "level": "info",
-      "message": "Fetched 0 new message(s) from Telegram (new highest update_id: 841819883)."
-    },
-    {
-      "timestamp": "2026-07-29 03:34:38 UTC",
-      "level": "info",
-      "message": "Connecting to cTrader Open API (DEMO TCP Server)..."
-    },
-    {
-      "timestamp": "2026-07-29 03:34:38 UTC",
-      "level": "info",
-      "message": "TCP Connected. Sending application authentication..."
-    },
-    {
-      "timestamp": "2026-07-29 03:34:39 UTC",
-      "level": "info",
-      "message": "Application authorized. Discovering authorized cTID accounts for access token..."
-    },
-    {
-      "timestamp": "2026-07-29 03:34:40 UTC",
-      "level": "info",
-      "message": "\ud83d\udccb cTrader token returned 4 linked account(s)."
-    },
-    {
-      "timestamp": "2026-07-29 03:34:40 UTC",
-      "level": "info",
-      "message": "Discovered Accounts -> ID:47951199 (Login:5313108 | DEMO), ID:48013992 (Login:5865538 | DEMO), ID:48029390 (Login:1117964 | DEMO), ID:48038510 (Login:2454414 | DEMO)"
-    },
-    {
-      "timestamp": "2026-07-29 03:34:40 UTC",
-      "level": "info",
-      "message": "Sending Account Authorization for cTID Account 48038510 (Login: 2454414)..."
-    },
-    {
-      "timestamp": "2026-07-29 03:34:41 UTC",
-      "level": "success",
-      "message": "cTrader Account 48038510 authorized successfully!"
-    },
-    {
-      "timestamp": "2026-07-29 03:34:42 UTC",
-      "level": "info",
-      "message": "Synced Trader State -> Live Balance: $6,979.16"
-    },
-    {
-      "timestamp": "2026-07-29 03:34:42 UTC",
-      "level": "success",
-      "message": "Loaded 372 instruments from cTrader server!"
-    },
-    {
-      "timestamp": "2026-07-29 03:34:42 UTC",
-      "level": "info",
-      "message": "Reconciliation retrieved: 1 open positions, 0 orders."
-    },
-    {
-      "timestamp": "2026-07-29 03:34:42 UTC",
-      "level": "info",
-      "message": "Deals history retrieved: 23 historical deals."
-    },
-    {
-      "timestamp": "2026-07-29 03:34:42 UTC",
-      "level": "success",
-      "message": "\u2705 Complete Account, Position & Deals Data synchronized via TCP Protobuf! Standing by for execution confirmations..."
-    },
-    {
-      "timestamp": "2026-07-29 03:34:42 UTC",
-      "level": "info",
-      "message": "\u23f1\ufe0f  Waiting 0.5s for cTrader execution confirmations before closing connection..."
-    },
-    {
-      "timestamp": "2026-07-29 03:34:43 UTC",
-      "level": "info",
-      "message": "cTrader TCP connection disconnected safely."
-    },
-    {
-      "timestamp": "2026-07-29 03:34:43 UTC",
-      "level": "info",
-      "message": "No new executable trade signals found in current cycle."
-    },
-    {
-      "timestamp": "2026-07-29 03:34:43 UTC",
-      "level": "success",
-      "message": "\u26a1 Dashboard index.html, login.html, and portal.html generated instantly in single unified cycle!"
-    },
-    {
-      "timestamp": "2026-07-29 03:36:33 UTC",
-      "level": "info",
-      "message": "=== TRADING BOT CYCLE STARTED === [v6-FINAL-closed-deals-history-complete]"
-    },
-    {
-      "timestamp": "2026-07-29 03:36:33 UTC",
-      "level": "success",
-      "message": "\u2705 All 10 GitHub repository secrets detected successfully!"
-    },
-    {
-      "timestamp": "2026-07-29 03:36:33 UTC",
-      "level": "info",
-      "message": "\ud83d\udd12 Diagnostics -> Client ID: 337***NU (len: 56) | Secret: ner***Bn (len: 50) | AccessToken: GXG***LM (len: 43)"
-    },
-    {
-      "timestamp": "2026-07-29 03:36:33 UTC",
-      "level": "info",
-      "message": "\ud83d\udcca cTrader Target Account: 2454414 | Server Environment: DEMO"
-    },
-    {
-      "timestamp": "2026-07-29 03:36:33 UTC",
-      "level": "info",
-      "message": "\ud83d\udcf1 Telegram Config: Token present | Chat Target: -1003257960170"
-    },
-    {
-      "timestamp": "2026-07-29 03:36:34 UTC",
-      "level": "success",
-      "message": "Telegram Bot verified successfully! (@Forexunitedbot) | Chat Target: -1003257960170"
-    },
-    {
-      "timestamp": "2026-07-29 03:36:34 UTC",
-      "level": "info",
-      "message": "Checking Telegram updates starting after offset (last_update_id): 841819883..."
-    },
-    {
-      "timestamp": "2026-07-29 03:36:38 UTC",
-      "level": "info",
-      "message": "Fetched 0 new message(s) from Telegram (new highest update_id: 841819883)."
-    },
-    {
-      "timestamp": "2026-07-29 03:36:38 UTC",
-      "level": "info",
-      "message": "Connecting to cTrader Open API (DEMO TCP Server)..."
-    },
-    {
-      "timestamp": "2026-07-29 03:36:39 UTC",
-      "level": "info",
-      "message": "TCP Connected. Sending application authentication..."
-    },
-    {
-      "timestamp": "2026-07-29 03:36:40 UTC",
-      "level": "info",
-      "message": "Application authorized. Discovering authorized cTID accounts for access token..."
-    },
-    {
-      "timestamp": "2026-07-29 03:36:41 UTC",
-      "level": "info",
-      "message": "\ud83d\udccb cTrader token returned 4 linked account(s)."
-    },
-    {
-      "timestamp": "2026-07-29 03:36:41 UTC",
-      "level": "info",
-      "message": "Discovered Accounts -> ID:47951199 (Login:5313108 | DEMO), ID:48013992 (Login:5865538 | DEMO), ID:48029390 (Login:1117964 | DEMO), ID:48038510 (Login:2454414 | DEMO)"
-    },
-    {
-      "timestamp": "2026-07-29 03:36:41 UTC",
-      "level": "info",
-      "message": "Sending Account Authorization for cTID Account 48038510 (Login: 2454414)..."
-    },
-    {
-      "timestamp": "2026-07-29 03:36:42 UTC",
-      "level": "success",
-      "message": "cTrader Account 48038510 authorized successfully!"
-    },
-    {
-      "timestamp": "2026-07-29 03:36:43 UTC",
-      "level": "info",
-      "message": "Synced Trader State -> Live Balance: $6,979.16"
-    },
-    {
-      "timestamp": "2026-07-29 03:36:43 UTC",
-      "level": "info",
-      "message": "Reconciliation retrieved: 1 open positions, 0 orders."
-    },
-    {
-      "timestamp": "2026-07-29 03:36:43 UTC",
-      "level": "success",
-      "message": "Loaded 372 instruments from cTrader server!"
-    },
-    {
-      "timestamp": "2026-07-29 03:36:43 UTC",
-      "level": "info",
-      "message": "Deals history retrieved: 23 historical deals."
-    },
-    {
-      "timestamp": "2026-07-29 03:36:43 UTC",
-      "level": "success",
-      "message": "\u2705 Complete Account, Position & Deals Data synchronized via TCP Protobuf! Standing by for execution confirmations..."
-    },
-    {
-      "timestamp": "2026-07-29 03:36:43 UTC",
-      "level": "info",
-      "message": "\u23f1\ufe0f  Waiting 0.5s for cTrader execution confirmations before closing connection..."
-    },
-    {
-      "timestamp": "2026-07-29 03:36:43 UTC",
-      "level": "info",
-      "message": "cTrader TCP connection disconnected safely."
-    },
-    {
-      "timestamp": "2026-07-29 03:36:43 UTC",
-      "level": "info",
-      "message": "No new executable trade signals found in current cycle."
-    },
-    {
-      "timestamp": "2026-07-29 03:36:43 UTC",
-      "level": "success",
-      "message": "\u26a1 Dashboard index.html, login.html, and portal.html generated instantly in single unified cycle!"
+      "timestamp": "2026-07-30 20:31:20 UTC",
+      "level": "error",
+      "message": "Order Dispatch Error: [Failure instance: Traceback: <class 'twisted.internet.defer.TimeoutError'>: (5, 'Deferred')\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:798:timeItOut\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:957:cancel\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:916:errback\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:984:_startRunCallbacks\n--- <exception caught here> ---\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:1078:_runCallbacks\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:809:convertCancelled\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:293:_cancelledToTimedOutError\n]"
     },
     {
-      "timestamp": "2026-07-29 03:38:39 UTC",
-      "level": "info",
-      "message": "=== TRADING BOT CYCLE STARTED === [v6-FINAL-closed-deals-history-complete]"
-    },
-    {
-      "timestamp": "2026-07-29 03:38:39 UTC",
-      "level": "success",
-      "message": "\u2705 All 10 GitHub repository secrets detected successfully!"
-    },
-    {
-      "timestamp": "2026-07-29 03:38:39 UTC",
-      "level": "info",
-      "message": "\ud83d\udd12 Diagnostics -> Client ID: 337***NU (len: 56) | Secret: ner***Bn (len: 50) | AccessToken: GXG***LM (len: 43)"
-    },
-    {
-      "timestamp": "2026-07-29 03:38:39 UTC",
-      "level": "info",
-      "message": "\ud83d\udcca cTrader Target Account: 2454414 | Server Environment: DEMO"
-    },
-    {
-      "timestamp": "2026-07-29 03:38:39 UTC",
-      "level": "info",
-      "message": "\ud83d\udcf1 Telegram Config: Token present | Chat Target: -1003257960170"
-    },
-    {
-      "timestamp": "2026-07-29 03:38:39 UTC",
-      "level": "success",
-      "message": "Telegram Bot verified successfully! (@Forexunitedbot) | Chat Target: -1003257960170"
-    },
-    {
-      "timestamp": "2026-07-29 03:38:39 UTC",
-      "level": "info",
-      "message": "Checking Telegram updates starting after offset (last_update_id): 841819883..."
-    },
-    {
-      "timestamp": "2026-07-29 03:38:43 UTC",
-      "level": "info",
-      "message": "Fetched 0 new message(s) from Telegram (new highest update_id: 841819883)."
-    },
-    {
-      "timestamp": "2026-07-29 03:38:43 UTC",
-      "level": "info",
-      "message": "Connecting to cTrader Open API (DEMO TCP Server)..."
-    },
-    {
-      "timestamp": "2026-07-29 03:38:44 UTC",
-      "level": "info",
-      "message": "TCP Connected. Sending application authentication..."
-    },
-    {
-      "timestamp": "2026-07-29 03:38:45 UTC",
-      "level": "info",
-      "message": "Application authorized. Discovering authorized cTID accounts for access token..."
-    },
-    {
-      "timestamp": "2026-07-29 03:38:46 UTC",
-      "level": "info",
-      "message": "\ud83d\udccb cTrader token returned 4 linked account(s)."
-    },
-    {
-      "timestamp": "2026-07-29 03:38:46 UTC",
-      "level": "info",
-      "message": "Discovered Accounts -> ID:47951199 (Login:5313108 | DEMO), ID:48013992 (Login:5865538 | DEMO), ID:48029390 (Login:1117964 | DEMO), ID:48038510 (Login:2454414 | DEMO)"
-    },
-    {
-      "timestamp": "2026-07-29 03:38:46 UTC",
-      "level": "info",
-      "message": "Sending Account Authorization for cTID Account 48038510 (Login: 2454414)..."
-    },
-    {
-      "timestamp": "2026-07-29 03:38:47 UTC",
-      "level": "success",
-      "message": "cTrader Account 48038510 authorized successfully!"
-    },
-    {
-      "timestamp": "2026-07-29 03:38:48 UTC",
-      "level": "info",
-      "message": "Synced Trader State -> Live Balance: $6,979.16"
-    },
-    {
-      "timestamp": "2026-07-29 03:38:48 UTC",
-      "level": "info",
-      "message": "Reconciliation retrieved: 1 open positions, 0 orders."
-    },
-    {
-      "timestamp": "2026-07-29 03:38:48 UTC",
-      "level": "success",
-      "message": "Loaded 372 instruments from cTrader server!"
-    },
-    {
-      "timestamp": "2026-07-29 03:38:48 UTC",
-      "level": "info",
-      "message": "Deals history retrieved: 23 historical deals."
-    },
-    {
-      "timestamp": "2026-07-29 03:38:48 UTC",
-      "level": "success",
-      "message": "\u2705 Complete Account, Position & Deals Data synchronized via TCP Protobuf! Standing by for execution confirmations..."
-    },
-    {
-      "timestamp": "2026-07-29 03:38:48 UTC",
-      "level": "info",
-      "message": "\u23f1\ufe0f  Waiting 0.5s for cTrader execution confirmations before closing connection..."
-    },
-    {
-      "timestamp": "2026-07-29 03:38:48 UTC",
-      "level": "info",
-      "message": "cTrader TCP connection disconnected safely."
-    },
-    {
-      "timestamp": "2026-07-29 03:38:48 UTC",
-      "level": "info",
-      "message": "No new executable trade signals found in current cycle."
-    },
-    {
-      "timestamp": "2026-07-29 03:38:48 UTC",
-      "level": "success",
-      "message": "\u26a1 Dashboard index.html, login.html, and portal.html generated instantly in single unified cycle!"
-    },
-    {
-      "timestamp": "2026-07-29 03:40:52 UTC",
-      "level": "info",
-      "message": "=== TRADING BOT CYCLE STARTED === [v6-FINAL-closed-deals-history-complete]"
-    },
-    {
-      "timestamp": "2026-07-29 03:40:52 UTC",
-      "level": "success",
-      "message": "\u2705 All 10 GitHub repository secrets detected successfully!"
-    },
-    {
-      "timestamp": "2026-07-29 03:40:52 UTC",
-      "level": "info",
-      "message": "\ud83d\udd12 Diagnostics -> Client ID: 337***NU (len: 56) | Secret: ner***Bn (len: 50) | AccessToken: GXG***LM (len: 43)"
-    },
-    {
-      "timestamp": "2026-07-29 03:40:52 UTC",
-      "level": "info",
-      "message": "\ud83d\udcca cTrader Target Account: 2454414 | Server Environment: DEMO"
-    },
-    {
-      "timestamp": "2026-07-29 03:40:52 UTC",
-      "level": "info",
-      "message": "\ud83d\udcf1 Telegram Config: Token present | Chat Target: -1003257960170"
-    },
-    {
-      "timestamp": "2026-07-29 03:40:53 UTC",
-      "level": "success",
-      "message": "Telegram Bot verified successfully! (@Forexunitedbot) | Chat Target: -1003257960170"
-    },
-    {
-      "timestamp": "2026-07-29 03:40:53 UTC",
-      "level": "info",
-      "message": "Checking Telegram updates starting after offset (last_update_id): 841819883..."
-    },
-    {
-      "timestamp": "2026-07-29 03:40:57 UTC",
-      "level": "info",
-      "message": "Fetched 0 new message(s) from Telegram (new highest update_id: 841819883)."
-    },
-    {
-      "timestamp": "2026-07-29 03:40:57 UTC",
-      "level": "info",
-      "message": "Connecting to cTrader Open API (DEMO TCP Server)..."
-    },
-    {
-      "timestamp": "2026-07-29 03:40:57 UTC",
-      "level": "info",
-      "message": "TCP Connected. Sending application authentication..."
+      "timestamp": "2026-07-30 20:31:20 UTC",
+      "level": "error",
+      "message": "Order Dispatch Error: [Failure instance: Traceback: <class 'twisted.internet.defer.TimeoutError'>: (5, 'Deferred')\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:798:timeItOut\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:957:cancel\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:916:errback\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:984:_startRunCallbacks\n--- <exception caught here> ---\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:1078:_runCallbacks\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:809:convertCancelled\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:293:_cancelledToTimedOutError\n]"
     },
     {
-      "timestamp": "2026-07-29 03:40:58 UTC",
-      "level": "info",
-      "message": "Application authorized. Discovering authorized cTID accounts for access token..."
-    },
-    {
-      "timestamp": "2026-07-29 03:40:59 UTC",
-      "level": "info",
-      "message": "\ud83d\udccb cTrader token returned 4 linked account(s)."
-    },
-    {
-      "timestamp": "2026-07-29 03:40:59 UTC",
-      "level": "info",
-      "message": "Discovered Accounts -> ID:47951199 (Login:5313108 | DEMO), ID:48013992 (Login:5865538 | DEMO), ID:48029390 (Login:1117964 | DEMO), ID:48038510 (Login:2454414 | DEMO)"
-    },
-    {
-      "timestamp": "2026-07-29 03:40:59 UTC",
-      "level": "info",
-      "message": "Sending Account Authorization for cTID Account 48038510 (Login: 2454414)..."
-    },
-    {
-      "timestamp": "2026-07-29 03:41:00 UTC",
-      "level": "success",
-      "message": "cTrader Account 48038510 authorized successfully!"
-    },
-    {
-      "timestamp": "2026-07-29 03:41:01 UTC",
-      "level": "info",
-      "message": "Synced Trader State -> Live Balance: $6,979.16"
+      "timestamp": "2026-07-30 20:31:20 UTC",
+      "level": "error",
+      "message": "Order Dispatch Error: [Failure instance: Traceback: <class 'twisted.internet.defer.TimeoutError'>: (5, 'Deferred')\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:798:timeItOut\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:957:cancel\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:916:errback\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:984:_startRunCallbacks\n--- <exception caught here> ---\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:1078:_runCallbacks\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:809:convertCancelled\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:293:_cancelledToTimedOutError\n]"
     },
     {
-      "timestamp": "2026-07-29 03:41:01 UTC",
-      "level": "info",
-      "message": "Reconciliation retrieved: 1 open positions, 0 orders."
-    },
-    {
-      "timestamp": "2026-07-29 03:41:02 UTC",
-      "level": "success",
-      "message": "Loaded 372 instruments from cTrader server!"
-    },
-    {
-      "timestamp": "2026-07-29 03:41:02 UTC",
-      "level": "info",
-      "message": "Deals history retrieved: 23 historical deals."
-    },
-    {
-      "timestamp": "2026-07-29 03:41:02 UTC",
-      "level": "success",
-      "message": "\u2705 Complete Account, Position & Deals Data synchronized via TCP Protobuf! Standing by for execution confirmations..."
+      "timestamp": "2026-07-30 20:31:20 UTC",
+      "level": "error",
+      "message": "Order Dispatch Error: [Failure instance: Traceback: <class 'twisted.internet.defer.TimeoutError'>: (5, 'Deferred')\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:798:timeItOut\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:957:cancel\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:916:errback\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:984:_startRunCallbacks\n--- <exception caught here> ---\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:1078:_runCallbacks\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:809:convertCancelled\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:293:_cancelledToTimedOutError\n]"
     },
     {
-      "timestamp": "2026-07-29 03:41:02 UTC",
-      "level": "info",
-      "message": "\u23f1\ufe0f  Waiting 0.5s for cTrader execution confirmations before closing connection..."
-    },
-    {
-      "timestamp": "2026-07-29 03:41:02 UTC",
-      "level": "info",
-      "message": "cTrader TCP connection disconnected safely."
+      "timestamp": "2026-07-30 20:31:20 UTC",
+      "level": "error",
+      "message": "Order Dispatch Error: [Failure instance: Traceback: <class 'twisted.internet.defer.TimeoutError'>: (5, 'Deferred')\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:798:timeItOut\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:957:cancel\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:916:errback\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:984:_startRunCallbacks\n--- <exception caught here> ---\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:1078:_runCallbacks\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:809:convertCancelled\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:293:_cancelledToTimedOutError\n]"
     },
-    {
-      "timestamp": "2026-07-29 03:41:02 UTC",
-      "level": "info",
-      "message": "No new executable trade signals found in current cycle."
-    },
-    {
-      "timestamp": "2026-07-29 03:41:02 UTC",
-      "level": "success",
-      "message": "\u26a1 Dashboard index.html, login.html, and portal.html generated instantly in single unified cycle!"
-    }
-  ],
-  "alerts": [
     {
-      "timestamp": "2026-07-27 04:02:40 UTC",
-      "level": "warning",
-      "message": "\u26a0\ufe0f 1 order(s) dispatched. Offset committed to 841819816 (no retry to avoid duplicate trades). Check Open Positions to verify fill."
+      "timestamp": "2026-07-30 20:31:20 UTC",
+      "level": "error",
+      "message": "Order Dispatch Error: [Failure instance: Traceback: <class 'twisted.internet.defer.TimeoutError'>: (5, 'Deferred')\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:798:timeItOut\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:957:cancel\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:916:errback\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:984:_startRunCallbacks\n--- <exception caught here> ---\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:1078:_runCallbacks\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:809:convertCancelled\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:293:_cancelledToTimedOutError\n]"
     },
     {
-      "timestamp": "2026-07-27 05:02:39 UTC",
-      "level": "warning",
-      "message": "\u26a0\ufe0f Verify reconcile: positions unchanged (0 -> 0). The dispatched order did NOT open a position (rejected or not processed by broker)."
+      "timestamp": "2026-07-30 20:31:20 UTC",
+      "level": "error",
+      "message": "Order Dispatch Error: [Failure instance: Traceback: <class 'twisted.internet.defer.TimeoutError'>: (5, 'Deferred')\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:798:timeItOut\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:957:cancel\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:916:errback\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:984:_startRunCallbacks\n--- <exception caught here> ---\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:1078:_runCallbacks\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:809:convertCancelled\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:293:_cancelledToTimedOutError\n]"
     },
     {
-      "timestamp": "2026-07-27 05:02:40 UTC",
-      "level": "warning",
-      "message": "\u26a0\ufe0f 3 order(s) dispatched. Offset committed to 841819820 (no retry to avoid duplicate trades). Check Open Positions to verify fill."
+      "timestamp": "2026-07-30 20:31:20 UTC",
+      "level": "error",
+      "message": "Order Dispatch Error: [Failure instance: Traceback: <class 'twisted.internet.defer.TimeoutError'>: (5, 'Deferred')\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:798:timeItOut\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:957:cancel\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:916:errback\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:984:_startRunCallbacks\n--- <exception caught here> ---\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:1078:_runCallbacks\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:809:convertCancelled\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:293:_cancelledToTimedOutError\n]"
     },
     {
-      "timestamp": "2026-07-27 05:06:54 UTC",
+      "timestamp": "2026-07-30 20:31:23 UTC",
       "level": "warning",
       "message": "\u23f3 A cTrader request timed out/disconnected (intermittent network). Continuing to wait for other responses... ([Failure instance: Traceback: <class 'twisted.internet.defer.TimeoutError'>: (5, 'Deferred)"
     },
     {
-      "timestamp": "2026-07-27 05:54:40 UTC",
-      "level": "warning",
-      "message": "\u23f3 A cTrader request timed out/disconnected (intermittent network). Continuing to wait for other responses... ([Failure instance: Traceback: <class 'twisted.internet.defer.TimeoutError'>: (5, 'Deferred)"
-    },
-    {
-      "timestamp": "2026-07-27 05:55:09 UTC",
-      "level": "warning",
-      "message": "TCP sync timeout reached (Trd:False, Rec:False, Sym:False)."
-    },
-    {
-      "timestamp": "2026-07-27 06:19:11 UTC",
-      "level": "warning",
-      "message": "TCP sync timeout reached (Trd:False, Rec:False, Sym:False)."
-    },
-    {
-      "timestamp": "2026-07-27 06:42:50 UTC",
-      "level": "warning",
-      "message": "\u23f3 A cTrader request timed out/disconnected (intermittent network). Continuing to wait for other responses... ([Failure instance: Traceback: <class 'twisted.internet.defer.TimeoutError'>: (5, 'Deferred)"
-    },
-    {
-      "timestamp": "2026-07-27 06:44:55 UTC",
-      "level": "warning",
-      "message": "\u23f3 A cTrader request timed out/disconnected (intermittent network). Continuing to wait for other responses... ([Failure instance: Traceback: <class 'twisted.internet.defer.TimeoutError'>: (5, 'Deferred)"
-    },
-    {
-      "timestamp": "2026-07-27 07:03:02 UTC",
-      "level": "warning",
-      "message": "\u23f3 A cTrader request timed out/disconnected (intermittent network). Continuing to wait for other responses... ([Failure instance: Traceback: <class 'twisted.internet.defer.TimeoutError'>: (5, 'Deferred)"
-    },
-    {
-      "timestamp": "2026-07-27 07:03:12 UTC",
+      "timestamp": "2026-07-30 20:31:43 UTC",
       "level": "warning",
       "message": "TCP sync timeout reached (Trd:True, Rec:True, Sym:True)."
     },
+    {
+      "timestamp": "2026-07-30 20:31:43 UTC",
+      "level": "info",
+      "message": "\u2501\u2501\u2501 TRADE CYCLE SUMMARY \u2501\u2501\u2501 Signals: 18 (new orders: True, manage ops: True) | Dispatched: 8 | Confirmed by cTrader: 0 | Broker error: none"
+    },
+    {
+      "timestamp": "2026-07-30 20:31:43 UTC",
+      "level": "warning",
+      "message": "\u26a0\ufe0f 8 order(s) dispatched. Offset committed to 841819915 (no retry to avoid duplicate trades). Check Open Positions to verify fill."
+    },
+    {
+      "timestamp": "2026-07-30 20:31:44 UTC",
+      "level": "info",
+      "message": "=== DASHBOARD GENERATION STARTED === [SCRIPT v11-clear-webhook-fix-409-missed-signals]"
+    },
+    {
+      "timestamp": "2026-07-30 20:31:44 UTC",
+      "level": "success",
+      "message": "\u2705 All 10 GitHub repository secrets detected successfully!"
+    },
+    {
+      "timestamp": "2026-07-30 20:31:44 UTC",
+      "level": "info",
+      "message": "\ud83d\udd12 Diagnostics -> Client ID: 337***NU (len: 56) | Secret: ner***Bn (len: 50) | AccessToken: GXG***LM (len: 43)"
+    },
+    {
+      "timestamp": "2026-07-30 20:31:44 UTC",
+      "level": "info",
+      "message": "\ud83d\udcca cTrader Target Account: 2454414 | Server Environment: DEMO"
+    },
+    {
+      "timestamp": "2026-07-30 20:31:44 UTC",
+      "level": "info",
+      "message": "\ud83d\udcf1 Telegram Config: Token present | Chat Target: -1003257960170"
+    },
+    {
+      "timestamp": "2026-07-30 20:31:44 UTC",
+      "level": "info",
+      "message": "Connecting to cTrader Open API (DEMO TCP Server)..."
+    },
+    {
+      "timestamp": "2026-07-30 20:31:44 UTC",
+      "level": "info",
+      "message": "TCP Connected. Sending application authentication..."
+    },
+    {
+      "timestamp": "2026-07-30 20:31:45 UTC",
+      "level": "info",
+      "message": "Application authorized. Discovering authorized cTID accounts for access token..."
+    },
+    {
+      "timestamp": "2026-07-30 20:31:46 UTC",
+      "level": "info",
+      "message": "\ud83d\udccb cTrader token returned 4 linked account(s)."
+    },
+    {
+      "timestamp": "2026-07-30 20:31:46 UTC",
+      "level": "info",
+      "message": "Discovered Accounts -> ID:47951199 (Login:5313108 | DEMO), ID:48013992 (Login:5865538 | DEMO), ID:48029390 (Login:1117964 | DEMO), ID:48038510 (Login:2454414 | DEMO)"
+    },
+    {
+      "timestamp": "2026-07-30 20:31:46 UTC",
+      "level": "info",
+      "message": "Sending Account Authorization for cTID Account 48038510..."
+    },
+    {
+      "timestamp": "2026-07-30 20:31:47 UTC",
+      "level": "success",
+      "message": "cTrader Account 48038510 authorized successfully!"
+    },
+    {
+      "timestamp": "2026-07-30 20:31:48 UTC",
+      "level": "info",
+      "message": "Synced Trader State -> Live Balance: $2,219.16"
+    },
+    {
+      "timestamp": "2026-07-30 20:31:48 UTC",
+      "level": "info",
+      "message": "Reconciliation retrieved: 1 open positions, 0 orders."
+    },
+    {
+      "timestamp": "2026-07-30 20:31:48 UTC",
+      "level": "success",
+      "message": "Loaded 382 instruments from cTrader server!"
+    },
+    {
+      "timestamp": "2026-07-30 20:31:48 UTC",
+      "level": "success",
+      "message": "\u2705 Complete Account & Position Data synchronized via TCP Protobuf! Standing by for execution confirmations..."
+    },
+    {
+      "timestamp": "2026-07-30 20:31:48 UTC",
+      "level": "info",
+      "message": "\u23f1\ufe0f  Waiting 0.5s for cTrader execution confirmations before closing connection..."
+    },
+    {
+      "timestamp": "2026-07-30 20:31:48 UTC",
+      "level": "success",
+      "message": "\ud83d\udcdc Retrieved 9 trade(s) (17 deals) from cTrader \u2014 trades ARE executing!"
+    },
+    {
+      "timestamp": "2026-07-30 20:31:49 UTC",
+      "level": "info",
+      "message": "cTrader TCP connection disconnected safely."
+    },
+    {
+      "timestamp": "2026-07-30 20:31:49 UTC",
+      "level": "success",
+      "message": "Telegram Bot verified successfully! (@Forexunitedbot) | Chat Target: -1003257960170"
+    },
+    {
+      "timestamp": "2026-07-30 20:31:49 UTC",
+      "level": "success",
+      "message": "Telegram Connected (@Forexunitedbot)"
+    },
+    {
+      "timestamp": "2026-07-30 20:31:49 UTC",
+      "level": "success",
+      "message": "Dashboard index.html and login.html updated successfully!"
+    }
+  ],
+  "alerts": [
     {
       "timestamp": "2026-07-27 07:03:12 UTC",
       "level": "warning",
@@ -1001,183 +946,64 @@
       "timestamp": "2026-07-29 03:21:38 UTC",
       "level": "warning",
       "message": "TCP sync timeout reached (Trd:False, Rec:False, Sym:False)."
+    },
+    {
+      "timestamp": "2026-07-30 20:31:20 UTC",
+      "level": "error",
+      "message": "Order Dispatch Error: [Failure instance: Traceback: <class 'twisted.internet.defer.TimeoutError'>: (5, 'Deferred')\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:798:timeItOut\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:957:cancel\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:916:errback\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:984:_startRunCallbacks\n--- <exception caught here> ---\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:1078:_runCallbacks\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:809:convertCancelled\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:293:_cancelledToTimedOutError\n]"
+    },
+    {
+      "timestamp": "2026-07-30 20:31:20 UTC",
+      "level": "error",
+      "message": "Order Dispatch Error: [Failure instance: Traceback: <class 'twisted.internet.defer.TimeoutError'>: (5, 'Deferred')\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:798:timeItOut\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:957:cancel\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:916:errback\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:984:_startRunCallbacks\n--- <exception caught here> ---\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:1078:_runCallbacks\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:809:convertCancelled\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:293:_cancelledToTimedOutError\n]"
+    },
+    {
+      "timestamp": "2026-07-30 20:31:20 UTC",
+      "level": "error",
+      "message": "Order Dispatch Error: [Failure instance: Traceback: <class 'twisted.internet.defer.TimeoutError'>: (5, 'Deferred')\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:798:timeItOut\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:957:cancel\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:916:errback\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:984:_startRunCallbacks\n--- <exception caught here> ---\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:1078:_runCallbacks\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:809:convertCancelled\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:293:_cancelledToTimedOutError\n]"
+    },
+    {
+      "timestamp": "2026-07-30 20:31:20 UTC",
+      "level": "error",
+      "message": "Order Dispatch Error: [Failure instance: Traceback: <class 'twisted.internet.defer.TimeoutError'>: (5, 'Deferred')\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:798:timeItOut\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:957:cancel\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:916:errback\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:984:_startRunCallbacks\n--- <exception caught here> ---\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:1078:_runCallbacks\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:809:convertCancelled\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:293:_cancelledToTimedOutError\n]"
+    },
+    {
+      "timestamp": "2026-07-30 20:31:20 UTC",
+      "level": "error",
+      "message": "Order Dispatch Error: [Failure instance: Traceback: <class 'twisted.internet.defer.TimeoutError'>: (5, 'Deferred')\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:798:timeItOut\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:957:cancel\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:916:errback\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:984:_startRunCallbacks\n--- <exception caught here> ---\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:1078:_runCallbacks\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:809:convertCancelled\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:293:_cancelledToTimedOutError\n]"
+    },
+    {
+      "timestamp": "2026-07-30 20:31:20 UTC",
+      "level": "error",
+      "message": "Order Dispatch Error: [Failure instance: Traceback: <class 'twisted.internet.defer.TimeoutError'>: (5, 'Deferred')\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:798:timeItOut\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:957:cancel\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:916:errback\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:984:_startRunCallbacks\n--- <exception caught here> ---\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:1078:_runCallbacks\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:809:convertCancelled\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:293:_cancelledToTimedOutError\n]"
+    },
+    {
+      "timestamp": "2026-07-30 20:31:20 UTC",
+      "level": "error",
+      "message": "Order Dispatch Error: [Failure instance: Traceback: <class 'twisted.internet.defer.TimeoutError'>: (5, 'Deferred')\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:798:timeItOut\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:957:cancel\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:916:errback\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:984:_startRunCallbacks\n--- <exception caught here> ---\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:1078:_runCallbacks\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:809:convertCancelled\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:293:_cancelledToTimedOutError\n]"
+    },
+    {
+      "timestamp": "2026-07-30 20:31:20 UTC",
+      "level": "error",
+      "message": "Order Dispatch Error: [Failure instance: Traceback: <class 'twisted.internet.defer.TimeoutError'>: (5, 'Deferred')\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:798:timeItOut\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:957:cancel\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:916:errback\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:984:_startRunCallbacks\n--- <exception caught here> ---\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:1078:_runCallbacks\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:809:convertCancelled\n/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/twisted/internet/defer.py:293:_cancelledToTimedOutError\n]"
+    },
+    {
+      "timestamp": "2026-07-30 20:31:23 UTC",
+      "level": "warning",
+      "message": "\u23f3 A cTrader request timed out/disconnected (intermittent network). Continuing to wait for other responses... ([Failure instance: Traceback: <class 'twisted.internet.defer.TimeoutError'>: (5, 'Deferred)"
+    },
+    {
+      "timestamp": "2026-07-30 20:31:43 UTC",
+      "level": "warning",
+      "message": "TCP sync timeout reached (Trd:True, Rec:True, Sym:True)."
+    },
+    {
+      "timestamp": "2026-07-30 20:31:43 UTC",
+      "level": "warning",
+      "message": "\u26a0\ufe0f 8 order(s) dispatched. Offset committed to 841819915 (no retry to avoid duplicate trades). Check Open Positions to verify fill."
     }
   ],
   "telegram_messages": [
-    {
-      "update_id": 841819833,
-      "timestamp": "2026-07-27 08:02:34 UTC",
-      "chat": "Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)",
-      "text": "\ud83d\udd34 SELL USD/JPY\n\nEntry: MARKET (Ref: 163.510)\nSL: 163.651\nTP: 163.323\nRR: 1:1.32\n\nSignals are news-filtered and system-link compatible.\n\nUsers may use ",
-      "status": "\u26a1 SIGNAL (USDJPY)"
-    },
-    {
-      "update_id": 841819834,
-      "timestamp": "2026-07-27 08:32:33 UTC",
-      "chat": "Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)",
-      "text": "\u274c SL HIT - BTC/USD\nDirection: BUY\nPips: -249.5",
-      "status": "\u26a1 TPSL_HIT (BTCUSD)"
-    },
-    {
-      "update_id": 841819835,
-      "timestamp": "2026-07-27 09:02:34 UTC",
-      "chat": "Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)",
-      "text": "\ud83d\udfe2 BUY XAU/USD\n\nEntry: MARKET (Ref: 4096.79)\nSL: 4084.54\nTP: 4112.98\nRR: 1:1.32\n\nSignals are news-filtered and system-link compatible.\n\nUsers may use t",
-      "status": "\u26a1 SIGNAL (XAUUSD)"
-    },
-    {
-      "update_id": 841819836,
-      "timestamp": "2026-07-27 09:34:34 UTC",
-      "chat": "Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)",
-      "text": "\ud83d\udd34 SELL EUR/CHF\n\nEntry: MARKET (Ref: 0.92890)\nSL: 0.92981\nTP: 0.92770\nRR: 1:1.32\n\nSignals are news-filtered and system-link compatible.\n\nUsers may use ",
-      "status": "\u26a1 SIGNAL (EURCHF)"
-    },
-    {
-      "update_id": 841819837,
-      "timestamp": "2026-07-27 10:32:31 UTC",
-      "chat": "Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)",
-      "text": "\ud83d\udd34 SELL GBP/USD\n\nEntry: MARKET (Ref: 1.33299)\nSL: 1.33410\nTP: 1.33152\nRR: 1:1.32\n\nSignals are news-filtered and system-link compatible.\n\nUsers may use ",
-      "status": "\u26a1 SIGNAL (GBPUSD)"
-    },
-    {
-      "update_id": 841819838,
-      "timestamp": "2026-07-27 11:31:14 UTC",
-      "chat": "Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)",
-      "text": "\u2705 TP HIT - GBP/USD\nDirection: SELL\nPips: +14.7",
-      "status": "\u26a1 TPSL_HIT (GBPUSD)"
-    },
-    {
-      "update_id": 841819839,
-      "timestamp": "2026-07-27 12:31:12 UTC",
-      "chat": "Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)",
-      "text": "\u274c SL HIT - USD/JPY\nDirection: SELL\nPips: -14.1",
-      "status": "\u26a1 TPSL_HIT (USDJPY)"
-    },
-    {
-      "update_id": 841819840,
-      "timestamp": "2026-07-27 12:32:33 UTC",
-      "chat": "Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)",
-      "text": "\u274c SL HIT - XAU/USD\nDirection: BUY\nPips: -12.3",
-      "status": "\u26a1 TPSL_HIT (XAUUSD)"
-    },
-    {
-      "update_id": 841819841,
-      "timestamp": "2026-07-27 13:02:33 UTC",
-      "chat": "Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)",
-      "text": "\u274c SL HIT - EUR/JPY\nDirection: BUY\nPips: -36.1",
-      "status": "\u26a1 TPSL_HIT (EURJPY)"
-    },
-    {
-      "update_id": 841819842,
-      "timestamp": "2026-07-27 13:02:33 UTC",
-      "chat": "Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)",
-      "text": "\u274c SL HIT - CHF/JPY\nDirection: BUY\nPips: -32.1",
-      "status": "\u26a1 TPSL_HIT (CHFJPY)"
-    },
-    {
-      "update_id": 841819843,
-      "timestamp": "2026-07-27 13:02:33 UTC",
-      "chat": "Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)",
-      "text": "\u274c SL HIT - USD/CHF\nDirection: SELL\nPips: -8.1",
-      "status": "\u26a1 TPSL_HIT (USDCHF)"
-    },
-    {
-      "update_id": 841819844,
-      "timestamp": "2026-07-27 13:02:33 UTC",
-      "chat": "Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)",
-      "text": "\ud83d\udd34 SELL GBP/USD\n\nEntry: MARKET (Ref: 1.33177)\nSL: 1.33302\nTP: 1.33012\nRR: 1:1.32\n\nSignals are news-filtered and system-link compatible.\n\nUsers may use ",
-      "status": "\u26a1 SIGNAL (GBPUSD)"
-    },
-    {
-      "update_id": 841819845,
-      "timestamp": "2026-07-27 13:32:54 UTC",
-      "chat": "Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)",
-      "text": "\u274c SL HIT - EUR/CHF\nDirection: SELL\nPips: -9.1",
-      "status": "\u26a1 TPSL_HIT (EURCHF)"
-    },
-    {
-      "update_id": 841819846,
-      "timestamp": "2026-07-27 13:32:54 UTC",
-      "chat": "Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)",
-      "text": "\ud83d\udfe2 BUY EUR/CHF\n\nEntry: MARKET (Ref: 0.93150)\nSL: 0.93036\nTP: 0.93301\nRR: 1:1.32\n\nSignals are news-filtered and system-link compatible.\n\nUsers may use t",
-      "status": "\u26a1 SIGNAL (EURCHF)"
-    },
-    {
-      "update_id": 841819847,
-      "timestamp": "2026-07-27 13:32:54 UTC",
-      "chat": "Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)",
-      "text": "\ud83d\udfe2 BUY USD/JPY\n\nEntry: MARKET (Ref: 163.710)\nSL: 163.597\nTP: 163.859\nRR: 1:1.32\n\nSignals are news-filtered and system-link compatible.\n\nUsers may use t",
-      "status": "\u26a1 SIGNAL (USDJPY)"
-    },
-    {
-      "update_id": 841819848,
-      "timestamp": "2026-07-27 13:32:54 UTC",
-      "chat": "Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)",
-      "text": "\ud83d\udd34 SELL EUR/JPY\n\nEntry: MARKET (Ref: 186.275)\nSL: 186.451\nTP: 186.042\nRR: 1:1.32\n\nSignals are news-filtered and system-link compatible.\n\nUsers may use ",
-      "status": "\u26a1 SIGNAL (EURJPY)"
-    },
-    {
-      "update_id": 841819849,
-      "timestamp": "2026-07-27 14:02:35 UTC",
-      "chat": "Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)",
-      "text": "\u274c SL HIT - CAD/JPY\nDirection: SELL\nPips: -10.3",
-      "status": "\u26a1 TPSL_HIT (CADJPY)"
-    },
-    {
-      "update_id": 841819850,
-      "timestamp": "2026-07-27 14:02:35 UTC",
-      "chat": "Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)",
-      "text": "\ud83d\udfe2 BUY USD/CHF\n\nEntry: MARKET (Ref: 0.81848)\nSL: 0.81721\nTP: 0.82015\nRR: 1:1.31\n\nSignals are news-filtered and system-link compatible.\n\nUsers may use t",
-      "status": "\u26a1 SIGNAL (USDCHF)"
-    },
-    {
-      "timestamp": "2026-07-27 15:02:33 UTC",
-      "chat": "Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)",
-      "text": "\u274c SL HIT - AUD/USD\nDirection: BUY\nPips: -9.1",
-      "status": "\u26a1 TPSL_HIT (AUDUSD)"
-    },
-    {
-      "timestamp": "2026-07-27 15:02:33 UTC",
-      "chat": "Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)",
-      "text": "\u2705 TP HIT - GBP/USD\nDirection: SELL\nPips: +16.5",
-      "status": "\u26a1 TPSL_HIT (GBPUSD)"
-    },
-    {
-      "timestamp": "2026-07-27 15:02:33 UTC",
-      "chat": "Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)",
-      "text": "\u274c SL HIT - EUR/CHF\nDirection: BUY\nPips: -11.4",
-      "status": "\u26a1 TPSL_HIT (EURCHF)"
-    },
-    {
-      "timestamp": "2026-07-27 16:01:35 UTC",
-      "chat": "Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)",
-      "text": "\ud83d\udd34 SELL GBP/USD\n\nEntry: MARKET (Ref: 1.33041)\nSL: 1.33167\nTP: 1.32874\nRR: 1:1.33\n\nSignals are news-filtered and system-link compatible.\n\nUsers may use their own copy system by their own choice. Some solutions are available here: Telegram Bot",
-      "status": "\u26a1 SIGNAL (GBPUSD)"
-    },
-    {
-      "timestamp": "2026-07-27 16:52:32 UTC",
-      "chat": "Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)",
-      "text": "\u274c SL HIT - USD/JPY\nDirection: BUY\nPips: -11.3",
-      "status": "\u26a1 TPSL_HIT (USDJPY)"
-    },
-    {
-      "timestamp": "2026-07-27 17:31:12 UTC",
-      "chat": "Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)",
-      "text": "\u2705 TP HIT - GBP/USD\nDirection: SELL\nPips: +16.7",
-      "status": "\u26a1 TPSL_HIT (GBPUSD)"
-    },
-    {
-      "timestamp": "2026-07-28 02:32:32 UTC",
-      "chat": "Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)",
-      "text": "\ud83d\udd34 SELL NZD/JPY\n\nEntry: MARKET (Ref: 94.473)\nSL: 94.569\nTP: 94.347\nRR: 1:1.32\n\nSignals are news-filtered and system-link compatible.\n\nUsers may use their own copy system by their own choice. Some solutions are available here: Telegram Bot",
-      "status": "\u26a1 SIGNAL (NZDJPY)"
-    },
-    {
-      "timestamp": "2026-07-28 03:32:32 UTC",
-      "chat": "Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)",
-      "text": "\u274c SL HIT - NZD/JPY\nDirection: SELL\nPips: -9.6",
-      "status": "\u26a1 TPSL_HIT (NZDJPY)"
-    },
     {
       "timestamp": "2026-07-28 04:31:16 UTC",
       "chat": "Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)",
@@ -1321,7 +1147,189 @@
       "chat": "Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)",
       "text": "\u2705 TP HIT - USD/JPY\nDirection: BUY\nPips: +11.6",
       "status": "\u26a1 TPSL_HIT (USDJPY)"
+    },
+    {
+      "update_id": 841819890,
+      "timestamp": "2026-07-30 20:31:08 UTC",
+      "chat": "Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)",
+      "text": "\ud83d\udd34 SELL USD/JPY\n\nEntry: MARKET (Ref: 163.327)\nSL: 163.490\nTP: 163.144\nRR: 1:1.13\n\nSignals are news-filtered and system-link compatible.\n\nUsers may use ",
+      "status": "\u26a1 SIGNAL (USDJPY)"
+    },
+    {
+      "update_id": 841819891,
+      "timestamp": "2026-07-30 20:31:08 UTC",
+      "chat": "Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)",
+      "text": "\ud83d\udfe2 BUY XAU/USD\n\nEntry: MARKET (Ref: 4085.42)\nSL: 4061.69\nTP: 4112.32\nRR: 1:1.13\n\nSignals are news-filtered and system-link compatible.\n\nUsers may use t",
+      "status": "\u26a1 SIGNAL (XAUUSD)"
+    },
+    {
+      "update_id": 841819892,
+      "timestamp": "2026-07-30 20:31:08 UTC",
+      "chat": "Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)",
+      "text": "\ud83d\udfe2 BUY CHF/JPY\n\nEntry: MARKET (Ref: 200.777)\nSL: 200.471\nTP: 201.125\nRR: 1:1.13\n\nSignals are news-filtered and system-link compatible.\n\nUsers may use t",
+      "status": "\u26a1 SIGNAL (CHFJPY)"
+    },
+    {
+      "update_id": 841819893,
+      "timestamp": "2026-07-30 20:31:08 UTC",
+      "chat": "Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)",
+      "text": "\u274c SL HIT - USD/JPY\nDirection: SELL\nPips: -16.2",
+      "status": "\u26a1 TPSL_HIT (USDJPY)"
+    },
+    {
+      "update_id": 841819894,
+      "timestamp": "2026-07-30 20:31:08 UTC",
+      "chat": "Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)",
+      "text": "\ud83d\udfe2 BUY EUR/JPY\n\nEntry: MARKET (Ref: 187.246)\nSL: 187.052\nTP: 187.466\nRR: 1:1.13\n\nSignals are news-filtered and system-link compatible.\n\nUsers may use t",
+      "status": "\u26a1 SIGNAL (EURJPY)"
+    },
+    {
+      "update_id": 841819895,
+      "timestamp": "2026-07-30 20:31:08 UTC",
+      "chat": "Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)",
+      "text": "\u274c SL HIT - XAU/USD\nDirection: BUY\nPips: -23.7",
+      "status": "\u26a1 TPSL_HIT (XAUUSD)"
+    },
+    {
+      "update_id": 841819896,
+      "timestamp": "2026-07-30 20:31:08 UTC",
+      "chat": "Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)",
+      "text": "\u274c SL HIT - CHF/JPY\nDirection: BUY\nPips: -30.7",
+      "status": "\u26a1 TPSL_HIT (CHFJPY)"
+    },
+    {
+      "update_id": 841819897,
+      "timestamp": "2026-07-30 20:31:08 UTC",
+      "chat": "Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)",
+      "text": "\ud83d\udfe2 BUY NZD/JPY\n\nEntry: MARKET (Ref: 95.086)\nSL: 94.930\nTP: 95.262\nRR: 1:1.13\n\nSignals are news-filtered and system-link compatible.\n\nUsers may use thei",
+      "status": "\u26a1 SIGNAL (NZDJPY)"
+    },
+    {
+      "update_id": 841819898,
+      "timestamp": "2026-07-30 20:31:08 UTC",
+      "chat": "Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)",
+      "text": "\u2705 TP HIT - NZD/JPY\nDirection: BUY\nPips: +17.6",
+      "status": "\u26a1 TPSL_HIT (NZDJPY)"
+    },
+    {
+      "update_id": 841819899,
+      "timestamp": "2026-07-30 20:31:08 UTC",
+      "chat": "Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)",
+      "text": "\u274c SL HIT - EUR/JPY\nDirection: BUY\nPips: -19.4",
+      "status": "\u26a1 TPSL_HIT (EURJPY)"
+    },
+    {
+      "update_id": 841819900,
+      "timestamp": "2026-07-30 20:31:08 UTC",
+      "chat": "Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)",
+      "text": "\ud83d\udfe2 BUY NZD/JPY\n\nEntry: MARKET (Ref: 95.152)\nSL: 94.987\nTP: 95.339\nRR: 1:1.13\n\nSignals are news-filtered and system-link compatible.\n\nUsers may use thei",
+      "status": "\u26a1 SIGNAL (NZDJPY)"
+    },
+    {
+      "update_id": 841819901,
+      "timestamp": "2026-07-30 20:31:08 UTC",
+      "chat": "Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)",
+      "text": "\ud83d\udd34 SELL CAD/JPY\n\nEntry: MARKET (Ref: 115.979)\nSL: 116.128\nTP: 115.811\nRR: 1:1.13\n\nSignals are news-filtered and system-link compatible.\n\nUsers may use ",
+      "status": "\u26a1 SIGNAL (CADJPY)"
+    },
+    {
+      "update_id": 841819902,
+      "timestamp": "2026-07-30 20:31:08 UTC",
+      "chat": "Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)",
+      "text": "\ud83d\udd34 SELL EUR/NZD\n\nEntry: MARKET (Ref: 1.96621)\nSL: 1.96912\nTP: 1.96291\nRR: 1:1.13\n\nSignals are news-filtered and system-link compatible.\n\nUsers may use ",
+      "status": "\u26a1 SIGNAL (EURNZD)"
+    },
+    {
+      "update_id": 841819903,
+      "timestamp": "2026-07-30 20:31:08 UTC",
+      "chat": "Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)",
+      "text": "\u274c SL HIT - NZD/JPY\nDirection: BUY\nPips: -16.5",
+      "status": "\u26a1 TPSL_HIT (NZDJPY)"
+    },
+    {
+      "update_id": 841819904,
+      "timestamp": "2026-07-30 20:31:08 UTC",
+      "chat": "Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)",
+      "text": "\u2705 TP HIT - CAD/JPY\nDirection: SELL\nPips: +16.9",
+      "status": "\u26a1 TPSL_HIT (CADJPY)"
+    },
+    {
+      "update_id": 841819905,
+      "timestamp": "2026-07-30 20:31:08 UTC",
+      "chat": "Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)",
+      "text": "\u2705 TP HIT - EUR/NZD\nDirection: SELL\nPips: +33.0",
+      "status": "\u26a1 TPSL_HIT (EURNZD)"
+    },
+    {
+      "update_id": 841819906,
+      "timestamp": "2026-07-30 20:31:08 UTC",
+      "chat": "Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)",
+      "text": "\u2705 TP HIT - EUR/JPY\nDirection: BUY\nPips: +13.1",
+      "status": "\u26a1 TPSL_HIT (EURJPY)"
+    },
+    {
+      "update_id": 841819907,
+      "timestamp": "2026-07-30 20:31:08 UTC",
+      "chat": "Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)",
+      "text": "\u2705 TP HIT - USD/JPY\nDirection: BUY\nPips: +11.6",
+      "status": "\u26a1 TPSL_HIT (USDJPY)"
+    },
+    {
+      "update_id": 841819908,
+      "timestamp": "2026-07-30 20:31:08 UTC",
+      "chat": "Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)",
+      "text": "\u2705 TP HIT - EUR/JPY\nDirection: BUY\nPips: +13.1",
+      "status": "\u26a1 TPSL_HIT (EURJPY)"
+    },
+    {
+      "update_id": 841819909,
+      "timestamp": "2026-07-30 20:31:08 UTC",
+      "chat": "Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)",
+      "text": "\u2705 TP HIT - USD/JPY\nDirection: BUY\nPips: +11.6",
+      "status": "\u26a1 TPSL_HIT (USDJPY)"
+    },
+    {
+      "update_id": 841819910,
+      "timestamp": "2026-07-30 20:31:08 UTC",
+      "chat": "Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)",
+      "text": "\u2705 TP HIT - EUR/JPY\nDirection: BUY\nPips: +13.1",
+      "status": "\u26a1 TPSL_HIT (EURJPY)"
+    },
+    {
+      "update_id": 841819911,
+      "timestamp": "2026-07-30 20:31:08 UTC",
+      "chat": "Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)",
+      "text": "\u2705 TP HIT - USD/JPY\nDirection: BUY\nPips: +11.6",
+      "status": "\u26a1 TPSL_HIT (USDJPY)"
+    },
+    {
+      "update_id": 841819912,
+      "timestamp": "2026-07-30 20:31:08 UTC",
+      "chat": "Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)",
+      "text": "\u2705 TP HIT - EUR/JPY\nDirection: BUY\nPips: +13.1",
+      "status": "\u26a1 TPSL_HIT (EURJPY)"
+    },
+    {
+      "update_id": 841819913,
+      "timestamp": "2026-07-30 20:31:08 UTC",
+      "chat": "Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)",
+      "text": "\u2705 TP HIT - USD/JPY\nDirection: BUY\nPips: +11.6",
+      "status": "\u26a1 TPSL_HIT (USDJPY)"
+    },
+    {
+      "update_id": 841819914,
+      "timestamp": "2026-07-30 20:31:08 UTC",
+      "chat": "Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)",
+      "text": "\u2705 TP HIT - EUR/JPY\nDirection: BUY\nPips: +13.1",
+      "status": "\u26a1 TPSL_HIT (EURJPY)"
+    },
+    {
+      "update_id": 841819915,
+      "timestamp": "2026-07-30 20:31:08 UTC",
+      "chat": "Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)",
+      "text": "\u2705 TP HIT - USD/JPY\nDirection: BUY\nPips: +11.6",
+      "status": "\u26a1 TPSL_HIT (USDJPY)"
     }
   ],
-  "last_update_id": 841819883
+  "last_update_id": 841819915
 }
