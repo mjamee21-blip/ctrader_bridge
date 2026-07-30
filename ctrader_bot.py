@@ -758,8 +758,7 @@ class cTraderClient:
             elif payload_type == ProtoOASymbolsListRes().payloadType:
                 res = Protobuf.extract(message)
                 symbols = getattr(res, "symbol", [])
-                global _instruments
-                _instruments = {}
+                _instruments.clear()
                 for sym in symbols:
                     sym_name = getattr(sym, "symbolName", "").upper().strip()
                     sym_id = getattr(sym, "symbolId", None)
