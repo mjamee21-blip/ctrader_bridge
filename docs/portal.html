@@ -1305,17 +1305,20 @@
                 { time: "2026-07-27 11:20:05 UTC", source: user.tg_handle, action: "🔴 SELL", pair: "GBPUSD", vol: "0.10 Lots", status: "✓ FILLED (#12311)", pnl: "+$31.10", win: true }
             ];
 
-            tbody.innerHTML = mockSignals.map(s => `
+            tbody.innerHTML = mockSignals.map(s => {
+                const actCol = s.action.includes('BUY') ? 'text-emerald-400' : 'text-red-400';
+                const pnlCol = s.win ? 'text-emerald-400' : 'text-red-400';
+                return `
                 <tr class="hover:bg-slate-800/40 transition">
                     <td class="py-3 pr-4 text-slate-400">${s.time}</td>
                     <td class="py-3 pr-4 font-bold text-sky-400">${s.source}</td>
-                    <td class="py-3 pr-4 font-bold ${s.action.includes('BUY') ? 'text-emerald-400' : 'text-red-400'}">${s.action}</td>
+                    <td class="py-3 pr-4 font-bold ${actCol}">${s.action}</td>
                     <td class="py-3 pr-4 text-white font-bold">${s.pair}</td>
                     <td class="py-3 pr-4 text-slate-300">${s.vol}</td>
                     <td class="py-3 pr-4 text-emerald-400 font-semibold">${s.status}</td>
-                    <td class="py-3 font-bold ${s.win ? 'text-emerald-400' : 'text-red-400'}">${s.pnl}</td>
+                    <td class="py-3 font-bold ${pnlCol}">${s.pnl}</td>
                 </tr>
-            `).join("");
+            `}).join("");
         }
     </script>
 </body>
