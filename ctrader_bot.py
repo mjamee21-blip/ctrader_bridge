@@ -46,6 +46,13 @@ try:
 except ImportError:
     HAS_PROTOBUF = False
 
+try:
+    import pyrogram
+    import asyncio
+    HAS_PYROGRAM = True
+except ImportError:
+    HAS_PYROGRAM = False
+
 # =====================================================================
 # CONFIG FROM GITHUB REPOSITORY SECRETS (ALL 10 SECRETS MAPPED)
 # =====================================================================
@@ -61,6 +68,9 @@ CT_ENV = _clean_sec(os.environ.get("CT_ENV", "demo")).lower()
 
 TG_TOKEN = _clean_sec(os.environ.get("TG_TOKEN", ""))
 TG_CHAT = _clean_sec(os.environ.get("TG_CHAT", ""))
+TG_API_ID = _clean_sec(os.environ.get("TG_API_ID", ""))
+TG_API_HASH = _clean_sec(os.environ.get("TG_API_HASH", ""))
+TG_SESSION_STRING = _clean_sec(os.environ.get("TG_SESSION_STRING", ""))
 
 DASHBOARD_USERNAME = _clean_sec(os.environ.get("DASHBOARD_USERNAME", ""))
 DASHBOARD_PASSWORD = _clean_sec(os.environ.get("DASHBOARD_PASSWORD", ""))
@@ -481,10 +491,12 @@ class cTraderClient:
                                 c_ref.send(ord_req).addErrback(lambda f: safe_errback(f, "Order"))
                                 log_process("success", f"✓ Market order SENT to cTrader: {direction} {norm_pair or pair} (Vol: {target_vol})")
                                 
-                            elif sig_type == "TPSL_HIT":
-                                res_reason = sig.get("result", "TP")
-                                log_process("info", f"Processing {res_reason} HIT -> Scanning positions for {norm_pair or pair} (ID:{sym_id})...")
+                            elif sig_type in ["TPSL_HIT", "CLOSE"]:
+                                res_reason = sig.get("result", "CLOSE")
+                                log_process("info", f"Processing {res_reason} -> Scanning positions for {norm_pair or pair} (ID:{sym_id})...")
                                 matches = [p for p in self.positions if p.get("pair") == norm_pair or str(p.get("symbol_id")) == str(sym_id)]
+                                if not matches:
+                                    log_process("info", f"ℹ️ Signal requested closure ({res_reason}) for {norm_pair or pair}, but 0 matching open positions found on broker server.")
                                 for pos_obj in matches:
                                     pos_id_val = pos_obj.get("position_id")
                                     vol_val = pos_obj.get("raw_volume") or 100000
@@ -494,6 +506,7 @@ class cTraderClient:
                                     close_req.volume = int(vol_val)
                                     log_process("info", f"Sending ProtoOAClosePositionReq for position #{pos_id_val}...")
                                     c_ref.send(close_req).addErrback(lambda f: safe_errback(f, "Close"))
+                                    log_process("success", f"✓ Close request SENT for Position #{pos_id_val} ({norm_pair or pair})")
                                     
                             elif sig_type == "SL_UPDATE":
                                 new_sl_val = sig.get("new_sl")
@@ -1060,12 +1073,37 @@ class cTraderClient:
         return True
 
 # =====================================================================
-# TELEGRAM BOT INTEGRATION
+# TELEGRAM BOT & MTPROTO USERBOT INTEGRATION (PYROGRAM SUPPORTED)
 # =====================================================================
+def _pyrogram_test_connection():
+    try:
+        import asyncio
+        async def _run():
+            kw = {"api_id": int(TG_API_ID), "api_hash": TG_API_HASH, "in_memory": True}
+            if TG_SESSION_STRING: kw["session_string"] = TG_SESSION_STRING
+            elif TG_TOKEN: kw["bot_token"] = TG_TOKEN
+            client = pyrogram.Client("saas_auth_check", **kw)
+            await client.start()
+            me = await client.get_me()
+            await client.stop()
+            return me
+        me = asyncio.run(_run())
+        uname = getattr(me, "username", "") or getattr(me, "first_name", "Userbot")
+        if not uname.startswith("@") and getattr(me, "username", ""): uname = "@" + uname
+        log_process("success", f"✈️ Telegram MTProto Userbot connected! ({uname}) | Can read ANY private VIP channel!")
+        return True, {"username": uname, "name": getattr(me, "first_name", "Userbot"), "id": str(getattr(me, "id", ""))}
+    except Exception as e:
+        log_process("warning", f"Pyrogram MTProto check note: {e}. Using HTTP Bot API...")
+        return False, {"error": str(e)}
+
 def test_telegram_connection():
-    """Verify Telegram bot reachability using TG_TOKEN."""
+    """Verify Telegram reachability using Pyrogram MTProto or TG_TOKEN."""
+    if HAS_PYROGRAM and TG_API_ID and TG_API_HASH and (TG_SESSION_STRING or TG_TOKEN):
+        ok, res = _pyrogram_test_connection()
+        if ok:
+            return ok, res
     if not TG_TOKEN:
-        return False, {"error": "TG_TOKEN secret not set in GitHub Repository Secrets"}
+        return False, {"error": "No Telegram credentials (TG_TOKEN or TG_SESSION_STRING) set in Secrets"}
     try:
         url = f"https://api.telegram.org/bot{TG_TOKEN}/getMe"
         req = urllib.request.Request(url)
@@ -1089,9 +1127,89 @@ def test_telegram_connection():
         log_process("error", f"Telegram connection exception: {str(e)}")
         return False, {"error": str(e)}
 
-def tg_get_messages(offset=0):
-    """Fetch recent messages from configured TG_CHAT and store in persistent history."""
+def _pyrogram_get_messages(offset=0):
     global _last_update_id
+    try:
+        import asyncio
+        async def _run():
+            kw = {"api_id": int(TG_API_ID), "api_hash": TG_API_HASH, "in_memory": True}
+            if TG_SESSION_STRING: kw["session_string"] = TG_SESSION_STRING
+            elif TG_TOKEN: kw["bot_token"] = TG_TOKEN
+            client = pyrogram.Client("saas_fetch_client", **kw)
+            await client.start()
+            
+            target = str(TG_CHAT).lstrip("@").strip()
+            clean_target = target.lstrip("-").replace("100", "", 1) if (target.startswith("-100") or target.startswith("100")) else target.lstrip("-")
+            
+            target_chat_ids = []
+            async for dialog in client.get_dialogs(limit=100):
+                cid = str(dialog.chat.id)
+                cuname = str(getattr(dialog.chat, "username", "") or "").lstrip("@")
+                ctitle = str(getattr(dialog.chat, "title", "") or "")
+                clean_cid = cid.lstrip("-").replace("100", "", 1) if (cid.startswith("-100") or cid.startswith("100")) else cid.lstrip("-")
+                
+                if not TG_CHAT or TG_CHAT == "ANY":
+                    target_chat_ids.append(dialog.chat.id)
+                elif target == cuname or target == cid or target == ctitle or clean_cid == clean_target or (target and (target.lower() in ctitle.lower() or target.lower() in cuname.lower())):
+                    target_chat_ids.append(dialog.chat.id)
+                    
+            if not target_chat_ids and TG_CHAT and TG_CHAT != "ANY":
+                try:
+                    chat_obj = await client.get_chat(int(TG_CHAT) if (TG_CHAT.lstrip("-").isdigit()) else TG_CHAT)
+                    target_chat_ids.append(chat_obj.id)
+                except Exception:
+                    pass
+                    
+            messages = []
+            for cid in target_chat_ids[:10]:
+                try:
+                    async for msg in client.get_chat_history(cid, limit=15):
+                        mid = getattr(msg, "id", 0)
+                        if mid > _last_update_id:
+                            _last_update_id = mid
+                        text = (getattr(msg, "text", "") or getattr(msg, "caption", "") or "").strip()
+                        if not text: continue
+                        
+                        chat_title = getattr(msg.chat, "title", "") or getattr(msg.chat, "username", "") or str(msg.chat.id)
+                        chat_id_str = str(msg.chat.id)
+                        
+                        timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
+                        classification = "TEXT (No action)"
+                        if looks_like_signal(text):
+                            parsed_test = parse_signal(text)
+                            if parsed_test:
+                                classification = f"⚡ {parsed_test['type']} ({parsed_test.get('pair', 'N/A')})"
+                        
+                        messages.append({"text": text})
+                        if "⚡" in classification:
+                            log_process("success", f"Matched signal from [{chat_title}] -> {classification}")
+                            
+                        _telegram_messages.append({
+                            "timestamp": timestamp,
+                            "chat": f"{chat_title} (ID:{chat_id_str})",
+                            "text": text[:1000],
+                            "status": classification
+                        })
+                        if len(_telegram_messages) > 50:
+                            _telegram_messages.pop(0)
+                except Exception:
+                    pass
+            await client.stop()
+            return messages
+        res = asyncio.run(_run())
+        save_system_state()
+        return res
+    except Exception as e:
+        log_process("warning", f"Pyrogram get_messages note: {e}. Falling back to Bot API HTTP...")
+        return None
+
+def tg_get_messages(offset=0):
+    """Fetch recent messages from configured TG_CHAT using Pyrogram Userbot or Bot API HTTP."""
+    global _last_update_id
+    if HAS_PYROGRAM and TG_API_ID and TG_API_HASH and (TG_SESSION_STRING or TG_TOKEN):
+        res = _pyrogram_get_messages(offset)
+        if res is not None:
+            return res
     if not TG_TOKEN:
         return []
     try:
@@ -1232,6 +1350,9 @@ def parse_signal(text):
 
     if not direction or not pair:
         return None
+
+    if direction == "CLOSE":
+        return {"type": "TPSL_HIT", "result": "CLOSE", "pair": pair}
 
     sl, tp = None, None
     for line in lines:
