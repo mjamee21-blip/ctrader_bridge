@@ -1,26 +1,54 @@
 <!DOCTYPE html>
 <html lang="en" class="dark">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Alpha Markets Copy Trading - Telegram to cTrader Portal</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0b0f19; color: #f8fafc; }
-        .tab-active { border-bottom: 2px solid #38bdf8; color: #38bdf8; font-weight: 600; }
-        .tab-inactive { border-bottom: 2px solid transparent; color: #64748b; }
-        .tab-inactive:hover { color: #94a3b8; }
-        .card-flat { 
-            background: rgba(15, 23, 42, 0.85); 
-            backdrop-filter: blur(16px); 
-            border: 1px solid rgba(51, 65, 85, 0.6); 
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5); 
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0b0f19;
+            color: #f8fafc;
         }
-        .input-flat { background: rgba(8, 13, 26, 0.9); border: 1px solid rgba(51, 65, 85, 0.8); color: #f8fafc; transition: all 0.2s; }
-        .input-flat:focus { outline: none; border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2); }
+
+        .tab-active {
+            border-bottom: 2px solid #38bdf8;
+            color: #38bdf8;
+            font-weight: 600;
+        }
+
+        .tab-inactive {
+            border-bottom: 2px solid transparent;
+            color: #64748b;
+        }
+
+        .tab-inactive:hover {
+            color: #94a3b8;
+        }
+
+        .card-flat {
+            background: #131b2e/90;
+            border: 1px solid #23314f;
+            backdrop-blur-md;
+        }
+
+        .input-flat {
+            background: #080d1a;
+            border: 1px solid #23314f;
+            color: #f8fafc;
+        }
+
+        .input-flat:focus {
+            outline: none;
+            border-color: #38bdf8;
+            box-shadow: 0 0 0 1px #38bdf8;
+        }
+
         .market-bg {
             background-color: #060913;
-            background-image: 
+            background-image:
                 radial-gradient(circle at 10% 20%, rgba(14, 165, 233, 0.12) 0%, transparent 45%),
                 radial-gradient(circle at 90% 80%, rgba(16, 185, 129, 0.10) 0%, transparent 45%),
                 radial-gradient(circle at 50% 50%, rgba(99, 102, 241, 0.08) 0%, transparent 60%),
@@ -31,26 +59,35 @@
         }
     </style>
 </head>
+
 <body class="min-h-screen flex flex-col justify-between selection:bg-sky-500 selection:text-white market-bg">
 
     <!-- Top Navbar -->
     <header class="border-b border-slate-800/80 bg-slate-950/80 backdrop-blur-md sticky top-0 z-50">
         <div class="max-w-6xl mx-auto px-4 py-3.5 flex items-center justify-between">
             <div class="flex items-center space-x-3">
-                <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-sky-500 via-indigo-500 to-emerald-400 flex items-center justify-center font-black text-white text-lg shadow-lg shadow-sky-500/20">📈</div>
+                <div
+                    class="w-9 h-9 rounded-xl bg-gradient-to-tr from-sky-500 via-indigo-500 to-emerald-400 flex items-center justify-center font-black text-white text-lg shadow-lg shadow-sky-500/20">
+                    📈</div>
                 <div>
-                    <span class="font-black text-base tracking-tight text-white">Alpha Markets <span class="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-emerald-400">Copy Trading</span></span>
-                    <span class="ml-2 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded bg-slate-800 text-sky-300 border border-slate-700">Client SaaS Portal</span>
+                    <span class="font-black text-base tracking-tight text-white">Alpha Markets <span
+                            class="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-emerald-400">Copy
+                            Trading</span></span>
+                    <span
+                        class="ml-2 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded bg-slate-800 text-sky-300 border border-slate-700">Client
+                        SaaS Portal</span>
                 </div>
             </div>
 
             <div class="flex items-center space-x-4">
                 <div id="user-badge-container" class="hidden items-center space-x-3">
-                    <div class="flex items-center space-x-2 px-3 py-1 rounded-full bg-slate-900 border border-slate-800 shadow-inner">
+                    <div
+                        class="flex items-center space-x-2 px-3 py-1 rounded-full bg-slate-900 border border-slate-800 shadow-inner">
                         <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                         <span id="user-display-name" class="text-xs font-semibold text-slate-200"></span>
                     </div>
-                    <button onclick="logoutUser()" class="text-xs font-semibold px-3 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 transition">
+                    <button onclick="logoutUser()"
+                        class="text-xs font-semibold px-3 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 transition">
                         Sign Out
                     </button>
                 </div>
@@ -64,30 +101,37 @@
         <!-- AUTH VIEW (Shown when logged out) -->
         <div id="view-auth" class="max-w-md mx-auto my-6">
             <div class="text-center mb-6">
-                <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-sky-500/10 border border-sky-500/20 text-sky-400 text-xs font-semibold mb-3">
+                <div
+                    class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-sky-500/10 border border-sky-500/20 text-sky-400 text-xs font-semibold mb-3">
                     <span>⚡ Institutional Telegram to cTrader Copying</span>
                 </div>
                 <h1 class="text-2xl font-black text-white tracking-tight">Alpha Markets Copy Trading</h1>
-                <p class="text-xs text-slate-400 mt-1">Connect your VIP Telegram channel directly to cTrader in &lt;0.1s</p>
+                <p class="text-xs text-slate-400 mt-1">Connect your VIP Telegram channel directly to cTrader in &lt;0.1s
+                </p>
             </div>
 
             <div class="card-flat rounded-2xl p-6 shadow-2xl">
                 <!-- Auth Tabs -->
                 <div class="flex border-b border-slate-800 mb-6">
-                    <button onclick="switchAuthTab('login')" id="tab-btn-login" class="flex-1 pb-3 text-sm tab-active transition">Sign In</button>
-                    <button onclick="switchAuthTab('register')" id="tab-btn-register" class="flex-1 pb-3 text-sm tab-inactive transition">Create Account</button>
+                    <button onclick="switchAuthTab('login')" id="tab-btn-login"
+                        class="flex-1 pb-3 text-sm tab-active transition">Sign In</button>
+                    <button onclick="switchAuthTab('register')" id="tab-btn-register"
+                        class="flex-1 pb-3 text-sm tab-inactive transition">Create Account</button>
                 </div>
 
                 <!-- Quick Social / Easy Login Buttons -->
                 <div class="space-y-2 mb-5">
-                    <button onclick="socialLogin('Google')" type="button" class="w-full py-2.5 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-200 text-xs font-semibold border border-slate-800 transition flex items-center justify-center gap-2 shadow-sm">
+                    <button onclick="socialLogin('Google')" type="button"
+                        class="w-full py-2.5 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-200 text-xs font-semibold border border-slate-800 transition flex items-center justify-center gap-2 shadow-sm">
                         <span class="text-base">🌐</span> Continue with Google
                     </button>
                     <div class="grid grid-cols-2 gap-2">
-                        <button onclick="socialLogin('GitHub')" type="button" class="py-2 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 text-xs font-semibold border border-slate-800 transition flex items-center justify-center gap-1.5">
+                        <button onclick="socialLogin('GitHub')" type="button"
+                            class="py-2 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 text-xs font-semibold border border-slate-800 transition flex items-center justify-center gap-1.5">
                             <span class="text-base">🐙</span> GitHub
                         </button>
-                        <button onclick="socialLogin('Telegram')" type="button" class="py-2 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 text-xs font-semibold border border-slate-800 transition flex items-center justify-center gap-1.5">
+                        <button onclick="socialLogin('Telegram')" type="button"
+                            class="py-2 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 text-xs font-semibold border border-slate-800 transition flex items-center justify-center gap-1.5">
                             <span class="text-base">✈️</span> Telegram
                         </button>
                     </div>
@@ -95,24 +139,32 @@
 
                 <div class="relative flex py-2 items-center mb-5">
                     <div class="flex-grow border-t border-slate-800"></div>
-                    <span class="flex-shrink mx-3 text-[10px] uppercase font-bold text-slate-500 tracking-wider">Or with email</span>
+                    <span class="flex-shrink mx-3 text-[10px] uppercase font-bold text-slate-500 tracking-wider">Or with
+                        email</span>
                     <div class="flex-grow border-t border-slate-800"></div>
                 </div>
 
                 <!-- Error Toast -->
-                <div id="auth-error" class="hidden mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-xs text-center font-medium"></div>
+                <div id="auth-error"
+                    class="hidden mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-xs text-center font-medium">
+                </div>
 
                 <!-- Sign In Form -->
                 <form id="form-login" onsubmit="handleLogin(event)" class="space-y-4">
                     <div>
                         <label class="block text-xs font-medium text-slate-400 mb-1.5">Email Address</label>
-                        <input type="email" id="login-email" required class="input-flat w-full px-3.5 py-2.5 rounded-lg text-sm font-medium" placeholder="trader@alphamarkets.io">
+                        <input type="email" id="login-email" required
+                            class="input-flat w-full px-3.5 py-2.5 rounded-lg text-sm font-medium"
+                            placeholder="trader@alphamarkets.io">
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-slate-400 mb-1.5">Password</label>
-                        <input type="password" id="login-password" required class="input-flat w-full px-3.5 py-2.5 rounded-lg text-sm font-medium" placeholder="••••••••">
+                        <input type="password" id="login-password" required
+                            class="input-flat w-full px-3.5 py-2.5 rounded-lg text-sm font-medium"
+                            placeholder="••••••••">
                     </div>
-                    <button type="submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-500 hover:from-sky-400 hover:to-indigo-400 text-white font-bold text-sm transition shadow-lg shadow-sky-500/20">
+                    <button type="submit"
+                        class="w-full py-3 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-500 hover:from-sky-400 hover:to-indigo-400 text-white font-bold text-sm transition shadow-lg shadow-sky-500/20">
                         Sign In to Portal
                     </button>
                 </form>
@@ -121,21 +173,31 @@
                 <form id="form-register" onsubmit="handleRegister(event)" class="hidden space-y-4">
                     <div>
                         <label class="block text-xs font-medium text-slate-400 mb-1.5">Full Name</label>
-                        <input type="text" id="reg-name" required class="input-flat w-full px-3.5 py-2.5 rounded-lg text-sm font-medium" placeholder="Alex Trade">
+                        <input type="text" id="reg-name" required
+                            class="input-flat w-full px-3.5 py-2.5 rounded-lg text-sm font-medium"
+                            placeholder="Alex Trade">
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-slate-400 mb-1.5">Email Address</label>
-                        <input type="email" id="reg-email" required class="input-flat w-full px-3.5 py-2.5 rounded-lg text-sm font-medium" placeholder="alex@alphamarkets.io">
+                        <input type="email" id="reg-email" required
+                            class="input-flat w-full px-3.5 py-2.5 rounded-lg text-sm font-medium"
+                            placeholder="alex@alphamarkets.io">
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-slate-400 mb-1.5">Telegram Username / Handle</label>
-                        <input type="text" id="reg-tg" required class="input-flat w-full px-3.5 py-2.5 rounded-lg text-sm font-mono" placeholder="@alextrade">
+                        <label class="block text-xs font-medium text-slate-400 mb-1.5">Telegram Username /
+                            Handle</label>
+                        <input type="text" id="reg-tg" required
+                            class="input-flat w-full px-3.5 py-2.5 rounded-lg text-sm font-mono"
+                            placeholder="@alextrade">
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-slate-400 mb-1.5">Create Password</label>
-                        <input type="password" id="reg-password" required minlength="6" class="input-flat w-full px-3.5 py-2.5 rounded-lg text-sm font-medium" placeholder="At least 6 characters">
+                        <input type="password" id="reg-password" required minlength="6"
+                            class="input-flat w-full px-3.5 py-2.5 rounded-lg text-sm font-medium"
+                            placeholder="At least 6 characters">
                     </div>
-                    <button type="submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black text-sm uppercase tracking-wider transition shadow-lg shadow-emerald-500/20">
+                    <button type="submit"
+                        class="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black text-sm uppercase tracking-wider transition shadow-lg shadow-emerald-500/20">
                         Create Account & Proceed
                     </button>
                 </form>
@@ -146,30 +208,36 @@
         <div id="view-dashboard" class="hidden space-y-6">
 
             <!-- Hero Subscription Status Bar -->
-            <div id="sub-status-banner" class="rounded-xl p-5 border flex flex-col md:flex-row items-center justify-between gap-4 transition shadow-lg">
+            <div id="sub-status-banner"
+                class="rounded-xl p-5 border flex flex-col md:flex-row items-center justify-between gap-4 transition shadow-lg">
                 <div class="flex items-center space-x-4">
-                    <div id="sub-status-icon" class="w-12 h-12 rounded-xl flex items-center justify-center text-2xl font-bold shrink-0"></div>
+                    <div id="sub-status-icon"
+                        class="w-12 h-12 rounded-xl flex items-center justify-center text-2xl font-bold shrink-0"></div>
                     <div>
                         <div class="flex items-center gap-2">
                             <h2 id="sub-status-title" class="text-base font-bold text-white tracking-tight"></h2>
-                            <span id="sub-status-tag" class="px-2 py-0.5 text-[11px] font-black rounded uppercase tracking-wider"></span>
+                            <span id="sub-status-tag"
+                                class="px-2 py-0.5 text-[11px] font-black rounded uppercase tracking-wider"></span>
                         </div>
                         <p id="sub-status-desc" class="text-xs text-slate-400 mt-0.5"></p>
                     </div>
                 </div>
                 <div>
-                    <button id="btn-pay-action" onclick="openCryptoModal()" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-sky-500 via-indigo-500 to-emerald-400 hover:opacity-90 text-white font-black text-xs uppercase tracking-wider transition shadow-lg shadow-sky-500/20 flex items-center gap-2">
+                    <button id="btn-pay-action" onclick="openCryptoModal()"
+                        class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-sky-500 via-indigo-500 to-emerald-400 hover:opacity-90 text-white font-black text-xs uppercase tracking-wider transition shadow-lg shadow-sky-500/20 flex items-center gap-2">
                         <span>💎 Activate Pro Plan ($8 / mo)</span>
                     </button>
                 </div>
             </div>
 
             <!-- Notice when subscription is unpaid -->
-            <div id="lock-warning" class="hidden p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-start gap-3">
+            <div id="lock-warning"
+                class="hidden p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-start gap-3">
                 <span class="text-amber-400 text-lg shrink-0">⚠️</span>
                 <div class="text-xs text-amber-200/90 leading-relaxed">
                     <strong class="font-bold text-amber-400 block mb-0.5">Automated Execution Locked</strong>
-                    Your Pro Subscription is currently unpaid. Please complete your $8.00/month crypto checkout above to enable 24/7 automated trade execution from your Telegram channel to your cTrader account.
+                    Your Pro Subscription is currently unpaid. Please complete your $8.00/month crypto checkout above to
+                    enable 24/7 automated trade execution from your Telegram channel to your cTrader account.
                 </div>
             </div>
 
@@ -181,13 +249,16 @@
                     <div>
                         <div class="flex items-center justify-between mb-4">
                             <div class="flex items-center space-x-2.5">
-                                <span class="w-8 h-8 rounded-lg bg-sky-500/10 text-sky-400 flex items-center justify-center text-base">✈️</span>
+                                <span
+                                    class="w-8 h-8 rounded-lg bg-sky-500/10 text-sky-400 flex items-center justify-center text-base">✈️</span>
                                 <div>
                                     <h3 class="font-bold text-sm text-white">Telegram Source</h3>
                                     <span class="text-[11px] text-slate-400 block">Limit: 1 Channel Allowed</span>
                                 </div>
                             </div>
-                            <span id="badge-tg-count" class="px-2 py-0.5 rounded text-[11px] font-semibold bg-slate-800 text-slate-300 border border-slate-700">0 / 1 Linked</span>
+                            <span id="badge-tg-count"
+                                class="px-2 py-0.5 rounded text-[11px] font-semibold bg-slate-800 text-slate-300 border border-slate-700">0
+                                / 1 Linked</span>
                         </div>
 
                         <p class="text-xs text-slate-400 mb-4 leading-relaxed">
@@ -196,31 +267,40 @@
 
                         <div id="tg-disconnected-box" class="space-y-3">
                             <div class="p-4 rounded-xl bg-slate-950/80 border border-slate-800 text-center space-y-3">
-                                <span class="text-xs text-slate-300 font-medium block">No Telegram account connected</span>
-                                <button onclick="openTelegramModal()" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-500 hover:opacity-90 text-white font-bold text-xs transition shadow-lg shadow-sky-500/20 flex items-center justify-center gap-2">
+                                <span class="text-xs text-slate-300 font-medium block">No Telegram account
+                                    connected</span>
+                                <button onclick="openTelegramModal()"
+                                    class="w-full py-2.5 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-500 hover:opacity-90 text-white font-bold text-xs transition shadow-lg shadow-sky-500/20 flex items-center justify-center gap-2">
                                     <span>✈️ Link Telegram Channel / Account</span>
                                 </button>
                             </div>
                         </div>
 
-                        <div id="tg-connected-box" class="hidden p-3.5 rounded-xl bg-sky-500/10 border border-sky-500/20 space-y-2">
+                        <div id="tg-connected-box"
+                            class="hidden p-3.5 rounded-xl bg-sky-500/10 border border-sky-500/20 space-y-2">
                             <div class="flex items-center gap-2 text-sky-400 font-bold text-xs">
                                 <span>✓ Telegram Source Connected</span>
                             </div>
                             <div class="text-[11px] text-slate-300 space-y-1 font-mono">
-                                <div class="flex justify-between"><span class="text-slate-400">Account:</span> <strong id="disp-tg-user" class="text-white"></strong></div>
-                                <div class="flex justify-between"><span class="text-slate-400">Channel:</span> <strong id="disp-tg-channel" class="text-sky-300 font-bold truncate max-w-[140px]"></strong></div>
-                                <div class="flex justify-between"><span class="text-slate-400">Listener:</span> <span class="text-emerald-400">🟢 Active (24/7 Monitor)</span></div>
+                                <div class="flex justify-between"><span class="text-slate-400">Account:</span> <strong
+                                        id="disp-tg-user" class="text-white"></strong></div>
+                                <div class="flex justify-between"><span class="text-slate-400">Channel:</span> <strong
+                                        id="disp-tg-channel"
+                                        class="text-sky-300 font-bold truncate max-w-[140px]"></strong></div>
+                                <div class="flex justify-between"><span class="text-slate-400">Listener:</span> <span
+                                        class="text-emerald-400">🟢 Active (24/7 Monitor)</span></div>
                             </div>
                         </div>
                     </div>
 
                     <div class="mt-5 pt-4 border-t border-slate-800/80 flex items-center justify-between">
                         <span id="tg-status-text" class="text-xs font-medium text-slate-500">Not connected</span>
-                        <button id="btn-tg-connect" onclick="openTelegramModal()" class="px-3.5 py-1.5 rounded-lg bg-sky-500 hover:bg-sky-400 text-white text-xs font-bold transition shadow-md shadow-sky-500/10">
+                        <button id="btn-tg-connect" onclick="openTelegramModal()"
+                            class="px-3.5 py-1.5 rounded-lg bg-sky-500 hover:bg-sky-400 text-white text-xs font-bold transition shadow-md shadow-sky-500/10">
                             ✈️ Connect Telegram
                         </button>
-                        <button id="btn-tg-disconnect" onclick="disconnectTelegram()" class="hidden px-3.5 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-semibold border border-red-500/20 transition">
+                        <button id="btn-tg-disconnect" onclick="disconnectTelegram()"
+                            class="hidden px-3.5 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-semibold border border-red-500/20 transition">
                             Disconnect
                         </button>
                     </div>
@@ -231,47 +311,61 @@
                     <div>
                         <div class="flex items-center justify-between mb-4">
                             <div class="flex items-center space-x-2.5">
-                                <span class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-base">📊</span>
+                                <span
+                                    class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-base">📊</span>
                                 <div>
                                     <h3 class="font-bold text-sm text-white">cTrader Broker</h3>
                                     <span class="text-[11px] text-slate-400 block">Limit: 1 Account Allowed</span>
                                 </div>
                             </div>
-                            <span id="badge-ct-count" class="px-2 py-0.5 rounded text-[11px] font-semibold bg-slate-800 text-slate-300 border border-slate-700">0 / 1 Linked</span>
+                            <span id="badge-ct-count"
+                                class="px-2 py-0.5 rounded text-[11px] font-semibold bg-slate-800 text-slate-300 border border-slate-700">0
+                                / 1 Linked</span>
                         </div>
 
                         <p class="text-xs text-slate-400 mb-4 leading-relaxed">
-                            Connect your Spotware cTrader account securely via official OAuth 2.0. No passwords required!
+                            Connect your Spotware cTrader account securely via official OAuth 2.0. No passwords
+                            required!
                         </p>
 
                         <div id="ct-disconnected-box" class="space-y-3">
                             <div class="p-4 rounded-xl bg-slate-950/80 border border-slate-800 text-center space-y-3">
-                                <span class="text-xs text-slate-300 font-medium block">No broker account connected</span>
-                                <button onclick="openOAuthModal()" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:opacity-90 text-slate-950 font-black text-xs transition shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2">
+                                <span class="text-xs text-slate-300 font-medium block">No broker account
+                                    connected</span>
+                                <button onclick="openOAuthModal()"
+                                    class="w-full py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:opacity-90 text-slate-950 font-black text-xs transition shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2">
                                     <span>🔗 Connect cTrader via OAuth 2.0</span>
                                 </button>
                             </div>
                         </div>
 
-                        <div id="ct-connected-box" class="hidden p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 space-y-2">
+                        <div id="ct-connected-box"
+                            class="hidden p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 space-y-2">
                             <div class="flex items-center gap-2 text-emerald-400 font-bold text-xs">
                                 <span>✓ Account Linked Successfully</span>
                             </div>
                             <div class="text-[11px] text-slate-300 space-y-1 font-mono">
-                                <div class="flex justify-between"><span class="text-slate-400">Broker:</span> <strong id="disp-ct-broker" class="text-white truncate max-w-[140px]">Deriv SVG / Spotware</strong></div>
-                                <div class="flex justify-between"><span class="text-slate-400">Account:</span> <strong id="disp-ct-login" class="text-white"></strong></div>
-                                <div class="flex justify-between"><span class="text-slate-400">Environment:</span> <strong id="disp-ct-env" class="uppercase text-white"></strong></div>
-                                <div class="flex justify-between"><span class="text-slate-400">Auth Method:</span> <span class="text-emerald-400">OAuth 2.0 Token</span></div>
+                                <div class="flex justify-between"><span class="text-slate-400">Broker:</span> <strong
+                                        id="disp-ct-broker" class="text-white truncate max-w-[140px]">Deriv SVG /
+                                        Spotware</strong></div>
+                                <div class="flex justify-between"><span class="text-slate-400">Account:</span> <strong
+                                        id="disp-ct-login" class="text-white"></strong></div>
+                                <div class="flex justify-between"><span class="text-slate-400">Environment:</span>
+                                    <strong id="disp-ct-env" class="uppercase text-white"></strong></div>
+                                <div class="flex justify-between"><span class="text-slate-400">Auth Method:</span> <span
+                                        class="text-emerald-400">OAuth 2.0 Token</span></div>
                             </div>
                         </div>
                     </div>
 
                     <div class="mt-5 pt-4 border-t border-slate-800/80 flex items-center justify-between">
                         <span id="ct-status-text" class="text-xs font-medium text-slate-500">Unlinked</span>
-                        <button id="btn-ct-connect" onclick="openOAuthModal()" class="px-3.5 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold transition shadow-md shadow-emerald-500/10">
+                        <button id="btn-ct-connect" onclick="openOAuthModal()"
+                            class="px-3.5 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold transition shadow-md shadow-emerald-500/10">
                             🔗 Connect via OAuth
                         </button>
-                        <button id="btn-ct-disconnect" onclick="disconnectCTrader()" class="hidden px-3.5 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-semibold border border-red-500/20 transition">
+                        <button id="btn-ct-disconnect" onclick="disconnectCTrader()"
+                            class="hidden px-3.5 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-semibold border border-red-500/20 transition">
                             Disconnect
                         </button>
                     </div>
@@ -282,31 +376,38 @@
                     <div>
                         <div class="flex items-center justify-between mb-4">
                             <div class="flex items-center space-x-2.5">
-                                <span class="w-8 h-8 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center text-base">⚡</span>
+                                <span
+                                    class="w-8 h-8 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center text-base">⚡</span>
                                 <div>
                                     <h3 class="font-bold text-sm text-white">Execution & Risk</h3>
                                     <span class="text-[11px] text-slate-400 block">Automated Trade Controls</span>
                                 </div>
                             </div>
-                            <span id="badge-copy-status" class="px-2 py-0.5 rounded text-[11px] font-bold bg-slate-800 text-slate-400">STOPPED</span>
+                            <span id="badge-copy-status"
+                                class="px-2 py-0.5 rounded text-[11px] font-bold bg-slate-800 text-slate-400">STOPPED</span>
                         </div>
 
                         <div class="space-y-3">
                             <!-- Master Toggle -->
-                            <div class="p-3 rounded-xl bg-slate-950/80 border border-slate-800 flex items-center justify-between">
+                            <div
+                                class="p-3 rounded-xl bg-slate-950/80 border border-slate-800 flex items-center justify-between">
                                 <div>
                                     <span class="text-xs font-bold text-white block">Auto Copy-Trading</span>
                                     <span class="text-[10px] text-slate-400">Execute signals in &lt;0.1s</span>
                                 </div>
                                 <label class="relative inline-flex items-center cursor-pointer">
-                                    <input type="checkbox" id="toggle-copy-active" onchange="toggleCopyTrading()" class="sr-only peer">
-                                    <div class="w-9 h-5 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-sky-500"></div>
+                                    <input type="checkbox" id="toggle-copy-active" onchange="toggleCopyTrading()"
+                                        class="sr-only peer">
+                                    <div
+                                        class="w-9 h-5 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-sky-500">
+                                    </div>
                                 </label>
                             </div>
 
                             <div>
                                 <label class="block text-xs font-medium text-slate-400 mb-1">Lot Sizing Strategy</label>
-                                <select id="select-lot-mode" onchange="updateLotMode()" class="input-flat w-full px-3 py-2 rounded-lg text-xs font-medium">
+                                <select id="select-lot-mode" onchange="updateLotMode()"
+                                    class="input-flat w-full px-3 py-2 rounded-lg text-xs font-medium">
                                     <option value="dynamic">Dynamic Proportional (Recommended)</option>
                                     <option value="fixed">Fixed Lot Size per Trade</option>
                                     <option value="multiplier">Volume Multiplier (e.g. 0.5x / 2.0x)</option>
@@ -314,8 +415,10 @@
                             </div>
 
                             <div id="box-lot-val" class="hidden">
-                                <label id="label-lot-val" class="block text-xs font-medium text-slate-400 mb-1">Value</label>
-                                <input type="number" step="0.01" id="input-lot-val" class="input-flat w-full px-3 py-2 rounded-lg text-xs font-mono" value="0.10">
+                                <label id="label-lot-val"
+                                    class="block text-xs font-medium text-slate-400 mb-1">Value</label>
+                                <input type="number" step="0.01" id="input-lot-val"
+                                    class="input-flat w-full px-3 py-2 rounded-lg text-xs font-mono" value="0.10">
                             </div>
 
                             <div class="flex items-center justify-between pt-1 text-xs text-slate-400">
@@ -327,7 +430,8 @@
 
                     <div class="mt-5 pt-4 border-t border-slate-800/80 flex items-center justify-between">
                         <span class="text-[11px] text-slate-500">Auto-saves instantly</span>
-                        <button onclick="saveExecutionSettings()" class="px-3.5 py-1.5 rounded-lg bg-sky-500 hover:bg-sky-400 text-white text-xs font-bold shadow-md shadow-sky-500/10 transition">
+                        <button onclick="saveExecutionSettings()"
+                            class="px-3.5 py-1.5 rounded-lg bg-sky-500 hover:bg-sky-400 text-white text-xs font-bold shadow-md shadow-sky-500/10 transition">
                             Update Settings
                         </button>
                     </div>
@@ -339,19 +443,24 @@
             <div class="card-flat rounded-2xl p-5 shadow-xl">
                 <div class="flex items-center justify-between mb-4">
                     <div class="flex items-center space-x-2.5">
-                        <span class="w-7 h-7 rounded-lg bg-slate-800 text-slate-300 flex items-center justify-center text-sm">📋</span>
+                        <span
+                            class="w-7 h-7 rounded-lg bg-slate-800 text-slate-300 flex items-center justify-center text-sm">📋</span>
                         <div>
                             <h3 class="font-bold text-sm text-white">Your Copied Signals Feed</h3>
-                            <span class="text-[11px] text-slate-400">Live monitoring of your linked channel ➔ cTrader execution</span>
+                            <span class="text-[11px] text-slate-400">Live monitoring of your linked channel ➔ cTrader
+                                execution</span>
                         </div>
                     </div>
-                    <button onclick="renderSignalsTable()" class="text-xs font-semibold px-3 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 transition">🔄 Refresh Feed</button>
+                    <button onclick="renderSignalsTable()"
+                        class="text-xs font-semibold px-3 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 transition">🔄
+                        Refresh Feed</button>
                 </div>
 
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse">
                         <thead>
-                            <tr class="border-b border-slate-800 text-[11px] text-slate-400 uppercase tracking-wider font-semibold">
+                            <tr
+                                class="border-b border-slate-800 text-[11px] text-slate-400 uppercase tracking-wider font-semibold">
                                 <th class="pb-2.5 pr-4">Time (UTC)</th>
                                 <th class="pb-2.5 pr-4">Channel Source</th>
                                 <th class="pb-2.5 pr-4">Signal Action</th>
@@ -373,29 +482,40 @@
     </main>
 
     <!-- CRYPTO PAYMENT MODAL ($8 / Month) -->
-    <div id="modal-crypto" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="card-flat bg-slate-900 rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-700 animate-in fade-in duration-200">
-            
+    <div id="modal-crypto"
+        class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div
+            class="card-flat bg-slate-900 rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-700 animate-in fade-in duration-200">
+
             <div class="flex items-center justify-between pb-4 border-b border-slate-800 mb-5">
                 <div class="flex items-center space-x-2">
                     <span class="text-xl">💎</span>
                     <h3 class="font-bold text-white text-base">Pro Subscription Checkout</h3>
                 </div>
-                <button onclick="closeCryptoModal()" class="text-slate-400 hover:text-white text-lg font-bold px-2 py-1 rounded hover:bg-slate-800 transition">✕</button>
+                <button onclick="closeCryptoModal()"
+                    class="text-slate-400 hover:text-white text-lg font-bold px-2 py-1 rounded hover:bg-slate-800 transition">✕</button>
             </div>
 
             <div class="text-center mb-5">
-                <div class="text-3xl font-black text-white">$8.00 <span class="text-xs font-semibold text-slate-400">USD / Month</span></div>
-                <p class="text-xs text-slate-400 mt-1">Select your preferred cryptocurrency below for automated verification</p>
+                <div class="text-3xl font-black text-white">$8.00 <span class="text-xs font-semibold text-slate-400">USD
+                        / Month</span></div>
+                <p class="text-xs text-slate-400 mt-1">Select your preferred cryptocurrency below for automated
+                    verification</p>
             </div>
 
             <!-- Crypto Selector Tabs -->
-            <div class="grid grid-cols-5 gap-1.5 p-1 bg-slate-950 rounded-xl border border-slate-800 mb-5 text-center text-xs font-semibold">
-                <button onclick="selectCrypto('USDT')" id="crypto-tab-USDT" class="py-1.5 rounded-lg bg-sky-500 text-white transition">USDT</button>
-                <button onclick="selectCrypto('BTC')" id="crypto-tab-BTC" class="py-1.5 rounded-lg text-slate-400 hover:text-white transition">BTC</button>
-                <button onclick="selectCrypto('ETH')" id="crypto-tab-ETH" class="py-1.5 rounded-lg text-slate-400 hover:text-white transition">ETH</button>
-                <button onclick="selectCrypto('SOL')" id="crypto-tab-SOL" class="py-1.5 rounded-lg text-slate-400 hover:text-white transition">SOL</button>
-                <button onclick="selectCrypto('BNB')" id="crypto-tab-BNB" class="py-1.5 rounded-lg text-slate-400 hover:text-white transition">BNB</button>
+            <div
+                class="grid grid-cols-5 gap-1.5 p-1 bg-slate-950 rounded-xl border border-slate-800 mb-5 text-center text-xs font-semibold">
+                <button onclick="selectCrypto('USDT')" id="crypto-tab-USDT"
+                    class="py-1.5 rounded-lg bg-sky-500 text-white transition">USDT</button>
+                <button onclick="selectCrypto('BTC')" id="crypto-tab-BTC"
+                    class="py-1.5 rounded-lg text-slate-400 hover:text-white transition">BTC</button>
+                <button onclick="selectCrypto('ETH')" id="crypto-tab-ETH"
+                    class="py-1.5 rounded-lg text-slate-400 hover:text-white transition">ETH</button>
+                <button onclick="selectCrypto('SOL')" id="crypto-tab-SOL"
+                    class="py-1.5 rounded-lg text-slate-400 hover:text-white transition">SOL</button>
+                <button onclick="selectCrypto('BNB')" id="crypto-tab-BNB"
+                    class="py-1.5 rounded-lg text-slate-400 hover:text-white transition">BNB</button>
             </div>
 
             <!-- Payment Details Box -->
@@ -412,7 +532,9 @@
                 <!-- QR Code Box -->
                 <div class="flex flex-col items-center justify-center py-3 border-y border-slate-800/60 font-sans">
                     <div class="p-2.5 bg-white rounded-xl shadow-lg">
-                        <img id="disp-crypto-qr" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb&color=000000&bgcolor=ffffff" alt="Crypto QR Code" class="w-32 h-32">
+                        <img id="disp-crypto-qr"
+                            src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb&color=000000&bgcolor=ffffff"
+                            alt="Crypto QR Code" class="w-32 h-32">
                     </div>
                     <span class="text-[11px] text-slate-500 mt-2">Scan with Binance, TrustWallet, or MetaMask</span>
                 </div>
@@ -421,8 +543,10 @@
                 <div class="font-sans">
                     <label class="block text-[11px] font-medium text-slate-400 mb-1">Recipient Wallet Address:</label>
                     <div class="flex items-center space-x-2">
-                        <input type="text" id="disp-crypto-addr" readonly value="T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb" class="input-flat flex-1 px-3 py-2 rounded-lg text-xs font-mono text-slate-300 bg-slate-900 select-all">
-                        <button onclick="copyWalletAddress()" class="px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition shrink-0">
+                        <input type="text" id="disp-crypto-addr" readonly value="T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb"
+                            class="input-flat flex-1 px-3 py-2 rounded-lg text-xs font-mono text-slate-300 bg-slate-900 select-all">
+                        <button onclick="copyWalletAddress()"
+                            class="px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition shrink-0">
                             📋 Copy
                         </button>
                     </div>
@@ -432,20 +556,26 @@
             <!-- TXID Verification Step -->
             <div class="space-y-3 font-sans">
                 <div>
-                    <label class="block text-xs font-medium text-slate-300 mb-1">Step 2: Submit Transaction Hash (TXID / Hash)</label>
-                    <input type="text" id="input-txid" class="input-flat w-full px-3.5 py-2.5 rounded-lg text-xs font-mono" placeholder="Paste 64-char transaction hash here after sending...">
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Step 2: Submit Transaction Hash (TXID /
+                        Hash)</label>
+                    <input type="text" id="input-txid"
+                        class="input-flat w-full px-3.5 py-2.5 rounded-lg text-xs font-mono"
+                        placeholder="Paste 64-char transaction hash here after sending...">
                 </div>
 
-                <div id="verify-progress" class="hidden p-3 rounded-lg bg-sky-500/10 border border-sky-500/20 text-xs text-sky-300 flex items-center space-x-2.5 animate-pulse font-mono">
-                    <span class="inline-block w-4 h-4 border-2 border-sky-400 border-t-transparent rounded-full animate-spin"></span>
+                <div id="verify-progress"
+                    class="hidden p-3 rounded-lg bg-sky-500/10 border border-sky-500/20 text-xs text-sky-300 flex items-center space-x-2.5 animate-pulse font-mono">
+                    <span
+                        class="inline-block w-4 h-4 border-2 border-sky-400 border-t-transparent rounded-full animate-spin"></span>
                     <span id="verify-text">Scanning blockchain network for confirmations (1/3)...</span>
                 </div>
 
-                <button id="btn-submit-verify" onclick="verifyPaymentTXID()" class="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black text-sm uppercase tracking-wider transition shadow-lg shadow-emerald-500/20">
+                <button id="btn-submit-verify" onclick="verifyPaymentTXID()"
+                    class="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black text-sm uppercase tracking-wider transition shadow-lg shadow-emerald-500/20">
                     ✅ Verify & Activate Subscription
                 </button>
             </div>
-            
+
             <p class="text-[11px] text-center text-slate-500 mt-4 font-sans">
                 Automated verification completes in ~15 to 30 seconds after broadcast.
             </p>
@@ -453,135 +583,205 @@
         </div>
     </div>
 
-    <!-- Telegram Linking Modal -->
-    <div id="modal-telegram" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="card-flat bg-slate-900 rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-700 space-y-5 animate-in zoom-in-95 duration-200">
-            <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+    <!-- Telegram Linking Modal (2-Tab MTProto Phone OTP & Static Session) -->
+    <div id="modal-telegram"
+        class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div
+            class="card-flat bg-slate-900 rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-700 space-y-5 animate-in zoom-in-95 duration-200">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-800">
                 <div class="flex items-center space-x-2.5">
-                    <span class="w-8 h-8 rounded-lg bg-sky-500/20 text-sky-400 flex items-center justify-center text-lg">✈️</span>
-                    <h3 class="font-bold text-white text-base">Link Telegram Channel</h3>
+                    <span
+                        class="w-8 h-8 rounded-lg bg-sky-500/20 text-sky-400 flex items-center justify-center text-lg">✈️</span>
+                    <h3 class="font-bold text-white text-base">Connect Telegram Source</h3>
                 </div>
-                <button onclick="closeTelegramModal()" class="text-slate-400 hover:text-white text-lg font-bold px-2 py-1 rounded hover:bg-slate-800 transition">✕</button>
+                <button onclick="closeTelegramModal()"
+                    class="text-slate-400 hover:text-white text-lg font-bold px-2 py-1 rounded hover:bg-slate-800 transition">✕</button>
             </div>
 
-            <div id="tg-step-1" class="space-y-4 text-center">
-                <p class="text-xs text-slate-300 leading-relaxed">
-                    Authenticate your Telegram account to select the VIP trading signal channel you want to copy into cTrader.
+            <!-- 2-Tab Navigation -->
+            <div
+                class="grid grid-cols-2 gap-1 p-1 bg-slate-950 rounded-xl border border-slate-800 text-center text-xs font-semibold">
+                <button onclick="switchTgAuthTab('phone')" id="tg-tab-phone"
+                    class="py-2 rounded-lg bg-sky-500 text-white transition">📱 Phone & OTP Code</button>
+                <button onclick="switchTgAuthTab('token')" id="tg-tab-token"
+                    class="py-2 rounded-lg text-slate-400 hover:text-white transition">🔑 Paste Session / Token</button>
+            </div>
+
+            <!-- Tab 1: MTProto Phone Number & OTP Flow -->
+            <div id="tg-view-phone" class="space-y-4 text-left">
+                <p class="text-[11px] text-slate-300 leading-relaxed">
+                    Official MTProto Userbot Login. Enter your Telegram phone number to receive a 5-digit verification
+                    code. Once linked, you can copy trades from <strong class="text-sky-400">any private VIP
+                        channel</strong> you are a member of!
                 </p>
-                <div class="p-4 rounded-xl bg-slate-950 border border-slate-800/80 space-y-3 font-mono text-xs text-left">
-                    <div class="flex justify-between"><span class="text-slate-500">Security:</span> <span class="text-sky-400">Official Telegram OAuth</span></div>
-                    <div class="flex justify-between"><span class="text-slate-500">Bot Listener:</span> <span class="text-emerald-400">@Forexunitedbot</span></div>
-                    <div class="flex justify-between"><span class="text-slate-500">Permissions:</span> <span class="text-slate-300">Read Signal Messages</span></div>
+
+                <!-- Phone Step 1 -->
+                <div id="tg-phone-step-1" class="space-y-3">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Phone Number (with Country
+                            Code)</label>
+                        <input type="text" id="input-tg-phone"
+                            class="input-flat w-full px-3.5 py-2.5 rounded-lg text-xs font-mono text-white"
+                            placeholder="e.g. +1 234 567 8900 or +44 7700 900077">
+                    </div>
+                    <button type="button" onclick="sendTgOtpCode()" id="btn-send-otp"
+                        class="w-full py-3 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-500 hover:opacity-90 text-white font-bold text-xs uppercase tracking-wider transition shadow-lg shadow-sky-500/20 flex items-center justify-center gap-2">
+                        <span>📲 Send Verification Code</span>
+                    </button>
                 </div>
-                <button onclick="simulateTelegramOAuth()" id="btn-tg-oauth" class="w-full py-3 rounded-xl bg-sky-500 hover:bg-sky-400 text-white font-bold text-sm transition shadow-lg shadow-sky-500/20 flex items-center justify-center gap-2">
-                    <span>✈️ Authorize with Telegram Account</span>
-                </button>
+
+                <!-- Phone Step 2 (OTP Input) -->
+                <div id="tg-phone-step-2" class="hidden space-y-3">
+                    <div
+                        class="p-3 rounded-xl bg-sky-500/10 border border-sky-500/20 text-[11px] text-sky-300 flex items-center gap-2">
+                        <span>💬 We sent a 5-digit verification code to your Telegram app / SMS for <strong
+                                id="disp-sent-phone" class="font-mono text-white"></strong>.</span>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Enter 5-Digit OTP Verification
+                            Code</label>
+                        <input type="text" maxlength="6" id="input-tg-otp"
+                            class="input-flat w-full px-3.5 py-2.5 rounded-lg text-sm font-mono text-center tracking-widest text-emerald-400 font-bold"
+                            placeholder="1 2 3 4 5">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-medium text-slate-400 mb-1">2FA Cloud Password (If enabled
+                            on your account)</label>
+                        <input type="password" id="input-tg-2fa"
+                            class="input-flat w-full px-3.5 py-2 rounded-lg text-xs"
+                            placeholder="Leave blank if you don't use 2FA">
+                    </div>
+                    <div class="flex space-x-2 pt-1">
+                        <button type="button" onclick="switchTgAuthTab('phone')"
+                            class="px-3 py-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold">Back</button>
+                        <button type="button" onclick="verifyTgOtpCode()" id="btn-verify-otp"
+                            class="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:opacity-90 text-slate-950 font-black text-xs uppercase tracking-wider transition shadow-lg shadow-emerald-500/20">
+                            ✅ Verify & Link Userbot
+                        </button>
+                    </div>
+                </div>
             </div>
 
-            <div id="tg-step-2" class="hidden space-y-4 text-left">
-                <div class="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center gap-2.5 text-xs text-emerald-300">
-                    <span class="text-base font-bold">✓</span>
-                    <span>Authenticated successfully as <strong id="tg-oauth-username" class="font-mono text-white">@TraderPro</strong></span>
-                </div>
-
+            <!-- Tab 2: Paste Telethon Session String or Bot Token -->
+            <div id="tg-view-token" class="hidden space-y-4 text-left">
+                <p class="text-[11px] text-slate-300 leading-relaxed">
+                    Paste your Telethon <strong class="text-sky-400">Session String</strong> or standard <strong
+                        class="text-sky-400">Bot Token</strong> directly below. This method links instantly without
+                    needing an SMS verification code!
+                </p>
                 <div>
-                    <label class="block text-xs font-medium text-slate-300 mb-1.5">Select Your Trading Signal Channel / Group:</label>
-                    <select id="select-tg-channel" onchange="toggleTgCustomBox()" class="input-flat w-full px-3 py-2.5 rounded-lg text-xs font-mono text-white">
-                        <option value="-1003257960170">⭐ Alpha Markets VIP Signals (-1003257960170) [Recommended]</option>
-                        <option value="@goldscalpervip">📈 Gold Scalper VIP (@goldscalpervip)</option>
-                        <option value="-1009876543210">🔥 Crypto Elite Group (-1009876543210)</option>
-                        <option value="custom">➕ [Enter Custom Channel Handle / ID...]</option>
-                    </select>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Session String or Bot Token</label>
+                    <textarea id="input-tg-token-val" rows="3"
+                        class="input-flat w-full p-3 rounded-lg text-[11px] font-mono text-slate-200 resize-none"
+                        placeholder="Paste BQ... session string or 123456789:ABC... bot token"></textarea>
                 </div>
-
-                <div id="tg-custom-box" class="hidden">
-                    <label class="block text-[11px] font-medium text-slate-400 mb-1">Custom Channel Handle or Invite ID:</label>
-                    <input type="text" id="input-tg-custom" class="input-flat w-full px-3 py-2 rounded-lg text-xs font-mono" placeholder="e.g. @MyVIPForexSignals or -10023456789">
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Target Channel Handle or ID</label>
+                    <input type="text" id="input-tg-target-val"
+                        class="input-flat w-full px-3.5 py-2 rounded-lg text-xs font-mono text-white"
+                        value="-1003257960170" placeholder="e.g. @MyVIPForexSignals or -1003257960170">
                 </div>
-
-                <div class="p-3 rounded-xl bg-slate-950 border border-slate-800/80 text-[11px] text-slate-400 space-y-1 font-mono">
-                    <span class="font-semibold text-slate-300 block mb-0.5 font-sans">⚡ Instant Copy Sync:</span>
-                    <div>Make sure bot <code class="text-sky-400 font-bold">@Forexunitedbot</code> is added as Admin in your channel with Read Messages permission.</div>
-                </div>
-
-                <div class="flex space-x-3 pt-2">
-                    <button onclick="closeTelegramModal()" class="flex-1 py-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-xs transition">Cancel</button>
-                    <button onclick="completeTelegramLink()" class="flex-1 py-2.5 rounded-lg bg-gradient-to-r from-sky-500 to-indigo-500 hover:from-sky-400 hover:to-indigo-400 text-white font-bold text-xs transition shadow-lg shadow-sky-500/20">🚀 Link & Activate</button>
-                </div>
+                <button type="button" onclick="connectTgSessionString()"
+                    class="w-full py-3 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-500 hover:opacity-90 text-white font-bold text-xs uppercase tracking-wider transition shadow-lg shadow-sky-500/20 flex items-center justify-center gap-2">
+                    <span>⚡ Save Session & Activate Listener</span>
+                </button>
             </div>
         </div>
     </div>
 
     <!-- Spotware OAuth Simulation Modal -->
-    <div id="modal-oauth" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="card-flat bg-slate-900 rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-700 space-y-5 animate-in zoom-in-95 duration-200">
+    <div id="modal-oauth"
+        class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div
+            class="card-flat bg-slate-900 rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-700 space-y-5 animate-in zoom-in-95 duration-200">
             <div class="flex items-center justify-between pb-4 border-b border-slate-800">
                 <div class="flex items-center space-x-2.5">
-                    <span class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-lg">🔗</span>
+                    <span
+                        class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-lg">🔗</span>
                     <h3 class="font-bold text-white text-base">Spotware cTrader ID (cTID)</h3>
                 </div>
-                <button onclick="closeOAuthModal()" class="text-slate-400 hover:text-white text-lg font-bold px-2 py-1 rounded hover:bg-slate-800 transition">✕</button>
+                <button onclick="closeOAuthModal()"
+                    class="text-slate-400 hover:text-white text-lg font-bold px-2 py-1 rounded hover:bg-slate-800 transition">✕</button>
             </div>
 
             <div id="ct-step-1" class="space-y-4 text-center">
                 <p class="text-xs text-slate-300 leading-relaxed">
-                    Connect to official Spotware Open API v2 cloud gateway. Authorize once to execute trades automatically 24/7 without passwords!
+                    Connect to official Spotware Open API v2 cloud gateway. Authorize once to execute trades
+                    automatically 24/7 without passwords!
                 </p>
                 <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 text-left text-xs space-y-2 font-mono">
-                    <div class="flex justify-between"><span class="text-slate-500">App Name:</span> <span class="text-white">Alpha Markets Copy Trading</span></div>
-                    <div class="flex justify-between"><span class="text-slate-500">Permissions:</span> <span class="text-emerald-400">Trade & View Accounts</span></div>
-                    <div class="flex justify-between"><span class="text-slate-500">Security:</span> <span class="text-sky-400">OAuth 2.0 Encrypted Token</span></div>
+                    <div class="flex justify-between"><span class="text-slate-500">App Name:</span> <span
+                            class="text-white">Alpha Markets Copy Trading</span></div>
+                    <div class="flex justify-between"><span class="text-slate-500">Permissions:</span> <span
+                            class="text-emerald-400">Trade & View Accounts</span></div>
+                    <div class="flex justify-between"><span class="text-slate-500">Security:</span> <span
+                            class="text-sky-400">OAuth 2.0 Encrypted Token</span></div>
                 </div>
-                <button onclick="simulateCTraderOAuth()" id="btn-ct-oauth" class="w-full py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-sm uppercase tracking-wider transition shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2">
+                <button onclick="simulateCTraderOAuth()" id="btn-ct-oauth"
+                    class="w-full py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-sm uppercase tracking-wider transition shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2">
                     <span>🔗 Authorize with Spotware cTID</span>
                 </button>
             </div>
 
             <div id="ct-step-2" class="hidden space-y-4 text-left">
-                <div class="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center gap-2.5 text-xs text-emerald-300">
+                <div
+                    class="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center gap-2.5 text-xs text-emerald-300">
                     <span class="text-base font-bold">✓</span>
                     <span>OAuth Token authenticated! Select your trading account below:</span>
                 </div>
 
                 <div>
                     <label class="block text-xs font-medium text-slate-300 mb-1.5">Authorized cTrader Accounts:</label>
-                    <select id="select-ct-account" onchange="toggleCtCustomBox()" class="input-flat w-full px-3 py-2.5 rounded-lg text-xs font-mono text-white">
-                        <option value="2454414|demo|Deriv SVG / cTrader Cloud">#2454414 - Deriv SVG (Demo | Balance: $10,010.84 USD) [Recommended]</option>
-                        <option value="5865538|live|IC Markets Global">#5865538 - IC Markets (Live | Balance: $5,250.00 USD)</option>
-                        <option value="1117964|demo|Pepperstone Demo Gateway">#1117964 - Pepperstone (Demo | Balance: $50,000.00 USD)</option>
+                    <select id="select-ct-account" onchange="toggleCtCustomBox()"
+                        class="input-flat w-full px-3 py-2.5 rounded-lg text-xs font-mono text-white">
+                        <option value="2454414|demo|Deriv SVG / cTrader Cloud">#2454414 - Deriv SVG (Demo | Balance:
+                            $10,010.84 USD) [Recommended]</option>
+                        <option value="5865538|live|IC Markets Global">#5865538 - IC Markets (Live | Balance: $5,250.00
+                            USD)</option>
+                        <option value="1117964|demo|Pepperstone Demo Gateway">#1117964 - Pepperstone (Demo | Balance:
+                            $50,000.00 USD)</option>
                         <option value="custom">➕ [Enter Custom Account Login Number / ID...]</option>
                     </select>
                 </div>
 
                 <div id="ct-custom-box" class="hidden space-y-2.5">
                     <div>
-                        <label class="block text-[11px] font-medium text-slate-400 mb-1">Custom Broker Account Number / Login:</label>
-                        <input type="text" id="input-ct-custom-login" class="input-flat w-full px-3 py-2 rounded-lg text-xs font-mono" placeholder="e.g. 2454414">
+                        <label class="block text-[11px] font-medium text-slate-400 mb-1">Custom Broker Account Number /
+                            Login:</label>
+                        <input type="text" id="input-ct-custom-login"
+                            class="input-flat w-full px-3 py-2 rounded-lg text-xs font-mono" placeholder="e.g. 2454414">
                     </div>
                     <div>
                         <label class="block text-[11px] font-medium text-slate-400 mb-1">Environment:</label>
-                        <select id="input-ct-custom-env" class="input-flat w-full px-3 py-2 rounded-lg text-xs font-medium">
+                        <select id="input-ct-custom-env"
+                            class="input-flat w-full px-3 py-2 rounded-lg text-xs font-medium">
                             <option value="demo">Demo Account</option>
                             <option value="live">Live / Real Money</option>
                         </select>
                     </div>
                 </div>
 
-                <div class="p-3 rounded-xl bg-slate-950 border border-slate-800/80 text-[11px] text-slate-400 space-y-1 font-mono">
+                <div
+                    class="p-3 rounded-xl bg-slate-950 border border-slate-800/80 text-[11px] text-slate-400 space-y-1 font-mono">
                     <span class="font-semibold text-slate-300 block mb-0.5 font-sans">⚡ Execution Guarantee:</span>
-                    <div>Your Spotware OAuth token authorizes instant &lt;0.1s execution with automatic Stop Loss and Take Profit protection.</div>
+                    <div>Your Spotware OAuth token authorizes instant &lt;0.1s execution with automatic Stop Loss and
+                        Take Profit protection.</div>
                 </div>
 
                 <div class="flex space-x-3 pt-2">
-                    <button onclick="closeOAuthModal()" class="flex-1 py-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-xs transition">Cancel</button>
-                    <button onclick="completeCTraderLink()" class="flex-1 py-2.5 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-bold text-xs uppercase tracking-wider transition shadow-lg shadow-emerald-500/20">🚀 Link & Activate</button>
+                    <button onclick="closeOAuthModal()"
+                        class="flex-1 py-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-xs transition">Cancel</button>
+                    <button onclick="completeCTraderLink()"
+                        class="flex-1 py-2.5 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-bold text-xs uppercase tracking-wider transition shadow-lg shadow-emerald-500/20">🚀
+                        Link & Activate</button>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Footer -->
-    <footer class="border-t border-slate-800/80 py-6 mt-12 bg-slate-950/60 backdrop-blur-md text-center text-xs text-slate-500">
+    <footer
+        class="border-t border-slate-800/80 py-6 mt-12 bg-slate-950/60 backdrop-blur-md text-center text-xs text-slate-500">
         <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div>⚡ Alpha Markets Copy Trading • Official Spotware Open API v2 Protocol Buffers Integration</div>
             <div class="flex items-center space-x-4 font-semibold">
@@ -596,10 +796,10 @@
         // Crypto Wallets & Network Config
         const CRYPTO_CONFIG = {
             USDT: { name: "USDT (TRC-20 Tron)", addr: "T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb", amount: "8.00 USDT" },
-            BTC:  { name: "Bitcoin (BTC Native)", addr: "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa", amount: "0.00012 BTC" },
-            ETH:  { name: "Ethereum (ERC-20)", addr: "0x71C...8920mE", amount: "0.0031 ETH" },
-            SOL:  { name: "Solana (SOL Native)", addr: "HN7cABqLq46Es1jh92dQQisAq662SmxELLLsHHe4YWrH", amount: "0.055 SOL" },
-            BNB:  { name: "BNB (BEP-20 BSC)", addr: "0x3f5CE5FBFe3E9af3971dD833D26bA9b5C936f0bE", amount: "0.014 BNB" }
+            BTC: { name: "Bitcoin (BTC Native)", addr: "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa", amount: "0.00012 BTC" },
+            ETH: { name: "Ethereum (ERC-20)", addr: "0x71C...8920mE", amount: "0.0031 ETH" },
+            SOL: { name: "Solana (SOL Native)", addr: "HN7cABqLq46Es1jh92dQQisAq662SmxELLLsHHe4YWrH", amount: "0.055 SOL" },
+            BNB: { name: "BNB (BEP-20 BSC)", addr: "0x3f5CE5FBFe3E9af3971dD833D26bA9b5C936f0bE", amount: "0.014 BNB" }
         };
 
         let currentCrypto = "USDT";
@@ -632,7 +832,7 @@
 
         function getUser() {
             try { return JSON.parse(localStorage.getItem("saas_user")) || {}; }
-            catch(e) { return {}; }
+            catch (e) { return {}; }
         }
 
         function saveUser(data) {
@@ -735,7 +935,7 @@
             const ctStatusText = document.getElementById("ct-status-text");
             const btnConnect = document.getElementById("btn-ct-connect");
             const btnDisconnect = document.getElementById("btn-ct-disconnect");
-            
+
             if (user.ct_linked && user.ct_login) {
                 ctDiscBox.classList.add("hidden");
                 ctConnBox.classList.remove("hidden");
@@ -862,53 +1062,88 @@
         // Setup Actions
         function openTelegramModal() {
             document.getElementById("modal-telegram").classList.remove("hidden");
-            document.getElementById("tg-step-1").classList.remove("hidden");
-            document.getElementById("tg-step-2").classList.add("hidden");
+            switchTgAuthTab('phone');
         }
 
         function closeTelegramModal() {
             document.getElementById("modal-telegram").classList.add("hidden");
+            document.getElementById("tg-phone-step-1").classList.remove("hidden");
+            document.getElementById("tg-phone-step-2").classList.add("hidden");
         }
 
-        function simulateTelegramOAuth() {
-            const btn = document.getElementById("btn-tg-oauth");
+        function switchTgAuthTab(tab) {
+            const btnPhone = document.getElementById("tg-tab-phone");
+            const btnToken = document.getElementById("tg-tab-token");
+            const viewPhone = document.getElementById("tg-view-phone");
+            const viewToken = document.getElementById("tg-view-token");
+
+            if (tab === "phone") {
+                btnPhone.className = "py-2 rounded-lg bg-sky-500 text-white transition font-bold";
+                btnToken.className = "py-2 rounded-lg text-slate-400 hover:text-white transition font-normal";
+                viewPhone.classList.remove("hidden");
+                viewToken.classList.add("hidden");
+            } else {
+                btnToken.className = "py-2 rounded-lg bg-sky-500 text-white transition font-bold";
+                btnPhone.className = "py-2 rounded-lg text-slate-400 hover:text-white transition font-normal";
+                viewToken.classList.remove("hidden");
+                viewPhone.classList.add("hidden");
+            }
+        }
+
+        function sendTgOtpCode() {
+            const phone = document.getElementById("input-tg-phone").value.trim();
+            if (!phone || phone.length < 8 || !phone.includes("+")) {
+                alert("Please enter a valid phone number with country code (e.g. +1 234 567 8900).");
+                return;
+            }
+            const btn = document.getElementById("btn-send-otp");
             btn.disabled = true;
-            btn.innerHTML = `<span class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span> <span>Authenticating with Telegram...</span>`;
-            
+            btn.innerHTML = `<span class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span> <span>Connecting to Telegram MTProto...</span>`;
+
             setTimeout(() => {
-                const user = getUser();
-                const uname = user.tg_handle || "@TraderPro_VIP";
-                document.getElementById("tg-oauth-username").textContent = uname;
-                document.getElementById("tg-step-1").classList.add("hidden");
-                document.getElementById("tg-step-2").classList.remove("hidden");
+                document.getElementById("disp-sent-phone").textContent = phone;
+                document.getElementById("tg-phone-step-1").classList.add("hidden");
+                document.getElementById("tg-phone-step-2").classList.remove("hidden");
                 btn.disabled = false;
-                btn.innerHTML = `<span>✈️ Authorize with Telegram Account</span>`;
+                btn.innerHTML = `<span>📲 Send Verification Code</span>`;
             }, 1200);
         }
 
-        function toggleTgCustomBox() {
-            const sel = document.getElementById("select-tg-channel").value;
-            const box = document.getElementById("tg-custom-box");
-            if (sel === "custom") box.classList.remove("hidden");
-            else box.classList.add("hidden");
+        function verifyTgOtpCode() {
+            const otp = document.getElementById("input-tg-otp").value.trim();
+            if (!otp || otp.length < 5) {
+                alert("Please enter the 5-digit verification code received from Telegram.");
+                return;
+            }
+            const btn = document.getElementById("btn-verify-otp");
+            btn.disabled = true;
+            btn.innerHTML = `<span class="inline-block w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin"></span> <span>Verifying OTP & Generating Session...</span>`;
+
+            setTimeout(() => {
+                const user = getUser();
+                const phone = document.getElementById("disp-sent-phone").textContent || "+1***9000";
+                user.tg_handle = `Userbot (${phone})`;
+                saveUser(user);
+                closeTelegramModal();
+                btn.disabled = false;
+                btn.innerHTML = `✅ Verify & Link Userbot`;
+                alert(`🎉 MTProto Userbot Authenticated Successfully!\n\nYour permanent encrypted Session String has been generated. Your account is now linked to copy trades from any private VIP channel you belong to!`);
+            }, 1400);
         }
 
-        function completeTelegramLink() {
-            const sel = document.getElementById("select-tg-channel").value;
-            let val = sel;
-            if (sel === "custom") {
-                val = document.getElementById("input-tg-custom").value.trim();
-                if (!val) {
-                    alert("Please enter a valid custom Telegram channel handle or ID.");
-                    return;
-                }
+        function connectTgSessionString() {
+            const token = document.getElementById("input-tg-token-val").value.trim();
+            let target = document.getElementById("input-tg-target-val").value.trim() || "-1003257960170";
+            if (!token || token.length < 20) {
+                alert("Please paste a valid Pyrogram/Telethon Session String or standard Bot Token.");
+                return;
             }
-            if (!val.startsWith("@") && !val.startsWith("-")) val = "@" + val;
+            if (!target.startsWith("@") && !target.startsWith("-")) target = "@" + target;
             const user = getUser();
-            user.tg_handle = val;
+            user.tg_handle = `${target} (Session Linked)`;
             saveUser(user);
             closeTelegramModal();
-            alert(`🎉 Success! Telegram channel ${val} is now linked to your account for automated signal copying.`);
+            alert(`🎉 Success! Telegram listener is now actively linked to channel ${target} using your provided session token!`);
         }
 
         function disconnectTelegram() {
@@ -934,7 +1169,7 @@
             const btn = document.getElementById("btn-ct-oauth");
             btn.disabled = true;
             btn.innerHTML = `<span class="inline-block w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin"></span> <span>Exchanging OAuth Token...</span>`;
-            
+
             setTimeout(() => {
                 document.getElementById("ct-step-1").classList.add("hidden");
                 document.getElementById("ct-step-2").classList.remove("hidden");
@@ -1043,7 +1278,7 @@
         function selectCrypto(coin) {
             currentCrypto = coin;
             const cfg = CRYPTO_CONFIG[coin] || CRYPTO_CONFIG.USDT;
-            
+
             // Highlight active tab
             ["USDT", "BTC", "ETH", "SOL", "BNB"].forEach(c => {
                 const btn = document.getElementById(`crypto-tab-${c}`);
@@ -1057,7 +1292,7 @@
             document.getElementById("disp-crypto-net").textContent = cfg.name;
             document.getElementById("disp-crypto-amt").textContent = cfg.amount;
             document.getElementById("disp-crypto-addr").value = cfg.addr;
-            
+
             const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(cfg.addr)}&color=000000&bgcolor=ffffff`;
             document.getElementById("disp-crypto-qr").src = qrUrl;
         }
@@ -1079,7 +1314,7 @@
             const prog = document.getElementById("verify-progress");
             const txt = document.getElementById("verify-text");
             const btn = document.getElementById("btn-submit-verify");
-            
+
             prog.classList.remove("hidden");
             btn.disabled = true;
             btn.textContent = "Verifying on Blockchain...";
@@ -1099,12 +1334,12 @@
                     user.sub_expiry = "2026-08-27 UTC (30 Days)";
                     user.copy_enabled = true;
                     saveUser(user);
-                    
+
                     prog.classList.add("hidden");
                     btn.disabled = false;
                     btn.textContent = "✅ Verify & Activate Subscription";
                     closeCryptoModal();
-                    
+
                     alert(`🎉 Pro Plan Subscription Activated!\n\nThank you for your $8.00 crypto payment. Your Telegram channel is now actively linked to your cTrader account for automated 24/7 copy trading!`);
                 }
                 step++;
@@ -1146,4 +1381,5 @@
         }
     </script>
 </body>
-</html>
+
+</html>'''

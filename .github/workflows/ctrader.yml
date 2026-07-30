@@ -32,6 +32,9 @@ jobs:
           CL_REFRESH_TOKEN: ${{ secrets.CL_REFRESH_TOKEN }}
           TG_TOKEN: ${{ secrets.TG_TOKEN }}
           TG_CHAT: ${{ secrets.TG_CHAT }}
+          TG_API_ID: ${{ secrets.TG_API_ID }}
+          TG_API_HASH: ${{ secrets.TG_API_HASH }}
+          TG_SESSION_STRING: ${{ secrets.TG_SESSION_STRING }}
           DASHBOARD_USERNAME: ${{ secrets.DASHBOARD_USERNAME }}
           DASHBOARD_PASSWORD: ${{ secrets.DASHBOARD_PASSWORD }}
         run: |

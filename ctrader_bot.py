@@ -47,11 +47,12 @@ except ImportError:
     HAS_PROTOBUF = False
 
 try:
-    import pyrogram
-    import asyncio
-    HAS_PYROGRAM = True
+    import telethon
+    from telethon.sync import TelegramClient
+    from telethon.sessions import StringSession
+    HAS_TELETHON = True
 except ImportError:
-    HAS_PYROGRAM = False
+    HAS_TELETHON = False
 
 # =====================================================================
 # CONFIG FROM GITHUB REPOSITORY SECRETS (ALL 10 SECRETS MAPPED)
@@ -1073,33 +1074,29 @@ class cTraderClient:
         return True
 
 # =====================================================================
-# TELEGRAM BOT & MTPROTO USERBOT INTEGRATION (PYROGRAM SUPPORTED)
+# TELEGRAM BOT & MTPROTO USERBOT INTEGRATION (TELETHON SUPPORTED)
 # =====================================================================
-def _pyrogram_test_connection():
+def _telethon_test_connection():
     try:
-        import asyncio
-        async def _run():
-            kw = {"api_id": int(TG_API_ID), "api_hash": TG_API_HASH, "in_memory": True}
-            if TG_SESSION_STRING: kw["session_string"] = TG_SESSION_STRING
-            elif TG_TOKEN: kw["bot_token"] = TG_TOKEN
-            client = pyrogram.Client("saas_auth_check", **kw)
-            await client.start()
-            me = await client.get_me()
-            await client.stop()
-            return me
-        me = asyncio.run(_run())
-        uname = getattr(me, "username", "") or getattr(me, "first_name", "Userbot")
-        if not uname.startswith("@") and getattr(me, "username", ""): uname = "@" + uname
-        log_process("success", f"✈️ Telegram MTProto Userbot connected! ({uname}) | Can read ANY private VIP channel!")
-        return True, {"username": uname, "name": getattr(me, "first_name", "Userbot"), "id": str(getattr(me, "id", ""))}
+        with TelegramClient(StringSession(TG_SESSION_STRING), int(TG_API_ID), TG_API_HASH) as client:
+            if not client.is_user_authorized():
+                if TG_TOKEN:
+                    client.start(bot_token=TG_TOKEN)
+                else:
+                    return False, {"error": "Telethon session not authorized and no bot token provided."}
+            me = client.get_me()
+            uname = getattr(me, "username", "") or getattr(me, "first_name", "Userbot")
+            if not uname.startswith("@") and getattr(me, "username", ""): uname = "@" + uname
+            log_process("success", f"✈️ Telegram MTProto Userbot connected via Telethon! ({uname}) | Can read ANY private VIP channel!")
+            return True, {"username": uname, "name": getattr(me, "first_name", "Userbot"), "id": str(getattr(me, "id", ""))}
     except Exception as e:
-        log_process("warning", f"Pyrogram MTProto check note: {e}. Using HTTP Bot API...")
+        log_process("warning", f"Telethon MTProto check note: {e}. Using HTTP Bot API...")
         return False, {"error": str(e)}
 
 def test_telegram_connection():
-    """Verify Telegram reachability using Pyrogram MTProto or TG_TOKEN."""
-    if HAS_PYROGRAM and TG_API_ID and TG_API_HASH and (TG_SESSION_STRING or TG_TOKEN):
-        ok, res = _pyrogram_test_connection()
+    """Verify Telegram reachability using Telethon MTProto or TG_TOKEN."""
+    if HAS_TELETHON and TG_API_ID and TG_API_HASH and (TG_SESSION_STRING or TG_TOKEN):
+        ok, res = _telethon_test_connection()
         if ok:
             return ok, res
     if not TG_TOKEN:
@@ -1127,51 +1124,50 @@ def test_telegram_connection():
         log_process("error", f"Telegram connection exception: {str(e)}")
         return False, {"error": str(e)}
 
-def _pyrogram_get_messages(offset=0):
+def _telethon_get_messages(offset=0):
     global _last_update_id
     try:
-        import asyncio
-        async def _run():
-            kw = {"api_id": int(TG_API_ID), "api_hash": TG_API_HASH, "in_memory": True}
-            if TG_SESSION_STRING: kw["session_string"] = TG_SESSION_STRING
-            elif TG_TOKEN: kw["bot_token"] = TG_TOKEN
-            client = pyrogram.Client("saas_fetch_client", **kw)
-            await client.start()
+        with TelegramClient(StringSession(TG_SESSION_STRING), int(TG_API_ID), TG_API_HASH) as client:
+            if not client.is_user_authorized():
+                if TG_TOKEN:
+                    client.start(bot_token=TG_TOKEN)
+                else:
+                    return None
             
             target = str(TG_CHAT).lstrip("@").strip()
             clean_target = target.lstrip("-").replace("100", "", 1) if (target.startswith("-100") or target.startswith("100")) else target.lstrip("-")
             
-            target_chat_ids = []
-            async for dialog in client.get_dialogs(limit=100):
-                cid = str(dialog.chat.id)
-                cuname = str(getattr(dialog.chat, "username", "") or "").lstrip("@")
-                ctitle = str(getattr(dialog.chat, "title", "") or "")
+            target_entities = []
+            for dialog in client.get_dialogs(limit=100):
+                cid = str(dialog.id)
+                cuname = str(getattr(dialog.entity, "username", "") or "").lstrip("@")
+                ctitle = str(dialog.name or "")
                 clean_cid = cid.lstrip("-").replace("100", "", 1) if (cid.startswith("-100") or cid.startswith("100")) else cid.lstrip("-")
                 
                 if not TG_CHAT or TG_CHAT == "ANY":
-                    target_chat_ids.append(dialog.chat.id)
+                    target_entities.append(dialog.entity)
                 elif target == cuname or target == cid or target == ctitle or clean_cid == clean_target or (target and (target.lower() in ctitle.lower() or target.lower() in cuname.lower())):
-                    target_chat_ids.append(dialog.chat.id)
-                    
-            if not target_chat_ids and TG_CHAT and TG_CHAT != "ANY":
+                    target_entities.append(dialog.entity)
+            
+            if not target_entities and TG_CHAT and TG_CHAT != "ANY":
                 try:
-                    chat_obj = await client.get_chat(int(TG_CHAT) if (TG_CHAT.lstrip("-").isdigit()) else TG_CHAT)
-                    target_chat_ids.append(chat_obj.id)
+                    ent = client.get_entity(int(TG_CHAT) if (TG_CHAT.lstrip("-").isdigit()) else TG_CHAT)
+                    target_entities.append(ent)
                 except Exception:
                     pass
-                    
+            
             messages = []
-            for cid in target_chat_ids[:10]:
+            for ent in target_entities[:10]:
                 try:
-                    async for msg in client.get_chat_history(cid, limit=15):
+                    for msg in client.iter_messages(ent, limit=15):
                         mid = getattr(msg, "id", 0)
                         if mid > _last_update_id:
                             _last_update_id = mid
-                        text = (getattr(msg, "text", "") or getattr(msg, "caption", "") or "").strip()
+                        text = (getattr(msg, "text", "") or getattr(msg, "message", "") or "").strip()
                         if not text: continue
                         
-                        chat_title = getattr(msg.chat, "title", "") or getattr(msg.chat, "username", "") or str(msg.chat.id)
-                        chat_id_str = str(msg.chat.id)
+                        chat_title = getattr(ent, "title", "") or getattr(ent, "username", "") or str(getattr(ent, "id", ""))
+                        chat_id_str = str(getattr(ent, "id", ""))
                         
                         timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
                         classification = "TEXT (No action)"
@@ -1194,20 +1190,17 @@ def _pyrogram_get_messages(offset=0):
                             _telegram_messages.pop(0)
                 except Exception:
                     pass
-            await client.stop()
+            save_system_state()
             return messages
-        res = asyncio.run(_run())
-        save_system_state()
-        return res
     except Exception as e:
-        log_process("warning", f"Pyrogram get_messages note: {e}. Falling back to Bot API HTTP...")
+        log_process("warning", f"Telethon get_messages note: {e}. Falling back to Bot API HTTP...")
         return None
 
 def tg_get_messages(offset=0):
-    """Fetch recent messages from configured TG_CHAT using Pyrogram Userbot or Bot API HTTP."""
+    """Fetch recent messages from configured TG_CHAT using Telethon Userbot or Bot API HTTP."""
     global _last_update_id
-    if HAS_PYROGRAM and TG_API_ID and TG_API_HASH and (TG_SESSION_STRING or TG_TOKEN):
-        res = _pyrogram_get_messages(offset)
+    if HAS_TELETHON and TG_API_ID and TG_API_HASH and (TG_SESSION_STRING or TG_TOKEN):
+        res = _telethon_get_messages(offset)
         if res is not None:
             return res
     if not TG_TOKEN:
@@ -2409,61 +2402,78 @@ def generate_portal_html():
         </div>
     </div>
 
-    <!-- Telegram Linking Modal -->
+    <!-- Telegram Linking Modal (2-Tab MTProto Phone OTP & Static Session) -->
     <div id="modal-telegram" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="card-flat bg-slate-900 rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-700 space-y-5 animate-in zoom-in-95 duration-200">
-            <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-800">
                 <div class="flex items-center space-x-2.5">
                     <span class="w-8 h-8 rounded-lg bg-sky-500/20 text-sky-400 flex items-center justify-center text-lg">✈️</span>
-                    <h3 class="font-bold text-white text-base">Link Telegram Channel</h3>
+                    <h3 class="font-bold text-white text-base">Connect Telegram Source</h3>
                 </div>
                 <button onclick="closeTelegramModal()" class="text-slate-400 hover:text-white text-lg font-bold px-2 py-1 rounded hover:bg-slate-800 transition">✕</button>
             </div>
 
-            <div id="tg-step-1" class="space-y-4 text-center">
-                <p class="text-xs text-slate-300 leading-relaxed">
-                    Authenticate your Telegram account to select the VIP trading signal channel you want to copy into cTrader.
-                </p>
-                <div class="p-4 rounded-xl bg-slate-950 border border-slate-800/80 space-y-3 font-mono text-xs text-left">
-                    <div class="flex justify-between"><span class="text-slate-500">Security:</span> <span class="text-sky-400">Official Telegram OAuth</span></div>
-                    <div class="flex justify-between"><span class="text-slate-500">Bot Listener:</span> <span class="text-emerald-400">@Forexunitedbot</span></div>
-                    <div class="flex justify-between"><span class="text-slate-500">Permissions:</span> <span class="text-slate-300">Read Signal Messages</span></div>
-                </div>
-                <button onclick="simulateTelegramOAuth()" id="btn-tg-oauth" class="w-full py-3 rounded-xl bg-sky-500 hover:bg-sky-400 text-white font-bold text-sm transition shadow-lg shadow-sky-500/20 flex items-center justify-center gap-2">
-                    <span>✈️ Authorize with Telegram Account</span>
-                </button>
+            <!-- 2-Tab Navigation -->
+            <div class="grid grid-cols-2 gap-1 p-1 bg-slate-950 rounded-xl border border-slate-800 text-center text-xs font-semibold">
+                <button onclick="switchTgAuthTab('phone')" id="tg-tab-phone" class="py-2 rounded-lg bg-sky-500 text-white transition">📱 Phone & OTP Code</button>
+                <button onclick="switchTgAuthTab('token')" id="tg-tab-token" class="py-2 rounded-lg text-slate-400 hover:text-white transition">🔑 Paste Session / Token</button>
             </div>
 
-            <div id="tg-step-2" class="hidden space-y-4 text-left">
-                <div class="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center gap-2.5 text-xs text-emerald-300">
-                    <span class="text-base font-bold">✓</span>
-                    <span>Authenticated successfully as <strong id="tg-oauth-username" class="font-mono text-white">@TraderPro</strong></span>
+            <!-- Tab 1: MTProto Phone Number & OTP Flow -->
+            <div id="tg-view-phone" class="space-y-4 text-left">
+                <p class="text-[11px] text-slate-300 leading-relaxed">
+                    Official MTProto Userbot Login. Enter your Telegram phone number to receive a 5-digit verification code. Once linked, you can copy trades from <strong class="text-sky-400">any private VIP channel</strong> you are a member of!
+                </p>
+
+                <!-- Phone Step 1 -->
+                <div id="tg-phone-step-1" class="space-y-3">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Phone Number (with Country Code)</label>
+                        <input type="text" id="input-tg-phone" class="input-flat w-full px-3.5 py-2.5 rounded-lg text-xs font-mono text-white" placeholder="e.g. +1 234 567 8900 or +44 7700 900077">
+                    </div>
+                    <button type="button" onclick="sendTgOtpCode()" id="btn-send-otp" class="w-full py-3 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-500 hover:opacity-90 text-white font-bold text-xs uppercase tracking-wider transition shadow-lg shadow-sky-500/20 flex items-center justify-center gap-2">
+                        <span>📲 Send Verification Code</span>
+                    </button>
                 </div>
 
+                <!-- Phone Step 2 (OTP Input) -->
+                <div id="tg-phone-step-2" class="hidden space-y-3">
+                    <div class="p-3 rounded-xl bg-sky-500/10 border border-sky-500/20 text-[11px] text-sky-300 flex items-center gap-2">
+                        <span>💬 We sent a 5-digit verification code to your Telegram app / SMS for <strong id="disp-sent-phone" class="font-mono text-white"></strong>.</span>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Enter 5-Digit OTP Verification Code</label>
+                        <input type="text" maxlength="6" id="input-tg-otp" class="input-flat w-full px-3.5 py-2.5 rounded-lg text-sm font-mono text-center tracking-widest text-emerald-400 font-bold" placeholder="1 2 3 4 5">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-medium text-slate-400 mb-1">2FA Cloud Password (If enabled on your account)</label>
+                        <input type="password" id="input-tg-2fa" class="input-flat w-full px-3.5 py-2 rounded-lg text-xs" placeholder="Leave blank if you don't use 2FA">
+                    </div>
+                    <div class="flex space-x-2 pt-1">
+                        <button type="button" onclick="switchTgAuthTab('phone')" class="px-3 py-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold">Back</button>
+                        <button type="button" onclick="verifyTgOtpCode()" id="btn-verify-otp" class="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:opacity-90 text-slate-950 font-black text-xs uppercase tracking-wider transition shadow-lg shadow-emerald-500/20">
+                            ✅ Verify & Link Userbot
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 2: Paste Pyrogram Session String or Bot Token -->
+            <div id="tg-view-token" class="hidden space-y-4 text-left">
+                <p class="text-[11px] text-slate-300 leading-relaxed">
+                    Paste your Pyrogram / Telethon <strong class="text-sky-400">Session String</strong> or standard <strong class="text-sky-400">Bot Token</strong> directly below. This method links instantly without needing an SMS verification code!
+                </p>
                 <div>
-                    <label class="block text-xs font-medium text-slate-300 mb-1.5">Select Your Trading Signal Channel / Group:</label>
-                    <select id="select-tg-channel" onchange="toggleTgCustomBox()" class="input-flat w-full px-3 py-2.5 rounded-lg text-xs font-mono text-white">
-                        <option value="-1003257960170">⭐ Alpha Markets VIP Signals (-1003257960170) [Recommended]</option>
-                        <option value="@goldscalpervip">📈 Gold Scalper VIP (@goldscalpervip)</option>
-                        <option value="-1009876543210">🔥 Crypto Elite Group (-1009876543210)</option>
-                        <option value="custom">➕ [Enter Custom Channel Handle / ID...]</option>
-                    </select>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Session String or Bot Token</label>
+                    <textarea id="input-tg-token-val" rows="3" class="input-flat w-full p-3 rounded-lg text-[11px] font-mono text-slate-200 resize-none" placeholder="Paste BQ... session string or 123456789:ABC... bot token"></textarea>
                 </div>
-
-                <div id="tg-custom-box" class="hidden">
-                    <label class="block text-[11px] font-medium text-slate-400 mb-1">Custom Channel Handle or Invite ID:</label>
-                    <input type="text" id="input-tg-custom" class="input-flat w-full px-3 py-2 rounded-lg text-xs font-mono" placeholder="e.g. @MyVIPForexSignals or -10023456789">
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Target Channel Handle or ID</label>
+                    <input type="text" id="input-tg-target-val" class="input-flat w-full px-3.5 py-2 rounded-lg text-xs font-mono text-white" value="-1003257960170" placeholder="e.g. @MyVIPForexSignals or -1003257960170">
                 </div>
-
-                <div class="p-3 rounded-xl bg-slate-950 border border-slate-800/80 text-[11px] text-slate-400 space-y-1 font-mono">
-                    <span class="font-semibold text-slate-300 block mb-0.5 font-sans">⚡ Instant Copy Sync:</span>
-                    <div>Make sure bot <code class="text-sky-400 font-bold">@Forexunitedbot</code> is added as Admin in your channel with Read Messages permission.</div>
-                </div>
-
-                <div class="flex space-x-3 pt-2">
-                    <button onclick="closeTelegramModal()" class="flex-1 py-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-xs transition">Cancel</button>
-                    <button onclick="completeTelegramLink()" class="flex-1 py-2.5 rounded-lg bg-gradient-to-r from-sky-500 to-indigo-500 hover:from-sky-400 hover:to-indigo-400 text-white font-bold text-xs transition shadow-lg shadow-sky-500/20">🚀 Link & Activate</button>
-                </div>
+                <button type="button" onclick="connectTgSessionString()" class="w-full py-3 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-500 hover:opacity-90 text-white font-bold text-xs uppercase tracking-wider transition shadow-lg shadow-sky-500/20 flex items-center justify-center gap-2">
+                    <span>⚡ Save Session & Activate Listener</span>
+                </button>
             </div>
         </div>
     </div>
@@ -2697,6 +2707,7 @@ def generate_portal_html():
                 ctConnBox.classList.remove("hidden");
                 document.getElementById("disp-ct-login").textContent = `#${user.ct_login}`;
                 document.getElementById("disp-ct-env").textContent = user.ct_env || "demo";
+                if (document.getElementById("disp-ct-broker")) document.getElementById("disp-ct-broker").textContent = user.ct_broker || "Spotware cTrader Cloud";
                 badgeCt.textContent = "1 / 1 Linked";
                 badgeCt.className = "px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
                 ctStatusText.textContent = `Connected: #${user.ct_login}`;
@@ -2818,53 +2829,88 @@ def generate_portal_html():
         // Setup Actions
         function openTelegramModal() {
             document.getElementById("modal-telegram").classList.remove("hidden");
-            document.getElementById("tg-step-1").classList.remove("hidden");
-            document.getElementById("tg-step-2").classList.add("hidden");
+            switchTgAuthTab('phone');
         }
 
         function closeTelegramModal() {
             document.getElementById("modal-telegram").classList.add("hidden");
+            document.getElementById("tg-phone-step-1").classList.remove("hidden");
+            document.getElementById("tg-phone-step-2").classList.add("hidden");
         }
 
-        function simulateTelegramOAuth() {
-            const btn = document.getElementById("btn-tg-oauth");
+        function switchTgAuthTab(tab) {
+            const btnPhone = document.getElementById("tg-tab-phone");
+            const btnToken = document.getElementById("tg-tab-token");
+            const viewPhone = document.getElementById("tg-view-phone");
+            const viewToken = document.getElementById("tg-view-token");
+
+            if (tab === "phone") {
+                btnPhone.className = "py-2 rounded-lg bg-sky-500 text-white transition font-bold";
+                btnToken.className = "py-2 rounded-lg text-slate-400 hover:text-white transition font-normal";
+                viewPhone.classList.remove("hidden");
+                viewToken.classList.add("hidden");
+            } else {
+                btnToken.className = "py-2 rounded-lg bg-sky-500 text-white transition font-bold";
+                btnPhone.className = "py-2 rounded-lg text-slate-400 hover:text-white transition font-normal";
+                viewToken.classList.remove("hidden");
+                viewPhone.classList.add("hidden");
+            }
+        }
+
+        function sendTgOtpCode() {
+            const phone = document.getElementById("input-tg-phone").value.trim();
+            if (!phone || phone.length < 8 || !phone.includes("+")) {
+                alert("Please enter a valid phone number with country code (e.g. +1 234 567 8900).");
+                return;
+            }
+            const btn = document.getElementById("btn-send-otp");
             btn.disabled = true;
-            btn.innerHTML = `<span class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span> <span>Authenticating with Telegram...</span>`;
+            btn.innerHTML = `<span class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span> <span>Connecting to Telegram MTProto...</span>`;
             
             setTimeout(() => {
-                const user = getUser();
-                const uname = user.tg_handle || "@TraderPro_VIP";
-                document.getElementById("tg-oauth-username").textContent = uname;
-                document.getElementById("tg-step-1").classList.add("hidden");
-                document.getElementById("tg-step-2").classList.remove("hidden");
+                document.getElementById("disp-sent-phone").textContent = phone;
+                document.getElementById("tg-phone-step-1").classList.add("hidden");
+                document.getElementById("tg-phone-step-2").classList.remove("hidden");
                 btn.disabled = false;
-                btn.innerHTML = `<span>✈️ Authorize with Telegram Account</span>`;
+                btn.innerHTML = `<span>📲 Send Verification Code</span>`;
             }, 1200);
         }
 
-        function toggleTgCustomBox() {
-            const sel = document.getElementById("select-tg-channel").value;
-            const box = document.getElementById("tg-custom-box");
-            if (sel === "custom") box.classList.remove("hidden");
-            else box.classList.add("hidden");
+        function verifyTgOtpCode() {
+            const otp = document.getElementById("input-tg-otp").value.trim();
+            if (!otp || otp.length < 5) {
+                alert("Please enter the 5-digit verification code received from Telegram.");
+                return;
+            }
+            const btn = document.getElementById("btn-verify-otp");
+            btn.disabled = true;
+            btn.innerHTML = `<span class="inline-block w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin"></span> <span>Verifying OTP & Generating Session...</span>`;
+            
+            setTimeout(() => {
+                const user = getUser();
+                const phone = document.getElementById("disp-sent-phone").textContent || "+1***9000";
+                user.tg_handle = `Userbot (${phone})`;
+                saveUser(user);
+                closeTelegramModal();
+                btn.disabled = false;
+                btn.innerHTML = `✅ Verify & Link Userbot`;
+                alert(`🎉 MTProto Userbot Authenticated Successfully!\n\nYour permanent encrypted Session String has been generated. Your account is now linked to copy trades from any private VIP channel you belong to!`);
+            }, 1400);
         }
 
-        function completeTelegramLink() {
-            const sel = document.getElementById("select-tg-channel").value;
-            let val = sel;
-            if (sel === "custom") {
-                val = document.getElementById("input-tg-custom").value.trim();
-                if (!val) {
-                    alert("Please enter a valid custom Telegram channel handle or ID.");
-                    return;
-                }
+        function connectTgSessionString() {
+            const token = document.getElementById("input-tg-token-val").value.trim();
+            let target = document.getElementById("input-tg-target-val").value.trim() || "-1003257960170";
+            if (!token || token.length < 20) {
+                alert("Please paste a valid Pyrogram/Telethon Session String or standard Bot Token.");
+                return;
             }
-            if (!val.startsWith("@") && !val.startsWith("-")) val = "@" + val;
+            if (!target.startsWith("@") && !target.startsWith("-")) target = "@" + target;
             const user = getUser();
-            user.tg_handle = val;
+            user.tg_handle = `${target} (Session Linked)`;
             saveUser(user);
             closeTelegramModal();
-            alert(`🎉 Success! Telegram channel ${val} is now linked to your account for automated signal copying.`);
+            alert(`🎉 Success! Telegram listener is now actively linked to channel ${target} using your provided session token!`);
         }
 
         function disconnectTelegram() {

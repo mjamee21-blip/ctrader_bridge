@@ -1,22 +1,28 @@
-from pyrogram import Client
+import asyncio
+from telethon import TelegramClient
+from telethon.sessions import StringSession
 
-print("--- Pyrogram Session String Generator ---")
-api_id = input("Enter your Telegram api_id (numeric): ").strip()
-api_hash = input("Enter your Telegram api_hash (alphanumeric): ").strip()
+async def main():
+    print("--- Telegram Telethon Session Generator ---")
+    try:
+        api_id_str = input("Enter your Telegram API_ID: ").strip()
+        api_id = int(api_id_str)
+    except ValueError:
+        print("Invalid API_ID. Must be an integer.")
+        return
 
-try:
-    api_id = int(api_id)
-except ValueError:
-    print("Error: api_id must be a number.")
-    exit(1)
+    api_hash = input("Enter your Telegram API_HASH: ").strip()
 
-print("\nStarting Pyrogram client to generate session string...")
-app = Client("my_session", api_id=api_id, api_hash=api_hash, in_memory=True)
-
-with app:
-    session_string = app.export_session_string()
-    print("\nSUCCESS! 🎉 Here is your permanent session string:")
-    print("-" * 60)
+    client = TelegramClient(StringSession(), api_id, api_hash)
+    await client.start()
+    
+    session_string = client.session.save()
+    print("\n[SUCCESS] Authentication successful!")
+    print("\nYour Telethon Session String:")
+    print("-" * 50)
     print(session_string)
-    print("-" * 60)
-    print("Copy the entire string above and save it securely as your Telegram session secret.")
+    print("-" * 50)
+    print("\nPlease copy the string above and save it into your GitHub Repository Secrets as TG_SESSION_STRING, along with TG_API_ID and TG_API_HASH.")
+
+if __name__ == '__main__':
+    asyncio.run(main())
