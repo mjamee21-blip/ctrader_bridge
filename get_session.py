@@ -11,7 +11,9 @@ except ValueError:
     exit(1)
 
 print("\nStarting Pyrogram client to generate session string...")
-with Client("my_session", api_id=api_id, api_hash=api_hash, in_memory=True) as app:
+app = Client("my_session", api_id=api_id, api_hash=api_hash, in_memory=True)
+
+with app:
     session_string = app.export_session_string()
     print("\nSUCCESS! 🎉 Here is your permanent session string:")
     print("-" * 60)
