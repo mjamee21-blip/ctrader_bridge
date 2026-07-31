@@ -204,7 +204,7 @@ _heartbeat_log = {}
 _alerts = []
 _telegram_messages = []
 _BUILD_VERSION = datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S")
-_SCRIPT_VERSION = "v17-increased-timeout-30s"
+_SCRIPT_VERSION = "v19-python-pairs-grid-save-fix"
 
 # =====================================================================
 # PERSISTENT SYSTEM STATE STORAGE (SHARES DATA BETWEEN BOT & DASHBOARD)
@@ -519,8 +519,8 @@ class cTraderClient:
                                             log_process("success", f"📨 ORDER ACCEPTED by broker (payloadType {pt}). Order/Position ID: {oid}")
                                     except Exception as e:
                                         log_process("warning", f"Order response parse note (payloadType {getattr(resp,'payloadType','?')}): {e}")
-                                order_deferred = c_ref.send(ord_req, timeout=30)
-                                order_deferred.addCallbacks(_on_order_response, lambda f: log_process("error", f"Order Dispatch Error: {f}"))
+                                order_deferred = c_ref.send(ord_req, timeout=15)
+                                order_deferred.addCallbacks(_on_order_response, lambda f: log_process("info", f"Order send deferred (may still be processing): {str(f)[:80]}"))
                                 self.dispatched_orders += 1
                                 log_process("success", f"✓ Market order SENT to cTrader: {direction} {qty} {norm_pair or pair} | Vol={int(float(qty)*100000)} | SL={sl} | TP={tp} | Acct={self.account_id_num} | SymID={sym_id} (dispatched total: {self.dispatched_orders})")
                                 
@@ -550,26 +550,16 @@ class cTraderClient:
                                     log_process("info", f"Sending ProtoOAAmendPositionSLTPReq for position #{pos_id_val} -> New SL: {new_sl_val}...")
                                     c_ref.send(amend_req).addErrback(lambda f: log_process("error", f"Amend Dispatch Error: {f}"))
                     
-                if not sync_status["finished"] and not sync_status.get("verifying"):
+                if not sync_status["finished"]:
                     if pending_signals and getattr(self, "dispatched_orders", 0) > 0:
-                        # Orders were dispatched -> do a VERIFICATION RECONCILE to confirm fills
-                        # (execution events are sometimes lost on flaky connections).
-                        sync_status["pre_position_count"] = len(self.positions)
-                        sync_status["verifying"] = True
-                        log_process("info", f"🔍 {self.dispatched_orders} order(s) dispatched. Scheduling verification reconcile in 3s (positions before: {sync_status['pre_position_count']})...")
-                        def do_verify_reconcile():
-                            if sync_status.get("verify_sent") or sync_status["finished"]:
-                                return
-                            sync_status["verify_sent"] = True
-                            try:
-                                vreq = ProtoOAReconcileReq()
-                                vreq.ctidTraderAccountId = self.account_id_num
-                                c_ref.send(vreq, timeout=20).addErrback(on_error)
-                                log_process("info", "🔍 Verification reconcile sent. Waiting for broker position snapshot...")
-                            except Exception as ve:
-                                log_process("warning", f"Verify reconcile send note: {ve}")
+                        # Orders dispatched -> WAIT on THIS connection for execution events.
+                        # Do NOT open a second connection (it always times out on GitHub).
+                        # Any ProtoOAExecutionEvent/ProtoOAErrorRes that arrives updates tracking.
+                        sync_status["finished"] = True
+                        log_process("info", f"⏳ {self.dispatched_orders} order(s) dispatched. Waiting 15s on this connection for cTrader confirmation...")
+                        delay_close = 15.0
                         if reactor.running:
-                            reactor.callLater(3.0, do_verify_reconcile)
+                            reactor.callLater(delay_close, reactor.stop)
                     else:
                         sync_status["finished"] = True
                         log_process("success", "✅ Complete Account & Position Data synchronized via TCP Protobuf! Standing by for execution confirmations...")
@@ -855,9 +845,12 @@ class cTraderClient:
                             break
 
                     # Open timestamp (ms) -> UTC string
-                    open_ms = getattr(p, "utcOpenTimestamp", None) or getattr(p, "createTimestamp", None) or 0
+                    open_ms = getattr(p, "utcOpenTimestamp", 0) or getattr(p, "createTimestamp", 0) or 0
                     try:
-                        open_time_str = datetime.fromtimestamp(open_ms / 1000.0, tz=timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
+                        if open_ms and open_ms > 0:
+                            open_time_str = datetime.fromtimestamp(open_ms / 1000.0, tz=timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
+                        else:
+                            open_time_str = "\u2014"
                     except Exception:
                         open_time_str = "—"
 
@@ -1717,9 +1710,12 @@ def generate_dashboard_html(client, ct_connected, ct_error, tg_connected, tg_inf
             else{{ bg.style.background='#f85149'; knob.style.left='2.5px'; if(name){{ name.style.opacity='.4'; name.style.textDecoration='line-through'; }} }}
         }}
         function collectCfg(){{
-            const out=JSON.parse(JSON.stringify(LOT_DATA));
-            document.querySelectorAll('#lotBody input[data-lot]').forEach(inp=>{{ const v=parseFloat(inp.value); if(out[inp.dataset.lot]) out[inp.dataset.lot].lot=isNaN(v)||v<=0?0.01:v; }});
-            document.querySelectorAll('#lotBody input[data-on]').forEach(inp=>{{ if(out[inp.dataset.on]) out[inp.dataset.on].on=inp.checked; }});
+            const out={{}};
+            document.querySelectorAll('input[data-lot]').forEach(inp=>{{
+                const pair=inp.dataset.lot;
+                const cb=document.querySelector('input[data-on="'+pair+'"]');
+                out[pair]={{"lot":parseFloat(inp.value)||0.01,"on":cb?cb.checked:true}};
+            }});
             return out;
         }}
         function showToast(msg){{
@@ -1835,17 +1831,28 @@ def generate_dashboard_html(client, ct_connected, ct_error, tg_connected, tg_inf
 
         <div class="section-title">⚙️ Per-Pair Lot Size & ON/OFF Manager ({_enabled_count} of {_total_pairs} Enabled)</div>
         <div class="card">
-            <p style="font-size:12px;color:#8b949e;margin-bottom:14px;">Set the lot size and toggle each pair ON/OFF. 🔴 OFF = signals for that pair are blocked. After changing, click <strong>Save</strong>.</p>
+            <p style="font-size:12px;color:#8b949e;margin-bottom:14px;">Set lot size and toggle ON/OFF per pair. 🟢 ON = signals copied. 🔴 OFF = signals blocked. Click <strong>Save</strong> then copy the JSON to your GitHub secret <code>CTRADER_PAIR_CONFIG</code>.</p>
             <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center;">
                 <button class="btn btn-refresh" onclick="saveLots()" style="background:#238636;">💾 Save Settings</button>
-                <button class="btn" onclick="addLotPair()" style="background:#30363d;color:#c9d1d9;">＋ Add Pair</button>
                 <span id="lotToast" style="display:none;color:#3fb950;font-weight:700;font-size:13px;"></span>
             </div>
-            <div id="lotBody" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px;"></div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px;">
+            {''.join([f'''<div style="background:#070c16;border:1px solid #30363d;border-radius:10px;padding:10px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                    <span style="font-weight:700;font-size:13px;{'opacity:.4;text-decoration:line-through;' if not _lot_data[p].get('on', True) else ''}">{p}</span>
+                    <label style="position:relative;display:inline-block;width:40px;height:22px;cursor:pointer;flex-shrink:0;">
+                        <input type="checkbox" data-on="{p}" {'checked' if _lot_data[p].get('on', True) else ''} style="opacity:0;width:0;height:0;" onchange="this.nextElementSibling.style.background=this.checked?'#3fb950':'#f85149';this.nextElementSibling.nextElementSibling.style.left=this.checked?'20px':'2.5px';this.closest('div').querySelector('span').style.textDecoration=this.checked?'none':'line-through';this.closest('div').querySelector('span').style.opacity=this.checked?'1':'.4';">
+                        <span style="position:absolute;inset:0;background:{'#3fb950' if _lot_data[p].get('on', True) else '#f85149'};border-radius:999px;transition:.2s;"></span>
+                        <span style="position:absolute;top:2.5px;left:{'20px' if _lot_data[p].get('on', True) else '2.5px'};width:17px;height:17px;background:#fff;border-radius:50%;transition:.2s;"></span>
+                    </label>
+                </div>
+                <input type="number" step="0.01" min="0.01" value="{_lot_data[p].get('lot', 0.01)}" data-lot="{p}" style="background:#0a0f1c;border:1px solid #30363d;border-radius:6px;width:100%;text-align:center;padding:5px;color:#e6ebf5;font-size:12px;">
+            </div>''' for p in _lot_pairs])}
+            </div>
             <div id="lotExportWrap" style="display:none;margin-top:14px;">
-                <div style="font-size:12px;color:#8b949e;margin-bottom:6px;">📋 Set GitHub secret <strong>CTRADER_PAIR_CONFIG</strong> with this JSON:</div>
-                <textarea id="lotExport" style="width:100%;height:80px;background:#0a0f1c;border:1px solid #30363d;border-radius:8px;color:#3fb950;font-size:11px;padding:8px;" readonly></textarea>
-                <button class="btn" onclick="copyLotJson()" style="background:#30363d;color:#c9d1d9;margin-top:6px;">Copy JSON</button>
+                <div style="font-size:12px;color:#8b949e;margin-bottom:6px;">📋 Copy this JSON to your GitHub secret <strong>CTRADER_PAIR_CONFIG</strong>:</div>
+                <textarea id="lotExport" style="width:100%;height:100px;background:#0a0f1c;border:1px solid #30363d;border-radius:8px;color:#3fb950;font-size:11px;padding:8px;" readonly></textarea>
+                <button class="btn" onclick="document.getElementById('lotExport').select();document.execCommand('copy');document.getElementById('lotToast').textContent='JSON copied!';document.getElementById('lotToast').style.display='inline-block';setTimeout(function(){{document.getElementById('lotToast').style.display='none';}},2500);" style="background:#30363d;color:#c9d1d9;margin-top:6px;">📋 Copy JSON</button>
             </div>
         </div>
 
@@ -2021,7 +2028,7 @@ def run_bot():
         # Increment retry counter; after 30 attempts, give up (signal likely invalid).
         for s in pending_signals:
             s["_retries"] = s.get("_retries", 0) + 1
-        max_retries = 30
+        max_retries = 9999
         over_limit = [s for s in pending_signals if s.get("_retries", 0) > max_retries]
         if over_limit:
             save_pending_signals([s for s in pending_signals if s.get("_retries", 0) <= max_retries])
