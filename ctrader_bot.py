@@ -116,6 +116,7 @@ _process_logs = []
 _heartbeat_log = {}
 _alerts = []
 _telegram_messages = []
+_retry_queue = []
 _BUILD_VERSION = datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S")
 
 # =====================================================================
@@ -130,7 +131,8 @@ def save_system_state():
             "logs": _process_logs[-150:],
             "alerts": _alerts[-50:],
             "telegram_messages": _telegram_messages[-50:],
-            "last_update_id": _last_update_id
+            "last_update_id": _last_update_id,
+            "retry_queue": _retry_queue
         }
         with open(state_file, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=2)
@@ -146,7 +148,7 @@ def save_system_state():
 
 def load_system_state():
     """Load logs and Telegram history from previous runs or earlier steps."""
-    global _process_logs, _alerts, _telegram_messages, _last_update_id, _instruments
+    global _process_logs, _alerts, _telegram_messages, _last_update_id, _instruments, _retry_queue
     state_file = os.path.join("docs", "system_state.json")
     try:
         if os.path.exists(state_file):
@@ -156,6 +158,7 @@ def load_system_state():
                 _alerts = data.get("alerts", [])
                 _telegram_messages = data.get("telegram_messages", [])
                 _last_update_id = data.get("last_update_id", 0)
+                _retry_queue = data.get("retry_queue", [])
     except Exception as e:
         print(f"[WARNING] Could not load system state: {e}")
     try:
@@ -423,6 +426,7 @@ class cTraderClient:
         self.orders = []
         self.trades = []
         self.pending_sl_tp = {}
+        self.dispatched_any_order = False
 
     def verify_auth_and_fetch_data(self, pending_signals=None):
         """Connect to cTrader Open API v2, authenticate, sync data, and dispatch pending trade commands."""
@@ -452,7 +456,7 @@ class cTraderClient:
             log_process("error", f"{label} Dispatch Error: {err_str}")
 
         def check_sync_completed(c_ref):
-            if sync_status["trader"] and sync_status["reconcile"]:
+            if sync_status["trader"] and sync_status["reconcile"] and sync_status["symbols"]:
                 if not sync_status["orders_dispatched"]:
                     sync_status["orders_dispatched"] = True
                     if pending_signals:
@@ -535,6 +539,7 @@ class cTraderClient:
                                     amend_req.stopLoss = float(new_sl_val)
                                     log_process("info", f"Sending ProtoOAAmendPositionSLTPReq for position #{pos_id_val} -> New SL: {new_sl_val}...")
                                     c_ref.send(amend_req).addErrback(lambda f: safe_errback(f, "Amend"))
+                        self.dispatched_any_order = True
             
             if sync_status["trader"] and sync_status["symbols"] and sync_status["reconcile"] and sync_status["deals"]:
                 if not sync_status["finished"]:
@@ -641,6 +646,16 @@ class cTraderClient:
                 rec_req = ProtoOAReconcileReq()
                 rec_req.ctidTraderAccountId = self.account_id_num
                 c.send(rec_req).addErrback(on_error)
+
+                sym_req = ProtoOASymbolsListReq()
+                sym_req.ctidTraderAccountId = self.account_id_num
+                sym_req.includeArchivedSymbols = False
+                c.send(sym_req).addErrback(on_error)
+
+                now_ms = int(datetime.now(timezone.utc).timestamp() * 1000)
+                from_ms = now_ms - (14 * 24 * 3600 * 1000)  # 14 days history
+                deal_req = ProtoOADealListReq(ctidTraderAccountId=self.account_id_num, fromTimestamp=from_ms, toTimestamp=now_ms, maxRows=50)
+                c.send(deal_req).addErrback(on_error)
                 
             elif payload_type == ProtoOATraderRes().payloadType:
                 res = Protobuf.extract(message)
@@ -1227,10 +1242,11 @@ def tg_get_messages(offset=0):
             if raw_updates:
                 log_process("info", f"Telegram server returned {len(raw_updates)} raw update(s).")
             messages = []
+            highest_uid_seen = _last_update_id
             for upd in raw_updates:
                 uid = upd.get("update_id", 0)
-                if uid > _last_update_id:
-                    _last_update_id = uid
+                if uid > highest_uid_seen:
+                    highest_uid_seen = uid
                 msg = upd.get("message") or upd.get("channel_post") or upd.get("edited_message") or upd.get("edited_channel_post") or {}
                 chat = msg.get("chat", {})
                 chat_id = str(chat.get("id", ""))
@@ -1264,7 +1280,7 @@ def tg_get_messages(offset=0):
                     classification = f"⚠️ Ignored (Chat filter: {TG_CHAT})"
                     log_process("info", f"Telegram msg from [{chat_title} | ID:{chat_id}] ignored because TG_CHAT is set to '{TG_CHAT}'.")
                 else:
-                    messages.append({"text": text})
+                    messages.append({"text": text, "uid": uid})
                     if "⚡" in classification:
                         log_process("success", f"Matched signal from [{chat_title}] -> {classification}")
                 
@@ -1277,6 +1293,14 @@ def tg_get_messages(offset=0):
                 if len(_telegram_messages) > 50:
                     _telegram_messages.pop(0)
             
+            # We ONLY advance and save _last_update_id if there are NO executable signals.
+            # If signals were matched, we retain _last_update_id until cTrader confirms dispatch!
+            has_signals = any(looks_like_signal(m["text"]) and parse_signal(m["text"]) for m in messages)
+            if not has_signals:
+                _last_update_id = highest_uid_seen
+            else:
+                log_process("info", f"⚡ Retaining Telegram offset at {_last_update_id} until cTrader execution confirmation.")
+                
             save_system_state()
             return messages
     except Exception as ex:
