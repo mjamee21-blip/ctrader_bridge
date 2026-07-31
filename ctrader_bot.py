@@ -2096,7 +2096,7 @@ def run_dashboard():
     os.makedirs("docs", exist_ok=True)
     
     html_dashboard = generate_dashboard_html(client, ct_connected, ct_error, tg_connected, tg_info)
-    with open("docs/index.html", "w", encoding="utf-8") as f:
+    with open("docs/oobigoo.html", "w", encoding="utf-8") as f:
         f.write(html_dashboard)
         
     html_login = generate_login_html()
@@ -2112,7 +2112,7 @@ def run_dashboard():
     except Exception:
         pass
 
-    log_process("success", "Dashboard index.html, login.html, and portal.html updated successfully!")
+    log_process("success", "Dashboard oobigoo.html, login.html, and portal.html updated successfully!")
     save_heartbeat("dashboard", "completed", "No errors encountered")
     return True
 
