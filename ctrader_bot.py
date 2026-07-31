@@ -136,10 +136,17 @@ def save_system_state():
             json.dump(data, f, indent=2)
     except Exception as e:
         print(f"[WARNING] Could not save system state: {e}")
+    try:
+        if _instruments and len(_instruments) > 10:
+            cache_file = os.path.join("docs", "instruments_cache.json")
+            with open(cache_file, "w", encoding="utf-8") as f:
+                json.dump(_instruments, f)
+    except Exception:
+        pass
 
 def load_system_state():
     """Load logs and Telegram history from previous runs or earlier steps."""
-    global _process_logs, _alerts, _telegram_messages, _last_update_id
+    global _process_logs, _alerts, _telegram_messages, _last_update_id, _instruments
     state_file = os.path.join("docs", "system_state.json")
     try:
         if os.path.exists(state_file):
@@ -151,6 +158,14 @@ def load_system_state():
                 _last_update_id = data.get("last_update_id", 0)
     except Exception as e:
         print(f"[WARNING] Could not load system state: {e}")
+    try:
+        cache_file = os.path.join("docs", "instruments_cache.json")
+        if os.path.exists(cache_file):
+            with open(cache_file, "r", encoding="utf-8") as f:
+                _instruments = json.load(f)
+                print(f"[INFO] Loaded {len(_instruments)} instruments from disk cache.")
+    except Exception:
+        pass
 
 # =====================================================================
 # PROCESS LOGGING & MONITORING
@@ -437,7 +452,7 @@ class cTraderClient:
             log_process("error", f"{label} Dispatch Error: {err_str}")
 
         def check_sync_completed(c_ref):
-            if sync_status["trader"] and sync_status["symbols"] and sync_status["reconcile"]:
+            if sync_status["trader"] and sync_status["reconcile"]:
                 if not sync_status["orders_dispatched"]:
                     sync_status["orders_dispatched"] = True
                     if pending_signals:
@@ -626,16 +641,6 @@ class cTraderClient:
                 rec_req = ProtoOAReconcileReq()
                 rec_req.ctidTraderAccountId = self.account_id_num
                 c.send(rec_req).addErrback(on_error)
-                
-                sym_req = ProtoOASymbolsListReq()
-                sym_req.ctidTraderAccountId = self.account_id_num
-                sym_req.includeArchivedSymbols = False
-                c.send(sym_req).addErrback(on_error)
-
-                now_ms = int(datetime.now(timezone.utc).timestamp() * 1000)
-                from_ms = now_ms - (14 * 24 * 3600 * 1000)  # 14 days history
-                deal_req = ProtoOADealListReq(ctidTraderAccountId=self.account_id_num, fromTimestamp=from_ms, toTimestamp=now_ms, maxRows=50)
-                c.send(deal_req).addErrback(on_error)
                 
             elif payload_type == ProtoOATraderRes().payloadType:
                 res = Protobuf.extract(message)
