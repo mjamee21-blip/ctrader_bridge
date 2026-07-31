@@ -42,12 +42,6 @@ try:
     from ctrader_open_api.messages.OpenApiMessages_pb2 import *
     from ctrader_open_api.messages.OpenApiModelMessages_pb2 import *
     from twisted.internet import reactor
-    # CRITICAL FIX: Monkey-patch the library's send() to REMOVE the internal 5-second timeout.
-    # The library adds addTimeout(5, reactor) which kills order Deferreds before cTrader responds.
-    _orig_sendRequest = TcpProtocol.sendRequest
-    def _patched_send(self, request, *a, **kw):
-        return _orig_sendRequest(self, request)
-    ProtoClient.send = lambda self, request, *a, **kw: self._protocol.sendRequest(request)
     HAS_PROTOBUF = True
 except ImportError:
     HAS_PROTOBUF = False
@@ -210,7 +204,7 @@ _heartbeat_log = {}
 _alerts = []
 _telegram_messages = []
 _BUILD_VERSION = datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S")
-_SCRIPT_VERSION = "v20-monkey-patch-no-timeout"
+_SCRIPT_VERSION = "v21-fire-and-forget-no-crash"
 
 # =====================================================================
 # PERSISTENT SYSTEM STATE STORAGE (SHARES DATA BETWEEN BOT & DASHBOARD)
