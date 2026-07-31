@@ -7,6 +7,16 @@
     "tp": 65002.62,
     "entry": 64564.01,
     "qty": 0.1,
-    "_retries": 10
+    "_retries": 11
+  },
+  {
+    "type": "SIGNAL",
+    "direction": "BUY",
+    "pair": "BTC",
+    "sl": null,
+    "tp": null,
+    "entry": null,
+    "qty": 0.1,
+    "_retries": 1
   }
 ]
