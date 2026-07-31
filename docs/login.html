@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>cTrader Dashboard - Secure Login</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0d1117; color: #c9d1d9; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; padding: 20px; }
+        .login-box { background: #161b22; border: 1px solid #30363d; border-radius: 10px; padding: 35px; width: 100%; max-width: 380px; box-shadow: 0 8px 30px rgba(0,0,0,0.5); text-align: center; }
+        .login-box h2 { color: #58a6ff; margin-bottom: 8px; font-size: 22px; }
+        .login-box p { color: #8b949e; font-size: 12px; margin-bottom: 25px; }
+        input { width: 100%; padding: 12px; margin-bottom: 16px; background: #0d1117; border: 1px solid #30363d; border-radius: 6px; color: #c9d1d9; font-size: 14px; box-sizing: border-box; }
+        input:focus { outline: none; border-color: #58a6ff; }
+        button { width: 100%; padding: 12px; background: #238636; color: white; border: none; border-radius: 6px; font-weight: 700; font-size: 14px; cursor: pointer; transition: background 0.2s; }
+        button:hover { background: #2ea043; }
+        .err { color: #f85149; font-size: 12px; margin-bottom: 15px; display: none; background: #f8514920; padding: 10px; border-radius: 6px; }
+    </style>
+</head>
+<body>
+    <div class="login-box">
+        <h2>🔐 cTrader Control Panel</h2>
+        <p>Enter credentials to access trading dashboard</p>
+        <div id="err" class="err">❌ Invalid username or password</div>
+        <form onsubmit="doLogin(event)">
+            <input type="text" id="usr" placeholder="Username" required autofocus autocomplete="username">
+            <input type="password" id="pwd" placeholder="Password" required autocomplete="current-password">
+            <button type="submit">Sign In</button>
+        </form>
+    </div>
+    <script>
+        const U = "siris888";
+        const P = "P@ssw0rd";
+        function doLogin(e) {
+            e.preventDefault();
+            if (document.getElementById('usr').value === U && document.getElementById('pwd').value === P) {
+                sessionStorage.setItem('dashboard_authenticated', 'true');
+                window.location.href = 'index.html?v=20260731021252';
+            } else {
+                document.getElementById('err').style.display = 'block';
+                document.getElementById('pwd').value = '';
+            }
+        }
+        if (sessionStorage.getItem('dashboard_authenticated') === 'true') {
+            window.location.href = 'index.html?v=20260731021252';
+        }
+    </script>
+</body>
+</html>
