@@ -1090,13 +1090,12 @@ class cTraderClient:
 # TELEGRAM BOT & MTPROTO USERBOT INTEGRATION (TELETHON SUPPORTED)
 # =====================================================================
 def _telethon_test_connection():
+    if not TG_SESSION_STRING:
+        return False, {"error": "No session string provided."}
     try:
         with TelegramClient(StringSession(TG_SESSION_STRING), int(TG_API_ID), TG_API_HASH) as client:
             if not client.is_user_authorized():
-                if TG_TOKEN:
-                    client.start(bot_token=TG_TOKEN)
-                else:
-                    return False, {"error": "Telethon session not authorized and no bot token provided."}
+                return False, {"error": "Telethon session string not authorized."}
             me = client.get_me()
             uname = getattr(me, "username", "") or getattr(me, "first_name", "Userbot")
             if not uname.startswith("@") and getattr(me, "username", ""): uname = "@" + uname
@@ -1108,7 +1107,7 @@ def _telethon_test_connection():
 
 def test_telegram_connection():
     """Verify Telegram reachability using Telethon MTProto or TG_TOKEN."""
-    if HAS_TELETHON and TG_API_ID and TG_API_HASH and (TG_SESSION_STRING or TG_TOKEN):
+    if HAS_TELETHON and TG_API_ID and TG_API_HASH and TG_SESSION_STRING:
         ok, res = _telethon_test_connection()
         if ok:
             return ok, res
@@ -1139,13 +1138,12 @@ def test_telegram_connection():
 
 def _telethon_get_messages(offset=0):
     global _last_update_id
+    if not TG_SESSION_STRING:
+        return None
     try:
         with TelegramClient(StringSession(TG_SESSION_STRING), int(TG_API_ID), TG_API_HASH) as client:
             if not client.is_user_authorized():
-                if TG_TOKEN:
-                    client.start(bot_token=TG_TOKEN)
-                else:
-                    return None
+                return None
             
             target = str(TG_CHAT).lstrip("@").strip()
             clean_target = target.lstrip("-").replace("100", "", 1) if (target.startswith("-100") or target.startswith("100")) else target.lstrip("-")
@@ -1212,7 +1210,7 @@ def _telethon_get_messages(offset=0):
 def tg_get_messages(offset=0):
     """Fetch recent messages from configured TG_CHAT using Telethon Userbot or Bot API HTTP."""
     global _last_update_id
-    if HAS_TELETHON and TG_API_ID and TG_API_HASH and (TG_SESSION_STRING or TG_TOKEN):
+    if HAS_TELETHON and TG_API_ID and TG_API_HASH and TG_SESSION_STRING:
         res = _telethon_get_messages(offset)
         if res is not None:
             return res
@@ -1751,7 +1749,7 @@ def generate_dashboard_html(client, ct_connected, ct_error, tg_connected, tg_inf
             <strong style="color:#58a6ff;">📊 cTrader Account:</strong> {state['account_id']} | <strong style="color:#58a6ff;">Server:</strong> {state['server']} | <strong style="color:#58a6ff;">Currency:</strong> {state['currency']} | <strong style="color:#58a6ff;">Build:</strong> {_BUILD_VERSION}
         </div>
         <div style="background: #1f242c; border: 1px solid #3b434f; padding: 10px 16px; border-radius: 6px; font-size: 11px; margin-bottom: 20px; color: #58a6ff; font-family: monospace;">
-            🔧 DIAGNOSTIC: Script version: v9-FINAL-exact-timestamps-sorted-deals | Telegram offset (last_update_id): {_last_update_id} | Instruments loaded: {len(_instruments)}
+            🔧 DIAGNOSTIC: Script version: v12-FINAL-standard-bot-demo-account | Telegram offset (last_update_id): {_last_update_id} | Instruments loaded: {len(_instruments)}
         </div>
 
         <div class="section-title">🩺 System Health & Secrets Check</div>
@@ -3170,7 +3168,7 @@ def run_bot():
     load_system_state()
     reclassify_stored_telegram_messages()
     save_heartbeat("bot", "running", "Checking secrets and starting cycle...")
-    log_process("info", "=== TRADING BOT CYCLE STARTED === [v9-FINAL-exact-timestamps-sorted-deals]")
+    log_process("info", "=== TRADING BOT CYCLE STARTED === [v12-FINAL-standard-bot-demo-account]")
     check_secrets_status()
 
     pending_signals = []
@@ -3230,7 +3228,7 @@ def run_dashboard():
     reclassify_stored_telegram_messages()
     load_heartbeat()
     save_heartbeat("dashboard", "running", "Synchronizing account state & HTML...")
-    log_process("info", "=== DASHBOARD GENERATION STARTED === [v9-FINAL-exact-timestamps-sorted-deals]")
+    log_process("info", "=== DASHBOARD GENERATION STARTED === [v12-FINAL-standard-bot-demo-account]")
     
     check_secrets_status()
 
