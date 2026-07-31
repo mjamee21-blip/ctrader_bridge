@@ -204,7 +204,7 @@ _heartbeat_log = {}
 _alerts = []
 _telegram_messages = []
 _BUILD_VERSION = datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S")
-_SCRIPT_VERSION = "v16-pair-panel-grid-mobile"
+_SCRIPT_VERSION = "v17-increased-timeout-30s"
 
 # =====================================================================
 # PERSISTENT SYSTEM STATE STORAGE (SHARES DATA BETWEEN BOT & DASHBOARD)
@@ -519,7 +519,7 @@ class cTraderClient:
                                             log_process("success", f"📨 ORDER ACCEPTED by broker (payloadType {pt}). Order/Position ID: {oid}")
                                     except Exception as e:
                                         log_process("warning", f"Order response parse note (payloadType {getattr(resp,'payloadType','?')}): {e}")
-                                order_deferred = c_ref.send(ord_req)
+                                order_deferred = c_ref.send(ord_req, timeout=30)
                                 order_deferred.addCallbacks(_on_order_response, lambda f: log_process("error", f"Order Dispatch Error: {f}"))
                                 self.dispatched_orders += 1
                                 log_process("success", f"✓ Market order SENT to cTrader: {direction} {qty} {norm_pair or pair} | Vol={int(float(qty)*100000)} | SL={sl} | TP={tp} | Acct={self.account_id_num} | SymID={sym_id} (dispatched total: {self.dispatched_orders})")
@@ -564,7 +564,7 @@ class cTraderClient:
                             try:
                                 vreq = ProtoOAReconcileReq()
                                 vreq.ctidTraderAccountId = self.account_id_num
-                                c_ref.send(vreq).addErrback(on_error)
+                                c_ref.send(vreq, timeout=20).addErrback(on_error)
                                 log_process("info", "🔍 Verification reconcile sent. Waiting for broker position snapshot...")
                             except Exception as ve:
                                 log_process("warning", f"Verify reconcile send note: {ve}")
@@ -2096,7 +2096,16 @@ def run_dashboard():
     with open("docs/login.html", "w", encoding="utf-8") as f:
         f.write(html_login)
 
-    log_process("success", "Dashboard index.html and login.html updated successfully!")
+    # Also write the SaaS portal page so it's accessible at github.io/ctrader_bridge/portal.html
+    try:
+        saas_path = os.path.join(os.path.dirname(__file__) or ".", "index.html")
+        if os.path.exists(saas_path):
+            import shutil
+            shutil.copy2(saas_path, os.path.join("docs", "portal.html"))
+    except Exception:
+        pass
+
+    log_process("success", "Dashboard index.html, login.html, and portal.html updated successfully!")
     save_heartbeat("dashboard", "completed", "No errors encountered")
     return True
 
