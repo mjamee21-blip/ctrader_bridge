@@ -820,6 +820,7 @@ class cTraderClient:
                                 "deal_id": deal_id,
                                 "pos_id": pos_id
                             })
+                self.trades.sort(key=lambda x: x.get("close_time", ""), reverse=True)
                 sync_status["deals"] = True
                 check_sync_completed(c)
 
@@ -897,15 +898,22 @@ class cTraderClient:
                 if sync_status["trader"] and sync_status["symbols"] and sync_status["reconcile"]:
                     log_process("info", "Notice: Trade cycle & account reconciliation completed successfully. Closing TCP connection (deals history sync timed out).")
                     sync_status["finished"] = True
-                    reactor.stop()
+                    try:
+                        reactor.stop()
+                    except Exception:
+                        pass
                     return
                 log_process("warning", f"TCP sync timeout reached (Trd:{sync_status['trader']}, Rec:{sync_status['reconcile']}, Sym:{sync_status['symbols']}, Deals:{sync_status['deals']}).")
-                reactor.stop()
+                try:
+                    reactor.stop()
+                except Exception:
+                    pass
                 
         reactor.callLater(35.0, force_timeout)
         try:
             client.startService()
-            reactor.run()
+            if not reactor.running:
+                reactor.run()
         except Exception as e:
             log_process("error", f"Twisted reactor execution note: {e}")
             
@@ -1738,7 +1746,7 @@ def generate_dashboard_html(client, ct_connected, ct_error, tg_connected, tg_inf
             <strong style="color:#58a6ff;">📊 cTrader Account:</strong> {state['account_id']} | <strong style="color:#58a6ff;">Server:</strong> {state['server']} | <strong style="color:#58a6ff;">Currency:</strong> {state['currency']} | <strong style="color:#58a6ff;">Build:</strong> {_BUILD_VERSION}
         </div>
         <div style="background: #1f242c; border: 1px solid #3b434f; padding: 10px 16px; border-radius: 6px; font-size: 11px; margin-bottom: 20px; color: #58a6ff; font-family: monospace;">
-            🔧 DIAGNOSTIC: Script version: v8-ULTIMATE-telethon-userbot-unified | Telegram offset (last_update_id): {_last_update_id} | Instruments loaded: {len(_instruments)}
+            🔧 DIAGNOSTIC: Script version: v9-FINAL-exact-timestamps-sorted-deals | Telegram offset (last_update_id): {_last_update_id} | Instruments loaded: {len(_instruments)}
         </div>
 
         <div class="section-title">🩺 System Health & Secrets Check</div>
@@ -3157,7 +3165,7 @@ def run_bot():
     load_system_state()
     reclassify_stored_telegram_messages()
     save_heartbeat("bot", "running", "Checking secrets and starting cycle...")
-    log_process("info", "=== TRADING BOT CYCLE STARTED === [v8-ULTIMATE-telethon-userbot-unified]")
+    log_process("info", "=== TRADING BOT CYCLE STARTED === [v9-FINAL-exact-timestamps-sorted-deals]")
     check_secrets_status()
 
     pending_signals = []
@@ -3217,7 +3225,7 @@ def run_dashboard():
     reclassify_stored_telegram_messages()
     load_heartbeat()
     save_heartbeat("dashboard", "running", "Synchronizing account state & HTML...")
-    log_process("info", "=== DASHBOARD GENERATION STARTED === [v8-ULTIMATE-telethon-userbot-unified]")
+    log_process("info", "=== DASHBOARD GENERATION STARTED === [v9-FINAL-exact-timestamps-sorted-deals]")
     
     check_secrets_status()
 
