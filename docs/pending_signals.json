@@ -1,1 +1,12 @@
-[]
+[
+  {
+    "type": "SIGNAL",
+    "direction": "BUY",
+    "pair": "BTCUSD",
+    "sl": 64177.02,
+    "tp": 65002.62,
+    "entry": 64564.01,
+    "qty": 0.1,
+    "_retries": 1
+  }
+]
