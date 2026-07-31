@@ -1,732 +1,97 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>cTrader Dashboard Control Panel</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alpha Markets - Automated Copy Trading</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0d1117; color: #c9d1d9; font-size: 13px; line-height: 1.5; }
-        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
-        .header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; background: #161b22; border: 1px solid #30363d; border-radius: 8px; margin-bottom: 20px; }
-        .header h1 { font-size: 18px; font-weight: 700; color: #58a6ff; }
-        .btn { padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; text-decoration: none; display: inline-block; }
-        .btn-refresh { background: #238636; color: #fff; margin-right: 8px; }
-        .btn-refresh:hover { background: #2ea043; }
-        .btn-logout { background: #da3633; color: #fff; }
-        .btn-logout:hover { background: #f85149; }
-        .section-title { font-size: 12px; color: #8b949e; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin: 24px 0 10px 0; }
-        .card { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 16px; margin-bottom: 16px; }
-        .health-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 16px; }
-        .health-item { background: #161b22; border: 1px solid #30363d; border-radius: 6px; padding: 12px 16px; display: flex; align-items: center; gap: 12px; }
-        .health-icon { font-size: 18px; }
-        .health-label { flex: 1; font-weight: 600; }
-        .conn-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; margin-bottom: 16px; }
-        .conn-card { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 16px; }
-        .conn-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-        .conn-title { font-size: 13px; font-weight: 700; }
-        .conn-badge { font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 12px; }
-        .conn-detail { font-size: 11px; color: #8b949e; }
-        .cron-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; margin-bottom: 16px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 15px; margin-bottom: 16px; }
-        .stat { text-align: center; padding: 16px; }
-        .stat-value { font-size: 22px; font-weight: 800; color: #58a6ff; }
-        .stat-label { font-size: 11px; color: #8b949e; margin-top: 6px; text-transform: uppercase; }
-        table { width: 100%; border-collapse: collapse; }
-        th { padding: 10px 12px; background: #0d1117; color: #8b949e; font-size: 11px; text-transform: uppercase; text-align: left; border-bottom: 1px solid #30363d; }
-        td { padding: 10px 12px; border-bottom: 1px solid #30363d; font-size: 12px; }
-        tr:hover td { background: #1c2128; }
-        .pair { font-weight: 600; color: #fff; }
-        .buy { color: #3fb950; font-weight: 600; }
-        .sell { color: #f85149; font-weight: 600; }
-        .time { font-size: 11px; color: #8b949e; white-space: nowrap; }
-        .msg-cell { word-break: break-word; white-space: pre-wrap; max-width: 520px; }
-        .ago { display: block; font-size: 10px; color: #58a6ff; font-weight: 600; }
-        .empty { text-align: center; color: #8b949e; padding: 24px; font-style: italic; }
+        :root {
+            --bg: #04070f;
+            --border: #1b2540;
+            --emerald: #10b981;
+            --gold: #f5b942;
+            --text: #e8edf7;
+            --muted: #8893ad
+        }
+        * { font-family: 'Inter', system-ui, sans-serif }
+        body { background: var(--bg); color: var(--text); overflow-x: hidden; position: relative }
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            background:
+                radial-gradient(900px 500px at 80% -10%, rgba(245, 185, 66, .10), transparent 60%),
+                radial-gradient(800px 500px at 10% 110%, rgba(16, 185, 129, .12), transparent 60%),
+                linear-gradient(rgba(40, 60, 100, .07) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(40, 60, 100, .07) 1px, transparent 1px);
+            background-size: auto, auto, 46px 46px, 46px 46px
+        }
+        .glass {
+            background: linear-gradient(180deg, rgba(16, 23, 40, .85), rgba(9, 14, 26, .9));
+            backdrop-filter: blur(18px);
+            border: 1px solid var(--border)
+        }
+        .grad-text {
+            background: linear-gradient(100deg, #34d399 10%, #f5b942 90%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent
+        }
+        .grad-btn {
+            background: linear-gradient(100deg, #10b981, #f5b942);
+            transition: transform .2s, box-shadow .2s, filter .2s;
+            color: #06120c
+        }
     </style>
-    <script>
-        function checkAuth() {
-            if (sessionStorage.getItem('dashboard_authenticated') !== 'true') {
-                window.location.href = 'login.html';
-            }
-        }
-        function logout() {
-            sessionStorage.clear();
-            window.location.href = 'login.html';
-        }
-        // Live relative-time ("X ago") so timings are always accurate and current
-        function parseTs(s) {
-            // Expected: "2026-07-26 11:06:44 UTC"
-            try {
-                let parts = String(s).trim().split(' ');
-                let dp = parts[0].split('-');
-                let tp = parts[1].split(':');
-                return new Date(Date.UTC(+dp[0], +dp[1]-1, +dp[2], +tp[0], +tp[1], +tp[2]));
-            } catch(e) { return null; }
-        }
-        function timeAgo(d) {
-            let sec = Math.floor((Date.now() - d.getTime()) / 1000);
-            if (sec < 0) sec = 0;
-            if (sec < 60) return sec + 's ago';
-            if (sec < 3600) return Math.floor(sec/60) + 'm ago';
-            if (sec < 86400) return Math.floor(sec/3600) + 'h ago';
-            return Math.floor(sec/86400) + 'd ago';
-        }
-        function refreshAgo() {
-            document.querySelectorAll('[data-ts]').forEach(function(el) {
-                let d = parseTs(el.getAttribute('data-ts'));
-                if (!d) return;
-                let existing = el.querySelector('.ago');
-                if (!existing) {
-                    existing = document.createElement('span');
-                    existing.className = 'ago';
-                    el.appendChild(existing);
-                }
-                existing.textContent = timeAgo(d);
-            });
-        }
-        function updateClock() {
-            let n = new Date();
-            let pad = (x) => String(x).padStart(2, '0');
-            let clk = document.getElementById('liveClock');
-            if (clk) clk.textContent = n.getUTCFullYear()+'-'+pad(n.getUTCMonth()+1)+'-'+pad(n.getUTCDate())+' '+pad(n.getUTCHours())+':'+pad(n.getUTCMinutes())+':'+pad(n.getUTCSeconds());
-        }
-        function updatePageAge() {
-            let el = document.querySelector('span[data-ts]');
-            // pageAge element sits in footer
-            let pg = document.getElementById('pageAge');
-            if (!pg) return;
-            // find the footer generated timestamp
-            let foot = document.querySelectorAll('div[style*="margin: 30px"] span[data-ts]');
-            if (foot.length) {
-                let d = parseTs(foot[foot.length-1].getAttribute('data-ts'));
-                if (d) pg.textContent = timeAgo(d);
-            }
-        }
-        /* ===== Per-Pair Manager (grid panel, no search) ===== */
-        const LOT_DATA = {"AUDUSD": {"lot": 0.01, "on": true, "sym": 5}, "BTCUSD": {"lot": 0.1, "on": true, "sym": 101}, "CADJPY": {"lot": 0.01, "on": true, "sym": 15}, "CHFJPY": {"lot": 0.01, "on": true, "sym": 13}, "ETHUSD": {"lot": 0.1, "on": true, "sym": 102}, "EURAUD": {"lot": 0.01, "on": true, "sym": 14}, "EURCHF": {"lot": 0.01, "on": true, "sym": 10}, "EURGBP": {"lot": 0.01, "on": true, "sym": 9}, "EURJPY": {"lot": 0.01, "on": true, "sym": 3}, "EURNZD": {"lot": 0.01, "on": true, "sym": 26}, "EURUSD": {"lot": 0.01, "on": true, "sym": 1}, "GBPJPY": {"lot": 0.01, "on": true, "sym": 7}, "GBPUSD": {"lot": 0.01, "on": true, "sym": 2}, "GER40": {"lot": 0.1, "on": true, "sym": null}, "NAS100": {"lot": 0.1, "on": true, "sym": null}, "NZDJPY": {"lot": 0.01, "on": true, "sym": 21}, "NZDUSD": {"lot": 0.01, "on": true, "sym": 12}, "SPX500": {"lot": 0.1, "on": true, "sym": null}, "UK100": {"lot": 0.1, "on": true, "sym": null}, "UKOIL": {"lot": 0.1, "on": true, "sym": null}, "US30": {"lot": 0.1, "on": true, "sym": null}, "USDCAD": {"lot": 0.01, "on": true, "sym": 8}, "USDCHF": {"lot": 0.01, "on": true, "sym": 6}, "USDJPY": {"lot": 0.01, "on": true, "sym": 4}, "USOIL": {"lot": 0.1, "on": true, "sym": null}, "XAGUSD": {"lot": 0.1, "on": true, "sym": 42}, "XAUUSD": {"lot": 0.05, "on": true, "sym": 41}};
-        function renderLotTable(){
-            const body=document.getElementById('lotBody'); if(!body) return;
-            const saved=JSON.parse(localStorage.getItem('pip_pair_cfg')||'{}');
-            body.innerHTML='';
-            Object.keys(LOT_DATA).forEach(pair=>{
-                const base=LOT_DATA[pair]||{}; const defLot=base.lot; const defOn=base.on!==false;
-                const lot=(saved[pair]&&saved[pair].lot!==undefined)?saved[pair].lot:defLot;
-                const on=(saved[pair]&&saved[pair].on!==undefined)?saved[pair].on:defOn;
-                body.insertAdjacentHTML('beforeend',
-                    `<div style="background:#070c16;border:1px solid #30363d;border-radius:10px;padding:10px;display:flex;flex-direction:column;gap:8px;">
-                        <div style="display:flex;justify-content:space-between;align-items:center;">
-                            <span class="pairname" style="font-weight:700;font-size:13px;${on?'':'opacity:.4;text-decoration:line-through;'}">${pair}</span>
-                            <label style="position:relative;display:inline-block;width:40px;height:22px;cursor:pointer;flex-shrink:0;">
-                                <input type="checkbox" data-on="${pair}" ${on?'checked':''} style="opacity:0;width:0;height:0;" onchange="togglePair(this)">
-                                <span class="togglebg" style="position:absolute;inset:0;background:${on?'#3fb950':'#f85149'};border-radius:999px;transition:.2s;"></span>
-                                <span class="toggleknob" style="position:absolute;top:2.5px;left:${on?'20px':'2.5px'};width:17px;height:17px;background:#fff;border-radius:50%;transition:.2s;"></span>
-                            </label>
-                        </div>
-                        <input type="number" step="0.01" min="0.01" value="${lot}" data-lot="${pair}" style="background:#0a0f1c;border:1px solid #30363d;border-radius:6px;width:100%;text-align:center;padding:5px;color:#e6ebf5;font-size:12px;">
-                    </div>`);
-            });
-        }
-        function togglePair(cb){
-            const label=cb.parentElement;
-            const bg=label.querySelector('.togglebg');
-            const knob=label.querySelector('.toggleknob');
-            const name=label.closest('div[style*="flex-direction"]').querySelector('.pairname');
-            if(cb.checked){ bg.style.background='#3fb950'; knob.style.left='20px'; if(name){ name.style.opacity='1'; name.style.textDecoration='none'; } }
-            else{ bg.style.background='#f85149'; knob.style.left='2.5px'; if(name){ name.style.opacity='.4'; name.style.textDecoration='line-through'; } }
-        }
-        function collectCfg(){
-            const out={};
-            document.querySelectorAll('input[data-lot]').forEach(inp=>{
-                const pair=inp.dataset.lot;
-                const cb=document.querySelector('input[data-on="'+pair+'"]');
-                out[pair]={"lot":parseFloat(inp.value)||0.01,"on":cb?cb.checked:true};
-            });
-            return out;
-        }
-        function showToast(msg){
-            const t=document.getElementById('lotToast'); if(!t) return;
-            t.textContent=msg; t.style.display='inline-block';
-            setTimeout(()=>t.style.display='none',3500);
-        }
-        function saveLots(){
-            const cfg=collectCfg();
-            localStorage.setItem('pip_pair_cfg',JSON.stringify(cfg));
-            const exp=document.getElementById('lotExport'); const wrap=document.getElementById('lotExportWrap');
-            if(exp&&wrap){ exp.value=JSON.stringify(cfg); wrap.style.display='block'; }
-            const en=Object.values(cfg).filter(v=>v.on).length;
-            showToast('Saved! '+en+' enabled / '+Object.keys(cfg).length+' total');
-            renderLotTable();
-        }
-        function addLotPair(){
-            const p=prompt('Enter pair symbol (e.g. EURUSD):'); if(!p) return;
-            const k=p.replace(/[^A-Z0-9]/gi,'').toUpperCase();
-            if(!LOT_DATA[k]) LOT_DATA[k]={lot:0.01,on:true,sym:null};
-            renderLotTable();
-        }
-        function copyLotJson(){ const e=document.getElementById('lotExport'); navigator.clipboard.writeText(e.value); showToast('JSON copied!'); }
-        checkAuth();
-        renderLotTable();
-        refreshAgo();
-        updateClock();
-        updatePageAge();
-        setInterval(refreshAgo, 1000);
-        setInterval(updateClock, 1000);
-        setInterval(updatePageAge, 1000);
-        setInterval(() => location.reload(), 60000);
-    </script>
 </head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>🚀 cTrader Dashboard Control Panel</h1>
+<body class="min-h-screen flex flex-col justify-between">
+    <nav class="relative z-20 max-w-7xl mx-auto w-full flex items-center justify-between px-6 py-6">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl grad-btn flex items-center justify-center font-black text-xl">α</div>
             <div>
-                <button class="btn btn-refresh" onclick="location.reload()">🔄 Refresh</button>
-                <button class="btn btn-logout" onclick="logout()">🚪 Logout</button>
+                <div class="text-lg font-extrabold tracking-tight">Alpha Markets</div>
+                <div class="text-[10px] font-semibold grad-text tracking-widest uppercase">Copy Trading</div>
             </div>
         </div>
+    </nav>
 
-        <div style="background: #161b22; border: 1px solid #30363d; padding: 12px 16px; border-radius: 6px; font-size: 12px; margin-bottom: 20px;">
-            <strong style="color:#58a6ff;">📊 cTrader Account:</strong> 48038510 | <strong style="color:#58a6ff;">Server:</strong> DEMO | <strong style="color:#58a6ff;">Currency:</strong> USD | <strong style="color:#58a6ff;">Build:</strong> 20260731221655
+    <main class="relative z-10 max-w-5xl mx-auto px-6 py-16 text-center my-auto">
+        <div class="inline-flex items-center gap-2 glass px-4 py-1.5 rounded-full text-xs font-semibold text-[var(--muted)] mb-6">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Professional cTrader & Telegram Automation
         </div>
+        <h1 class="text-5xl md:text-7xl font-black leading-tight tracking-tight mb-6">
+            Automated Copy Trading <br><span class="grad-text">Engine & Signals</span>
+        </h1>
+        <p class="text-lg text-[var(--muted)] max-w-2xl mx-auto mb-10">
+            Seamlessly bridge Telegram trading signals to your cTrader account with institutional execution speed, real-time telemetry, and advanced risk management.
+        </p>
 
-        <div style="background: #0d1117; border: 1px solid #30363d; padding: 10px 16px; border-radius: 6px; font-size: 11px; margin-bottom: 20px; color:#8b949e;">
-            <strong style="color:#d29922;">🔧 DIAGNOSTIC:</strong> Script version: <strong style="color:#3fb950;">v21-fire-and-forget-no-crash</strong> | Telegram offset (last_update_id): <strong style="color:#c9d1d9;">841819920</strong> | Pending signals in queue: <strong style="color:#c9d1d9;">15</strong> | Instruments loaded: <strong style="color:#c9d1d9;">381</strong>
-        </div>
-
-        <div class="section-title">🩺 System Health & Secrets Check</div>
-        <div class="health-grid"><div class="health-item"><span class="health-icon">🔐</span><span class="health-label">cTrader OAuth</span><span style="color:#3fb950;font-weight:700;">✓ OK</span></div><div class="health-item"><span class="health-icon">📱</span><span class="health-label">Telegram Bot</span><span style="color:#3fb950;font-weight:700;">✓ OK</span></div><div class="health-item"><span class="health-icon">🔑</span><span class="health-label">API Secrets Set</span><span style="color:#3fb950;font-weight:700;">✓ OK</span></div><div class="health-item"><span class="health-icon">⚡</span><span class="health-label">System Healthy</span><span style="color:#3fb950;font-weight:700;">✓ OK</span></div></div>
-
-        <div class="section-title">Connection Status</div>
-        <div class="conn-grid">
-            <div class="conn-card">
-                <div class="conn-header">
-                    <span class="conn-title">📊 cTrader Open API v2</span>
-                    <span class="conn-badge" style="background:#3fb95020;color:#3fb950;">✓ Connected</span>
-                </div>
-                <div class="conn-detail">Account ID: 2454414 | Env: DEMO</div>
+        <div class="grid md:grid-cols-3 gap-6 mt-12 text-left">
+            <div class="glass p-6 rounded-2xl border border-[var(--border)]">
+                <div class="text-3xl mb-3">⚡</div>
+                <h3 class="text-lg font-bold mb-2">Lightning Fast Execution</h3>
+                <p class="text-sm text-[var(--muted)]">Direct integration with cTrader Open API ensures sub-second market execution for every signal.</p>
             </div>
-            <div class="conn-card">
-                <div class="conn-header">
-                    <span class="conn-title">✈️ Telegram Signal Receiver</span>
-                    <span class="conn-badge" style="background:#3fb95020;color:#3fb950;">✓ Connected</span>
-                </div>
-                <div class="conn-detail">Bot: @Forexunitedbot</div>
+            <div class="glass p-6 rounded-2xl border border-[var(--border)]">
+                <div class="text-3xl mb-3">📊</div>
+                <h3 class="text-lg font-bold mb-2">Real-time Telemetry</h3>
+                <p class="text-sm text-[var(--muted)]">Monitor open positions, balance equity, P&L, and system health status instantly.</p>
             </div>
-        </div>
-
-        <div class="section-title">Cron Job Execution Status</div>
-        <div class="cron-grid">
-            <div class="conn-card">
-                <div class="conn-header">
-                    <span class="conn-title">🤖 Trading Bot Cycle</span>
-                    <span style="font-size:11px;color:#8b949e;">5s ago</span>
-                </div>
-                <div style="font-weight:700;color:#8b949e;font-size:12px;">RUNNING</div>
-                <div class="conn-detail" style="margin-top:4px;">Retrying 15 signal(s) — attempt 531/9999</div>
-            </div>
-            <div class="conn-card">
-                <div class="conn-header">
-                    <span class="conn-title">📈 Dashboard Updater</span>
-                    <span style="font-size:11px;color:#8b949e;">5s ago</span>
-                </div>
-                <div style="font-weight:700;color:#8b949e;font-size:12px;">RUNNING</div>
-                <div class="conn-detail" style="margin-top:4px;">Synchronizing account state & HTML...</div>
+            <div class="glass p-6 rounded-2xl border border-[var(--border)]">
+                <div class="text-3xl mb-3">🛡️</div>
+                <h3 class="text-lg font-bold mb-2">Advanced Risk Controls</h3>
+                <p class="text-sm text-[var(--muted)]">Configure lot sizes per pair, strict SL/TP mapping, and automated safety heartbeat monitoring.</p>
             </div>
         </div>
+    </main>
 
-        <div class="section-title">Account Overview</div>
-        <div class="grid">
-            <div class="card stat"><div class="stat-value">$123.66</div><div class="stat-label">Balance</div></div>
-            <div class="card stat"><div class="stat-value">$123.66</div><div class="stat-label">Equity</div></div>
-            <div class="card stat"><div class="stat-value">$0.00</div><div class="stat-label">Used Margin</div></div>
-            <div class="card stat"><div class="stat-value">$123.66</div><div class="stat-label">Free Margin</div></div>
-            <div class="card stat"><div class="stat-value">0.0% (No risk)</div><div class="stat-label">Margin Level</div></div>
-            <div class="card stat"><div class="stat-value">$0.00</div><div class="stat-label">Day P&L</div></div>
-        </div>
-
-        <div class="section-title">Trade Statistics</div>
-        <div class="grid">
-            <div class="card stat"><div class="stat-value">13</div><div class="stat-label">Total Trades</div></div>
-            <div class="card stat"><div class="stat-value">0</div><div class="stat-label">Wins</div></div>
-            <div class="card stat"><div class="stat-value">0</div><div class="stat-label">Losses</div></div>
-            <div class="card stat"><div class="stat-value">0.0%</div><div class="stat-label">Win Rate</div></div>
-            <div class="card stat"><div class="stat-value">$+0.00</div><div class="stat-label">Open P&L</div></div>
-            <div class="card stat"><div class="stat-value">0</div><div class="stat-label">Open Positions</div></div>
-        </div>
-
-        <div class="section-title">⚙️ Per-Pair Lot Size & ON/OFF Manager (27 of 27 Enabled)</div>
-        <div class="card">
-            <p style="font-size:12px;color:#8b949e;margin-bottom:14px;">Set lot size and toggle ON/OFF per pair. 🟢 ON = signals copied. 🔴 OFF = signals blocked. Click <strong>Save</strong> then copy the JSON to your GitHub secret <code>CTRADER_PAIR_CONFIG</code>.</p>
-            <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center;">
-                <button class="btn btn-refresh" onclick="saveLots()" style="background:#238636;">💾 Save Settings</button>
-                <span id="lotToast" style="display:none;color:#3fb950;font-weight:700;font-size:13px;"></span>
-            </div>
-            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px;">
-            <div style="background:#070c16;border:1px solid #30363d;border-radius:10px;padding:10px;">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-                    <span style="font-weight:700;font-size:13px;">AUDUSD</span>
-                    <label style="position:relative;display:inline-block;width:40px;height:22px;cursor:pointer;flex-shrink:0;">
-                        <input type="checkbox" data-on="AUDUSD" checked style="opacity:0;width:0;height:0;" onchange="this.nextElementSibling.style.background=this.checked?'#3fb950':'#f85149';this.nextElementSibling.nextElementSibling.style.left=this.checked?'20px':'2.5px';this.closest('div').querySelector('span').style.textDecoration=this.checked?'none':'line-through';this.closest('div').querySelector('span').style.opacity=this.checked?'1':'.4';">
-                        <span style="position:absolute;inset:0;background:#3fb950;border-radius:999px;transition:.2s;"></span>
-                        <span style="position:absolute;top:2.5px;left:20px;width:17px;height:17px;background:#fff;border-radius:50%;transition:.2s;"></span>
-                    </label>
-                </div>
-                <input type="number" step="0.01" min="0.01" value="0.01" data-lot="AUDUSD" style="background:#0a0f1c;border:1px solid #30363d;border-radius:6px;width:100%;text-align:center;padding:5px;color:#e6ebf5;font-size:12px;">
-            </div><div style="background:#070c16;border:1px solid #30363d;border-radius:10px;padding:10px;">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-                    <span style="font-weight:700;font-size:13px;">BTCUSD</span>
-                    <label style="position:relative;display:inline-block;width:40px;height:22px;cursor:pointer;flex-shrink:0;">
-                        <input type="checkbox" data-on="BTCUSD" checked style="opacity:0;width:0;height:0;" onchange="this.nextElementSibling.style.background=this.checked?'#3fb950':'#f85149';this.nextElementSibling.nextElementSibling.style.left=this.checked?'20px':'2.5px';this.closest('div').querySelector('span').style.textDecoration=this.checked?'none':'line-through';this.closest('div').querySelector('span').style.opacity=this.checked?'1':'.4';">
-                        <span style="position:absolute;inset:0;background:#3fb950;border-radius:999px;transition:.2s;"></span>
-                        <span style="position:absolute;top:2.5px;left:20px;width:17px;height:17px;background:#fff;border-radius:50%;transition:.2s;"></span>
-                    </label>
-                </div>
-                <input type="number" step="0.01" min="0.01" value="0.1" data-lot="BTCUSD" style="background:#0a0f1c;border:1px solid #30363d;border-radius:6px;width:100%;text-align:center;padding:5px;color:#e6ebf5;font-size:12px;">
-            </div><div style="background:#070c16;border:1px solid #30363d;border-radius:10px;padding:10px;">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-                    <span style="font-weight:700;font-size:13px;">CADJPY</span>
-                    <label style="position:relative;display:inline-block;width:40px;height:22px;cursor:pointer;flex-shrink:0;">
-                        <input type="checkbox" data-on="CADJPY" checked style="opacity:0;width:0;height:0;" onchange="this.nextElementSibling.style.background=this.checked?'#3fb950':'#f85149';this.nextElementSibling.nextElementSibling.style.left=this.checked?'20px':'2.5px';this.closest('div').querySelector('span').style.textDecoration=this.checked?'none':'line-through';this.closest('div').querySelector('span').style.opacity=this.checked?'1':'.4';">
-                        <span style="position:absolute;inset:0;background:#3fb950;border-radius:999px;transition:.2s;"></span>
-                        <span style="position:absolute;top:2.5px;left:20px;width:17px;height:17px;background:#fff;border-radius:50%;transition:.2s;"></span>
-                    </label>
-                </div>
-                <input type="number" step="0.01" min="0.01" value="0.01" data-lot="CADJPY" style="background:#0a0f1c;border:1px solid #30363d;border-radius:6px;width:100%;text-align:center;padding:5px;color:#e6ebf5;font-size:12px;">
-            </div><div style="background:#070c16;border:1px solid #30363d;border-radius:10px;padding:10px;">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-                    <span style="font-weight:700;font-size:13px;">CHFJPY</span>
-                    <label style="position:relative;display:inline-block;width:40px;height:22px;cursor:pointer;flex-shrink:0;">
-                        <input type="checkbox" data-on="CHFJPY" checked style="opacity:0;width:0;height:0;" onchange="this.nextElementSibling.style.background=this.checked?'#3fb950':'#f85149';this.nextElementSibling.nextElementSibling.style.left=this.checked?'20px':'2.5px';this.closest('div').querySelector('span').style.textDecoration=this.checked?'none':'line-through';this.closest('div').querySelector('span').style.opacity=this.checked?'1':'.4';">
-                        <span style="position:absolute;inset:0;background:#3fb950;border-radius:999px;transition:.2s;"></span>
-                        <span style="position:absolute;top:2.5px;left:20px;width:17px;height:17px;background:#fff;border-radius:50%;transition:.2s;"></span>
-                    </label>
-                </div>
-                <input type="number" step="0.01" min="0.01" value="0.01" data-lot="CHFJPY" style="background:#0a0f1c;border:1px solid #30363d;border-radius:6px;width:100%;text-align:center;padding:5px;color:#e6ebf5;font-size:12px;">
-            </div><div style="background:#070c16;border:1px solid #30363d;border-radius:10px;padding:10px;">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-                    <span style="font-weight:700;font-size:13px;">ETHUSD</span>
-                    <label style="position:relative;display:inline-block;width:40px;height:22px;cursor:pointer;flex-shrink:0;">
-                        <input type="checkbox" data-on="ETHUSD" checked style="opacity:0;width:0;height:0;" onchange="this.nextElementSibling.style.background=this.checked?'#3fb950':'#f85149';this.nextElementSibling.nextElementSibling.style.left=this.checked?'20px':'2.5px';this.closest('div').querySelector('span').style.textDecoration=this.checked?'none':'line-through';this.closest('div').querySelector('span').style.opacity=this.checked?'1':'.4';">
-                        <span style="position:absolute;inset:0;background:#3fb950;border-radius:999px;transition:.2s;"></span>
-                        <span style="position:absolute;top:2.5px;left:20px;width:17px;height:17px;background:#fff;border-radius:50%;transition:.2s;"></span>
-                    </label>
-                </div>
-                <input type="number" step="0.01" min="0.01" value="0.1" data-lot="ETHUSD" style="background:#0a0f1c;border:1px solid #30363d;border-radius:6px;width:100%;text-align:center;padding:5px;color:#e6ebf5;font-size:12px;">
-            </div><div style="background:#070c16;border:1px solid #30363d;border-radius:10px;padding:10px;">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-                    <span style="font-weight:700;font-size:13px;">EURAUD</span>
-                    <label style="position:relative;display:inline-block;width:40px;height:22px;cursor:pointer;flex-shrink:0;">
-                        <input type="checkbox" data-on="EURAUD" checked style="opacity:0;width:0;height:0;" onchange="this.nextElementSibling.style.background=this.checked?'#3fb950':'#f85149';this.nextElementSibling.nextElementSibling.style.left=this.checked?'20px':'2.5px';this.closest('div').querySelector('span').style.textDecoration=this.checked?'none':'line-through';this.closest('div').querySelector('span').style.opacity=this.checked?'1':'.4';">
-                        <span style="position:absolute;inset:0;background:#3fb950;border-radius:999px;transition:.2s;"></span>
-                        <span style="position:absolute;top:2.5px;left:20px;width:17px;height:17px;background:#fff;border-radius:50%;transition:.2s;"></span>
-                    </label>
-                </div>
-                <input type="number" step="0.01" min="0.01" value="0.01" data-lot="EURAUD" style="background:#0a0f1c;border:1px solid #30363d;border-radius:6px;width:100%;text-align:center;padding:5px;color:#e6ebf5;font-size:12px;">
-            </div><div style="background:#070c16;border:1px solid #30363d;border-radius:10px;padding:10px;">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-                    <span style="font-weight:700;font-size:13px;">EURCHF</span>
-                    <label style="position:relative;display:inline-block;width:40px;height:22px;cursor:pointer;flex-shrink:0;">
-                        <input type="checkbox" data-on="EURCHF" checked style="opacity:0;width:0;height:0;" onchange="this.nextElementSibling.style.background=this.checked?'#3fb950':'#f85149';this.nextElementSibling.nextElementSibling.style.left=this.checked?'20px':'2.5px';this.closest('div').querySelector('span').style.textDecoration=this.checked?'none':'line-through';this.closest('div').querySelector('span').style.opacity=this.checked?'1':'.4';">
-                        <span style="position:absolute;inset:0;background:#3fb950;border-radius:999px;transition:.2s;"></span>
-                        <span style="position:absolute;top:2.5px;left:20px;width:17px;height:17px;background:#fff;border-radius:50%;transition:.2s;"></span>
-                    </label>
-                </div>
-                <input type="number" step="0.01" min="0.01" value="0.01" data-lot="EURCHF" style="background:#0a0f1c;border:1px solid #30363d;border-radius:6px;width:100%;text-align:center;padding:5px;color:#e6ebf5;font-size:12px;">
-            </div><div style="background:#070c16;border:1px solid #30363d;border-radius:10px;padding:10px;">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-                    <span style="font-weight:700;font-size:13px;">EURGBP</span>
-                    <label style="position:relative;display:inline-block;width:40px;height:22px;cursor:pointer;flex-shrink:0;">
-                        <input type="checkbox" data-on="EURGBP" checked style="opacity:0;width:0;height:0;" onchange="this.nextElementSibling.style.background=this.checked?'#3fb950':'#f85149';this.nextElementSibling.nextElementSibling.style.left=this.checked?'20px':'2.5px';this.closest('div').querySelector('span').style.textDecoration=this.checked?'none':'line-through';this.closest('div').querySelector('span').style.opacity=this.checked?'1':'.4';">
-                        <span style="position:absolute;inset:0;background:#3fb950;border-radius:999px;transition:.2s;"></span>
-                        <span style="position:absolute;top:2.5px;left:20px;width:17px;height:17px;background:#fff;border-radius:50%;transition:.2s;"></span>
-                    </label>
-                </div>
-                <input type="number" step="0.01" min="0.01" value="0.01" data-lot="EURGBP" style="background:#0a0f1c;border:1px solid #30363d;border-radius:6px;width:100%;text-align:center;padding:5px;color:#e6ebf5;font-size:12px;">
-            </div><div style="background:#070c16;border:1px solid #30363d;border-radius:10px;padding:10px;">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-                    <span style="font-weight:700;font-size:13px;">EURJPY</span>
-                    <label style="position:relative;display:inline-block;width:40px;height:22px;cursor:pointer;flex-shrink:0;">
-                        <input type="checkbox" data-on="EURJPY" checked style="opacity:0;width:0;height:0;" onchange="this.nextElementSibling.style.background=this.checked?'#3fb950':'#f85149';this.nextElementSibling.nextElementSibling.style.left=this.checked?'20px':'2.5px';this.closest('div').querySelector('span').style.textDecoration=this.checked?'none':'line-through';this.closest('div').querySelector('span').style.opacity=this.checked?'1':'.4';">
-                        <span style="position:absolute;inset:0;background:#3fb950;border-radius:999px;transition:.2s;"></span>
-                        <span style="position:absolute;top:2.5px;left:20px;width:17px;height:17px;background:#fff;border-radius:50%;transition:.2s;"></span>
-                    </label>
-                </div>
-                <input type="number" step="0.01" min="0.01" value="0.01" data-lot="EURJPY" style="background:#0a0f1c;border:1px solid #30363d;border-radius:6px;width:100%;text-align:center;padding:5px;color:#e6ebf5;font-size:12px;">
-            </div><div style="background:#070c16;border:1px solid #30363d;border-radius:10px;padding:10px;">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-                    <span style="font-weight:700;font-size:13px;">EURNZD</span>
-                    <label style="position:relative;display:inline-block;width:40px;height:22px;cursor:pointer;flex-shrink:0;">
-                        <input type="checkbox" data-on="EURNZD" checked style="opacity:0;width:0;height:0;" onchange="this.nextElementSibling.style.background=this.checked?'#3fb950':'#f85149';this.nextElementSibling.nextElementSibling.style.left=this.checked?'20px':'2.5px';this.closest('div').querySelector('span').style.textDecoration=this.checked?'none':'line-through';this.closest('div').querySelector('span').style.opacity=this.checked?'1':'.4';">
-                        <span style="position:absolute;inset:0;background:#3fb950;border-radius:999px;transition:.2s;"></span>
-                        <span style="position:absolute;top:2.5px;left:20px;width:17px;height:17px;background:#fff;border-radius:50%;transition:.2s;"></span>
-                    </label>
-                </div>
-                <input type="number" step="0.01" min="0.01" value="0.01" data-lot="EURNZD" style="background:#0a0f1c;border:1px solid #30363d;border-radius:6px;width:100%;text-align:center;padding:5px;color:#e6ebf5;font-size:12px;">
-            </div><div style="background:#070c16;border:1px solid #30363d;border-radius:10px;padding:10px;">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-                    <span style="font-weight:700;font-size:13px;">EURUSD</span>
-                    <label style="position:relative;display:inline-block;width:40px;height:22px;cursor:pointer;flex-shrink:0;">
-                        <input type="checkbox" data-on="EURUSD" checked style="opacity:0;width:0;height:0;" onchange="this.nextElementSibling.style.background=this.checked?'#3fb950':'#f85149';this.nextElementSibling.nextElementSibling.style.left=this.checked?'20px':'2.5px';this.closest('div').querySelector('span').style.textDecoration=this.checked?'none':'line-through';this.closest('div').querySelector('span').style.opacity=this.checked?'1':'.4';">
-                        <span style="position:absolute;inset:0;background:#3fb950;border-radius:999px;transition:.2s;"></span>
-                        <span style="position:absolute;top:2.5px;left:20px;width:17px;height:17px;background:#fff;border-radius:50%;transition:.2s;"></span>
-                    </label>
-                </div>
-                <input type="number" step="0.01" min="0.01" value="0.01" data-lot="EURUSD" style="background:#0a0f1c;border:1px solid #30363d;border-radius:6px;width:100%;text-align:center;padding:5px;color:#e6ebf5;font-size:12px;">
-            </div><div style="background:#070c16;border:1px solid #30363d;border-radius:10px;padding:10px;">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-                    <span style="font-weight:700;font-size:13px;">GBPJPY</span>
-                    <label style="position:relative;display:inline-block;width:40px;height:22px;cursor:pointer;flex-shrink:0;">
-                        <input type="checkbox" data-on="GBPJPY" checked style="opacity:0;width:0;height:0;" onchange="this.nextElementSibling.style.background=this.checked?'#3fb950':'#f85149';this.nextElementSibling.nextElementSibling.style.left=this.checked?'20px':'2.5px';this.closest('div').querySelector('span').style.textDecoration=this.checked?'none':'line-through';this.closest('div').querySelector('span').style.opacity=this.checked?'1':'.4';">
-                        <span style="position:absolute;inset:0;background:#3fb950;border-radius:999px;transition:.2s;"></span>
-                        <span style="position:absolute;top:2.5px;left:20px;width:17px;height:17px;background:#fff;border-radius:50%;transition:.2s;"></span>
-                    </label>
-                </div>
-                <input type="number" step="0.01" min="0.01" value="0.01" data-lot="GBPJPY" style="background:#0a0f1c;border:1px solid #30363d;border-radius:6px;width:100%;text-align:center;padding:5px;color:#e6ebf5;font-size:12px;">
-            </div><div style="background:#070c16;border:1px solid #30363d;border-radius:10px;padding:10px;">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-                    <span style="font-weight:700;font-size:13px;">GBPUSD</span>
-                    <label style="position:relative;display:inline-block;width:40px;height:22px;cursor:pointer;flex-shrink:0;">
-                        <input type="checkbox" data-on="GBPUSD" checked style="opacity:0;width:0;height:0;" onchange="this.nextElementSibling.style.background=this.checked?'#3fb950':'#f85149';this.nextElementSibling.nextElementSibling.style.left=this.checked?'20px':'2.5px';this.closest('div').querySelector('span').style.textDecoration=this.checked?'none':'line-through';this.closest('div').querySelector('span').style.opacity=this.checked?'1':'.4';">
-                        <span style="position:absolute;inset:0;background:#3fb950;border-radius:999px;transition:.2s;"></span>
-                        <span style="position:absolute;top:2.5px;left:20px;width:17px;height:17px;background:#fff;border-radius:50%;transition:.2s;"></span>
-                    </label>
-                </div>
-                <input type="number" step="0.01" min="0.01" value="0.01" data-lot="GBPUSD" style="background:#0a0f1c;border:1px solid #30363d;border-radius:6px;width:100%;text-align:center;padding:5px;color:#e6ebf5;font-size:12px;">
-            </div><div style="background:#070c16;border:1px solid #30363d;border-radius:10px;padding:10px;">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-                    <span style="font-weight:700;font-size:13px;">GER40</span>
-                    <label style="position:relative;display:inline-block;width:40px;height:22px;cursor:pointer;flex-shrink:0;">
-                        <input type="checkbox" data-on="GER40" checked style="opacity:0;width:0;height:0;" onchange="this.nextElementSibling.style.background=this.checked?'#3fb950':'#f85149';this.nextElementSibling.nextElementSibling.style.left=this.checked?'20px':'2.5px';this.closest('div').querySelector('span').style.textDecoration=this.checked?'none':'line-through';this.closest('div').querySelector('span').style.opacity=this.checked?'1':'.4';">
-                        <span style="position:absolute;inset:0;background:#3fb950;border-radius:999px;transition:.2s;"></span>
-                        <span style="position:absolute;top:2.5px;left:20px;width:17px;height:17px;background:#fff;border-radius:50%;transition:.2s;"></span>
-                    </label>
-                </div>
-                <input type="number" step="0.01" min="0.01" value="0.1" data-lot="GER40" style="background:#0a0f1c;border:1px solid #30363d;border-radius:6px;width:100%;text-align:center;padding:5px;color:#e6ebf5;font-size:12px;">
-            </div><div style="background:#070c16;border:1px solid #30363d;border-radius:10px;padding:10px;">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-                    <span style="font-weight:700;font-size:13px;">NAS100</span>
-                    <label style="position:relative;display:inline-block;width:40px;height:22px;cursor:pointer;flex-shrink:0;">
-                        <input type="checkbox" data-on="NAS100" checked style="opacity:0;width:0;height:0;" onchange="this.nextElementSibling.style.background=this.checked?'#3fb950':'#f85149';this.nextElementSibling.nextElementSibling.style.left=this.checked?'20px':'2.5px';this.closest('div').querySelector('span').style.textDecoration=this.checked?'none':'line-through';this.closest('div').querySelector('span').style.opacity=this.checked?'1':'.4';">
-                        <span style="position:absolute;inset:0;background:#3fb950;border-radius:999px;transition:.2s;"></span>
-                        <span style="position:absolute;top:2.5px;left:20px;width:17px;height:17px;background:#fff;border-radius:50%;transition:.2s;"></span>
-                    </label>
-                </div>
-                <input type="number" step="0.01" min="0.01" value="0.1" data-lot="NAS100" style="background:#0a0f1c;border:1px solid #30363d;border-radius:6px;width:100%;text-align:center;padding:5px;color:#e6ebf5;font-size:12px;">
-            </div><div style="background:#070c16;border:1px solid #30363d;border-radius:10px;padding:10px;">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-                    <span style="font-weight:700;font-size:13px;">NZDJPY</span>
-                    <label style="position:relative;display:inline-block;width:40px;height:22px;cursor:pointer;flex-shrink:0;">
-                        <input type="checkbox" data-on="NZDJPY" checked style="opacity:0;width:0;height:0;" onchange="this.nextElementSibling.style.background=this.checked?'#3fb950':'#f85149';this.nextElementSibling.nextElementSibling.style.left=this.checked?'20px':'2.5px';this.closest('div').querySelector('span').style.textDecoration=this.checked?'none':'line-through';this.closest('div').querySelector('span').style.opacity=this.checked?'1':'.4';">
-                        <span style="position:absolute;inset:0;background:#3fb950;border-radius:999px;transition:.2s;"></span>
-                        <span style="position:absolute;top:2.5px;left:20px;width:17px;height:17px;background:#fff;border-radius:50%;transition:.2s;"></span>
-                    </label>
-                </div>
-                <input type="number" step="0.01" min="0.01" value="0.01" data-lot="NZDJPY" style="background:#0a0f1c;border:1px solid #30363d;border-radius:6px;width:100%;text-align:center;padding:5px;color:#e6ebf5;font-size:12px;">
-            </div><div style="background:#070c16;border:1px solid #30363d;border-radius:10px;padding:10px;">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-                    <span style="font-weight:700;font-size:13px;">NZDUSD</span>
-                    <label style="position:relative;display:inline-block;width:40px;height:22px;cursor:pointer;flex-shrink:0;">
-                        <input type="checkbox" data-on="NZDUSD" checked style="opacity:0;width:0;height:0;" onchange="this.nextElementSibling.style.background=this.checked?'#3fb950':'#f85149';this.nextElementSibling.nextElementSibling.style.left=this.checked?'20px':'2.5px';this.closest('div').querySelector('span').style.textDecoration=this.checked?'none':'line-through';this.closest('div').querySelector('span').style.opacity=this.checked?'1':'.4';">
-                        <span style="position:absolute;inset:0;background:#3fb950;border-radius:999px;transition:.2s;"></span>
-                        <span style="position:absolute;top:2.5px;left:20px;width:17px;height:17px;background:#fff;border-radius:50%;transition:.2s;"></span>
-                    </label>
-                </div>
-                <input type="number" step="0.01" min="0.01" value="0.01" data-lot="NZDUSD" style="background:#0a0f1c;border:1px solid #30363d;border-radius:6px;width:100%;text-align:center;padding:5px;color:#e6ebf5;font-size:12px;">
-            </div><div style="background:#070c16;border:1px solid #30363d;border-radius:10px;padding:10px;">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-                    <span style="font-weight:700;font-size:13px;">SPX500</span>
-                    <label style="position:relative;display:inline-block;width:40px;height:22px;cursor:pointer;flex-shrink:0;">
-                        <input type="checkbox" data-on="SPX500" checked style="opacity:0;width:0;height:0;" onchange="this.nextElementSibling.style.background=this.checked?'#3fb950':'#f85149';this.nextElementSibling.nextElementSibling.style.left=this.checked?'20px':'2.5px';this.closest('div').querySelector('span').style.textDecoration=this.checked?'none':'line-through';this.closest('div').querySelector('span').style.opacity=this.checked?'1':'.4';">
-                        <span style="position:absolute;inset:0;background:#3fb950;border-radius:999px;transition:.2s;"></span>
-                        <span style="position:absolute;top:2.5px;left:20px;width:17px;height:17px;background:#fff;border-radius:50%;transition:.2s;"></span>
-                    </label>
-                </div>
-                <input type="number" step="0.01" min="0.01" value="0.1" data-lot="SPX500" style="background:#0a0f1c;border:1px solid #30363d;border-radius:6px;width:100%;text-align:center;padding:5px;color:#e6ebf5;font-size:12px;">
-            </div><div style="background:#070c16;border:1px solid #30363d;border-radius:10px;padding:10px;">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-                    <span style="font-weight:700;font-size:13px;">UK100</span>
-                    <label style="position:relative;display:inline-block;width:40px;height:22px;cursor:pointer;flex-shrink:0;">
-                        <input type="checkbox" data-on="UK100" checked style="opacity:0;width:0;height:0;" onchange="this.nextElementSibling.style.background=this.checked?'#3fb950':'#f85149';this.nextElementSibling.nextElementSibling.style.left=this.checked?'20px':'2.5px';this.closest('div').querySelector('span').style.textDecoration=this.checked?'none':'line-through';this.closest('div').querySelector('span').style.opacity=this.checked?'1':'.4';">
-                        <span style="position:absolute;inset:0;background:#3fb950;border-radius:999px;transition:.2s;"></span>
-                        <span style="position:absolute;top:2.5px;left:20px;width:17px;height:17px;background:#fff;border-radius:50%;transition:.2s;"></span>
-                    </label>
-                </div>
-                <input type="number" step="0.01" min="0.01" value="0.1" data-lot="UK100" style="background:#0a0f1c;border:1px solid #30363d;border-radius:6px;width:100%;text-align:center;padding:5px;color:#e6ebf5;font-size:12px;">
-            </div><div style="background:#070c16;border:1px solid #30363d;border-radius:10px;padding:10px;">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-                    <span style="font-weight:700;font-size:13px;">UKOIL</span>
-                    <label style="position:relative;display:inline-block;width:40px;height:22px;cursor:pointer;flex-shrink:0;">
-                        <input type="checkbox" data-on="UKOIL" checked style="opacity:0;width:0;height:0;" onchange="this.nextElementSibling.style.background=this.checked?'#3fb950':'#f85149';this.nextElementSibling.nextElementSibling.style.left=this.checked?'20px':'2.5px';this.closest('div').querySelector('span').style.textDecoration=this.checked?'none':'line-through';this.closest('div').querySelector('span').style.opacity=this.checked?'1':'.4';">
-                        <span style="position:absolute;inset:0;background:#3fb950;border-radius:999px;transition:.2s;"></span>
-                        <span style="position:absolute;top:2.5px;left:20px;width:17px;height:17px;background:#fff;border-radius:50%;transition:.2s;"></span>
-                    </label>
-                </div>
-                <input type="number" step="0.01" min="0.01" value="0.1" data-lot="UKOIL" style="background:#0a0f1c;border:1px solid #30363d;border-radius:6px;width:100%;text-align:center;padding:5px;color:#e6ebf5;font-size:12px;">
-            </div><div style="background:#070c16;border:1px solid #30363d;border-radius:10px;padding:10px;">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-                    <span style="font-weight:700;font-size:13px;">US30</span>
-                    <label style="position:relative;display:inline-block;width:40px;height:22px;cursor:pointer;flex-shrink:0;">
-                        <input type="checkbox" data-on="US30" checked style="opacity:0;width:0;height:0;" onchange="this.nextElementSibling.style.background=this.checked?'#3fb950':'#f85149';this.nextElementSibling.nextElementSibling.style.left=this.checked?'20px':'2.5px';this.closest('div').querySelector('span').style.textDecoration=this.checked?'none':'line-through';this.closest('div').querySelector('span').style.opacity=this.checked?'1':'.4';">
-                        <span style="position:absolute;inset:0;background:#3fb950;border-radius:999px;transition:.2s;"></span>
-                        <span style="position:absolute;top:2.5px;left:20px;width:17px;height:17px;background:#fff;border-radius:50%;transition:.2s;"></span>
-                    </label>
-                </div>
-                <input type="number" step="0.01" min="0.01" value="0.1" data-lot="US30" style="background:#0a0f1c;border:1px solid #30363d;border-radius:6px;width:100%;text-align:center;padding:5px;color:#e6ebf5;font-size:12px;">
-            </div><div style="background:#070c16;border:1px solid #30363d;border-radius:10px;padding:10px;">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-                    <span style="font-weight:700;font-size:13px;">USDCAD</span>
-                    <label style="position:relative;display:inline-block;width:40px;height:22px;cursor:pointer;flex-shrink:0;">
-                        <input type="checkbox" data-on="USDCAD" checked style="opacity:0;width:0;height:0;" onchange="this.nextElementSibling.style.background=this.checked?'#3fb950':'#f85149';this.nextElementSibling.nextElementSibling.style.left=this.checked?'20px':'2.5px';this.closest('div').querySelector('span').style.textDecoration=this.checked?'none':'line-through';this.closest('div').querySelector('span').style.opacity=this.checked?'1':'.4';">
-                        <span style="position:absolute;inset:0;background:#3fb950;border-radius:999px;transition:.2s;"></span>
-                        <span style="position:absolute;top:2.5px;left:20px;width:17px;height:17px;background:#fff;border-radius:50%;transition:.2s;"></span>
-                    </label>
-                </div>
-                <input type="number" step="0.01" min="0.01" value="0.01" data-lot="USDCAD" style="background:#0a0f1c;border:1px solid #30363d;border-radius:6px;width:100%;text-align:center;padding:5px;color:#e6ebf5;font-size:12px;">
-            </div><div style="background:#070c16;border:1px solid #30363d;border-radius:10px;padding:10px;">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-                    <span style="font-weight:700;font-size:13px;">USDCHF</span>
-                    <label style="position:relative;display:inline-block;width:40px;height:22px;cursor:pointer;flex-shrink:0;">
-                        <input type="checkbox" data-on="USDCHF" checked style="opacity:0;width:0;height:0;" onchange="this.nextElementSibling.style.background=this.checked?'#3fb950':'#f85149';this.nextElementSibling.nextElementSibling.style.left=this.checked?'20px':'2.5px';this.closest('div').querySelector('span').style.textDecoration=this.checked?'none':'line-through';this.closest('div').querySelector('span').style.opacity=this.checked?'1':'.4';">
-                        <span style="position:absolute;inset:0;background:#3fb950;border-radius:999px;transition:.2s;"></span>
-                        <span style="position:absolute;top:2.5px;left:20px;width:17px;height:17px;background:#fff;border-radius:50%;transition:.2s;"></span>
-                    </label>
-                </div>
-                <input type="number" step="0.01" min="0.01" value="0.01" data-lot="USDCHF" style="background:#0a0f1c;border:1px solid #30363d;border-radius:6px;width:100%;text-align:center;padding:5px;color:#e6ebf5;font-size:12px;">
-            </div><div style="background:#070c16;border:1px solid #30363d;border-radius:10px;padding:10px;">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-                    <span style="font-weight:700;font-size:13px;">USDJPY</span>
-                    <label style="position:relative;display:inline-block;width:40px;height:22px;cursor:pointer;flex-shrink:0;">
-                        <input type="checkbox" data-on="USDJPY" checked style="opacity:0;width:0;height:0;" onchange="this.nextElementSibling.style.background=this.checked?'#3fb950':'#f85149';this.nextElementSibling.nextElementSibling.style.left=this.checked?'20px':'2.5px';this.closest('div').querySelector('span').style.textDecoration=this.checked?'none':'line-through';this.closest('div').querySelector('span').style.opacity=this.checked?'1':'.4';">
-                        <span style="position:absolute;inset:0;background:#3fb950;border-radius:999px;transition:.2s;"></span>
-                        <span style="position:absolute;top:2.5px;left:20px;width:17px;height:17px;background:#fff;border-radius:50%;transition:.2s;"></span>
-                    </label>
-                </div>
-                <input type="number" step="0.01" min="0.01" value="0.01" data-lot="USDJPY" style="background:#0a0f1c;border:1px solid #30363d;border-radius:6px;width:100%;text-align:center;padding:5px;color:#e6ebf5;font-size:12px;">
-            </div><div style="background:#070c16;border:1px solid #30363d;border-radius:10px;padding:10px;">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-                    <span style="font-weight:700;font-size:13px;">USOIL</span>
-                    <label style="position:relative;display:inline-block;width:40px;height:22px;cursor:pointer;flex-shrink:0;">
-                        <input type="checkbox" data-on="USOIL" checked style="opacity:0;width:0;height:0;" onchange="this.nextElementSibling.style.background=this.checked?'#3fb950':'#f85149';this.nextElementSibling.nextElementSibling.style.left=this.checked?'20px':'2.5px';this.closest('div').querySelector('span').style.textDecoration=this.checked?'none':'line-through';this.closest('div').querySelector('span').style.opacity=this.checked?'1':'.4';">
-                        <span style="position:absolute;inset:0;background:#3fb950;border-radius:999px;transition:.2s;"></span>
-                        <span style="position:absolute;top:2.5px;left:20px;width:17px;height:17px;background:#fff;border-radius:50%;transition:.2s;"></span>
-                    </label>
-                </div>
-                <input type="number" step="0.01" min="0.01" value="0.1" data-lot="USOIL" style="background:#0a0f1c;border:1px solid #30363d;border-radius:6px;width:100%;text-align:center;padding:5px;color:#e6ebf5;font-size:12px;">
-            </div><div style="background:#070c16;border:1px solid #30363d;border-radius:10px;padding:10px;">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-                    <span style="font-weight:700;font-size:13px;">XAGUSD</span>
-                    <label style="position:relative;display:inline-block;width:40px;height:22px;cursor:pointer;flex-shrink:0;">
-                        <input type="checkbox" data-on="XAGUSD" checked style="opacity:0;width:0;height:0;" onchange="this.nextElementSibling.style.background=this.checked?'#3fb950':'#f85149';this.nextElementSibling.nextElementSibling.style.left=this.checked?'20px':'2.5px';this.closest('div').querySelector('span').style.textDecoration=this.checked?'none':'line-through';this.closest('div').querySelector('span').style.opacity=this.checked?'1':'.4';">
-                        <span style="position:absolute;inset:0;background:#3fb950;border-radius:999px;transition:.2s;"></span>
-                        <span style="position:absolute;top:2.5px;left:20px;width:17px;height:17px;background:#fff;border-radius:50%;transition:.2s;"></span>
-                    </label>
-                </div>
-                <input type="number" step="0.01" min="0.01" value="0.1" data-lot="XAGUSD" style="background:#0a0f1c;border:1px solid #30363d;border-radius:6px;width:100%;text-align:center;padding:5px;color:#e6ebf5;font-size:12px;">
-            </div><div style="background:#070c16;border:1px solid #30363d;border-radius:10px;padding:10px;">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-                    <span style="font-weight:700;font-size:13px;">XAUUSD</span>
-                    <label style="position:relative;display:inline-block;width:40px;height:22px;cursor:pointer;flex-shrink:0;">
-                        <input type="checkbox" data-on="XAUUSD" checked style="opacity:0;width:0;height:0;" onchange="this.nextElementSibling.style.background=this.checked?'#3fb950':'#f85149';this.nextElementSibling.nextElementSibling.style.left=this.checked?'20px':'2.5px';this.closest('div').querySelector('span').style.textDecoration=this.checked?'none':'line-through';this.closest('div').querySelector('span').style.opacity=this.checked?'1':'.4';">
-                        <span style="position:absolute;inset:0;background:#3fb950;border-radius:999px;transition:.2s;"></span>
-                        <span style="position:absolute;top:2.5px;left:20px;width:17px;height:17px;background:#fff;border-radius:50%;transition:.2s;"></span>
-                    </label>
-                </div>
-                <input type="number" step="0.01" min="0.01" value="0.05" data-lot="XAUUSD" style="background:#0a0f1c;border:1px solid #30363d;border-radius:6px;width:100%;text-align:center;padding:5px;color:#e6ebf5;font-size:12px;">
-            </div>
-            </div>
-            <div id="lotExportWrap" style="display:none;margin-top:14px;">
-                <div style="font-size:12px;color:#8b949e;margin-bottom:6px;">📋 Copy this JSON to your GitHub secret <strong>CTRADER_PAIR_CONFIG</strong>:</div>
-                <textarea id="lotExport" style="width:100%;height:100px;background:#0a0f1c;border:1px solid #30363d;border-radius:8px;color:#3fb950;font-size:11px;padding:8px;" readonly></textarea>
-                <button class="btn" onclick="document.getElementById('lotExport').select();document.execCommand('copy');document.getElementById('lotToast').textContent='JSON copied!';document.getElementById('lotToast').style.display='inline-block';setTimeout(function(){document.getElementById('lotToast').style.display='none';},2500);" style="background:#30363d;color:#c9d1d9;margin-top:6px;">📋 Copy JSON</button>
-            </div>
-        </div>
-
-        <div class="section-title">🎚️ Extra Trading Settings</div>
-        <div class="card">
-            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;">
-                <div><label style="font-size:11px;color:#8b949e;display:block;margin-bottom:6px;">DEFAULT LOT (fallback)</label><input id="setDefLot" type="number" step="0.01" min="0.01" value="{'lot': 0.01, 'on': True, 'sym': 1}" class="field" style="border-radius:8px;padding:8px;width:100%;"></div>
-                <div><label style="font-size:11px;color:#8b949e;display:block;margin-bottom:6px;">MAX DAILY TRADES</label><input id="setMaxTrades" type="number" min="1" value="" placeholder="unlimited" class="field" style="border-radius:8px;padding:8px;width:100%;"></div>
-                <div><label style="font-size:11px;color:#8b949e;display:block;margin-bottom:6px;">TRADING HOURS (UTC) FROM</label><input id="setHourFrom" type="number" min="0" max="23" value="" placeholder="00" class="field" style="border-radius:8px;padding:8px;width:100%;"></div>
-                <div><label style="font-size:11px;color:#8b949e;display:block;margin-bottom:6px;">TRADING HOURS (UTC) TO</label><input id="setHourTo" type="number" min="0" max="23" value="" placeholder="23" class="field" style="border-radius:8px;padding:8px;width:100%;"></div>
-            </div>
-            <div style="margin-top:14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-                <label style="font-size:13px;display:flex;align-items:center;gap:6px;cursor:pointer;"><input type="checkbox" id="setCloseOpp" class="checkbox" > Close on opposite signal</label>
-                <label style="font-size:13px;display:flex;align-items:center;gap:6px;cursor:pointer;"><input type="checkbox" id="setUseTPSL" class="checkbox" checked> Apply SL & TP from signal</label>
-            </div>
-            <p style="font-size:11px;color:#8b949e;margin-top:12px;">💡 Settings are saved in your browser. Wire them into the bot via GitHub secrets for production enforcement.</p>
-        </div>
-
-        <div class="section-title">📱 Recent Telegram Messages & Signal History (Last 30)</div>
-        <div class="card" style="overflow-x:auto;"><table><thead><tr><th>Time</th><th>Chat Source</th><th>Signal Status</th><th>Message Content</th></tr></thead><tbody><tr><td class="time" data-ts="2026-07-30 20:31:08 UTC">2026-07-30 20:31:08 UTC</td><td>Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)</td><td style="color:#3fb950;font-weight:700;">⚡ TPSL_HIT (USDJPY)</td><td class="msg-cell">✅ TP HIT - USD/JPY
-Direction: BUY
-Pips: +11.6</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:08 UTC">2026-07-30 20:31:08 UTC</td><td>Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)</td><td style="color:#3fb950;font-weight:700;">⚡ TPSL_HIT (EURJPY)</td><td class="msg-cell">✅ TP HIT - EUR/JPY
-Direction: BUY
-Pips: +13.1</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:08 UTC">2026-07-30 20:31:08 UTC</td><td>Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)</td><td style="color:#3fb950;font-weight:700;">⚡ TPSL_HIT (USDJPY)</td><td class="msg-cell">✅ TP HIT - USD/JPY
-Direction: BUY
-Pips: +11.6</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:08 UTC">2026-07-30 20:31:08 UTC</td><td>Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)</td><td style="color:#3fb950;font-weight:700;">⚡ TPSL_HIT (EURJPY)</td><td class="msg-cell">✅ TP HIT - EUR/JPY
-Direction: BUY
-Pips: +13.1</td></tr><tr><td class="time" data-ts="2026-07-30 20:31:08 UTC">2026-07-30 20:31:08 UTC</td><td>Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)</td><td style="color:#3fb950;font-weight:700;">⚡ TPSL_HIT (USDJPY)</td><td class="msg-cell">✅ TP HIT - USD/JPY
-Direction: BUY
-Pips: +11.6</td></tr><tr><td class="time" data-ts="2026-07-31 00:36:41 UTC">2026-07-31 00:36:41 UTC</td><td>Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)</td><td style="color:#3fb950;font-weight:700;">⚡ SIGNAL (BTCUSD)</td><td class="msg-cell">🟢 BUY BTC/USD
-
-Entry: MARKET (Ref: 64775.01)6
-SL: 64486.06
-TP: 65102.49
-RR: 1:1.13
-
-Signals are news-filtered and system-link compatible.
-
-Users may use their own copy system by their own choice. Some solutions are available here: Telegram Bot</td></tr><tr><td class="time" data-ts="2026-07-31 00:38:34 UTC">2026-07-31 00:38:34 UTC</td><td>Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)</td><td style="color:#3fb950;font-weight:700;">⚡ SIGNAL (BTCUSD)</td><td class="msg-cell">🟢 BUY BTC/USD
-
-Entry: MARKET (Ref: 64775.01)
-SL: 64486.06
-TP: 65102.49
-RR: 1:1.13
-
-Signals are news-filtered and system-link compatible.
-
-Users may use their own copy system by their own choice. Some solutions are available here: Telegram Bot</td></tr><tr><td class="time" data-ts="2026-07-31 00:54:35 UTC">2026-07-31 00:54:35 UTC</td><td>Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)</td><td style="color:#3fb950;font-weight:700;">⚡ SIGNAL (BTCUSD)</td><td class="msg-cell">🟢 BUY BTC/USD
-
-Entry: MARKET (Ref: 64775.01)
-SL: 64486.06
-TP: 65102.49
-RR: 1:1.13
-
-Signals are news-filtered and system-link compatible.
-
-Users may use their own copy system by their own choice. Some solutions are available here: Telegram Bot</td></tr><tr><td class="time" data-ts="2026-07-31 02:32:31 UTC">2026-07-31 02:32:31 UTC</td><td>Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)</td><td style="color:#3fb950;font-weight:700;">⚡ SIGNAL (BTCUSD)</td><td class="msg-cell">🟢 BUY BTC/USD
-
-Entry: MARKET (Ref: 64564.01)
-SL: 64177.01
-TP: 65002.61
-RR: 1:1.13
-
-Signals are news-filtered and system-link compatible.
-
-Users may us</td></tr><tr><td class="time" data-ts="2026-07-31 03:08:41 UTC">2026-07-31 03:08:41 UTC</td><td>Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)</td><td style="color:#3fb950;font-weight:700;">⚡ SIGNAL (BTCUSD)</td><td class="msg-cell">🟢 BUY BTC/USD
-
-Entry: MARKET (Ref: 64564.01)
-SL: 64177.01
-TP: 65002.61
-RR: 1:1.13
-
-Signals are news-filtered and system-link compatible.
-
-Users may us</td></tr><tr><td class="time" data-ts="2026-07-31 03:42:33 UTC">2026-07-31 03:42:33 UTC</td><td>Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)</td><td style="color:#3fb950;font-weight:700;">⚡ SIGNAL (BTCUSD)</td><td class="msg-cell">🟢 BUY BTC/USD
-
-Entry: MARKET (Ref: 64564.01)
-SL: 64177.02
-TP: 65002.62
-RR: 1:1.13
-
-Signals are news-filtered and system-link compatible.
-
-Users may us</td></tr><tr><td class="time" data-ts="2026-07-31 04:14:40 UTC">2026-07-31 04:14:40 UTC</td><td>Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)</td><td style="color:#3fb950;font-weight:700;">⚡ SIGNAL (BTC)</td><td class="msg-cell">Buy BTC now</td></tr><tr><td class="time" data-ts="2026-07-31 06:16:32 UTC">2026-07-31 06:16:32 UTC</td><td>7104794697 (ID:7104794697)</td><td style="color:#8b949e;font-weight:700;">TEXT (No action)</td><td class="msg-cell">/start</td></tr><tr><td class="time" data-ts="2026-07-31 06:16:32 UTC">2026-07-31 06:16:32 UTC</td><td>7104794697 (ID:7104794697)</td><td style="color:#8b949e;font-weight:700;">TEXT (No action)</td><td class="msg-cell">/start</td></tr><tr><td class="time" data-ts="2026-07-31 13:58:32 UTC">2026-07-31 13:58:32 UTC</td><td>Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)</td><td style="color:#3fb950;font-weight:700;">⚡ SIGNAL (BTC)</td><td class="msg-cell">Buy BTC now</td></tr><tr><td class="time" data-ts="2026-07-31 13:58:32 UTC">2026-07-31 13:58:32 UTC</td><td>7104794697 (ID:7104794697)</td><td style="color:#3fb950;font-weight:700;">⚡ SIGNAL (BTC)</td><td class="msg-cell">Buy BTC now</td></tr><tr><td class="time" data-ts="2026-07-31 14:01:26 UTC">2026-07-31 14:01:26 UTC</td><td>Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)</td><td style="color:#3fb950;font-weight:700;">⚡ SIGNAL (EURNZD)</td><td class="msg-cell">🔴 SELL EUR/NZD
-
-Entry: MARKET (Ref: 1.96621)
-SL: 1.96912
-TP: 1.96291
-RR: 1:1.13
-
-Signals are news-filtered and system-link compatible.
-
-Users may use </td></tr><tr><td class="time" data-ts="2026-07-31 14:01:26 UTC">2026-07-31 14:01:26 UTC</td><td>7104794697 (ID:7104794697)</td><td style="color:#3fb950;font-weight:700;">⚡ SIGNAL (EURNZD)</td><td class="msg-cell">🔴 SELL EUR/NZD
-
-Entry: MARKET (Ref: 1.96621)
-SL: 1.96912
-TP: 1.96291
-RR: 1:1.13
-
-Signals are news-filtered and system-link compatible.
-
-Users may use </td></tr><tr><td class="time" data-ts="2026-07-31 15:01:32 UTC">2026-07-31 15:01:32 UTC</td><td>Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)</td><td style="color:#3fb950;font-weight:700;">⚡ SIGNAL (USDJPY)</td><td class="msg-cell">🔴 SELL USD/JPY
-
-Entry: MARKET (Ref: 159.230)
-SL: 159.872
-TP: 158.502
-RR: 1:1.13
-
-Signals are news-filtered and system-link compatible.
-
-Users may use </td></tr><tr><td class="time" data-ts="2026-07-31 15:01:32 UTC">2026-07-31 15:01:32 UTC</td><td>Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)</td><td style="color:#3fb950;font-weight:700;">⚡ SIGNAL (AUDJPY)</td><td class="msg-cell">🔴 SELL AUD/JPY
-
-Entry: MARKET (Ref: 111.861)
-SL: 112.322
-TP: 111.338
-RR: 1:1.13
-
-Signals are news-filtered and system-link compatible.
-
-Users may use </td></tr><tr><td class="time" data-ts="2026-07-31 15:02:44 UTC">2026-07-31 15:02:44 UTC</td><td>Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)</td><td style="color:#3fb950;font-weight:700;">⚡ SIGNAL (NZDJPY)</td><td class="msg-cell">🔴 SELL NZD/JPY
-
-Entry: MARKET (Ref: 93.577)
-SL: 93.947
-TP: 93.158
-RR: 1:1.13
-
-Signals are news-filtered and system-link compatible.
-
-Users may use the</td></tr><tr><td class="time" data-ts="2026-07-31 15:02:44 UTC">2026-07-31 15:02:44 UTC</td><td>Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)</td><td style="color:#3fb950;font-weight:700;">⚡ SIGNAL (EURJPY)</td><td class="msg-cell">🔴 SELL EUR/JPY
-
-Entry: MARKET (Ref: 183.225)
-SL: 183.972
-TP: 182.379
-RR: 1:1.13
-
-Signals are news-filtered and system-link compatible.
-
-Users may use </td></tr><tr><td class="time" data-ts="2026-07-31 15:02:44 UTC">2026-07-31 15:02:44 UTC</td><td>Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)</td><td style="color:#3fb950;font-weight:700;">⚡ SIGNAL (CADJPY)</td><td class="msg-cell">🔴 SELL CAD/JPY
-
-Entry: MARKET (Ref: 113.500)
-SL: 113.967
-TP: 112.972
-RR: 1:1.13
-
-Signals are news-filtered and system-link compatible.
-
-Users may use </td></tr><tr><td class="time" data-ts="2026-07-31 15:02:44 UTC">2026-07-31 15:02:44 UTC</td><td>Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)</td><td style="color:#3fb950;font-weight:700;">⚡ SIGNAL (CHFJPY)</td><td class="msg-cell">🔴 SELL CHF/JPY
-
-Entry: MARKET (Ref: 196.852)
-SL: 197.629
-TP: 195.970
-RR: 1:1.13
-
-Signals are news-filtered and system-link compatible.
-
-Users may use </td></tr><tr><td class="time" data-ts="2026-07-31 20:18:33 UTC">2026-07-31 20:18:33 UTC</td><td>Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)</td><td style="color:#3fb950;font-weight:700;">⚡ TPSL_HIT (USDJPY)</td><td class="msg-cell">✅ TP HIT - USD/JPY
-Direction: SELL
-Pips: +72.8</td></tr><tr><td class="time" data-ts="2026-07-31 20:18:33 UTC">2026-07-31 20:18:33 UTC</td><td>Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)</td><td style="color:#3fb950;font-weight:700;">⚡ TPSL_HIT (AUDJPY)</td><td class="msg-cell">✅ TP HIT - AUD/JPY
-Direction: SELL
-Pips: +52.3</td></tr><tr><td class="time" data-ts="2026-07-31 20:18:33 UTC">2026-07-31 20:18:33 UTC</td><td>Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)</td><td style="color:#3fb950;font-weight:700;">⚡ TPSL_HIT (EURJPY)</td><td class="msg-cell">✅ TP HIT - EUR/JPY
-Direction: SELL
-Pips: +84.6</td></tr><tr><td class="time" data-ts="2026-07-31 20:18:33 UTC">2026-07-31 20:18:33 UTC</td><td>Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)</td><td style="color:#3fb950;font-weight:700;">⚡ TPSL_HIT (CADJPY)</td><td class="msg-cell">✅ TP HIT - CAD/JPY
-Direction: SELL
-Pips: +52.8</td></tr><tr><td class="time" data-ts="2026-07-31 20:18:33 UTC">2026-07-31 20:18:33 UTC</td><td>Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)</td><td style="color:#3fb950;font-weight:700;">⚡ TPSL_HIT (CHFJPY)</td><td class="msg-cell">✅ TP HIT - CHF/JPY
-Direction: SELL
-Pips: +88.1</td></tr><tr><td class="time" data-ts="2026-07-31 20:31:16 UTC">2026-07-31 20:31:16 UTC</td><td>Alpha Markets International Forex & Bitcoin Signals (ID:-1003257960170)</td><td style="color:#3fb950;font-weight:700;">⚡ TPSL_HIT (NZDJPY)</td><td class="msg-cell">✅ TP HIT - NZD/JPY
-Direction: SELL
-Pips: +41.9</td></tr></tbody></table></div>
-
-        <div class="section-title">🚨 Full Errors & Rejections Detail (Last 40)</div>
-        <div class="card" style="overflow-x:auto;"><table><thead><tr><th>Time</th><th>Level</th><th>Full Error / Warning Detail</th></tr></thead><tbody><tr><td class="time" data-ts="2026-07-31 22:16:55 UTC">2026-07-31 22:16:55 UTC</td><td style="color:#d29922;font-weight:700;">WARNING</td><td class="msg-cell" style="word-break:break-word;white-space:normal;">Order dispatched but NOT confirmed. RETAINING for retry (attempt 531/9999). Will keep trying until the trade is placed!</td></tr></tbody></table></div>
-
-        <div class="section-title">⚠️ Recent Alerts & System Notifications (Last 30)</div>
-        <div class="card"><div style="padding:8px;margin:6px 0;background:#d2992220;border-left:3px solid #d29922;border-radius:4px;font-size:12px;"><strong>WARNING</strong> <span data-ts="2026-07-31 21:48:52 UTC">2026-07-31 21:48:52 UTC</span>: Order dispatched but NOT confirmed. RETAINING for retry (attempt 517/9999). Will keep trying until the trade is placed!</div><div style="padding:8px;margin:6px 0;background:#d2992220;border-left:3px solid #d29922;border-radius:4px;font-size:12px;"><strong>WARNING</strong> <span data-ts="2026-07-31 21:50:53 UTC">2026-07-31 21:50:53 UTC</span>: ♻️ RETRY QUEUE: 15 unexecuted signal(s) recovered from previous cycle(s).</div><div style="padding:8px;margin:6px 0;background:#d2992220;border-left:3px solid #d29922;border-radius:4px;font-size:12px;"><strong>WARNING</strong> <span data-ts="2026-07-31 21:51:11 UTC">2026-07-31 21:51:11 UTC</span>: ⏳ A cTrader request timed out/disconnected (intermittent network). Continuing to wait for other responses... ([Failure instance: Traceback: <class 'twisted.internet.defer.TimeoutError'>: (5, 'Deferred)</div><div style="padding:8px;margin:6px 0;background:#d2992220;border-left:3px solid #d29922;border-radius:4px;font-size:12px;"><strong>WARNING</strong> <span data-ts="2026-07-31 21:51:18 UTC">2026-07-31 21:51:18 UTC</span>: Order dispatched but NOT confirmed. RETAINING for retry (attempt 518/9999). Will keep trying until the trade is placed!</div><div style="padding:8px;margin:6px 0;background:#d2992220;border-left:3px solid #d29922;border-radius:4px;font-size:12px;"><strong>WARNING</strong> <span data-ts="2026-07-31 21:52:34 UTC">2026-07-31 21:52:34 UTC</span>: ♻️ RETRY QUEUE: 15 unexecuted signal(s) recovered from previous cycle(s).</div><div style="padding:8px;margin:6px 0;background:#d2992220;border-left:3px solid #d29922;border-radius:4px;font-size:12px;"><strong>WARNING</strong> <span data-ts="2026-07-31 21:52:55 UTC">2026-07-31 21:52:55 UTC</span>: Order dispatched but NOT confirmed. RETAINING for retry (attempt 519/9999). Will keep trying until the trade is placed!</div><div style="padding:8px;margin:6px 0;background:#d2992220;border-left:3px solid #d29922;border-radius:4px;font-size:12px;"><strong>WARNING</strong> <span data-ts="2026-07-31 21:54:41 UTC">2026-07-31 21:54:41 UTC</span>: ♻️ RETRY QUEUE: 15 unexecuted signal(s) recovered from previous cycle(s).</div><div style="padding:8px;margin:6px 0;background:#d2992220;border-left:3px solid #d29922;border-radius:4px;font-size:12px;"><strong>WARNING</strong> <span data-ts="2026-07-31 21:55:02 UTC">2026-07-31 21:55:02 UTC</span>: Order dispatched but NOT confirmed. RETAINING for retry (attempt 520/9999). Will keep trying until the trade is placed!</div><div style="padding:8px;margin:6px 0;background:#d2992220;border-left:3px solid #d29922;border-radius:4px;font-size:12px;"><strong>WARNING</strong> <span data-ts="2026-07-31 21:56:32 UTC">2026-07-31 21:56:32 UTC</span>: ♻️ RETRY QUEUE: 15 unexecuted signal(s) recovered from previous cycle(s).</div><div style="padding:8px;margin:6px 0;background:#d2992220;border-left:3px solid #d29922;border-radius:4px;font-size:12px;"><strong>WARNING</strong> <span data-ts="2026-07-31 21:56:54 UTC">2026-07-31 21:56:54 UTC</span>: Order dispatched but NOT confirmed. RETAINING for retry (attempt 521/9999). Will keep trying until the trade is placed!</div><div style="padding:8px;margin:6px 0;background:#d2992220;border-left:3px solid #d29922;border-radius:4px;font-size:12px;"><strong>WARNING</strong> <span data-ts="2026-07-31 21:58:42 UTC">2026-07-31 21:58:42 UTC</span>: ♻️ RETRY QUEUE: 15 unexecuted signal(s) recovered from previous cycle(s).</div><div style="padding:8px;margin:6px 0;background:#d2992220;border-left:3px solid #d29922;border-radius:4px;font-size:12px;"><strong>WARNING</strong> <span data-ts="2026-07-31 21:59:21 UTC">2026-07-31 21:59:21 UTC</span>: Order dispatched but NOT confirmed. RETAINING for retry (attempt 522/9999). Will keep trying until the trade is placed!</div><div style="padding:8px;margin:6px 0;background:#d2992220;border-left:3px solid #d29922;border-radius:4px;font-size:12px;"><strong>WARNING</strong> <span data-ts="2026-07-31 22:01:21 UTC">2026-07-31 22:01:21 UTC</span>: ♻️ RETRY QUEUE: 15 unexecuted signal(s) recovered from previous cycle(s).</div><div style="padding:8px;margin:6px 0;background:#d2992220;border-left:3px solid #d29922;border-radius:4px;font-size:12px;"><strong>WARNING</strong> <span data-ts="2026-07-31 22:01:43 UTC">2026-07-31 22:01:43 UTC</span>: Order dispatched but NOT confirmed. RETAINING for retry (attempt 523/9999). Will keep trying until the trade is placed!</div><div style="padding:8px;margin:6px 0;background:#d2992220;border-left:3px solid #d29922;border-radius:4px;font-size:12px;"><strong>WARNING</strong> <span data-ts="2026-07-31 22:02:36 UTC">2026-07-31 22:02:36 UTC</span>: ♻️ RETRY QUEUE: 15 unexecuted signal(s) recovered from previous cycle(s).</div><div style="padding:8px;margin:6px 0;background:#d2992220;border-left:3px solid #d29922;border-radius:4px;font-size:12px;"><strong>WARNING</strong> <span data-ts="2026-07-31 22:02:58 UTC">2026-07-31 22:02:58 UTC</span>: Order dispatched but NOT confirmed. RETAINING for retry (attempt 524/9999). Will keep trying until the trade is placed!</div><div style="padding:8px;margin:6px 0;background:#d2992220;border-left:3px solid #d29922;border-radius:4px;font-size:12px;"><strong>WARNING</strong> <span data-ts="2026-07-31 22:04:33 UTC">2026-07-31 22:04:33 UTC</span>: ♻️ RETRY QUEUE: 15 unexecuted signal(s) recovered from previous cycle(s).</div><div style="padding:8px;margin:6px 0;background:#d2992220;border-left:3px solid #d29922;border-radius:4px;font-size:12px;"><strong>WARNING</strong> <span data-ts="2026-07-31 22:04:54 UTC">2026-07-31 22:04:54 UTC</span>: Order dispatched but NOT confirmed. RETAINING for retry (attempt 525/9999). Will keep trying until the trade is placed!</div><div style="padding:8px;margin:6px 0;background:#d2992220;border-left:3px solid #d29922;border-radius:4px;font-size:12px;"><strong>WARNING</strong> <span data-ts="2026-07-31 22:06:34 UTC">2026-07-31 22:06:34 UTC</span>: ♻️ RETRY QUEUE: 15 unexecuted signal(s) recovered from previous cycle(s).</div><div style="padding:8px;margin:6px 0;background:#d2992220;border-left:3px solid #d29922;border-radius:4px;font-size:12px;"><strong>WARNING</strong> <span data-ts="2026-07-31 22:06:54 UTC">2026-07-31 22:06:54 UTC</span>: Order dispatched but NOT confirmed. RETAINING for retry (attempt 526/9999). Will keep trying until the trade is placed!</div><div style="padding:8px;margin:6px 0;background:#d2992220;border-left:3px solid #d29922;border-radius:4px;font-size:12px;"><strong>WARNING</strong> <span data-ts="2026-07-31 22:08:36 UTC">2026-07-31 22:08:36 UTC</span>: ♻️ RETRY QUEUE: 15 unexecuted signal(s) recovered from previous cycle(s).</div><div style="padding:8px;margin:6px 0;background:#d2992220;border-left:3px solid #d29922;border-radius:4px;font-size:12px;"><strong>WARNING</strong> <span data-ts="2026-07-31 22:08:57 UTC">2026-07-31 22:08:57 UTC</span>: Order dispatched but NOT confirmed. RETAINING for retry (attempt 527/9999). Will keep trying until the trade is placed!</div><div style="padding:8px;margin:6px 0;background:#d2992220;border-left:3px solid #d29922;border-radius:4px;font-size:12px;"><strong>WARNING</strong> <span data-ts="2026-07-31 22:10:53 UTC">2026-07-31 22:10:53 UTC</span>: ♻️ RETRY QUEUE: 15 unexecuted signal(s) recovered from previous cycle(s).</div><div style="padding:8px;margin:6px 0;background:#d2992220;border-left:3px solid #d29922;border-radius:4px;font-size:12px;"><strong>WARNING</strong> <span data-ts="2026-07-31 22:11:15 UTC">2026-07-31 22:11:15 UTC</span>: Order dispatched but NOT confirmed. RETAINING for retry (attempt 528/9999). Will keep trying until the trade is placed!</div><div style="padding:8px;margin:6px 0;background:#d2992220;border-left:3px solid #d29922;border-radius:4px;font-size:12px;"><strong>WARNING</strong> <span data-ts="2026-07-31 22:12:34 UTC">2026-07-31 22:12:34 UTC</span>: ♻️ RETRY QUEUE: 15 unexecuted signal(s) recovered from previous cycle(s).</div><div style="padding:8px;margin:6px 0;background:#d2992220;border-left:3px solid #d29922;border-radius:4px;font-size:12px;"><strong>WARNING</strong> <span data-ts="2026-07-31 22:12:56 UTC">2026-07-31 22:12:56 UTC</span>: Order dispatched but NOT confirmed. RETAINING for retry (attempt 529/9999). Will keep trying until the trade is placed!</div><div style="padding:8px;margin:6px 0;background:#d2992220;border-left:3px solid #d29922;border-radius:4px;font-size:12px;"><strong>WARNING</strong> <span data-ts="2026-07-31 22:14:37 UTC">2026-07-31 22:14:37 UTC</span>: ♻️ RETRY QUEUE: 15 unexecuted signal(s) recovered from previous cycle(s).</div><div style="padding:8px;margin:6px 0;background:#d2992220;border-left:3px solid #d29922;border-radius:4px;font-size:12px;"><strong>WARNING</strong> <span data-ts="2026-07-31 22:14:58 UTC">2026-07-31 22:14:58 UTC</span>: Order dispatched but NOT confirmed. RETAINING for retry (attempt 530/9999). Will keep trying until the trade is placed!</div><div style="padding:8px;margin:6px 0;background:#d2992220;border-left:3px solid #d29922;border-radius:4px;font-size:12px;"><strong>WARNING</strong> <span data-ts="2026-07-31 22:16:33 UTC">2026-07-31 22:16:33 UTC</span>: ♻️ RETRY QUEUE: 15 unexecuted signal(s) recovered from previous cycle(s).</div><div style="padding:8px;margin:6px 0;background:#d2992220;border-left:3px solid #d29922;border-radius:4px;font-size:12px;"><strong>WARNING</strong> <span data-ts="2026-07-31 22:16:55 UTC">2026-07-31 22:16:55 UTC</span>: Order dispatched but NOT confirmed. RETAINING for retry (attempt 531/9999). Will keep trying until the trade is placed!</div></div>
-
-        <div class="section-title">📋 Backend Process Logs (Last 100 Events)</div>
-        <div class="card" style="overflow-x:auto;"><table><thead><tr><th>Time</th><th>Level</th><th>Message</th></tr></thead><tbody><tr><td class="time" data-ts="2026-07-31 22:16:34 UTC">2026-07-31 22:16:34 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">Connecting to cTrader Open API (DEMO TCP Server)...</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:34 UTC">2026-07-31 22:16:34 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">TCP Connected. Sending application authentication...</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:35 UTC">2026-07-31 22:16:35 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">Application authorized. Discovering authorized cTID accounts for access token...</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:36 UTC">2026-07-31 22:16:36 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">📋 cTrader token returned 4 linked account(s).</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:36 UTC">2026-07-31 22:16:36 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">Discovered Accounts -&gt; ID:47951199 (Login:5313108 | DEMO), ID:48013992 (Login:5865538 | DEMO), ID:48029390 (Login:1117964 | DEMO), ID:48038510 (Login:2454414 | DEMO)</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:36 UTC">2026-07-31 22:16:36 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">Sending Account Authorization for cTID Account 48038510...</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:37 UTC">2026-07-31 22:16:37 UTC</td><td style="color:#3fb950;font-weight:700;">SUCCESS</td><td class="msg-cell">cTrader Account 48038510 authorized successfully!</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:38 UTC">2026-07-31 22:16:38 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">Synced Trader State -&gt; Live Balance: $123.66</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:38 UTC">2026-07-31 22:16:38 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">Reconciliation retrieved: 0 open positions, 0 orders.</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:38 UTC">2026-07-31 22:16:38 UTC</td><td style="color:#3fb950;font-weight:700;">SUCCESS</td><td class="msg-cell">Loaded 381 instruments from cTrader server!</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:38 UTC">2026-07-31 22:16:38 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">⚡ Executing 15 pending trading command(s) over live TCP stream...</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:38 UTC">2026-07-31 22:16:38 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">Symbol 'BTCUSD' found exact match in cTrader (ID: 101)</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:38 UTC">2026-07-31 22:16:38 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">🎯 Sending ProtoOANewOrderReq: BUY BTCUSD (SymbolID: 101) | Vol: 10000...</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:38 UTC">2026-07-31 22:16:38 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">  └─ Stop Loss set: 64177.02</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:38 UTC">2026-07-31 22:16:38 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">  └─ Take Profit set: 65002.62</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:38 UTC">2026-07-31 22:16:38 UTC</td><td style="color:#3fb950;font-weight:700;">SUCCESS</td><td class="msg-cell">Order sent (fire-and-forget, no timeout). Waiting for execution event...</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:38 UTC">2026-07-31 22:16:38 UTC</td><td style="color:#3fb950;font-weight:700;">SUCCESS</td><td class="msg-cell">✓ Market order SENT to cTrader: BUY 0.1 BTCUSD | Vol=10000 | SL=64177.02 | TP=65002.62 | Acct=48038510 | SymID=101 (dispatched total: 1)</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:38 UTC">2026-07-31 22:16:38 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">Symbol 'BTC' matched PAIR_ALIASES to 'BTCUSD' (ID: 101)</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:38 UTC">2026-07-31 22:16:38 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">🎯 Sending ProtoOANewOrderReq: BUY BTCUSD (SymbolID: 101) | Vol: 10000...</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:38 UTC">2026-07-31 22:16:38 UTC</td><td style="color:#3fb950;font-weight:700;">SUCCESS</td><td class="msg-cell">Order sent (fire-and-forget, no timeout). Waiting for execution event...</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:38 UTC">2026-07-31 22:16:38 UTC</td><td style="color:#3fb950;font-weight:700;">SUCCESS</td><td class="msg-cell">✓ Market order SENT to cTrader: BUY 0.1 BTCUSD | Vol=10000 | SL=None | TP=None | Acct=48038510 | SymID=101 (dispatched total: 2)</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:38 UTC">2026-07-31 22:16:38 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">Symbol 'EURNZD' found exact match in cTrader (ID: 26)</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:38 UTC">2026-07-31 22:16:38 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">🎯 Sending ProtoOANewOrderReq: SELL EURNZD (SymbolID: 26) | Vol: 1000...</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:38 UTC">2026-07-31 22:16:38 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">  └─ Stop Loss set: 1.96912</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:38 UTC">2026-07-31 22:16:38 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">  └─ Take Profit set: 1.96291</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:38 UTC">2026-07-31 22:16:38 UTC</td><td style="color:#3fb950;font-weight:700;">SUCCESS</td><td class="msg-cell">Order sent (fire-and-forget, no timeout). Waiting for execution event...</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:38 UTC">2026-07-31 22:16:38 UTC</td><td style="color:#3fb950;font-weight:700;">SUCCESS</td><td class="msg-cell">✓ Market order SENT to cTrader: SELL 0.01 EURNZD | Vol=1000 | SL=1.96912 | TP=1.96291 | Acct=48038510 | SymID=26 (dispatched total: 3)</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:38 UTC">2026-07-31 22:16:38 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">Symbol 'USDJPY' found exact match in cTrader (ID: 4)</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:38 UTC">2026-07-31 22:16:38 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">🎯 Sending ProtoOANewOrderReq: SELL USDJPY (SymbolID: 4) | Vol: 1000...</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:38 UTC">2026-07-31 22:16:38 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">  └─ Stop Loss set: 159.872</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:38 UTC">2026-07-31 22:16:38 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">  └─ Take Profit set: 158.502</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:38 UTC">2026-07-31 22:16:38 UTC</td><td style="color:#3fb950;font-weight:700;">SUCCESS</td><td class="msg-cell">Order sent (fire-and-forget, no timeout). Waiting for execution event...</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:38 UTC">2026-07-31 22:16:38 UTC</td><td style="color:#3fb950;font-weight:700;">SUCCESS</td><td class="msg-cell">✓ Market order SENT to cTrader: SELL 0.01 USDJPY | Vol=1000 | SL=159.872 | TP=158.502 | Acct=48038510 | SymID=4 (dispatched total: 4)</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:38 UTC">2026-07-31 22:16:38 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">Symbol 'AUDJPY' found exact match in cTrader (ID: 11)</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:38 UTC">2026-07-31 22:16:38 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">🎯 Sending ProtoOANewOrderReq: SELL AUDJPY (SymbolID: 11) | Vol: 1000...</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:38 UTC">2026-07-31 22:16:38 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">  └─ Stop Loss set: 112.322</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:38 UTC">2026-07-31 22:16:38 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">  └─ Take Profit set: 111.338</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:39 UTC">2026-07-31 22:16:39 UTC</td><td style="color:#3fb950;font-weight:700;">SUCCESS</td><td class="msg-cell">Order sent (fire-and-forget, no timeout). Waiting for execution event...</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:39 UTC">2026-07-31 22:16:39 UTC</td><td style="color:#3fb950;font-weight:700;">SUCCESS</td><td class="msg-cell">✓ Market order SENT to cTrader: SELL 0.01 AUDJPY | Vol=1000 | SL=112.322 | TP=111.338 | Acct=48038510 | SymID=11 (dispatched total: 5)</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:39 UTC">2026-07-31 22:16:39 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">Symbol 'NZDJPY' found exact match in cTrader (ID: 21)</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:39 UTC">2026-07-31 22:16:39 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">🎯 Sending ProtoOANewOrderReq: SELL NZDJPY (SymbolID: 21) | Vol: 1000...</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:39 UTC">2026-07-31 22:16:39 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">  └─ Stop Loss set: 93.947</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:39 UTC">2026-07-31 22:16:39 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">  └─ Take Profit set: 93.158</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:39 UTC">2026-07-31 22:16:39 UTC</td><td style="color:#3fb950;font-weight:700;">SUCCESS</td><td class="msg-cell">Order sent (fire-and-forget, no timeout). Waiting for execution event...</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:39 UTC">2026-07-31 22:16:39 UTC</td><td style="color:#3fb950;font-weight:700;">SUCCESS</td><td class="msg-cell">✓ Market order SENT to cTrader: SELL 0.01 NZDJPY | Vol=1000 | SL=93.947 | TP=93.158 | Acct=48038510 | SymID=21 (dispatched total: 6)</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:39 UTC">2026-07-31 22:16:39 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">Symbol 'EURJPY' found exact match in cTrader (ID: 3)</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:39 UTC">2026-07-31 22:16:39 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">🎯 Sending ProtoOANewOrderReq: SELL EURJPY (SymbolID: 3) | Vol: 1000...</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:39 UTC">2026-07-31 22:16:39 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">  └─ Stop Loss set: 183.972</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:39 UTC">2026-07-31 22:16:39 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">  └─ Take Profit set: 182.379</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:39 UTC">2026-07-31 22:16:39 UTC</td><td style="color:#3fb950;font-weight:700;">SUCCESS</td><td class="msg-cell">Order sent (fire-and-forget, no timeout). Waiting for execution event...</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:39 UTC">2026-07-31 22:16:39 UTC</td><td style="color:#3fb950;font-weight:700;">SUCCESS</td><td class="msg-cell">✓ Market order SENT to cTrader: SELL 0.01 EURJPY | Vol=1000 | SL=183.972 | TP=182.379 | Acct=48038510 | SymID=3 (dispatched total: 7)</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:39 UTC">2026-07-31 22:16:39 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">Symbol 'CADJPY' found exact match in cTrader (ID: 15)</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:39 UTC">2026-07-31 22:16:39 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">🎯 Sending ProtoOANewOrderReq: SELL CADJPY (SymbolID: 15) | Vol: 1000...</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:39 UTC">2026-07-31 22:16:39 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">  └─ Stop Loss set: 113.967</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:39 UTC">2026-07-31 22:16:39 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">  └─ Take Profit set: 112.972</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:39 UTC">2026-07-31 22:16:39 UTC</td><td style="color:#3fb950;font-weight:700;">SUCCESS</td><td class="msg-cell">Order sent (fire-and-forget, no timeout). Waiting for execution event...</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:39 UTC">2026-07-31 22:16:39 UTC</td><td style="color:#3fb950;font-weight:700;">SUCCESS</td><td class="msg-cell">✓ Market order SENT to cTrader: SELL 0.01 CADJPY | Vol=1000 | SL=113.967 | TP=112.972 | Acct=48038510 | SymID=15 (dispatched total: 8)</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:39 UTC">2026-07-31 22:16:39 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">Symbol 'CHFJPY' found exact match in cTrader (ID: 13)</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:39 UTC">2026-07-31 22:16:39 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">🎯 Sending ProtoOANewOrderReq: SELL CHFJPY (SymbolID: 13) | Vol: 1000...</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:39 UTC">2026-07-31 22:16:39 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">  └─ Stop Loss set: 197.629</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:39 UTC">2026-07-31 22:16:39 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">  └─ Take Profit set: 195.97</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:39 UTC">2026-07-31 22:16:39 UTC</td><td style="color:#3fb950;font-weight:700;">SUCCESS</td><td class="msg-cell">Order sent (fire-and-forget, no timeout). Waiting for execution event...</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:39 UTC">2026-07-31 22:16:39 UTC</td><td style="color:#3fb950;font-weight:700;">SUCCESS</td><td class="msg-cell">✓ Market order SENT to cTrader: SELL 0.01 CHFJPY | Vol=1000 | SL=197.629 | TP=195.97 | Acct=48038510 | SymID=13 (dispatched total: 9)</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:39 UTC">2026-07-31 22:16:39 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">Symbol 'USDJPY' found exact match in cTrader (ID: 4)</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:39 UTC">2026-07-31 22:16:39 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">Processing TP HIT -&gt; Scanning positions for USDJPY (ID:4)...</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:39 UTC">2026-07-31 22:16:39 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">Symbol 'AUDJPY' found exact match in cTrader (ID: 11)</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:39 UTC">2026-07-31 22:16:39 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">Processing TP HIT -&gt; Scanning positions for AUDJPY (ID:11)...</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:39 UTC">2026-07-31 22:16:39 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">Symbol 'EURJPY' found exact match in cTrader (ID: 3)</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:39 UTC">2026-07-31 22:16:39 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">Processing TP HIT -&gt; Scanning positions for EURJPY (ID:3)...</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:39 UTC">2026-07-31 22:16:39 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">Symbol 'CADJPY' found exact match in cTrader (ID: 15)</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:39 UTC">2026-07-31 22:16:39 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">Processing TP HIT -&gt; Scanning positions for CADJPY (ID:15)...</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:39 UTC">2026-07-31 22:16:39 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">Symbol 'CHFJPY' found exact match in cTrader (ID: 13)</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:39 UTC">2026-07-31 22:16:39 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">Processing TP HIT -&gt; Scanning positions for CHFJPY (ID:13)...</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:39 UTC">2026-07-31 22:16:39 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">Symbol 'NZDJPY' found exact match in cTrader (ID: 21)</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:39 UTC">2026-07-31 22:16:39 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">Processing TP HIT -&gt; Scanning positions for NZDJPY (ID:21)...</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:39 UTC">2026-07-31 22:16:39 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">⏳ 9 order(s) dispatched. Waiting 15s on this connection for cTrader confirmation...</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:40 UTC">2026-07-31 22:16:40 UTC</td><td style="color:#3fb950;font-weight:700;">SUCCESS</td><td class="msg-cell">📜 Retrieved 13 trade(s) (26 deals) from cTrader — trades ARE executing!</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:55 UTC">2026-07-31 22:16:55 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">━━━ TRADE CYCLE SUMMARY ━━━ Signals: 15 (new orders: True, manage ops: True) | Dispatched: 9 | Confirmed by cTrader: 0 | Broker error: none</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:55 UTC">2026-07-31 22:16:55 UTC</td><td style="color:#d29922;font-weight:700;">WARNING</td><td class="msg-cell">Order dispatched but NOT confirmed. RETAINING for retry (attempt 531/9999). Will keep trying until the trade is placed!</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:55 UTC">2026-07-31 22:16:55 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">=== DASHBOARD GENERATION STARTED === [SCRIPT v21-fire-and-forget-no-crash]</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:55 UTC">2026-07-31 22:16:55 UTC</td><td style="color:#3fb950;font-weight:700;">SUCCESS</td><td class="msg-cell">✅ All 10 GitHub repository secrets detected successfully!</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:55 UTC">2026-07-31 22:16:55 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">🔒 Diagnostics -&gt; Client ID: 337***NU (len: 56) | Secret: ner***Bn (len: 50) | AccessToken: GXG***LM (len: 43)</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:55 UTC">2026-07-31 22:16:55 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">📊 cTrader Target Account: 2454414 | Server Environment: DEMO</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:55 UTC">2026-07-31 22:16:55 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">📱 Telegram Config: Token present | Chat Target: -1003257960170</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:55 UTC">2026-07-31 22:16:55 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">Connecting to cTrader Open API (DEMO TCP Server)...</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:55 UTC">2026-07-31 22:16:55 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">TCP Connected. Sending application authentication...</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:56 UTC">2026-07-31 22:16:56 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">Application authorized. Discovering authorized cTID accounts for access token...</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:57 UTC">2026-07-31 22:16:57 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">📋 cTrader token returned 4 linked account(s).</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:57 UTC">2026-07-31 22:16:57 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">Discovered Accounts -&gt; ID:47951199 (Login:5313108 | DEMO), ID:48013992 (Login:5865538 | DEMO), ID:48029390 (Login:1117964 | DEMO), ID:48038510 (Login:2454414 | DEMO)</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:57 UTC">2026-07-31 22:16:57 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">Sending Account Authorization for cTID Account 48038510...</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:58 UTC">2026-07-31 22:16:58 UTC</td><td style="color:#3fb950;font-weight:700;">SUCCESS</td><td class="msg-cell">cTrader Account 48038510 authorized successfully!</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:59 UTC">2026-07-31 22:16:59 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">Synced Trader State -&gt; Live Balance: $123.66</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:59 UTC">2026-07-31 22:16:59 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">Reconciliation retrieved: 0 open positions, 0 orders.</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:59 UTC">2026-07-31 22:16:59 UTC</td><td style="color:#3fb950;font-weight:700;">SUCCESS</td><td class="msg-cell">Loaded 381 instruments from cTrader server!</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:59 UTC">2026-07-31 22:16:59 UTC</td><td style="color:#3fb950;font-weight:700;">SUCCESS</td><td class="msg-cell">✅ Complete Account & Position Data synchronized via TCP Protobuf! Standing by for execution confirmations...</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:59 UTC">2026-07-31 22:16:59 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">⏱️  Waiting 0.5s for cTrader execution confirmations before closing connection...</td></tr><tr><td class="time" data-ts="2026-07-31 22:16:59 UTC">2026-07-31 22:16:59 UTC</td><td style="color:#3fb950;font-weight:700;">SUCCESS</td><td class="msg-cell">📜 Retrieved 13 trade(s) (26 deals) from cTrader — trades ARE executing!</td></tr><tr><td class="time" data-ts="2026-07-31 22:17:00 UTC">2026-07-31 22:17:00 UTC</td><td style="color:#58a6ff;font-weight:700;">INFO</td><td class="msg-cell">cTrader TCP connection disconnected safely.</td></tr><tr><td class="time" data-ts="2026-07-31 22:17:00 UTC">2026-07-31 22:17:00 UTC</td><td style="color:#3fb950;font-weight:700;">SUCCESS</td><td class="msg-cell">Telegram Bot verified successfully! (@Forexunitedbot) | Chat Target: -1003257960170</td></tr><tr><td class="time" data-ts="2026-07-31 22:17:00 UTC">2026-07-31 22:17:00 UTC</td><td style="color:#3fb950;font-weight:700;">SUCCESS</td><td class="msg-cell">Telegram Connected (@Forexunitedbot)</td></tr></tbody></table></div>
-
-        <div class="section-title">Open Positions (0)</div>
-        <div class="card" style="overflow-x:auto;"><div class="empty">No open positions currently</div></div>
-
-        <div class="section-title">📜 Full Trade History (13 trades — last 365 days from cTrader)</div>
-        <div class="card" style="overflow:auto;max-height:600px;"><table><thead><tr><th>Entry Time (UTC)</th><th>Exit Time (UTC)</th><th>Duration</th><th>Pair</th><th>Side</th><th>Volume</th><th>Entry Price</th><th>Exit Price</th><th>P&amp;L</th><th>Status</th></tr></thead><tbody><tr><td class="time" data-ts="2026-07-30 20:31:16 UTC">2026-07-30 20:31:16 UTC</td><td class="time" data-ts="2026-07-31 07:36:35 UTC">2026-07-31 07:36:35 UTC</td><td>11h 5m</td><td class="pair">XAUUSD</td><td class="buy">BUY</td><td>0.05</td><td>4110.38</td><td>4068.92</td><td style="color:#3fb950;font-weight:700;">$+0.00</td><td>CLOSED</td></tr><tr><td class="time" data-ts="2026-07-29 03:02:39 UTC">2026-07-29 03:02:39 UTC</td><td class="time" data-ts="2026-07-29 05:30:14 UTC">2026-07-29 05:30:14 UTC</td><td>2h 27m</td><td class="pair">XAUUSD</td><td class="sell">SELL</td><td>1</td><td>4029.71</td><td>4034.47</td><td style="color:#3fb950;font-weight:700;">$+0.00</td><td>CLOSED</td></tr><tr><td class="time" data-ts="2026-07-28 22:32:36 UTC">2026-07-28 22:32:36 UTC</td><td class="time" data-ts="2026-07-29 01:39:39 UTC">2026-07-29 01:39:39 UTC</td><td>3h 7m</td><td class="pair">XAUUSD</td><td class="sell">SELL</td><td>1</td><td>4014.17</td><td>4030.79</td><td style="color:#3fb950;font-weight:700;">$+0.00</td><td>CLOSED</td></tr><tr><td class="time" data-ts="2026-07-28 15:02:50 UTC">2026-07-28 15:02:50 UTC</td><td class="time" data-ts="2026-07-28 15:20:28 UTC">2026-07-28 15:20:28 UTC</td><td>17m</td><td class="pair">XAUUSD</td><td class="sell">SELL</td><td>1</td><td>4026.15</td><td>4039.35</td><td style="color:#3fb950;font-weight:700;">$+0.00</td><td>CLOSED</td></tr><tr><td class="time" data-ts="2026-07-28 13:32:39 UTC">2026-07-28 13:32:39 UTC</td><td class="time" data-ts="2026-07-28 14:21:14 UTC">2026-07-28 14:21:14 UTC</td><td>48m</td><td class="pair">XAUUSD</td><td class="sell">SELL</td><td>1</td><td>4028.35</td><td>4015.59</td><td style="color:#3fb950;font-weight:700;">$+0.00</td><td>CLOSED</td></tr><tr><td class="time" data-ts="2026-07-28 07:02:39 UTC">2026-07-28 07:02:39 UTC</td><td class="time" data-ts="2026-07-28 09:35:23 UTC">2026-07-28 09:35:23 UTC</td><td>2h 32m</td><td class="pair">XAUUSD</td><td class="sell">SELL</td><td>1</td><td>4049.99</td><td>4035.96</td><td style="color:#3fb950;font-weight:700;">$+0.00</td><td>CLOSED</td></tr><tr><td class="time" data-ts="2026-07-28 07:02:39 UTC">2026-07-28 07:02:39 UTC</td><td class="time" data-ts="2026-07-28 07:21:15 UTC">2026-07-28 07:21:15 UTC</td><td>18m</td><td class="pair">NZDJPY</td><td class="sell">SELL</td><td>1</td><td>94.475</td><td>94.592</td><td style="color:#3fb950;font-weight:700;">$+0.00</td><td>CLOSED</td></tr><tr><td class="time" data-ts="2026-07-28 05:02:36 UTC">2026-07-28 05:02:36 UTC</td><td class="time" data-ts="2026-07-28 07:01:28 UTC">2026-07-28 07:01:28 UTC</td><td>1h 58m</td><td class="pair">NZDJPY</td><td class="sell">SELL</td><td>1</td><td>94.425</td><td>94.487</td><td style="color:#3fb950;font-weight:700;">$+0.00</td><td>CLOSED</td></tr><tr><td class="time" data-ts="2026-07-28 02:32:37 UTC">2026-07-28 02:32:37 UTC</td><td class="time" data-ts="2026-07-28 03:15:17 UTC">2026-07-28 03:15:17 UTC</td><td>42m</td><td class="pair">NZDJPY</td><td class="sell">SELL</td><td>1</td><td>94.473</td><td>94.569</td><td style="color:#3fb950;font-weight:700;">$+0.00</td><td>CLOSED</td></tr><tr><td class="time" data-ts="2026-07-27 16:01:51 UTC">2026-07-27 16:01:51 UTC</td><td class="time" data-ts="2026-07-27 17:04:44 UTC">2026-07-27 17:04:44 UTC</td><td>1h 2m</td><td class="pair">GBPUSD</td><td class="sell">SELL</td><td>1</td><td>1.33018</td><td>1.32872</td><td style="color:#3fb950;font-weight:700;">$+0.00</td><td>CLOSED</td></tr><tr><td class="time" data-ts="2026-07-27 09:02:57 UTC">2026-07-27 09:02:57 UTC</td><td class="time" data-ts="2026-07-27 12:19:33 UTC">2026-07-27 12:19:33 UTC</td><td>3h 16m</td><td class="pair">XAUUSD</td><td class="buy">BUY</td><td>0.01</td><td>4094.91</td><td>4083.99</td><td style="color:#3fb950;font-weight:700;">$+0.00</td><td>CLOSED</td></tr><tr><td class="time" data-ts="2026-07-27 05:32:38 UTC">2026-07-27 05:32:38 UTC</td><td class="time" data-ts="2026-07-27 07:21:39 UTC">2026-07-27 07:21:39 UTC</td><td>1h 49m</td><td class="pair">XAUUSD</td><td class="buy">BUY</td><td>0.01</td><td>4090.16</td><td>4105.22</td><td style="color:#3fb950;font-weight:700;">$+0.00</td><td>CLOSED</td></tr><tr><td class="time" data-ts="2026-07-25 23:32:45 UTC">2026-07-25 23:32:45 UTC</td><td class="time" data-ts="2026-07-25 23:43:32 UTC">2026-07-25 23:43:32 UTC</td><td>10m</td><td class="pair">BTCUSD</td><td class="buy">BUY</td><td>0.001</td><td>64379.8</td><td>64347.8</td><td style="color:#3fb950;font-weight:700;">$+0.00</td><td>CLOSED</td></tr></tbody></table></div>
-
-        <div style="text-align: center; color: #8b949e; font-size: 11px; margin: 30px 0;">
-            cTrader Bot &amp; Dashboard • Script v21-fire-and-forget-no-crash • Auto-refreshing every 60s • Page generated: <span data-ts="2026-07-31 22:17:00 UTC">2026-07-31 22:17:00 UTC</span> (<span id="pageAge"></span>)
-            <br>Time now (UTC): <strong id="liveClock"></strong>
-        </div>
-    </div>
+    <footer class="relative z-10 max-w-7xl mx-auto w-full px-6 py-6 text-center text-xs text-[var(--muted)] border-t border-[var(--border)]">
+        &copy; 2026 Alpha Markets. All rights reserved.
+    </footer>
 </body>
 </html>
