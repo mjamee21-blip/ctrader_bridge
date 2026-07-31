@@ -204,7 +204,7 @@ _heartbeat_log = {}
 _alerts = []
 _telegram_messages = []
 _BUILD_VERSION = datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S")
-_SCRIPT_VERSION = "v15-persistent-retry-until-placed"
+_SCRIPT_VERSION = "v16-pair-panel-grid-mobile"
 
 # =====================================================================
 # PERSISTENT SYSTEM STATE STORAGE (SHARES DATA BETWEEN BOT & DASHBOARD)
@@ -1450,8 +1450,8 @@ def generate_dashboard_html(client, ct_connected, ct_error, tg_connected, tg_inf
     orders_data = client.orders
     trades_data = client.trades
     _pending_count = len(load_pending_signals())
-    # Build the per-pair table data: ALL loaded instruments + any overrides/defaults, with lot + on/off
-    _lot_pairs = sorted(set(list(_instruments.keys()) + list(LOT_SIZES.keys()) + list(DEFAULT_LOTS.keys()) + list(PAIR_ENABLED.keys())))
+    # Build the per-pair panel: FOREX + BTC + GOLD pairs only (not all 382 instruments)
+    _lot_pairs = sorted(set(list(LOT_SIZES.keys()) + list(DEFAULT_LOTS.keys()) + list(PAIR_ENABLED.keys())))
     _lot_data = {}
     for p in _lot_pairs:
         _lot_data[p] = {"lot": LOT_SIZES.get(p, DEFAULT_LOTS.get(p, lot_for(p))), "on": is_pair_enabled(p), "sym": _instruments.get(p, {}).get("id")}
@@ -1684,24 +1684,37 @@ def generate_dashboard_html(client, ct_connected, ct_error, tg_connected, tg_inf
                 if (d) pg.textContent = timeAgo(d);
             }}
         }}
-        /* ===== Per-Pair Lot Size Manager ===== */
+        /* ===== Per-Pair Manager (grid panel, no search) ===== */
         const LOT_DATA = {_lot_json};
-        function getSearch(){{ const s=document.getElementById('lotSearch'); return s?s.value.trim().toUpperCase():''; }}
         function renderLotTable(){{
             const body=document.getElementById('lotBody'); if(!body) return;
             const saved=JSON.parse(localStorage.getItem('pip_pair_cfg')||'{{}}');
-            const q=getSearch();
             body.innerHTML='';
             Object.keys(LOT_DATA).forEach(pair=>{{
-                if(q && !pair.includes(q)) return;
                 const base=LOT_DATA[pair]||{{}}; const defLot=base.lot; const defOn=base.on!==false;
                 const lot=(saved[pair]&&saved[pair].lot!==undefined)?saved[pair].lot:defLot;
                 const on=(saved[pair]&&saved[pair].on!==undefined)?saved[pair].on:defOn;
                 body.insertAdjacentHTML('beforeend',
-                    `<tr style="border-bottom:1px solid #21262d;"><td style="padding:8px 10px;font-weight:700;">${{pair}}</td><td style="padding:6px 10px;text-align:right;"><input type="number" step="0.01" min="0.01" value="${{lot}}" data-lot="${{pair}}" style="background:#0a0f1c;border:1px solid #30363d;border-radius:6px;width:88px;text-align:center;padding:5px;color:#e6ebf5;"></td><td style="padding:8px 10px;text-align:center;"><label style="position:relative;display:inline-block;width:42px;height:24px;cursor:pointer;"><input type="checkbox" data-on="${{pair}}" ${{on?'checked':''}} style="opacity:0;width:0;height:0;"><span style="position:absolute;inset:0;background:${{on?'#3fb950':'#30363d'}};border-radius:999px;transition:.2s;"></span><span style="position:absolute;top:3px;left:${{on?'21px':'3px'}};width:18px;height:18px;background:#fff;border-radius:50%;transition:.2s;"></span></label></td></tr>`);
+                    `<div style="background:#070c16;border:1px solid #30363d;border-radius:10px;padding:10px;display:flex;flex-direction:column;gap:8px;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;">
+                            <span class="pairname" style="font-weight:700;font-size:13px;${{on?'':'opacity:.4;text-decoration:line-through;'}}">${{pair}}</span>
+                            <label style="position:relative;display:inline-block;width:40px;height:22px;cursor:pointer;flex-shrink:0;">
+                                <input type="checkbox" data-on="${{pair}}" ${{on?'checked':''}} style="opacity:0;width:0;height:0;" onchange="togglePair(this)">
+                                <span class="togglebg" style="position:absolute;inset:0;background:${{on?'#3fb950':'#f85149'}};border-radius:999px;transition:.2s;"></span>
+                                <span class="toggleknob" style="position:absolute;top:2.5px;left:${{on?'20px':'2.5px'}};width:17px;height:17px;background:#fff;border-radius:50%;transition:.2s;"></span>
+                            </label>
+                        </div>
+                        <input type="number" step="0.01" min="0.01" value="${{lot}}" data-lot="${{pair}}" style="background:#0a0f1c;border:1px solid #30363d;border-radius:6px;width:100%;text-align:center;padding:5px;color:#e6ebf5;font-size:12px;">
+                    </div>`);
             }});
-            const cnt=body.querySelectorAll('tr').length;
-            if(!cnt) body.innerHTML='<tr><td colspan="3" style="padding:20px;text-align:center;color:#8b949e;">No pairs match "'+q+'"</td></tr>';
+        }}
+        function togglePair(cb){{
+            const label=cb.parentElement;
+            const bg=label.querySelector('.togglebg');
+            const knob=label.querySelector('.toggleknob');
+            const name=label.closest('div[style*="flex-direction"]').querySelector('.pairname');
+            if(cb.checked){{ bg.style.background='#3fb950'; knob.style.left='20px'; if(name){{ name.style.opacity='1'; name.style.textDecoration='none'; }} }}
+            else{{ bg.style.background='#f85149'; knob.style.left='2.5px'; if(name){{ name.style.opacity='.4'; name.style.textDecoration='line-through'; }} }}
         }}
         function collectCfg(){{
             const out=JSON.parse(JSON.stringify(LOT_DATA));
@@ -1820,23 +1833,17 @@ def generate_dashboard_html(client, ct_connected, ct_error, tg_connected, tg_inf
             <div class="card stat"><div class="stat-value">{len(positions_data)}</div><div class="stat-label">Open Positions</div></div>
         </div>
 
-        <div class="section-title">⚙️ Per-Pair Manager — All {_total_pairs} Instruments · {_enabled_count} Enabled</div>
+        <div class="section-title">⚙️ Per-Pair Lot Size & ON/OFF Manager ({_enabled_count} of {_total_pairs} Enabled)</div>
         <div class="card">
-            <p style="font-size:12px;color:#8b949e;margin-bottom:14px;">Adjust the <strong>lot size</strong> and switch each pair <strong>ON/OFF</strong> (off = signals for that pair are <strong>not</strong> copied to cTrader). Applies to all signals.</p>
-            <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
-                <input id="lotSearch" oninput="renderLotTable()" placeholder="🔍 Search pair (e.g. BTC, EUR)..." class="field" style="flex:1;min-width:160px;border-radius:8px;padding:9px 12px;font-size:13px;">
-                <button class="btn btn-refresh" onclick="saveLots()" style="background:#238636;">💾 Save</button>
-                <button class="btn" onclick="addLotPair()" style="background:#30363d;color:#c9d1d9;">＋ Add</button>
-                <span id="lotToast" style="display:none;color:#3fb950;font-weight:700;font-size:13px;align-self:center;"></span>
+            <p style="font-size:12px;color:#8b949e;margin-bottom:14px;">Set the lot size and toggle each pair ON/OFF. 🔴 OFF = signals for that pair are blocked. After changing, click <strong>Save</strong>.</p>
+            <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center;">
+                <button class="btn btn-refresh" onclick="saveLots()" style="background:#238636;">💾 Save Settings</button>
+                <button class="btn" onclick="addLotPair()" style="background:#30363d;color:#c9d1d9;">＋ Add Pair</button>
+                <span id="lotToast" style="display:none;color:#3fb950;font-weight:700;font-size:13px;"></span>
             </div>
-            <div style="max-height:420px;overflow:auto;border:1px solid #30363d;border-radius:8px;">
-                <table id="lotTable" style="width:100%;border-collapse:collapse;min-width:420px;">
-                    <thead style="position:sticky;top:0;background:#0d1117;z-index:2;"><tr><th style="padding:10px;text-align:left;border-bottom:1px solid #30363d;">Pair</th><th style="padding:10px;text-align:right;border-bottom:1px solid #30363d;">Lot</th><th style="padding:10px;text-align:center;border-bottom:1px solid #30363d;">On/Off</th></tr></thead>
-                    <tbody id="lotBody"></tbody>
-                </table>
-            </div>
+            <div id="lotBody" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px;"></div>
             <div id="lotExportWrap" style="display:none;margin-top:14px;">
-                <div style="font-size:12px;color:#8b949e;margin-bottom:6px;">📋 To apply, set a GitHub secret <strong>CTRADER_PAIR_CONFIG</strong> with this JSON (or commit it as <strong>docs/pair_config.json</strong>):</div>
+                <div style="font-size:12px;color:#8b949e;margin-bottom:6px;">📋 Set GitHub secret <strong>CTRADER_PAIR_CONFIG</strong> with this JSON:</div>
                 <textarea id="lotExport" style="width:100%;height:80px;background:#0a0f1c;border:1px solid #30363d;border-radius:8px;color:#3fb950;font-size:11px;padding:8px;" readonly></textarea>
                 <button class="btn" onclick="copyLotJson()" style="background:#30363d;color:#c9d1d9;margin-top:6px;">Copy JSON</button>
             </div>
