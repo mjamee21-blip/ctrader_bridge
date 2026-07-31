@@ -6,6 +6,11 @@ on:
 permissions:
   contents: write
 
+# Prevent overlapping runs (two bot instances polling Telegram at once causes HTTP 409 & missed signals)
+concurrency:
+  group: ctrader-bot
+  cancel-in-progress: true
+
 jobs:
   execute:
     runs-on: ubuntu-latest
@@ -14,14 +19,15 @@ jobs:
         uses: actions/checkout@v4
       
       - name: Setup Python 3.11
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v4
         with:
           python-version: '3.11'
+          cache: 'pip'
       
-      - name: Install dependencies
-        run: pip install requests ctrader-open-api twisted protobuf
+      - name: Install dependencies (cached)
+        run: pip install -r requirements.txt
       
-      - name: Run Unified Trading Bot & Dashboard Generator
+      - name: Run Trading Bot Cycle
         env:
           MODE: bot
           CT_CLIENT_ID: ${{ secrets.CT_CLIENT_ID }}
@@ -34,13 +40,31 @@ jobs:
           TG_CHAT: ${{ secrets.TG_CHAT }}
           TG_API_ID: ${{ secrets.TG_API_ID }}
           TG_API_HASH: ${{ secrets.TG_API_HASH }}
-          TG_SESSION_STRING: ${{ secrets.TG_SESSION_STRING }}
+          TG_SESSION: ${{ secrets.TG_SESSION }}
           DASHBOARD_USERNAME: ${{ secrets.DASHBOARD_USERNAME }}
           DASHBOARD_PASSWORD: ${{ secrets.DASHBOARD_PASSWORD }}
         run: |
-          echo "Starting Unified Trading Bot & Dashboard Generator..."
+          echo "Starting Trading Bot..."
           python3 ctrader_bot.py
-          echo "Unified cycle completed successfully!"
+          echo "Bot execution completed"
+      
+      - name: Generate Dashboard HTML
+        env:
+          MODE: dashboard
+          CT_CLIENT_ID: ${{ secrets.CT_CLIENT_ID }}
+          CT_CLIENT_SECRET: ${{ secrets.CT_CLIENT_SECRET }}
+          CT_ACCESS_TOKEN: ${{ secrets.CT_ACCESS_TOKEN }}
+          CT_ACCOUNT_ID: ${{ secrets.CT_ACCOUNT_ID }}
+          CT_ENV: ${{ secrets.CT_ENV }}
+          CL_REFRESH_TOKEN: ${{ secrets.CL_REFRESH_TOKEN }}
+          TG_TOKEN: ${{ secrets.TG_TOKEN }}
+          TG_CHAT: ${{ secrets.TG_CHAT }}
+          DASHBOARD_USERNAME: ${{ secrets.DASHBOARD_USERNAME }}
+          DASHBOARD_PASSWORD: ${{ secrets.DASHBOARD_PASSWORD }}
+        run: |
+          echo "Generating Dashboard..."
+          python3 ctrader_bot.py
+          echo "Dashboard generation completed"
       
       - name: Commit and Push Dashboard
         run: |
