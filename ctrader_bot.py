@@ -42,6 +42,12 @@ try:
     from ctrader_open_api.messages.OpenApiMessages_pb2 import *
     from ctrader_open_api.messages.OpenApiModelMessages_pb2 import *
     from twisted.internet import reactor
+    # CRITICAL FIX: Monkey-patch the library's send() to REMOVE the internal 5-second timeout.
+    # The library adds addTimeout(5, reactor) which kills order Deferreds before cTrader responds.
+    _orig_sendRequest = TcpProtocol.sendRequest
+    def _patched_send(self, request, *a, **kw):
+        return _orig_sendRequest(self, request)
+    ProtoClient.send = lambda self, request, *a, **kw: self._protocol.sendRequest(request)
     HAS_PROTOBUF = True
 except ImportError:
     HAS_PROTOBUF = False
@@ -204,7 +210,7 @@ _heartbeat_log = {}
 _alerts = []
 _telegram_messages = []
 _BUILD_VERSION = datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S")
-_SCRIPT_VERSION = "v19-python-pairs-grid-save-fix"
+_SCRIPT_VERSION = "v20-monkey-patch-no-timeout"
 
 # =====================================================================
 # PERSISTENT SYSTEM STATE STORAGE (SHARES DATA BETWEEN BOT & DASHBOARD)
@@ -519,8 +525,8 @@ class cTraderClient:
                                             log_process("success", f"📨 ORDER ACCEPTED by broker (payloadType {pt}). Order/Position ID: {oid}")
                                     except Exception as e:
                                         log_process("warning", f"Order response parse note (payloadType {getattr(resp,'payloadType','?')}): {e}")
-                                order_deferred = c_ref.send(ord_req, timeout=15)
-                                order_deferred.addCallbacks(_on_order_response, lambda f: log_process("info", f"Order send deferred (may still be processing): {str(f)[:80]}"))
+                                c_ref.send(ord_req)
+                                log_process("success", "Order sent (fire-and-forget, no timeout). Waiting for execution event...")
                                 self.dispatched_orders += 1
                                 log_process("success", f"✓ Market order SENT to cTrader: {direction} {qty} {norm_pair or pair} | Vol={int(float(qty)*100000)} | SL={sl} | TP={tp} | Acct={self.account_id_num} | SymID={sym_id} (dispatched total: {self.dispatched_orders})")
                                 
