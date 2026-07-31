@@ -1,12 +1,12 @@
 {
   "bot": {
-    "status": "running",
-    "timestamp": "2026-07-31T09:11:18.975726+00:00",
-    "details": "Retrying 2 signal(s) \u2014 attempt 156/9999"
+    "status": "failed",
+    "timestamp": "2026-07-31T09:13:13.897727+00:00",
+    "details": "No connection \u2014 2 signal(s) retained for retry"
   },
   "dashboard": {
     "status": "completed",
-    "timestamp": "2026-07-31T09:11:24.690829+00:00",
+    "timestamp": "2026-07-31T09:13:19.872287+00:00",
     "details": "No errors encountered"
   }
 }
