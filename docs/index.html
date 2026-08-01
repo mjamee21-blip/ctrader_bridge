@@ -3,79 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>cTrader Trading Dashboard</title>
+    <title>cTrader Trading Dashboard - Complete</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #0f172a;
-            color: #e2e8f0;
-            font-size: 13px;
-        }
-        .container { max-width: 1600px; margin: 0 auto; padding: 15px; }
-        .header {
-            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border: 1px solid #334155;
-        }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0f172a; color: #e2e8f0; font-size: 13px; }
+        .container { max-width: 1800px; margin: 0 auto; padding: 15px; }
+        .header { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); padding: 20px; border-radius: 8px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #334155; }
         .header h1 { font-size: 24px; color: #60a5fa; }
         .btn { padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: all 0.2s; }
         .btn-primary { background: #3b82f6; color: white; }
         .btn-primary:hover { background: #2563eb; transform: translateY(-2px); }
         .btn-danger { background: #ef4444; color: white; }
         .btn-danger:hover { background: #dc2626; }
-        .btn-success { background: #10b981; color: white; }
-        .btn-success:hover { background: #059669; }
-        
         .section { margin-bottom: 25px; }
         .section-title { font-size: 16px; font-weight: bold; color: #60a5fa; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid #334155; }
-        
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 20px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 20px; }
         .stat-box { background: #1e293b; padding: 15px; border-radius: 6px; border: 1px solid #334155; text-align: center; }
-        .stat-label { color: #94a3b8; font-size: 12px; margin-bottom: 5px; }
-        .stat-value { font-size: 24px; font-weight: bold; color: #60a5fa; }
+        .stat-label { color: #94a3b8; font-size: 11px; margin-bottom: 5px; }
+        .stat-value { font-size: 22px; font-weight: bold; color: #60a5fa; }
         .stat-value.positive { color: #10b981; }
         .stat-value.negative { color: #ef4444; }
-        
-        .logs-box { background: #1e293b; border: 1px solid #334155; border-radius: 6px; padding: 15px; max-height: 300px; overflow-y: auto; font-family: monospace; font-size: 11px; }
+        table { width: 100%; border-collapse: collapse; background: #1e293b; border: 1px solid #334155; border-radius: 6px; overflow: hidden; }
+        th { background: #0f172a; padding: 12px; text-align: left; font-weight: bold; color: #60a5fa; border-bottom: 2px solid #334155; font-size: 12px; }
+        td { padding: 10px 12px; border-bottom: 1px solid #334155; font-size: 12px; }
+        tr:hover td { background: #334155; }
+        .error-box { background: #ef44441a; border: 1px solid #ef4444; border-radius: 6px; padding: 12px; color: #fca5a5; margin-bottom: 12px; }
+        .success-box { background: #10b9811a; border: 1px solid #10b981; border-radius: 6px; padding: 12px; color: #86efac; margin-bottom: 12px; }
+        .logs-box { background: #1e293b; border: 1px solid #334155; border-radius: 6px; padding: 15px; max-height: 400px; overflow-y: auto; font-family: monospace; font-size: 11px; }
         .log-entry { padding: 4px 0; border-bottom: 1px solid #334155; }
         .log-entry:last-child { border-bottom: none; }
         .log-success { color: #10b981; }
         .log-error { color: #ef4444; }
         .log-warning { color: #f59e0b; }
         .log-info { color: #60a5fa; }
-        .log-debug { color: #8b5cf6; }
-        
-        .orders-table { width: 100%; border-collapse: collapse; background: #1e293b; border: 1px solid #334155; border-radius: 6px; overflow: hidden; }
-        .orders-table th { background: #0f172a; padding: 12px; text-align: left; font-weight: bold; color: #60a5fa; border-bottom: 2px solid #334155; }
-        .orders-table td { padding: 10px 12px; border-bottom: 1px solid #334155; }
-        .orders-table tr:hover { background: #334155; }
-        
-        .pair-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
-        .pair-card { background: #1e293b; border: 2px solid #334155; border-radius: 8px; padding: 12px; text-align: center; transition: all 0.3s; }
-        .pair-card.active { border-color: #10b981; background: #10b9811a; }
-        .pair-card.inactive { border-color: #ef4444; background: #ef44441a; }
-        .pair-card.disabled { opacity: 0.5; }
-        .pair-name { font-weight: bold; font-size: 14px; margin-bottom: 8px; }
-        .pair-controls { display: flex; flex-direction: column; gap: 8px; }
-        .pair-controls input { padding: 6px; border: 1px solid #334155; background: #0f172a; color: #e2e8f0; border-radius: 4px; }
-        .toggle-btn { padding: 6px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; transition: all 0.2s; }
-        .toggle-on { background: #10b981; color: white; }
-        .toggle-off { background: #64748b; color: white; }
-        
-        .heartbeat { color: #10b981; font-weight: bold; }
-        .heartbeat.error { color: #ef4444; }
-        
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; }
-        .modal-content { background: #1e293b; border: 1px solid #334155; border-radius: 8px; max-width: 500px; margin: 50px auto; padding: 20px; }
-        .modal-close { float: right; cursor: pointer; font-size: 24px; color: #94a3b8; }
-        
-        .toast { position: fixed; bottom: 20px; right: 20px; background: #10b981; color: white; padding: 12px 20px; border-radius: 6px; display: none; z-index: 2000; }
+        .status-connected { color: #10b981; font-weight: bold; }
+        .status-disconnected { color: #ef4444; font-weight: bold; }
+        .tabs { display: flex; gap: 8px; margin-bottom: 16px; border-bottom: 2px solid #334155; }
+        .tab-btn { padding: 10px 16px; background: none; border: none; color: #8b949e; cursor: pointer; border-bottom: 2px solid transparent; }
+        .tab-btn.active { color: #60a5fa; border-bottom-color: #60a5fa; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
     </style>
 </head>
 <body>
@@ -87,8 +54,7 @@
                 <button class="btn btn-danger" onclick="logout()">🚪 Logout</button>
             </div>
         </div>
-
-        <!-- Account Overview -->
+        <!-- Quick Stats -->
         <div class="section">
             <div class="section-title">📊 Account Overview</div>
             <div class="stats-grid">
@@ -109,165 +75,101 @@
                     <div class="stat-value" id="freeMargin">$10,000.00</div>
                 </div>
                 <div class="stat-box">
-                    <div class="stat-label">Open Positions</div>
-                    <div class="stat-value" id="openPositions">0</div>
+                    <div class="stat-label">Connection</div>
+                    <div class="stat-value" id="connStatus" class="status-disconnected">Offline</div>
                 </div>
                 <div class="stat-box">
-                    <div class="stat-label">Total Profit/Loss</div>
+                    <div class="stat-label">Total P&L</div>
                     <div class="stat-value positive" id="pnl">$0.00</div>
                 </div>
             </div>
         </div>
-
-        <!-- Connection Status -->
+        <!-- Tabs -->
         <div class="section">
-            <div class="section-title">🔌 Connection Status</div>
-            <div class="stats-grid">
-                <div class="stat-box">
-                    <div class="stat-label">FIX API Connection</div>
-                    <div class="stat-value" id="fixStatus" style="color: #ef4444;">Disconnected</div>
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab('trades')">📋 Trades (Details)</button>
+                <button class="tab-btn" onclick="switchTab('signals')">📨 Signals Received</button>
+                <button class="tab-btn" onclick="switchTab('errors')">⚠️  Errors & Issues</button>
+                <button class="tab-btn" onclick="switchTab('backend')">🔧 Backend Process</button>
+                <button class="tab-btn" onclick="switchTab('logs')">📜 Full Logs</button>
+            </div>
+            <!-- Trades Tab -->
+            <div id="trades" class="tab-content active">
+                <div class="section-title">📋 All Trades - Full Details</div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Pair</th>
+                            <th>Side</th>
+                            <th>Qty</th>
+                            <th>Sent Time</th>
+                            <th>Filled Time</th>
+                            <th>SL</th>
+                            <th>TP</th>
+                            <th>Status</th>
+                            <th>Signal</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tradesBody">
+                        <tr><td colspan="10" style="text-align: center; padding: 20px;">No trades yet</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <!-- Signals Tab -->
+            <div id="signals" class="tab-content">
+                <div class="section-title">📨 Signals Received from Telegram</div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Raw Signal</th>
+                            <th>Parsed?</th>
+                            <th>Side</th>
+                            <th>Pair</th>
+                            <th>Qty</th>
+                            <th>SL</th>
+                            <th>TP</th>
+                        </tr>
+                    </thead>
+                    <tbody id="signalsBody">
+                        <tr><td colspan="8" style="text-align: center; padding: 20px;">No signals yet</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <!-- Errors Tab -->
+            <div id="errors" class="tab-content">
+                <div class="section-title">⚠️  All Errors & Issues</div>
+                <div id="errorsBox">
+                    <div style="text-align: center; color: #8b949e; padding: 20px;">No errors</div>
                 </div>
-                <div class="stat-box">
-                    <div class="stat-label">Last Heartbeat</div>
-                    <div class="stat-value heartbeat" id="lastHeartbeat">Never</div>
+            </div>
+            <!-- Backend Tab -->
+            <div id="backend" class="tab-content">
+                <div class="section-title">🔧 Backend Process Events (All Steps)</div>
+                <div id="backendBox" class="logs-box" style="max-height: 600px;">
+                    <div style="color: #8b949e; padding: 20px; text-align: center;">Loading backend events...</div>
                 </div>
-                <div class="stat-box">
-                    <div class="stat-label">Telegram Bot</div>
-                    <div class="stat-value" id="telegramStatus" style="color: #10b981;">Connected</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-label">Last Signal</div>
-                    <div class="stat-value" id="lastSignal">None</div>
+            </div>
+            <!-- Logs Tab -->
+            <div id="logs" class="tab-content">
+                <div class="section-title">📜 Complete System Logs (Last 100)</div>
+                <div id="logsBox" class="logs-box" style="max-height: 600px;">
+                    <div style="color: #8b949e; padding: 20px; text-align: center;">Loading logs...</div>
                 </div>
             </div>
         </div>
-
-        <!-- Active Orders -->
-        <div class="section">
-            <div class="section-title">📋 Active Orders & Trades</div>
-            <table class="orders-table">
-                <thead>
-                    <tr>
-                        <th>Time</th>
-                        <th>Pair</th>
-                        <th>Side</th>
-                        <th>Qty</th>
-                        <th>Entry Price</th>
-                        <th>SL</th>
-                        <th>TP</th>
-                        <th>Status</th>
-                        <th>P&L</th>
-                    </tr>
-                </thead>
-                <tbody id="ordersBody">
-                    <tr><td colspan="9" style="text-align: center; padding: 20px;">No active orders</td></tr>
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Pair Manager Grid -->
-        <div class="section">
-            <div class="section-title">🎯 Pair Manager - Toggle ON/OFF & Set Lot Size</div>
-            <button class="btn btn-success" onclick="savePairSettings()" style="margin-bottom: 12px;">💾 Save Settings</button>
-            <div class="pair-grid" id="pairGrid"></div>
-        </div>
-
-        <!-- System Logs -->
-        <div class="section">
-            <div class="section-title">📜 System Logs (Last 50)</div>
-            <div class="logs-box" id="logsBox">
-                <div class="log-entry log-info">Loading logs...</div>
-            </div>
-        </div>
-
-        <!-- Recent Messages -->
-        <div class="section">
-            <div class="section-title">📱 Recent Telegram Messages</div>
-            <table class="orders-table">
-                <thead>
-                    <tr>
-                        <th>Time</th>
-                        <th>Source</th>
-                        <th>Message</th>
-                    </tr>
-                </thead>
-                <tbody id="messagesBody">
-                    <tr><td colspan="3" style="text-align: center; padding: 20px;">No messages</td></tr>
-                </tbody>
-            </table>
-        </div>
-
-        <div class="toast" id="toast"></div>
     </div>
-
     <script>
-        const PAIRS = {
-            "EURUSD": 0.01, "GBPUSD": 0.01, "USDJPY": 0.01, "AUDUSD": 0.01,
-            "NZDUSD": 0.01, "USDCAD": 0.01, "USDCHF": 0.01, "EURJPY": 0.01,
-            "EURGBP": 0.01, "EURCHF": 0.01, "EURAUD": 0.01, "EURNZD": 0.01,
-            "GBPJPY": 0.01, "GBPCHF": 0.01, "NZDJPY": 0.01, "CADJPY": 0.01,
-            "CHFJPY": 0.01, "XAUUSD": 0.05, "XAGUSD": 0.10,
-            "BTCUSD": 0.10, "ETHUSD": 0.10,
-            "NAS100": 0.10, "US30": 0.10, "SPX500": 0.10, "GER40": 0.10
-        };
-
-        function renderPairGrid() {
-            const grid = document.getElementById('pairGrid');
-            grid.innerHTML = '';
-            const saved = JSON.parse(localStorage.getItem('pairSettings') || '{}');
-            
-            Object.entries(PAIRS).forEach(([pair, defaultLot]) => {
-                const isActive = saved[pair]?.active !== false;
-                const lotSize = saved[pair]?.lot || defaultLot;
-                
-                const card = document.createElement('div');
-                card.className = `pair-card ${isActive ? 'active' : 'inactive'}`;
-                card.innerHTML = `
-                    <div class="pair-name">${pair}</div>
-                    <div class="pair-controls">
-                        <input type="number" step="0.01" value="${lotSize}" 
-                            data-pair="${pair}" class="pair-lot" 
-                            ${isActive ? '' : 'disabled'}>
-                        <button class="toggle-btn ${isActive ? 'toggle-on' : 'toggle-off'}" 
-                            onclick="togglePair('${pair}')" data-pair="${pair}">
-                            ${isActive ? '✓ ON' : '✗ OFF'}
-                        </button>
-                    </div>
-                `;
-                grid.appendChild(card);
-            });
+        if (sessionStorage.getItem('auth') !== 'true') {
+            window.location.href = 'login.html';
         }
-
-        function togglePair(pair) {
-            const saved = JSON.parse(localStorage.getItem('pairSettings') || '{}');
-            if (!saved[pair]) saved[pair] = { active: true, lot: PAIRS[pair] };
-            saved[pair].active = !saved[pair].active;
-            localStorage.setItem('pairSettings', JSON.stringify(saved));
-            renderPairGrid();
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
         }
-
-        function savePairSettings() {
-            const saved = JSON.parse(localStorage.getItem('pairSettings') || '{}');
-            
-            document.querySelectorAll('.pair-lot').forEach(input => {
-                const pair = input.dataset.pair;
-                const lot = parseFloat(input.value) || PAIRS[pair];
-                if (!saved[pair]) saved[pair] = {};
-                saved[pair].lot = lot;
-            });
-            
-            localStorage.setItem('pairSettings', JSON.stringify(saved));
-            
-            // Save to server
-            fetch('pair_settings.json', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(saved)
-            }).catch(() => {});
-            
-            showToast('✓ Pair settings saved!');
-        }
-
         function refreshData() {
             fetch('system_state.json')
                 .then(r => r.json())
@@ -276,77 +178,87 @@
                     document.getElementById('equity').textContent = '$' + (data.account?.equity || 10000).toFixed(2);
                     document.getElementById('margin').textContent = '$' + (data.account?.margin || 0).toFixed(2);
                     document.getElementById('freeMargin').textContent = '$' + (data.account?.freeMargin || 10000).toFixed(2);
-                    document.getElementById('openPositions').textContent = (data.positions || []).length;
-                    
-                    // Update orders
-                    const ordersBody = document.getElementById('ordersBody');
-                    if (data.orders && data.orders.length > 0) {
-                        ordersBody.innerHTML = data.orders.map(o => `
+                    document.getElementById('connStatus').textContent = data.connected ? '🟢 Connected' : '🔴 Offline';
+                    document.getElementById('connStatus').className = data.connected ? 'stat-value status-connected' : 'stat-value status-disconnected';
+                    // Trades Table
+                    const tradesBody = document.getElementById('tradesBody');
+                    if (data.trades && data.trades.length > 0) {
+                        tradesBody.innerHTML = data.trades.map(t => `
                             <tr>
-                                <td>${o.time}</td>
-                                <td><b>${o.symbol}</b></td>
-                                <td style="color: ${o.side === 'BUY' ? '#10b981' : '#ef4444'}">${o.side}</td>
-                                <td>${o.qty}</td>
-                                <td>${o.entryPrice || '-'}</td>
-                                <td>${o.sl || '-'}</td>
-                                <td>${o.tp || '-'}</td>
-                                <td>${o.status}</td>
-                                <td style="color: ${(o.profitLoss || 0) >= 0 ? '#10b981' : '#ef4444'}">${o.profitLoss?.toFixed(2) || '-'}</td>
+                                <td><strong>${t.orderId}</strong></td>
+                                <td><strong>${t.symbol}</strong></td>
+                                <td style="color: ${t.side === 'BUY' ? '#10b981' : '#ef4444'}">${t.side}</td>
+                                <td>${t.qty}</td>
+                                <td>${t.sentTime}</td>
+                                <td>${t.filledTime || '-'}</td>
+                                <td>${t.sl || '-'}</td>
+                                <td>${t.tp || '-'}</td>
+                                <td><strong>${t.status}</strong></td>
+                                <td style="max-width: 200px; word-break: break-word;">${t.rawSignal ? t.rawSignal.substring(0, 50) + '...' : '-'}</td>
                             </tr>
                         `).join('');
                     }
-                    
-                    // Update messages
-                    const msgBody = document.getElementById('messagesBody');
-                    if (data.recentMessages && data.recentMessages.length > 0) {
-                        msgBody.innerHTML = data.recentMessages.map(m => `
+                    // Signals Table
+                    const signalsBody = document.getElementById('signalsBody');
+                    if (data.signals && data.signals.length > 0) {
+                        signalsBody.innerHTML = data.signals.map(s => `
                             <tr>
-                                <td>${m.time}</td>
-                                <td>${m.chat}</td>
-                                <td>${m.text}</td>
+                                <td>${s.time}</td>
+                                <td style="max-width: 300px; word-break: break-word;">${s.text}</td>
+                                <td>${s.parsed ? '✅ YES' : '❌ NO'}</td>
+                                <td>${s.signal ? s.signal.side : '-'}</td>
+                                <td>${s.signal ? s.signal.symbol : '-'}</td>
+                                <td>${s.signal ? s.signal.qty : '-'}</td>
+                                <td>${s.signal ? s.signal.sl || '-' : '-'}</td>
+                                <td>${s.signal ? s.signal.tp || '-' : '-'}</td>
                             </tr>
                         `).join('');
                     }
-                    
-                    // Update logs
-                    const logsBody = document.getElementById('logsBox');
-                    if (data.logs && data.logs.length > 0) {
-                        logsBody.innerHTML = data.logs.slice(0, 50).map(l => {
-                            const cls = `log-${l.level.toLowerCase()}`;
-                            return `<div class="log-entry ${cls}">[${l.time}] ${l.level}: ${l.message}</div>`;
+                    // Errors
+                    const errorsBox = document.getElementById('errorsBox');
+                    if (data.errors && data.errors.length > 0) {
+                        errorsBox.innerHTML = data.errors.map(e => `
+                            <div class="error-box">
+                                <strong>${e.time}:</strong> ${e.error}
+                            </div>
+                        `).join('');
+                    } else {
+                        errorsBox.innerHTML = '<div style="text-align: center; color: #10b981; padding: 20px;">✅ No errors!</div>';
+                    }
+                    // Backend Events
+                    const backendBox = document.getElementById('backendBox');
+                    if (data.backendEvents && data.backendEvents.length > 0) {
+                        backendBox.innerHTML = data.backendEvents.map(e => {
+                            let color = '#60a5fa';
+                            if (e.type === 'error') color = '#ef4444';
+                            else if (e.type === 'execution') color = '#10b981';
+                            else if (e.type === 'signal') color = '#f59e0b';
+                            return `<div class="log-entry" style="color: ${color}">[${e.time}] [${e.type.toUpperCase()}] ${e.event}</div>`;
                         }).join('');
                     }
-                    
-                    // Update status
-                    document.getElementById('fixStatus').textContent = data.connected ? '✓ Connected' : '✗ Disconnected';
-                    document.getElementById('fixStatus').style.color = data.connected ? '#10b981' : '#ef4444';
+                    // Logs
+                    const logsBox = document.getElementById('logsBox');
+                    if (data.logs && data.logs.length > 0) {
+                        logsBox.innerHTML = data.logs.map(l => {
+                            let cls = 'log-info';
+                            if (l.level === 'ERROR') cls = 'log-error';
+                            else if (l.level === 'SUCCESS') cls = 'log-success';
+                            else if (l.level === 'WARNING') cls = 'log-warning';
+                            return `<div class="log-entry ${cls}">[${l.time}] [${l.level}] ${l.message}</div>`;
+                        }).join('');
+                    }
                 })
-                .catch(e => console.log('Dashboard refresh error (expected offline):', e.message));
+                .catch(e => console.log('Refresh error:', e.message));
         }
-
-        function showToast(msg) {
-            const toast = document.getElementById('toast');
-            toast.textContent = msg;
-            toast.style.display = 'block';
-            setTimeout(() => toast.style.display = 'none', 3000);
-        }
-
         function logout() {
             if (confirm('Logout?')) {
                 sessionStorage.clear();
                 window.location.href = 'login.html';
             }
         }
-
-        // Check auth
-        if (sessionStorage.getItem('auth') !== 'true') {
-            window.location.href = 'login.html';
-        }
-
-        // Initialize
-        renderPairGrid();
+        // Auto-refresh every 5 seconds
         refreshData();
-        setInterval(refreshData, 10000); // Refresh every 10 seconds
+        setInterval(refreshData, 5000);
     </script>
 </body>
 </html>
