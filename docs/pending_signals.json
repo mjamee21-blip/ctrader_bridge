@@ -7,7 +7,7 @@
     "tp": 65002.62,
     "entry": 64564.01,
     "qty": 0.1,
-    "_retries": 580
+    "_retries": 581
   },
   {
     "type": "SIGNAL",
@@ -17,7 +17,7 @@
     "tp": null,
     "entry": null,
     "qty": 0.1,
-    "_retries": 570
+    "_retries": 571
   },
   {
     "type": "SIGNAL",
@@ -27,7 +27,7 @@
     "tp": 1.96291,
     "entry": 1.96621,
     "qty": 0.01,
-    "_retries": 286
+    "_retries": 287
   },
   {
     "type": "SIGNAL",
@@ -37,7 +37,7 @@
     "tp": 158.502,
     "entry": 159.23,
     "qty": 0.01,
-    "_retries": 257
+    "_retries": 258
   },
   {
     "type": "SIGNAL",
@@ -47,7 +47,7 @@
     "tp": 111.338,
     "entry": 111.861,
     "qty": 0.01,
-    "_retries": 257
+    "_retries": 258
   },
   {
     "type": "SIGNAL",
@@ -57,7 +57,7 @@
     "tp": 93.158,
     "entry": 93.577,
     "qty": 0.01,
-    "_retries": 256
+    "_retries": 257
   },
   {
     "type": "SIGNAL",
@@ -67,7 +67,7 @@
     "tp": 182.379,
     "entry": 183.225,
     "qty": 0.01,
-    "_retries": 256
+    "_retries": 257
   },
   {
     "type": "SIGNAL",
@@ -77,7 +77,7 @@
     "tp": 112.972,
     "entry": 113.5,
     "qty": 0.01,
-    "_retries": 256
+    "_retries": 257
   },
   {
     "type": "SIGNAL",
@@ -87,43 +87,43 @@
     "tp": 195.97,
     "entry": 196.852,
     "qty": 0.01,
-    "_retries": 256
+    "_retries": 257
   },
   {
     "type": "TPSL_HIT",
     "result": "TP",
     "pair": "USDJPY",
-    "_retries": 106
+    "_retries": 107
   },
   {
     "type": "TPSL_HIT",
     "result": "TP",
     "pair": "AUDJPY",
-    "_retries": 106
+    "_retries": 107
   },
   {
     "type": "TPSL_HIT",
     "result": "TP",
     "pair": "EURJPY",
-    "_retries": 106
+    "_retries": 107
   },
   {
     "type": "TPSL_HIT",
     "result": "TP",
     "pair": "CADJPY",
-    "_retries": 106
+    "_retries": 107
   },
   {
     "type": "TPSL_HIT",
     "result": "TP",
     "pair": "CHFJPY",
-    "_retries": 106
+    "_retries": 107
   },
   {
     "type": "TPSL_HIT",
     "result": "TP",
     "pair": "NZDJPY",
-    "_retries": 100
+    "_retries": 101
   },
   {
     "type": "SIGNAL",
@@ -133,6 +133,6 @@
     "tp": 63251.16,
     "entry": 62983.86,
     "qty": 0.1,
-    "_retries": 13
+    "_retries": 14
   }
 ]
