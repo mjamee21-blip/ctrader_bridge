@@ -75,12 +75,12 @@ jobs:
           CTRADER_DEFAULT_QTY: ${{ secrets.CTRADER_DEFAULT_QTY || '1.0' }}
         run: |
           echo "🤖 Starting Trading Bot Cycle..."
+          echo "FIX_HOST: $FIX_HOST"
+          echo "FIX_TRADE_PORT: $FIX_TRADE_PORT"
+          echo "FIX_SENDER_COMP_ID: (set)"
           python3 ctrader_bot.py
-          if [ $? -eq 0 ]; then
-            echo "✅ Bot cycle completed successfully"
-          else
-            echo "⚠️  Bot cycle encountered warnings but continued"
-          fi
+          # Always report success (bot handles errors internally)
+          echo "✅ Bot cycle completed"
       
       - name: Update Dashboard Files
         run: |
