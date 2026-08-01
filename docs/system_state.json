@@ -12,136 +12,136 @@
   "positions": [],
   "orders": [
     {
-      "orderId": "BOT_1785555290914",
+      "orderId": "BOT_1785555408903",
       "symbol": "BTCUSD",
       "side": "BUY",
       "qty": 0.1,
       "status": "SENT_FIX",
-      "time": "2026-08-01 03:34:50 UTC"
+      "time": "2026-08-01 03:36:48 UTC"
     },
     {
-      "orderId": "BOT_1785555290914",
+      "orderId": "BOT_1785555408903",
       "symbol": "BTCUSD",
       "side": "BUY",
       "qty": 0.1,
       "status": "SENT_FIX",
-      "time": "2026-08-01 03:34:50 UTC"
+      "time": "2026-08-01 03:36:48 UTC"
     },
     {
-      "orderId": "BOT_1785555290914",
+      "orderId": "BOT_1785555408903",
       "symbol": "BTCUSD",
       "side": "BUY",
       "qty": 0.1,
       "status": "SENT_FIX",
-      "time": "2026-08-01 03:34:50 UTC"
+      "time": "2026-08-01 03:36:48 UTC"
     },
     {
-      "orderId": "BOT_1785555290913",
+      "orderId": "BOT_1785555408902",
       "symbol": "BTCUSD",
       "side": "BUY",
       "qty": 0.1,
       "status": "SENT_FIX",
-      "time": "2026-08-01 03:34:50 UTC"
+      "time": "2026-08-01 03:36:48 UTC"
     }
   ],
   "recentMessages": [
     {
-      "time": "2026-08-01 03:34:50 UTC",
+      "time": "2026-08-01 03:36:48 UTC",
       "chat": "Alpha Markets International Forex & Bitcoin Signals",
       "text": "Buy BTCUSD now"
     },
     {
-      "time": "2026-08-01 03:34:50 UTC",
+      "time": "2026-08-01 03:36:48 UTC",
       "chat": "Alpha Markets International Forex & Bitcoin Signals",
       "text": "Buy BTCUSD now"
     },
     {
-      "time": "2026-08-01 03:34:50 UTC",
+      "time": "2026-08-01 03:36:48 UTC",
       "chat": "Alpha Markets International Forex & Bitcoin Signals",
       "text": "Buy BTC now"
     },
     {
-      "time": "2026-08-01 03:34:50 UTC",
+      "time": "2026-08-01 03:36:48 UTC",
       "chat": "Alpha Markets International Forex & Bitcoin Signals",
       "text": "\ud83d\udfe2 BUY BTC/USD\n\nEntry: MARKET (Ref: 62954.27)\nTP:62686.28 | SL:63190.73\nRR: 1:1.13\n\nSignals are news-filtered and system-link compatible.\n\nUsers may use their own copy system by their own choice. Some solutions are available here: Telegram Bot"
     }
   ],
   "logs": [
     {
-      "time": "2026-08-01 03:34:50 UTC",
+      "time": "2026-08-01 03:36:48 UTC",
       "level": "SUCCESS",
-      "message": "FIX Market Order placed: BUY 0.1 BTCUSD (ClOrdID: BOT_1785555290914, SL=None, TP=None)"
+      "message": "FIX Market Order placed: BUY 0.1 BTCUSD (ClOrdID: BOT_1785555408903, SL=None, TP=None)"
     },
     {
-      "time": "2026-08-01 03:34:50 UTC",
+      "time": "2026-08-01 03:36:48 UTC",
       "level": "EXECUTE",
       "message": "Placing BUY 0.1 BTCUSD (SL=None, TP=None) via FIX API"
     },
     {
-      "time": "2026-08-01 03:34:50 UTC",
+      "time": "2026-08-01 03:36:48 UTC",
       "level": "INFO",
       "message": "Telegram Message Received: Buy BTCUSD now"
     },
     {
-      "time": "2026-08-01 03:34:50 UTC",
+      "time": "2026-08-01 03:36:48 UTC",
       "level": "SUCCESS",
-      "message": "FIX Market Order placed: BUY 0.1 BTCUSD (ClOrdID: BOT_1785555290914, SL=None, TP=None)"
+      "message": "FIX Market Order placed: BUY 0.1 BTCUSD (ClOrdID: BOT_1785555408903, SL=None, TP=None)"
     },
     {
-      "time": "2026-08-01 03:34:50 UTC",
+      "time": "2026-08-01 03:36:48 UTC",
       "level": "EXECUTE",
       "message": "Placing BUY 0.1 BTCUSD (SL=None, TP=None) via FIX API"
     },
     {
-      "time": "2026-08-01 03:34:50 UTC",
+      "time": "2026-08-01 03:36:48 UTC",
       "level": "INFO",
       "message": "Telegram Message Received: Buy BTCUSD now"
     },
     {
-      "time": "2026-08-01 03:34:50 UTC",
+      "time": "2026-08-01 03:36:48 UTC",
       "level": "SUCCESS",
-      "message": "FIX Market Order placed: BUY 0.1 BTCUSD (ClOrdID: BOT_1785555290914, SL=None, TP=None)"
+      "message": "FIX Market Order placed: BUY 0.1 BTCUSD (ClOrdID: BOT_1785555408903, SL=None, TP=None)"
     },
     {
-      "time": "2026-08-01 03:34:50 UTC",
+      "time": "2026-08-01 03:36:48 UTC",
       "level": "EXECUTE",
       "message": "Placing BUY 0.1 BTCUSD (SL=None, TP=None) via FIX API"
     },
     {
-      "time": "2026-08-01 03:34:50 UTC",
+      "time": "2026-08-01 03:36:48 UTC",
       "level": "INFO",
       "message": "Telegram Message Received: Buy BTC now"
     },
     {
-      "time": "2026-08-01 03:34:50 UTC",
+      "time": "2026-08-01 03:36:48 UTC",
       "level": "SUCCESS",
-      "message": "FIX Market Order placed: BUY 0.1 BTCUSD (ClOrdID: BOT_1785555290913, SL=63190.73, TP=62686.28)"
+      "message": "FIX Market Order placed: BUY 0.1 BTCUSD (ClOrdID: BOT_1785555408902, SL=63190.73, TP=62686.28)"
     },
     {
-      "time": "2026-08-01 03:34:50 UTC",
+      "time": "2026-08-01 03:36:48 UTC",
       "level": "EXECUTE",
       "message": "Placing BUY 0.1 BTCUSD (SL=63190.73, TP=62686.28) via FIX API"
     },
     {
-      "time": "2026-08-01 03:34:50 UTC",
+      "time": "2026-08-01 03:36:48 UTC",
       "level": "INFO",
       "message": "Telegram Message Received: \ud83d\udfe2 BUY BTC/USD\n\nEntry: MARKET (Ref: 62954.27)\nTP:62686.28 | SL:63190.73\nRR: 1:1.13\n\nSignals are news-filtered and system-link compatible.\n\nUsers may use their own copy system by their own choice. Some solutions are available here: Telegram Bot"
     },
     {
-      "time": "2026-08-01 03:34:42 UTC",
+      "time": "2026-08-01 03:36:40 UTC",
       "level": "SUCCESS",
       "message": "SSL Connected successfully to demo-uk-eqx-01.p.c-trader.com:5212. Sending Logon..."
     },
     {
-      "time": "2026-08-01 03:34:42 UTC",
+      "time": "2026-08-01 03:36:40 UTC",
       "level": "INFO",
       "message": "Connecting to FIX API demo-uk-eqx-01.p.c-trader.com:5212 (Sender: demo.deriv.2454414, Sub: TRADE)..."
     },
     {
-      "time": "2026-08-01 03:34:42 UTC",
+      "time": "2026-08-01 03:36:40 UTC",
       "level": "INFO",
       "message": "cTrader FIX API Bot & Dashboard Cycle Starting..."
     }
   ],
-  "lastUpdate": "2026-08-01T03:34:50.914343+00:00"
+  "lastUpdate": "2026-08-01T03:36:48.903175+00:00"
 }
