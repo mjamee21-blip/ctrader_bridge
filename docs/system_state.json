@@ -12,269 +12,269 @@
   "positions": [],
   "orders": [
     {
-      "orderId": "BOT_1785567056468",
+      "orderId": "BOT_1785567155417",
       "symbol": "BTCUSD",
       "side": "BUY",
       "qty": 0.1,
       "sl": null,
       "tp": null,
       "status": "SENT_FIX",
-      "time": "2026-08-01 06:50:56 UTC"
+      "time": "2026-08-01 06:52:35 UTC"
     },
     {
-      "orderId": "BOT_1785567056467",
+      "orderId": "BOT_1785567155417",
       "symbol": "BTCUSD",
       "side": "BUY",
       "qty": 0.1,
       "sl": null,
       "tp": null,
       "status": "SENT_FIX",
-      "time": "2026-08-01 06:50:56 UTC"
+      "time": "2026-08-01 06:52:35 UTC"
     },
     {
-      "orderId": "BOT_1785567056467",
+      "orderId": "BOT_1785567155417",
       "symbol": "BTCUSD",
       "side": "BUY",
       "qty": 0.1,
       "sl": null,
       "tp": null,
       "status": "SENT_FIX",
-      "time": "2026-08-01 06:50:56 UTC"
+      "time": "2026-08-01 06:52:35 UTC"
     },
     {
-      "orderId": "BOT_1785567056467",
+      "orderId": "BOT_1785567155416",
       "symbol": "BTCUSD",
       "side": "BUY",
       "qty": 0.1,
       "sl": null,
       "tp": null,
       "status": "SENT_FIX",
-      "time": "2026-08-01 06:50:56 UTC"
+      "time": "2026-08-01 06:52:35 UTC"
     },
     {
-      "orderId": "BOT_1785567056467",
+      "orderId": "BOT_1785567155416",
       "symbol": "BTCUSD",
       "side": "BUY",
       "qty": 0.1,
       "sl": null,
       "tp": null,
       "status": "SENT_FIX",
-      "time": "2026-08-01 06:50:56 UTC"
+      "time": "2026-08-01 06:52:35 UTC"
     },
     {
-      "orderId": "BOT_1785567056467",
+      "orderId": "BOT_1785567155416",
       "symbol": "BTCUSD",
       "side": "BUY",
       "qty": 0.1,
       "sl": 63190.73,
       "tp": 62686.28,
       "status": "SENT_FIX",
-      "time": "2026-08-01 06:50:56 UTC"
+      "time": "2026-08-01 06:52:35 UTC"
     }
   ],
   "recentMessages": [
     {
-      "time": "2026-08-01 06:50:56 UTC",
+      "time": "2026-08-01 06:52:35 UTC",
       "chat": "Alpha Markets International Forex & Bitcoin Signals",
       "text": "Buy BTC now 1"
     },
     {
-      "time": "2026-08-01 06:50:56 UTC",
+      "time": "2026-08-01 06:52:35 UTC",
       "chat": "Alpha Markets International Forex & Bitcoin Signals",
       "text": "Buy BTCUSD now"
     },
     {
-      "time": "2026-08-01 06:50:56 UTC",
+      "time": "2026-08-01 06:52:35 UTC",
       "chat": "Alpha Markets International Forex & Bitcoin Signals",
       "text": "Buy BTCUSD now"
     },
     {
-      "time": "2026-08-01 06:50:56 UTC",
+      "time": "2026-08-01 06:52:35 UTC",
       "chat": "Alpha Markets International Forex & Bitcoin Signals",
       "text": "Buy BTCUSD now"
     },
     {
-      "time": "2026-08-01 06:50:56 UTC",
+      "time": "2026-08-01 06:52:35 UTC",
       "chat": "Alpha Markets International Forex & Bitcoin Signals",
       "text": "Buy BTC now"
     },
     {
-      "time": "2026-08-01 06:50:56 UTC",
+      "time": "2026-08-01 06:52:35 UTC",
       "chat": "Alpha Markets International Forex & Bitcoin Signals",
       "text": "\ud83d\udfe2 BUY BTC/USD\n\nEntry: MARKET (Ref: 62954.27)\nTP:62686.28 | SL:63190.73\nRR: 1:1.13\n\nSignals are news-filtered and system-link compatible.\n\nUsers may use their own copy system by their own choice. Some solutions are available here: Telegram Bot"
     }
   ],
   "logs": [
     {
-      "time": "2026-08-01 06:50:56 UTC",
+      "time": "2026-08-01 06:52:35 UTC",
       "level": "SUCCESS",
       "message": "Market Order: BUY 0.1 BTCUSD (SL=None, TP=None)"
     },
     {
-      "time": "2026-08-01 06:50:56 UTC",
+      "time": "2026-08-01 06:52:35 UTC",
       "level": "DEBUG",
       "message": "Sent D message"
     },
     {
-      "time": "2026-08-01 06:50:56 UTC",
+      "time": "2026-08-01 06:52:35 UTC",
       "level": "EXECUTE",
       "message": "Placing BUY 0.1 BTCUSD (SL=None, TP=None)"
     },
     {
-      "time": "2026-08-01 06:50:56 UTC",
+      "time": "2026-08-01 06:52:35 UTC",
       "level": "INFO",
       "message": "Telegram: Buy BTC now 1"
     },
     {
-      "time": "2026-08-01 06:50:56 UTC",
+      "time": "2026-08-01 06:52:35 UTC",
       "level": "SUCCESS",
       "message": "Market Order: BUY 0.1 BTCUSD (SL=None, TP=None)"
     },
     {
-      "time": "2026-08-01 06:50:56 UTC",
+      "time": "2026-08-01 06:52:35 UTC",
       "level": "DEBUG",
       "message": "Sent D message"
     },
     {
-      "time": "2026-08-01 06:50:56 UTC",
+      "time": "2026-08-01 06:52:35 UTC",
       "level": "EXECUTE",
       "message": "Placing BUY 0.1 BTCUSD (SL=None, TP=None)"
     },
     {
-      "time": "2026-08-01 06:50:56 UTC",
+      "time": "2026-08-01 06:52:35 UTC",
       "level": "INFO",
       "message": "Telegram: Buy BTCUSD now"
     },
     {
-      "time": "2026-08-01 06:50:56 UTC",
+      "time": "2026-08-01 06:52:35 UTC",
       "level": "SUCCESS",
       "message": "Market Order: BUY 0.1 BTCUSD (SL=None, TP=None)"
     },
     {
-      "time": "2026-08-01 06:50:56 UTC",
+      "time": "2026-08-01 06:52:35 UTC",
       "level": "DEBUG",
       "message": "Sent D message"
     },
     {
-      "time": "2026-08-01 06:50:56 UTC",
+      "time": "2026-08-01 06:52:35 UTC",
       "level": "EXECUTE",
       "message": "Placing BUY 0.1 BTCUSD (SL=None, TP=None)"
     },
     {
-      "time": "2026-08-01 06:50:56 UTC",
+      "time": "2026-08-01 06:52:35 UTC",
       "level": "INFO",
       "message": "Telegram: Buy BTCUSD now"
     },
     {
-      "time": "2026-08-01 06:50:56 UTC",
+      "time": "2026-08-01 06:52:35 UTC",
       "level": "SUCCESS",
       "message": "Market Order: BUY 0.1 BTCUSD (SL=None, TP=None)"
     },
     {
-      "time": "2026-08-01 06:50:56 UTC",
+      "time": "2026-08-01 06:52:35 UTC",
       "level": "DEBUG",
       "message": "Sent D message"
     },
     {
-      "time": "2026-08-01 06:50:56 UTC",
+      "time": "2026-08-01 06:52:35 UTC",
       "level": "EXECUTE",
       "message": "Placing BUY 0.1 BTCUSD (SL=None, TP=None)"
     },
     {
-      "time": "2026-08-01 06:50:56 UTC",
+      "time": "2026-08-01 06:52:35 UTC",
       "level": "INFO",
       "message": "Telegram: Buy BTCUSD now"
     },
     {
-      "time": "2026-08-01 06:50:56 UTC",
+      "time": "2026-08-01 06:52:35 UTC",
       "level": "SUCCESS",
       "message": "Market Order: BUY 0.1 BTCUSD (SL=None, TP=None)"
     },
     {
-      "time": "2026-08-01 06:50:56 UTC",
+      "time": "2026-08-01 06:52:35 UTC",
       "level": "DEBUG",
       "message": "Sent D message"
     },
     {
-      "time": "2026-08-01 06:50:56 UTC",
+      "time": "2026-08-01 06:52:35 UTC",
       "level": "EXECUTE",
       "message": "Placing BUY 0.1 BTCUSD (SL=None, TP=None)"
     },
     {
-      "time": "2026-08-01 06:50:56 UTC",
+      "time": "2026-08-01 06:52:35 UTC",
       "level": "INFO",
       "message": "Telegram: Buy BTC now"
     },
     {
-      "time": "2026-08-01 06:50:56 UTC",
+      "time": "2026-08-01 06:52:35 UTC",
       "level": "SUCCESS",
       "message": "Market Order: BUY 0.1 BTCUSD (SL=63190.73, TP=62686.28)"
     },
     {
-      "time": "2026-08-01 06:50:56 UTC",
+      "time": "2026-08-01 06:52:35 UTC",
       "level": "DEBUG",
       "message": "Sent D message"
     },
     {
-      "time": "2026-08-01 06:50:56 UTC",
+      "time": "2026-08-01 06:52:35 UTC",
       "level": "EXECUTE",
       "message": "Placing BUY 0.1 BTCUSD (SL=63190.73, TP=62686.28)"
     },
     {
-      "time": "2026-08-01 06:50:56 UTC",
+      "time": "2026-08-01 06:52:35 UTC",
       "level": "INFO",
       "message": "Telegram: \ud83d\udfe2 BUY BTC/USD\n\nEntry: MARKET (Ref: 62954.27)\nTP:62"
     },
     {
-      "time": "2026-08-01 06:50:55 UTC",
+      "time": "2026-08-01 06:52:35 UTC",
       "level": "INFO",
       "message": "Checking Telegram for signals..."
     },
     {
-      "time": "2026-08-01 06:50:53 UTC",
+      "time": "2026-08-01 06:52:32 UTC",
       "level": "DEBUG",
       "message": "Received message type: 5"
     },
     {
-      "time": "2026-08-01 06:50:52 UTC",
+      "time": "2026-08-01 06:52:32 UTC",
       "level": "INFO",
       "message": "FIX connection established"
     },
     {
-      "time": "2026-08-01 06:50:52 UTC",
+      "time": "2026-08-01 06:52:32 UTC",
       "level": "INFO",
       "message": "Logon message sent"
     },
     {
-      "time": "2026-08-01 06:50:52 UTC",
+      "time": "2026-08-01 06:52:32 UTC",
       "level": "DEBUG",
       "message": "Sent A message"
     },
     {
-      "time": "2026-08-01 06:50:52 UTC",
+      "time": "2026-08-01 06:52:32 UTC",
       "level": "DEBUG",
       "message": "Heartbeat loop started"
     },
     {
-      "time": "2026-08-01 06:50:52 UTC",
+      "time": "2026-08-01 06:52:32 UTC",
       "level": "DEBUG",
       "message": "Receive loop started"
     },
     {
-      "time": "2026-08-01 06:50:52 UTC",
+      "time": "2026-08-01 06:52:32 UTC",
       "level": "SUCCESS",
       "message": "SSL Connected to demo-uk-eqx-01.p.c-trader.com:5212"
     },
     {
-      "time": "2026-08-01 06:50:52 UTC",
+      "time": "2026-08-01 06:52:31 UTC",
       "level": "INFO",
       "message": "Connecting to FIX API demo-uk-eqx-01.p.c-trader.com:5212..."
     },
     {
-      "time": "2026-08-01 06:50:52 UTC",
+      "time": "2026-08-01 06:52:31 UTC",
       "level": "INFO",
       "message": "=== cTrader FIX API Bot Starting ==="
     }
   ],
-  "lastUpdate": "2026-08-01T06:50:56.468210+00:00"
+  "lastUpdate": "2026-08-01T06:52:35.417699+00:00"
 }
