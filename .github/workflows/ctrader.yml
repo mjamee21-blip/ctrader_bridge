@@ -1,7 +1,12 @@
-name: cTrader Bot & Dashboard
+name: cTrader FIX API Bot & Dashboard
 
 on:
+  schedule:
+    - cron: '*/5 * * * *'  # Run every 5 minutes
   workflow_dispatch:
+  push:
+    branches:
+      - main
 
 permissions:
   contents: write
@@ -13,6 +18,8 @@ concurrency:
 jobs:
   execute:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+    
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -23,56 +30,93 @@ jobs:
           python-version: '3.11'
           cache: 'pip'
       
-      - name: Install dependencies (cached)
-        run: pip install -r requirements.txt
+      - name: Validate required secrets
+        run: |
+          if [ -z "${{ secrets.FIX_HOST }}" ]; then
+            echo "❌ ERROR: FIX_HOST secret not set"
+            exit 1
+          fi
+          if [ -z "${{ secrets.FIX_PASSWORD }}" ]; then
+            echo "❌ ERROR: FIX_PASSWORD secret not set"
+            exit 1
+          fi
+          if [ -z "${{ secrets.FIX_SENDER_COMP_ID }}" ]; then
+            echo "❌ ERROR: FIX_SENDER_COMP_ID secret not set"
+            exit 1
+          fi
+          echo "✅ All required secrets verified"
+      
+      - name: Check requirements file
+        run: |
+          if [ ! -f requirements.txt ]; then
+            echo "❌ ERROR: requirements.txt not found"
+            exit 1
+          fi
+          echo "✅ requirements.txt found"
+      
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt --timeout=30
       
       - name: Run Trading Bot Cycle
+        timeout-minutes: 5
         env:
           MODE: bot
           FIX_HOST: ${{ secrets.FIX_HOST }}
-          FIX_TRADE_PORT: ${{ secrets.FIX_TRADE_PORT }}
+          FIX_TRADE_PORT: ${{ secrets.FIX_TRADE_PORT || '5212' }}
+          FIX_QUOTE_PORT: ${{ secrets.FIX_QUOTE_PORT || '5211' }}
           FIX_SENDER_COMP_ID: ${{ secrets.FIX_SENDER_COMP_ID }}
-          FIX_TARGET_COMP_ID: ${{ secrets.FIX_TARGET_COMP_ID }}
-          FIX_SENDER_SUB_ID: ${{ secrets.FIX_SENDER_SUB_ID }}
+          FIX_TARGET_COMP_ID: ${{ secrets.FIX_TARGET_COMP_ID || 'cServer' }}
+          FIX_SENDER_SUB_ID: ${{ secrets.FIX_SENDER_SUB_ID || 'TRADE' }}
           FIX_PASSWORD: ${{ secrets.FIX_PASSWORD }}
           TG_TOKEN: ${{ secrets.TG_TOKEN }}
           TG_CHAT: ${{ secrets.TG_CHAT }}
+          CTRADER_DEFAULT_QTY: ${{ secrets.CTRADER_DEFAULT_QTY || '1.0' }}
         run: |
-          echo "Starting Trading Bot..."
+          echo "🤖 Starting Trading Bot Cycle..."
           python3 ctrader_bot.py
-          echo "Bot execution completed"
+          if [ $? -eq 0 ]; then
+            echo "✅ Bot cycle completed successfully"
+          else
+            echo "⚠️  Bot cycle encountered warnings but continued"
+          fi
       
-      - name: Generate Dashboard HTML
-        env:
-          MODE: dashboard
-          FIX_HOST: ${{ secrets.FIX_HOST }}
-          FIX_TRADE_PORT: ${{ secrets.FIX_TRADE_PORT }}
-          FIX_SENDER_COMP_ID: ${{ secrets.FIX_SENDER_COMP_ID }}
-          FIX_TARGET_COMP_ID: ${{ secrets.FIX_TARGET_COMP_ID }}
-          FIX_SENDER_SUB_ID: ${{ secrets.FIX_SENDER_SUB_ID }}
-          FIX_PASSWORD: ${{ secrets.FIX_PASSWORD }}
-          TG_TOKEN: ${{ secrets.TG_TOKEN }}
-          TG_CHAT: ${{ secrets.TG_CHAT }}
+      - name: Update Dashboard Files
         run: |
-          echo "Generating Dashboard..."
-          python3 ctrader_bot.py
-          echo "Dashboard generation completed"
+          if [ -d docs ]; then
+            echo "✅ Dashboard files exist"
+            ls -la docs/
+          else
+            echo "⚠️  docs directory not found"
+          fi
       
-      - name: Commit and Push Dashboard
+      - name: Commit and Push Changes
         run: |
           git config --global user.email "bot@github.com"
-          git config --global user.name "Dashboard Bot"
-          git add docs/ || true
-          git commit -m "Dashboard & Bot Update: $(date -u '+%Y-%m-%d %H:%M UTC')" || true
-          git push || true
+          git config --global user.name "cTrader Bot"
+          git add docs/ 2>/dev/null || echo "No docs to add"
+          
+          if git diff --cached --quiet; then
+            echo "ℹ️  No changes to commit"
+          else
+            git commit -m "cTrader Bot Update: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+            git push origin main || echo "⚠️  Push may have failed"
+          fi
       
       - name: Report Execution Status
         if: always()
         run: |
-          echo "✅ Workflow execution completed"
+          echo "=== WORKFLOW EXECUTION REPORT ==="
+          echo "✅ Workflow completed"
+          
           if [ -f docs/system_state.json ]; then
-            echo "📊 System state saved"
+            echo "✅ System state file created"
+            echo "Size: $(wc -c < docs/system_state.json) bytes"
           fi
-          if [ -f docs/index.html ]; then
-            echo "📈 Dashboard generated"
+          
+          if [ -f docs/heartbeat.json ]; then
+            echo "✅ Heartbeat file created"
           fi
+          
+          echo "=== END REPORT ==="

@@ -12,7 +12,16 @@ import ssl
 import threading
 import urllib.request
 import urllib.parse
+import logging
 from datetime import datetime, timezone
+from collections import deque
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 try:
     ssl._create_default_https_context = ssl._create_unverified_context
@@ -20,22 +29,26 @@ except:
     pass
 
 def _clean_sec(val):
+    """Clean and strip security credentials"""
     return str(val or "").strip().strip('"').strip("'").strip()
 
+# =====================================================================
 # FIX API CONFIGURATION
+# =====================================================================
 FIX_HOST = _clean_sec(os.environ.get("FIX_HOST", "demo-uk-eqx-01.p.c-trader.com"))
 FIX_TRADE_PORT = int(os.environ.get("FIX_TRADE_PORT", "5212"))
 FIX_QUOTE_PORT = int(os.environ.get("FIX_QUOTE_PORT", "5211"))
 FIX_SENDER_COMP_ID = _clean_sec(os.environ.get("FIX_SENDER_COMP_ID", "demo.deriv.2454444"))
 FIX_TARGET_COMP_ID = _clean_sec(os.environ.get("FIX_TARGET_COMP_ID", "cServer"))
 FIX_SENDER_SUB_ID = _clean_sec(os.environ.get("FIX_SENDER_SUB_ID", "TRADE"))
-FIX_PASSWORD = _clean_sec(os.environ.get("FIX_PASSWORD", os.environ.get("CT_PASSWORD", "")))
+FIX_PASSWORD = _clean_sec(os.environ.get("FIX_PASSWORD", ""))
 
 TG_TOKEN = _clean_sec(os.environ.get("TG_TOKEN", ""))
 TG_CHAT = _clean_sec(os.environ.get("TG_CHAT", ""))
 
 DEFAULT_QTY = float(os.environ.get("CTRADER_DEFAULT_QTY", "1.0") or "1.0")
 MODE = os.environ.get("MODE", "bot")
+LAST_UPDATE_ID = 0
 
 PAIR_ALIASES = {
     "BTC": "BTCUSD", "BITCOIN": "BTCUSD",
@@ -56,6 +69,7 @@ DEFAULT_LOTS = {
 }
 
 def lot_for(pair_name):
+    """Get lot size for pair"""
     p = (pair_name or "").upper()
     return DEFAULT_LOTS.get(p, DEFAULT_QTY)
 
@@ -75,259 +89,478 @@ class CTraderFixClient:
         self.msg_seq_num = 1
         self.lock = threading.Lock()
         self.connected = False
+        self.heartbeat_stop = False
         self.positions = []
         self.orders = []
-        self.logs = []
-        self.recent_messages = []
-        self.account_info = {"balance": 10000.0, "equity": 10000.0, "margin": 0.0, "freeMargin": 10000.0, "leverage": 100}
+        self.logs = deque(maxlen=100)
+        self.recent_messages = deque(maxlen=30)
+        self.account_info = {
+            "balance": 10000.0,
+            "equity": 10000.0,
+            "margin": 0.0,
+            "freeMargin": 10000.0,
+            "leverage": 100
+        }
 
     def log(self, level, msg):
-        entry = {"time": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC"), "level": level, "message": msg}
-        self.logs.insert(0, entry)
-        print(f"[{level}] {msg}")
+        """Log message with timestamp"""
+        entry = {
+            "time": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC"),
+            "level": level,
+            "message": msg
+        }
+        self.logs.appendleft(entry)
+        logger.info(f"[{level}] {msg}")
 
     def connect(self):
+        """Connect to FIX API server"""
         try:
-            self.log("INFO", f"Connecting to FIX API {self.host}:{self.port} (Sender: {self.sender_comp_id}, Sub: {self.sender_sub_id})...")
+            self.log("INFO", f"Connecting to FIX API {self.host}:{self.port}...")
             self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.sock.settimeout(15)
+            
             ctx = ssl.create_default_context()
             ctx.check_hostname = False
             ctx.verify_mode = ssl.CERT_NONE
+            
             self.ssl_sock = ctx.wrap_socket(self.sock, server_hostname=self.host)
             self.ssl_sock.connect((self.host, self.port))
-            # Note: connected becomes True once FIX Logon response (35=A) is received
-            self.log("SUCCESS", f"SSL Connected successfully to {self.host}:{self.port}. Sending Logon...")
+            self.connected = True
+            
+            self.log("SUCCESS", f"SSL Connected to {self.host}:{self.port}")
             self.send_logon()
             
-            t = threading.Thread(target=self._recv_loop, daemon=True)
-            t.start()
+            # Start receive loop
+            recv_thread = threading.Thread(target=self._recv_loop, daemon=True)
+            recv_thread.start()
+            
+            # Start heartbeat
+            heartbeat_thread = threading.Thread(target=self._heartbeat_loop, daemon=True)
+            heartbeat_thread.start()
+            
             return True
         except Exception as e:
             self.log("ERROR", f"Connection failed: {e}")
-            self.connected = False
+            self.disconnect()
             return False
 
-    def send_msg(self, msg_type, fields):
-        with self.lock:
-            if not self.ssl_sock:
-                self.log("WARNING", f"Cannot send {msg_type}: socket not initialized.")
-                return False
+    def disconnect(self):
+        """Safely disconnect from FIX API"""
+        self.connected = False
+        self.heartbeat_stop = True
+        
+        if self.ssl_sock:
             try:
+                self.ssl_sock.close()
+            except:
+                pass
+        
+        if self.sock:
+            try:
+                self.sock.close()
+            except:
+                pass
+
+    def _calculate_checksum(self, msg):
+        """Calculate FIX protocol checksum"""
+        checksum = 0
+        for char in msg:
+            checksum += ord(char)
+        return checksum % 256
+
+    def send_msg(self, msg_type, fields):
+        """Send FIX message"""
+        with self.lock:
+            if not self.connected or not self.ssl_sock:
+                self.log("WARNING", f"Cannot send {msg_type}: not connected")
+                return False
+            
+            try:
+                # Build message body
                 body_parts = [
                     f"35={msg_type}",
                     f"49={self.sender_comp_id}",
                     f"56={self.target_comp_id}"
                 ]
+                
                 if self.sender_sub_id:
                     body_parts.append(f"57={self.sender_sub_id}")
+                
                 body_parts.append(f"34={self.msg_seq_num}")
                 self.msg_seq_num += 1
-
-                now_str = datetime.now(timezone.utc).strftime("%Y%m%d-%H:%M:%S.%f")[:-3]
+                
+                now_str = datetime.now(timezone.utc).strftime("%Y%m%d-%H:%M:%S")
                 body_parts.append(f"52={now_str}")
-
+                
+                # Add custom fields
                 for k, v in fields.items():
                     body_parts.append(f"{k}={v}")
-
+                
                 body = "\x01".join(body_parts) + "\x01"
+                
+                # Build header with body length
                 header = f"8=FIX.4.4\x019={len(body)}\x01"
-                raw_msg = header + body
-
-                checksum = sum(ord(c) for c in raw_msg) % 256
-                full_msg = raw_msg + f"10={checksum:03d}\x01"
-
+                
+                # Calculate checksum on header + body
+                message_to_check = header + body
+                checksum = self._calculate_checksum(message_to_check)
+                
+                # Build final message
+                full_msg = message_to_check + f"10={checksum:03d}\x01"
+                
                 self.ssl_sock.sendall(full_msg.encode('ascii'))
+                self.log("DEBUG", f"Sent {msg_type} message")
                 return True
+                
             except Exception as e:
                 self.log("ERROR", f"Send error ({msg_type}): {e}")
                 self.connected = False
                 return False
 
     def send_logon(self):
+        """Send FIX Logon message"""
         fields = {
             "98": "0",
             "108": "30",
             "554": self.password
         }
         self.send_msg("A", fields)
+        self.log("INFO", "Logon message sent")
+
+    def _send_heartbeat(self):
+        """Send FIX heartbeat"""
+        self.send_msg("0", {})
+
+    def _heartbeat_loop(self):
+        """Periodic heartbeat sender"""
+        while self.connected and not self.heartbeat_stop:
+            try:
+                time.sleep(30)  # Send heartbeat every 30 seconds
+                if self.connected:
+                    self._send_heartbeat()
+            except:
+                break
 
     def _recv_loop(self):
+        """Receive and parse FIX messages"""
         buffer = b""
-        while True:
+        
+        while self.connected:
             try:
                 chunk = self.ssl_sock.recv(4096)
                 if not chunk:
                     self.connected = False
                     break
+                
                 buffer += chunk
-                while b"\x01" in buffer:
-                    idx = buffer.find(b"\x0110=")
-                    if idx != -1:
-                        end_idx = buffer.find(b"\x01", idx + 4)
-                        if end_idx != -1:
-                            raw_msg = buffer[:end_idx + 1]
-                            buffer = buffer[end_idx + 1:]
-                            self._handle_msg(raw_msg.decode('ascii', errors='ignore'))
-                        else:
-                            break
-                    else:
+                
+                # Process complete FIX messages
+                while b"\x0110=" in buffer:
+                    # Find checksum field
+                    checksum_pos = buffer.find(b"\x0110=")
+                    if checksum_pos == -1:
                         break
+                    
+                    # Find end of checksum
+                    checksum_end = buffer.find(b"\x01", checksum_pos + 4)
+                    if checksum_end == -1:
+                        break
+                    
+                    # Extract message
+                    raw_msg = buffer[:checksum_end + 1]
+                    buffer = buffer[checksum_end + 1:]
+                    
+                    try:
+                        self._handle_msg(raw_msg.decode('ascii', errors='ignore'))
+                    except Exception as e:
+                        self.log("ERROR", f"Message parsing error: {e}")
+                        
+            except socket.timeout:
+                continue
             except Exception as e:
+                self.log("ERROR", f"Receive error: {e}")
                 self.connected = False
                 break
 
     def _handle_msg(self, msg_str):
+        """Handle received FIX message"""
+        if not msg_str or "\x01" not in msg_str:
+            return
+        
+        # Parse FIX message
         tags = {}
-        for part in msg_str.split("\x01"):
-            if "=" in part:
-                k, v = part.split("=", 1)
-                tags[k] = v
+        try:
+            for part in msg_str.split("\x01"):
+                if "=" in part:
+                    k, v = part.split("=", 1)
+                    tags[k] = v
+        except:
+            return
+        
         msg_type = tags.get("35")
+        
         if msg_type == "A":
-            self.connected = True
-            self.log("SUCCESS", f"FIX Logon acknowledged successfully for {self.sender_comp_id}!")
-        elif msg_type == "0":
-            # Heartbeat acknowledgment
-            pass
+            # Logon response
+            self.log("SUCCESS", f"FIX Logon acknowledged for {self.sender_comp_id}")
+        elif msg_type == "8":
+            # Execution report
+            order_id = tags.get("37", "")
+            status = tags.get("39", "")
+            symbol = tags.get("55", "")
+            self.log("INFO", f"Execution Report - OrderID: {order_id}, Status: {status}, Symbol: {symbol}")
+        elif msg_type == "D":
+            # New order single response
+            self.log("INFO", "Order accepted by broker")
 
     def place_market_order(self, symbol, side, qty, sl=None, tp=None):
+        """Place market order via FIX API"""
         cl_ord_id = f"BOT_{int(time.time()*1000)}"
+        
         fields = {
             "11": cl_ord_id,
             "55": symbol,
             "54": "1" if side.upper() == "BUY" else "2",
-            "38": str(qty),
-            "40": "1",
-            "59": "0"
+            "38": str(int(qty * 10000)),  # Convert to standard FIX format
+            "40": "1",  # Market order
+            "59": "0"   # IOC
         }
+        
         if sl:
             fields["99"] = str(sl)
         if tp:
             fields["114"] = str(tp)
-            
+        
         success = self.send_msg("D", fields)
+        
         if success:
             order_info = {
                 "orderId": cl_ord_id,
                 "symbol": symbol,
                 "side": side,
                 "qty": qty,
+                "sl": sl,
+                "tp": tp,
                 "status": "SENT_FIX",
                 "time": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
             }
-            self.orders.insert(0, order_info)
-            self.log("SUCCESS", f"FIX Market Order placed: {side} {qty} {symbol} (ClOrdID: {cl_ord_id}, SL={sl}, TP={tp})")
+            with self.lock:
+                self.orders.insert(0, order_info)
+            
+            self.log("SUCCESS", f"Market Order: {side} {qty} {symbol} (SL={sl}, TP={tp})")
+        
         return success
 
-FIX_CLIENT = CTraderFixClient(FIX_HOST, FIX_TRADE_PORT, FIX_SENDER_COMP_ID, FIX_TARGET_COMP_ID, FIX_SENDER_SUB_ID, FIX_PASSWORD)
+# Initialize FIX client
+FIX_CLIENT = CTraderFixClient(
+    FIX_HOST,
+    FIX_TRADE_PORT,
+    FIX_SENDER_COMP_ID,
+    FIX_TARGET_COMP_ID,
+    FIX_SENDER_SUB_ID,
+    FIX_PASSWORD
+)
 
 def parse_signal(text):
+    """Parse trading signal from text"""
     if not text:
         return None
+    
     t_upper = text.upper()
     side = None
+    
+    # Determine side
     if "BUY" in t_upper:
         side = "BUY"
     elif "SELL" in t_upper:
         side = "SELL"
+    
     if not side:
         return None
-
+    
+    # Find symbol
     words = re.findall(r'[A-Z0-9]+', t_upper)
-    symbol = "BTCUSD"
+    symbol = None
+    
     for w in words:
         if w in PAIR_ALIASES:
             symbol = PAIR_ALIASES[w]
             break
-        elif len(w) >= 6 and w not in ["BUY", "SELL", "SL", "TP", "PRICE"]:
+        elif len(w) >= 6 and w not in ["BUY", "SELL", "SL", "TP", "PRICE", "ENTRY", "MARKET"]:
             symbol = w
             break
-
+    
+    if not symbol:
+        return None  # Can't determine pair
+    
+    # Extract SL and TP
     sl = None
     tp = None
+    
     sl_match = re.search(r'(?:SL|STOP\s*LOSS)[:\s]*([0-9.]+)', text, re.IGNORECASE)
     if sl_match:
         try:
             sl = float(sl_match.group(1))
         except:
             pass
-
+    
     tp_match = re.search(r'(?:TP|TAKE\s*PROFIT)[:\s]*([0-9.]+)', text, re.IGNORECASE)
     if tp_match:
         try:
             tp = float(tp_match.group(1))
         except:
             pass
-
+    
     qty = lot_for(symbol)
-    return {"side": side, "symbol": symbol, "qty": qty, "sl": sl, "tp": tp, "raw": text}
+    
+    return {
+        "side": side,
+        "symbol": symbol,
+        "qty": qty,
+        "sl": sl,
+        "tp": tp,
+        "raw": text
+    }
 
 def execute_signal(sig):
+    """Execute parsed signal"""
     if not sig:
         return
-    FIX_CLIENT.log("EXECUTE", f"Placing {sig['side']} {sig['qty']} {sig['symbol']} (SL={sig['sl']}, TP={sig['tp']}) via FIX API")
-    FIX_CLIENT.place_market_order(sig['symbol'], sig['side'], sig['qty'], sig['sl'], sig['tp'])
+    
+    FIX_CLIENT.log(
+        "EXECUTE",
+        f"Placing {sig['side']} {sig['qty']} {sig['symbol']} (SL={sig['sl']}, TP={sig['tp']})"
+    )
+    FIX_CLIENT.place_market_order(
+        sig['symbol'],
+        sig['side'],
+        sig['qty'],
+        sig['sl'],
+        sig['tp']
+    )
 
 def update_dashboard_files():
+    """Update dashboard JSON files"""
     os.makedirs("docs", exist_ok=True)
+    
     state = {
         "connected": FIX_CLIENT.connected,
         "host": FIX_HOST,
         "senderCompId": FIX_SENDER_COMP_ID,
         "account": FIX_CLIENT.account_info,
-        "positions": FIX_CLIENT.positions,
-        "orders": FIX_CLIENT.orders,
-        "recentMessages": FIX_CLIENT.recent_messages,
-        "logs": FIX_CLIENT.logs[:100],
+        "positions": list(FIX_CLIENT.positions),
+        "orders": list(FIX_CLIENT.orders),
+        "recentMessages": list(FIX_CLIENT.recent_messages),
+        "logs": list(FIX_CLIENT.logs)[:100],
         "lastUpdate": datetime.now(timezone.utc).isoformat()
     }
-    with open("docs/system_state.json", "w", encoding="utf-8") as f:
-        json.dump(state, f, indent=2)
-    with open("docs/heartbeat.json", "w", encoding="utf-8") as f:
-        json.dump({"status": "ok", "time": datetime.now(timezone.utc).isoformat()}, f, indent=2)
+    
+    try:
+        with open("docs/system_state.json", "w", encoding="utf-8") as f:
+            json.dump(state, f, indent=2)
+        
+        with open("docs/heartbeat.json", "w", encoding="utf-8") as f:
+            json.dump({
+                "status": "ok",
+                "time": datetime.now(timezone.utc).isoformat(),
+                "connected": FIX_CLIENT.connected
+            }, f, indent=2)
+        
+        FIX_CLIENT.log("SUCCESS", "Dashboard files updated")
+    except Exception as e:
+        FIX_CLIENT.log("ERROR", f"Dashboard update failed: {e}")
 
 def check_telegram_messages():
+    """Check for new Telegram messages"""
+    global LAST_UPDATE_ID
+    
     if not TG_TOKEN:
-        FIX_CLIENT.log("WARNING", "No Telegram token provided.")
+        FIX_CLIENT.log("WARNING", "No Telegram token configured")
         return
+    
     try:
-        url = f"https://api.telegram.org/bot{TG_TOKEN}/getUpdates?timeout=5"
-        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+        url = f"https://api.telegram.org/bot{TG_TOKEN}/getUpdates"
+        params = {
+            "offset": LAST_UPDATE_ID + 1,
+            "timeout": 5,
+            "allowed_updates": ["message", "channel_post"]
+        }
+        
+        query_string = urllib.parse.urlencode(params)
+        full_url = f"{url}?{query_string}"
+        
+        req = urllib.request.Request(full_url, headers={"User-Agent": "Mozilla/5.0"})
+        
         with urllib.request.urlopen(req, timeout=10) as resp:
             data = json.loads(resp.read().decode("utf-8"))
-            if data.get("ok"):
+            
+            if data.get("ok") and data.get("result"):
                 for result in data.get("result", []):
                     msg = result.get("message") or result.get("channel_post")
+                    
                     if msg and "text" in msg:
+                        LAST_UPDATE_ID = result.get("update_id", LAST_UPDATE_ID)
                         txt = msg["text"]
+                        
                         msg_entry = {
                             "time": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC"),
-                            "chat": str(msg.get("chat", {}).get("title", "Telegram Signal")),
+                            "chat": str(msg.get("chat", {}).get("title", "Telegram")),
                             "text": txt
                         }
-                        FIX_CLIENT.recent_messages.insert(0, msg_entry)
-                        FIX_CLIENT.log("INFO", f"Telegram Message Received: {txt}")
+                        
+                        with FIX_CLIENT.lock:
+                            FIX_CLIENT.recent_messages.appendleft(msg_entry)
+                        
+                        FIX_CLIENT.log("INFO", f"Telegram: {txt[:50]}")
+                        
                         sig = parse_signal(txt)
                         if sig:
                             execute_signal(sig)
+    
     except Exception as e:
-        FIX_CLIENT.log("ERROR", f"Error checking Telegram messages: {e}")
+        FIX_CLIENT.log("ERROR", f"Telegram check failed: {e}")
 
 def main():
-    FIX_CLIENT.log("INFO", "cTrader FIX API Bot & Dashboard Cycle Starting...")
-    FIX_CLIENT.connect()
+    """Main execution loop"""
+    FIX_CLIENT.log("INFO", "=== cTrader FIX API Bot Starting ===")
     
-    # Wait up to 8 seconds for FIX Logon acknowledgment (35=A)
-    for _ in range(8):
-        if FIX_CLIENT.connected:
-            break
-        time.sleep(1)
-
+    # Validate credentials
+    if not FIX_PASSWORD:
+        FIX_CLIENT.log("ERROR", "FIX_PASSWORD not set!")
+        return False
+    
+    if not FIX_SENDER_COMP_ID:
+        FIX_CLIENT.log("ERROR", "FIX_SENDER_COMP_ID not set!")
+        return False
+    
+    # Connect to FIX API
+    if not FIX_CLIENT.connect():
+        FIX_CLIENT.log("ERROR", "Failed to connect to FIX API")
+        return False
+    
+    # Wait for connection establishment
+    time.sleep(3)
+    
+    if not FIX_CLIENT.connected:
+        FIX_CLIENT.log("ERROR", "Connection lost after logon")
+        return False
+    
+    # Check Telegram for signals
     check_telegram_messages()
+    
+    # Update dashboard
     update_dashboard_files()
-
-    FIX_CLIENT.log("SUCCESS", "Cycle completed successfully. Exiting cleanly.")
+    
+    # Cleanup
+    FIX_CLIENT.disconnect()
+    
+    FIX_CLIENT.log("SUCCESS", "Bot cycle completed successfully")
+    return True
 
 if __name__ == "__main__":
-    main()
+    try:
+        success = main()
+        sys.exit(0 if success else 1)
+    except Exception as e:
+        logger.error(f"Fatal error: {e}", exc_info=True)
+        FIX_CLIENT.disconnect()
+        sys.exit(1)

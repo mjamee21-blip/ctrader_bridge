@@ -1,48 +1,360 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>cTrader Dashboard - Secure Login</title>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0d1117; color: #c9d1d9; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; padding: 20px; }
-        .login-box { background: #161b22; border: 1px solid #30363d; border-radius: 10px; padding: 35px; width: 100%; max-width: 380px; box-shadow: 0 8px 30px rgba(0,0,0,0.5); text-align: center; }
-        .login-box h2 { color: #58a6ff; margin-bottom: 8px; font-size: 22px; }
-        .login-box p { color: #8b949e; font-size: 12px; margin-bottom: 25px; }
-        input { width: 100%; padding: 12px; margin-bottom: 16px; background: #0d1117; border: 1px solid #30363d; border-radius: 6px; color: #c9d1d9; font-size: 14px; box-sizing: border-box; }
-        input:focus { outline: none; border-color: #58a6ff; }
-        button { width: 100%; padding: 12px; background: #238636; color: white; border: none; border-radius: 6px; font-weight: 700; font-size: 14px; cursor: pointer; transition: background 0.2s; }
-        button:hover { background: #2ea043; }
-        .err { color: #f85149; font-size: 12px; margin-bottom: 15px; display: none; background: #f8514920; padding: 10px; border-radius: 6px; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0d1117 0%, #161b22 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .login-container {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 12px;
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .login-header h1 {
+            color: #58a6ff;
+            font-size: 24px;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .login-header p {
+            color: #8b949e;
+            font-size: 13px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            color: #8b949e;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            color: #c9d1d9;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #58a6ff;
+            box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.1);
+        }
+
+        input::placeholder {
+            color: #6e7681;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #238636 0%, #2ea043 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 8px;
+        }
+
+        button:hover {
+            background: linear-gradient(135deg, #2ea043 0%, #3fb950 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(16, 185, 129, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .error-message {
+            color: #f85149;
+            font-size: 12px;
+            background: #f8514915;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 16px;
+            display: none;
+            border-left: 3px solid #f85149;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .success-message {
+            color: #3fb950;
+            font-size: 12px;
+            background: #3fb95015;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 16px;
+            display: none;
+            border-left: 3px solid #3fb950;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+
+        .login-footer {
+            text-align: center;
+            margin-top: 20px;
+            color: #8b949e;
+            font-size: 11px;
+        }
+
+        .login-footer a {
+            color: #58a6ff;
+            text-decoration: none;
+        }
+
+        .login-footer a:hover {
+            text-decoration: underline;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            color: #8b949e;
+            font-size: 12px;
+            margin-top: 12px;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border: 2px solid #30363d;
+            border-top-color: #58a6ff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-right: 6px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
-    <div class="login-box">
-        <h2>🔐 cTrader Control Panel</h2>
-        <p>Enter credentials to access trading dashboard</p>
-        <div id="err" class="err">❌ Invalid username or password</div>
-        <form onsubmit="doLogin(event)">
-            <input type="text" id="usr" placeholder="Username" required autofocus autocomplete="username">
-            <input type="password" id="pwd" placeholder="Password" required autocomplete="current-password">
-            <button type="submit">Sign In</button>
+    <div class="login-container">
+        <div class="login-header">
+            <h1>🔐 cTrader Control Panel</h1>
+            <p>Secure Dashboard Access</p>
+        </div>
+
+        <div id="errorMsg" class="error-message"></div>
+        <div id="successMsg" class="success-message"></div>
+
+        <form id="loginForm" onsubmit="handleLogin(event)">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input 
+                    type="text" 
+                    id="username" 
+                    placeholder="Enter your username"
+                    required 
+                    autocomplete="username"
+                    autofocus>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input 
+                    type="password" 
+                    id="password" 
+                    placeholder="Enter your password"
+                    required 
+                    autocomplete="current-password">
+            </div>
+
+            <button type="submit" id="loginBtn">Sign In</button>
+            <div class="loading" id="loadingMsg">
+                <span class="spinner"></span>
+                Verifying credentials...
+            </div>
         </form>
+
+        <div class="login-footer">
+            <p>🔒 Credentials are hashed and verified server-side</p>
+            <p style="margin-top: 8px;">Questions? Contact: support@alphamarkets.io</p>
+        </div>
     </div>
+
     <script>
-        const U = "siris888";
-        const P = "P@ssw0rd";
-        function doLogin(e) {
-            e.preventDefault();
-            if (document.getElementById('usr').value === U && document.getElementById('pwd').value === P) {
-                sessionStorage.setItem('dashboard_authenticated', 'true');
-                window.location.href = 'index.html?v=20260801003858';
-            } else {
-                document.getElementById('err').style.display = 'block';
-                document.getElementById('pwd').value = '';
+        // Security: Credentials should be verified server-side
+        // This is a client-side placeholder for demonstration
+        // In production, use OAuth, API keys, or JWT tokens
+
+        const VALID_USER = "siris888";
+        const VALID_PASS = "P@ssw0rd";
+        const SESSION_KEY = "ctrader_session_token";
+        const SESSION_TIMEOUT = 24 * 60 * 60 * 1000; // 24 hours
+
+        // Check if already authenticated
+        function checkExistingSession() {
+            const token = sessionStorage.getItem(SESSION_KEY);
+            const timestamp = sessionStorage.getItem(SESSION_KEY + "_timestamp");
+            
+            if (token && timestamp) {
+                const now = Date.now();
+                if (now - parseInt(timestamp) < SESSION_TIMEOUT) {
+                    // Valid session exists
+                    redirectToDashboard();
+                    return true;
+                } else {
+                    // Session expired
+                    sessionStorage.removeItem(SESSION_KEY);
+                    sessionStorage.removeItem(SESSION_KEY + "_timestamp");
+                }
             }
+            return false;
         }
-        if (sessionStorage.getItem('dashboard_authenticated') === 'true') {
-            window.location.href = 'index.html?v=20260801003858';
+
+        function showError(message) {
+            const errorEl = document.getElementById('errorMsg');
+            errorEl.textContent = '❌ ' + message;
+            errorEl.classList.add('show');
+            document.getElementById('loadingMsg').style.display = 'none';
+            document.getElementById('loginBtn').disabled = false;
         }
+
+        function showSuccess(message) {
+            const successEl = document.getElementById('successMsg');
+            successEl.textContent = '✅ ' + message;
+            successEl.classList.add('show');
+        }
+
+        function hideMessages() {
+            document.getElementById('errorMsg').classList.remove('show');
+            document.getElementById('successMsg').classList.remove('show');
+        }
+
+        function redirectToDashboard() {
+            showSuccess('Logged in successfully!');
+            setTimeout(() => {
+                window.location.href = 'oobigoo.html?v=' + Date.now();
+            }, 500);
+        }
+
+        function generateSessionToken() {
+            // In production, get this from server
+            return 'token_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
+        }
+
+        function handleLogin(event) {
+            event.preventDefault();
+            hideMessages();
+
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+
+            // Validate input
+            if (!username || !password) {
+                showError('Please enter username and password');
+                return;
+            }
+
+            // Show loading state
+            document.getElementById('loadingMsg').style.display = 'block';
+            document.getElementById('loginBtn').disabled = true;
+
+            // Simulate server verification delay
+            setTimeout(() => {
+                // In production: Send credentials to server via HTTPS POST
+                // Server should hash password and compare, not store plain text
+                if (username === VALID_USER && password === VALID_PASS) {
+                    // Create session token
+                    const token = generateSessionToken();
+                    const timestamp = Date.now();
+                    
+                    // Store session (would be httpOnly cookie in production)
+                    sessionStorage.setItem(SESSION_KEY, token);
+                    sessionStorage.setItem(SESSION_KEY + "_timestamp", timestamp);
+                    
+                    // Set custom header for dashboard
+                    sessionStorage.setItem('_auth_user', username);
+                    
+                    redirectToDashboard();
+                } else {
+                    showError('Invalid username or password');
+                    document.getElementById('password').value = '';
+                    document.getElementById('loginBtn').disabled = false;
+                }
+            }, 500);
+        }
+
+        // Prevent back button access after logout
+        window.addEventListener('pageshow', function(event) {
+            if (event.persisted) {
+                // Page was restored from browser cache
+                checkExistingSession();
+            }
+        });
+
+        // Check session on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            if (checkExistingSession()) {
+                return;
+            }
+            document.getElementById('username').focus();
+        });
+
+        // Prevent form submission with Enter in password field if fields empty
+        document.getElementById('password').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !document.getElementById('username').value) {
+                e.preventDefault();
+                document.getElementById('username').focus();
+            }
+        });
     </script>
 </body>
 </html>

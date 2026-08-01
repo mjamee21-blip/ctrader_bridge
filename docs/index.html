@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Alpha Markets - Automated Copy Trading & Subscription</title>
+    <title>Alpha Markets - cTrader FIX API Copy Trading Solution</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -52,6 +52,19 @@
             box-shadow: 0 14px 34px -8px rgba(245, 185, 66, .5);
             filter: brightness(1.07)
         }
+        .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
+        .feature-card { 
+            background: linear-gradient(135deg, rgba(16, 23, 40, .85), rgba(9, 14, 26, .9));
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            transition: all .3s;
+        }
+        .feature-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--emerald);
+            box-shadow: 0 20px 40px rgba(16, 185, 129, .1);
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between">
@@ -60,7 +73,7 @@
             <div class="w-10 h-10 rounded-xl grad-btn flex items-center justify-center font-black text-xl">α</div>
             <div>
                 <div class="text-lg font-extrabold tracking-tight">Alpha Markets</div>
-                <div class="text-[10px] font-semibold grad-text tracking-widest uppercase">Copy Trading</div>
+                <div class="text-[10px] font-semibold grad-text tracking-widest uppercase">cTrader FIX API</div>
             </div>
         </div>
         <div class="flex items-center gap-3">
@@ -71,59 +84,150 @@
 
     <main class="relative z-10 max-w-5xl mx-auto px-6 py-16 text-center my-auto">
         <div class="inline-flex items-center gap-2 glass px-4 py-1.5 rounded-full text-xs font-semibold text-[var(--muted)] mb-6">
-            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Professional cTrader & Telegram Automation
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> 
+            Professional cTrader FIX API Trading Bridge
         </div>
+
         <h1 class="text-5xl md:text-7xl font-black leading-tight tracking-tight mb-6">
-            Automated Copy Trading <br><span class="grad-text">Engine & Signals</span>
+            Automated Copy Trading <br><span class="grad-text">from Telegram to cTrader</span>
         </h1>
+
         <p class="text-lg text-[var(--muted)] max-w-2xl mx-auto mb-10">
-            Seamlessly bridge Telegram trading signals to your cTrader account with institutional execution speed, real-time telemetry, and advanced risk management.
+            Bridge Telegram trading signals directly to cTrader using FIX Protocol. Institutional-grade execution, real-time telemetry, and advanced risk management—all automated.
         </p>
 
         <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
-            <a href="oobigoo.html" class="grad-btn font-bold px-8 py-4 rounded-xl text-base w-full sm:w-auto shadow-xl">🚀 Get Started Now</a>
+            <a href="oobigoo.html" class="grad-btn font-bold px-8 py-4 rounded-xl text-base w-full sm:w-auto shadow-xl">🚀 Launch Dashboard</a>
             <a href="login.html" class="glass text-white font-semibold px-8 py-4 rounded-xl text-base w-full sm:w-auto hover:bg-slate-800/60 transition">Sign In to Account</a>
         </div>
 
-        <!-- Monthly Subscription Pricing Section -->
+        <!-- Features Section -->
+        <div class="feature-grid mb-16">
+            <div class="feature-card">
+                <div class="text-4xl mb-4">⚡</div>
+                <h3 class="text-lg font-bold mb-2">FIX Protocol Native</h3>
+                <p class="text-sm text-[var(--muted)]">Direct FIX API integration with proper message sequencing, checksums, and heartbeat management for enterprise-grade reliability.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="text-4xl mb-4">📊</div>
+                <h3 class="text-lg font-bold mb-2">Real-Time Dashboard</h3>
+                <p class="text-sm text-[var(--muted)]">Monitor live orders, executions, account equity, and system logs. Auto-updating every 10 seconds with full audit trail.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="text-4xl mb-4">🛡️</div>
+                <h3 class="text-lg font-bold mb-2">Advanced Risk Controls</h3>
+                <p class="text-sm text-[var(--muted)]">Per-pair lot sizing, SL/TP mapping, message validation, and thread-safe execution to prevent catastrophic losses.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="text-4xl mb-4">📱</div>
+                <h3 class="text-lg font-bold mb-2">Telegram Integration</h3>
+                <p class="text-sm text-[var(--muted)]">Seamless signal parsing with offset tracking to prevent message replay attacks and duplicate orders.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="text-4xl mb-4">🔐</div>
+                <h3 class="text-lg font-bold mb-2">Secure Authentication</h3>
+                <p class="text-sm text-[var(--muted)]">Session-based login with timeout, server-side credential verification, and CSRF protection for all operations.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="text-4xl mb-4">🔄</div>
+                <h3 class="text-lg font-bold mb-2">GitHub Actions Automation</h3>
+                <p class="text-sm text-[var(--muted)]">Scheduled execution every 5 minutes with secret validation, timeout controls, and automatic dashboard updates.</p>
+            </div>
+        </div>
+
+        <!-- Pricing Section -->
         <div id="pricing" class="max-w-md mx-auto glass p-8 rounded-3xl border border-emerald-500/30 shadow-2xl relative overflow-hidden text-left mb-16">
             <div class="absolute top-0 right-0 bg-emerald-500 text-[#04070f] text-xs font-black px-4 py-1 rounded-bl-2xl uppercase tracking-wider">Most Popular</div>
-            <div class="text-sm font-bold text-emerald-400 uppercase tracking-widest mb-2">Monthly Subscription</div>
+            <div class="text-sm font-bold text-emerald-400 uppercase tracking-widest mb-2">Monthly Access</div>
             <div class="flex items-baseline gap-2 mb-4">
                 <span class="text-5xl font-black">$8</span>
                 <span class="text-[var(--muted)]">/ month</span>
             </div>
-            <p class="text-sm text-[var(--muted)] mb-6">Full access to automated Telegram signal copying, real-time telemetry dashboard, and per-pair lot size manager.</p>
+            <p class="text-sm text-[var(--muted)] mb-6">Complete access to FIX API automation, Telegram bridge, and 24/7 dashboard monitoring.</p>
             <ul class="space-y-3 mb-8 text-sm text-[var(--text)]">
-                <li class="flex items-center gap-2">✓ Instant Telegram signal bridge</li>
-                <li class="flex items-center gap-2">✓ Live cTrader account telemetry</li>
-                <li class="flex items-center gap-2">✓ Per-pair lot sizing & risk controls</li>
-                <li class="flex items-center gap-2">✓ 24/7 automated GitHub Actions bot</li>
+                <li class="flex items-center gap-2">✓ FIX API direct connection</li>
+                <li class="flex items-center gap-2">✓ Telegram signal parsing</li>
+                <li class="flex items-center gap-2">✓ Real-time dashboard</li>
+                <li class="flex items-center gap-2">✓ GitHub Actions bot (every 5 min)</li>
+                <li class="flex items-center gap-2">✓ Per-pair lot sizing</li>
+                <li class="flex items-center gap-2">✓ Full audit logs</li>
             </ul>
-            <a href="oobigoo.html" class="grad-btn font-bold block text-center w-full py-4 rounded-xl text-base shadow-lg">Subscribe & Pay ($8/mo) →</a>
+            <a href="oobigoo.html" class="grad-btn font-bold block text-center w-full py-4 rounded-xl text-base shadow-lg">Subscribe Now →</a>
         </div>
 
-        <div class="grid md:grid-cols-3 gap-6 text-left">
-            <div class="glass p-6 rounded-2xl border border-[var(--border)]">
-                <div class="text-3xl mb-3">⚡</div>
-                <h3 class="text-lg font-bold mb-2">Lightning Fast Execution</h3>
-                <p class="text-sm text-[var(--muted)]">Direct integration with cTrader Open API ensures sub-second market execution for every signal.</p>
+        <!-- How It Works Section -->
+        <div class="mb-16">
+            <h2 class="text-3xl font-bold mb-12 grad-text">How It Works</h2>
+            <div class="space-y-4">
+                <div class="glass p-6 rounded-2xl border border-[var(--border)] flex gap-4">
+                    <div class="text-3xl font-bold text-emerald-400 flex-shrink-0">1</div>
+                    <div class="text-left">
+                        <h4 class="font-bold text-lg mb-2">Configure FIX Credentials</h4>
+                        <p class="text-sm text-[var(--muted)]">Add your cTrader FIX API credentials and Telegram bot token to GitHub secrets.</p>
+                    </div>
+                </div>
+                <div class="glass p-6 rounded-2xl border border-[var(--border)] flex gap-4">
+                    <div class="text-3xl font-bold text-emerald-400 flex-shrink-0">2</div>
+                    <div class="text-left">
+                        <h4 class="font-bold text-lg mb-2">Send Trading Signals</h4>
+                        <p class="text-sm text-[var(--muted)]">Post signals to your Telegram channel: "BUY EURUSD SL:1.0850 TP:1.1000"</p>
+                    </div>
+                </div>
+                <div class="glass p-6 rounded-2xl border border-[var(--border)] flex gap-4">
+                    <div class="text-3xl font-bold text-emerald-400 flex-shrink-0">3</div>
+                    <div class="text-left">
+                        <h4 class="font-bold text-lg mb-2">Automatic Execution</h4>
+                        <p class="text-sm text-[var(--muted)]">Bot parses signals, validates them, and places orders via FIX API every 5 minutes.</p>
+                    </div>
+                </div>
+                <div class="glass p-6 rounded-2xl border border-[var(--border)] flex gap-4">
+                    <div class="text-3xl font-bold text-emerald-400 flex-shrink-0">4</div>
+                    <div class="text-left">
+                        <h4 class="font-bold text-lg mb-2">Monitor & Audit</h4>
+                        <p class="text-sm text-[var(--muted)]">Track all executions in the live dashboard with complete audit logs and order history.</p>
+                    </div>
+                </div>
             </div>
-            <div class="glass p-6 rounded-2xl border border-[var(--border)]">
-                <div class="text-3xl mb-3">📊</div>
-                <h3 class="text-lg font-bold mb-2">Real-time Telemetry</h3>
-                <p class="text-sm text-[var(--muted)]">Monitor open positions, balance equity, P&L, and system health status instantly.</p>
-            </div>
-            <div class="glass p-6 rounded-2xl border border-[var(--border)]">
-                <div class="text-3xl mb-3">🛡️</div>
-                <h3 class="text-lg font-bold mb-2">Advanced Risk Controls</h3>
-                <p class="text-sm text-[var(--muted)]">Configure lot sizes per pair, strict SL/TP mapping, and automated safety heartbeat monitoring.</p>
+        </div>
+
+        <!-- Technical Specs -->
+        <div class="glass p-8 rounded-2xl border border-[var(--border)] mb-16">
+            <h3 class="text-2xl font-bold mb-6 grad-text">Technical Specifications</h3>
+            <div class="grid md:grid-cols-2 gap-6 text-left text-sm">
+                <div>
+                    <h4 class="font-bold text-emerald-400 mb-2">Protocol & Connectivity</h4>
+                    <ul class="space-y-1 text-[var(--muted)]">
+                        <li>• FIX 4.4 Protocol</li>
+                        <li>• SSL/TLS Encryption</li>
+                        <li>• Proper Checksum Validation</li>
+                        <li>• Heartbeat Mechanism (30s)</li>
+                        <li>• Message Sequencing</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bold text-emerald-400 mb-2">Reliability & Safety</h4>
+                    <ul class="space-y-1 text-[var(--muted)]">
+                        <li>• Thread-Safe Execution</li>
+                        <li>• Order Validation</li>
+                        <li>• Offset Tracking</li>
+                        <li>• Duplicate Prevention</li>
+                        <li>• Comprehensive Logging</li>
+                    </ul>
+                </div>
             </div>
         </div>
     </main>
 
     <footer class="relative z-10 max-w-7xl mx-auto w-full px-6 py-6 text-center text-xs text-[var(--muted)] border-t border-[var(--border)]">
-        &copy; 2026 Alpha Markets. All rights reserved. &bull; <a href="login.html" class="hover:text-white underline">Log in</a> &bull; <a href="oobigoo.html" class="hover:text-white underline">Dashboard</a>
+        &copy; 2026 Alpha Markets. All rights reserved. Built with FIX Protocol &bull; 
+        <a href="login.html" class="hover:text-white underline">Log in</a> &bull; 
+        <a href="oobigoo.html" class="hover:text-white underline">Dashboard</a> &bull;
+        Enterprise-Grade Copy Trading Solution
     </footer>
 </body>
 </html>
