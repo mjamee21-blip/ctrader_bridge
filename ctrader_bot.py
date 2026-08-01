@@ -77,11 +77,18 @@ class CTraderFixClient:
         self.connected = False
         self.positions = []
         self.orders = []
+        self.logs = []
+        self.recent_messages = []
         self.account_info = {"balance": 10000.0, "equity": 10000.0, "margin": 0.0, "freeMargin": 10000.0, "leverage": 100}
+
+    def log(self, level, msg):
+        entry = {"time": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC"), "level": level, "message": msg}
+        self.logs.insert(0, entry)
+        print(f"[{level}] {msg}")
 
     def connect(self):
         try:
-            print(f"[FIX] Connecting to {self.host}:{self.port} (Sender: {self.sender_comp_id}, Sub: {self.sender_sub_id})...")
+            self.log("INFO", f"Connecting to FIX API {self.host}:{self.port} (Sender: {self.sender_comp_id}, Sub: {self.sender_sub_id})...")
             self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.sock.settimeout(15)
             ctx = ssl.create_default_context()
@@ -90,21 +97,21 @@ class CTraderFixClient:
             self.ssl_sock = ctx.wrap_socket(self.sock, server_hostname=self.host)
             self.ssl_sock.connect((self.host, self.port))
             self.connected = True
-            print(f"[FIX] SSL Connected successfully to {self.host}:{self.port}")
+            self.log("SUCCESS", f"SSL Connected successfully to {self.host}:{self.port}")
             self.send_logon()
             
             t = threading.Thread(target=self._recv_loop, daemon=True)
             t.start()
             return True
         except Exception as e:
-            print(f"[FIX] Connection failed: {e}")
+            self.log("ERROR", f"Connection failed: {e}")
             self.connected = False
             return False
 
     def send_msg(self, msg_type, fields):
         with self.lock:
             if not self.connected or not self.ssl_sock:
-                print(f"[FIX] Cannot send {msg_type}: not connected.")
+                self.log("WARNING", f"Cannot send {msg_type}: not connected.")
                 return False
             try:
                 body_parts = [
@@ -131,18 +138,17 @@ class CTraderFixClient:
                 full_msg = raw_msg + f"10={checksum:03d}\x01"
 
                 self.ssl_sock.sendall(full_msg.encode('ascii'))
-                print(f"[FIX OUT] Type {msg_type}: {fields}")
                 return True
             except Exception as e:
-                print(f"[FIX] Send error ({msg_type}): {e}")
+                self.log("ERROR", f"Send error ({msg_type}): {e}")
                 self.connected = False
                 return False
 
     def send_logon(self):
         fields = {
-            "98": "0",     # EncryptMethod
-            "108": "30",   # HeartBtInt
-            "554": self.password # Password
+            "98": "0",
+            "108": "30",
+            "554": self.password
         }
         self.send_msg("A", fields)
 
@@ -178,9 +184,8 @@ class CTraderFixClient:
                 k, v = part.split("=", 1)
                 tags[k] = v
         msg_type = tags.get("35")
-        print(f"[FIX IN] Type {msg_type} received.")
         if msg_type == "A":
-            print("[FIX] Logon acknowledged successfully!")
+            self.log("SUCCESS", f"FIX Logon acknowledged successfully for {self.sender_comp_id}!")
 
     def place_market_order(self, symbol, side, qty, sl=None, tp=None):
         cl_ord_id = f"BOT_{int(time.time()*1000)}"
@@ -199,14 +204,16 @@ class CTraderFixClient:
             
         success = self.send_msg("D", fields)
         if success:
-            self.orders.append({
+            order_info = {
                 "orderId": cl_ord_id,
                 "symbol": symbol,
                 "side": side,
                 "qty": qty,
-                "status": "SENT",
-                "time": datetime.now(timezone.utc).isoformat()
-            })
+                "status": "SENT_FIX",
+                "time": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
+            }
+            self.orders.insert(0, order_info)
+            self.log("SUCCESS", f"FIX Market Order placed: {side} {qty} {symbol} (ClOrdID: {cl_ord_id}, SL={sl}, TP={tp})")
         return success
 
 FIX_CLIENT = CTraderFixClient(FIX_HOST, FIX_TRADE_PORT, FIX_SENDER_COMP_ID, FIX_TARGET_COMP_ID, FIX_SENDER_SUB_ID, FIX_PASSWORD)
@@ -255,7 +262,7 @@ def parse_signal(text):
 def execute_signal(sig):
     if not sig:
         return
-    print(f"[EXECUTE] Placing {sig['side']} {sig['qty']} {sig['symbol']} (SL={sig['sl']}, TP={sig['tp']}) via FIX API")
+    FIX_CLIENT.log("EXECUTE", f"Placing {sig['side']} {sig['qty']} {sig['symbol']} (SL={sig['sl']}, TP={sig['tp']}) via FIX API")
     FIX_CLIENT.place_market_order(sig['symbol'], sig['side'], sig['qty'], sig['sl'], sig['tp'])
 
 def update_dashboard_files():
@@ -267,6 +274,8 @@ def update_dashboard_files():
         "account": FIX_CLIENT.account_info,
         "positions": FIX_CLIENT.positions,
         "orders": FIX_CLIENT.orders,
+        "recentMessages": FIX_CLIENT.recent_messages,
+        "logs": FIX_CLIENT.logs[:100],
         "lastUpdate": datetime.now(timezone.utc).isoformat()
     }
     with open("docs/system_state.json", "w", encoding="utf-8") as f:
@@ -276,7 +285,7 @@ def update_dashboard_files():
 
 def check_telegram_messages():
     if not TG_TOKEN:
-        print("[TG] No Telegram token provided.")
+        FIX_CLIENT.log("WARNING", "No Telegram token provided.")
         return
     try:
         url = f"https://api.telegram.org/bot{TG_TOKEN}/getUpdates?timeout=5"
@@ -288,26 +297,28 @@ def check_telegram_messages():
                     msg = result.get("message") or result.get("channel_post")
                     if msg and "text" in msg:
                         txt = msg["text"]
-                        print(f"[TG MSG] {txt}")
+                        msg_entry = {
+                            "time": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC"),
+                            "chat": str(msg.get("chat", {}).get("title", "Telegram Signal")),
+                            "text": txt
+                        }
+                        FIX_CLIENT.recent_messages.insert(0, msg_entry)
+                        FIX_CLIENT.log("INFO", f"Telegram Message Received: {txt}")
                         sig = parse_signal(txt)
                         if sig:
                             execute_signal(sig)
     except Exception as e:
-        print(f"[TG] Error checking messages: {e}")
+        FIX_CLIENT.log("ERROR", f"Error checking Telegram messages: {e}")
 
 def main():
-    print("=" * 60)
-    print("cTrader FIX API Bot & Dashboard Cycle Starting...")
-    print(f"Host: {FIX_HOST}:{FIX_TRADE_PORT} | SenderCompID: {FIX_SENDER_COMP_ID}")
-    print("=" * 60)
-
+    FIX_CLIENT.log("INFO", "cTrader FIX API Bot & Dashboard Cycle Starting...")
     FIX_CLIENT.connect()
-    time.sleep(3) # Wait for logon response
+    time.sleep(3)
 
     check_telegram_messages()
     update_dashboard_files()
 
-    print("[CYCLE] Completed successfully. Exiting cleanly.")
+    FIX_CLIENT.log("SUCCESS", "Cycle completed successfully. Exiting cleanly.")
 
 if __name__ == "__main__":
     main()
