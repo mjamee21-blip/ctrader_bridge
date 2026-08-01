@@ -1,12 +1,9 @@
 name: cTrader FIX API Bot & Dashboard
 
 on:
-  schedule:
-    - cron: '*/5 * * * *'  # Run every 5 minutes
   workflow_dispatch:
-  push:
-    branches:
-      - main
+  repository_dispatch:
+    types: [run-bot]
 
 permissions:
   contents: write
