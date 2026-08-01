@@ -13,8 +13,13 @@ import threading
 import urllib.request
 import urllib.parse
 import logging
+import base64
 from datetime import datetime, timezone
 from collections import deque
+
+# Persistent config storage
+CONFIG_FILE = "pair_config.json"
+HEARTBEAT_LOG = "heartbeat.log"
 
 # Ensure imports are available
 try:
@@ -196,33 +201,33 @@ class CTraderFixClient:
         """Send FIX message"""
         with self.lock:
             if not self.connected or not self.ssl_sock:
-                self.log("WARNING", f"Cannot send {msg_type}: not connected")
+                self.log("ERROR", f"⚠️  Cannot send {msg_type}: connection not active")
                 return False
             
             try:
-                # Build message body
+                # Build message body - FIX 4.4 format
                 body_parts = [
-                    f"35={msg_type}",
-                    f"49={self.sender_comp_id}",
-                    f"56={self.target_comp_id}"
+                    f"35={msg_type}",           # Message Type
+                    f"49={self.sender_comp_id}", # Sender CompID
+                    f"56={self.target_comp_id}", # Target CompID
                 ]
                 
                 if self.sender_sub_id:
-                    body_parts.append(f"57={self.sender_sub_id}")
+                    body_parts.append(f"57={self.sender_sub_id}")  # Sender SubID
                 
-                body_parts.append(f"34={self.msg_seq_num}")
+                body_parts.append(f"34={self.msg_seq_num}")        # Message Sequence Number
                 self.msg_seq_num += 1
                 
                 now_str = datetime.now(timezone.utc).strftime("%Y%m%d-%H:%M:%S")
-                body_parts.append(f"52={now_str}")
+                body_parts.append(f"52={now_str}")                 # Timestamp
                 
-                # Add custom fields
+                # Add all custom fields
                 for k, v in fields.items():
                     body_parts.append(f"{k}={v}")
                 
                 body = "\x01".join(body_parts) + "\x01"
                 
-                # Build header with body length
+                # Build header with correct body length
                 header = f"8=FIX.4.4\x019={len(body)}\x01"
                 
                 # Calculate checksum on header + body
@@ -232,12 +237,18 @@ class CTraderFixClient:
                 # Build final message
                 full_msg = message_to_check + f"10={checksum:03d}\x01"
                 
-                self.ssl_sock.sendall(full_msg.encode('ascii'))
-                self.log("DEBUG", f"Sent {msg_type} message")
+                # Send the message
+                bytes_sent = self.ssl_sock.sendall(full_msg.encode('ascii'))
+                
+                self.log("DEBUG", f"✓ Message {msg_type} sent (seq#{self.msg_seq_num-1}, {len(full_msg)} bytes)")
                 return True
                 
+            except socket.error as e:
+                self.log("ERROR", f"✗ Socket error sending {msg_type}: {e}")
+                self.connected = False
+                return False
             except Exception as e:
-                self.log("ERROR", f"Send error ({msg_type}): {e}")
+                self.log("ERROR", f"✗ Send error ({msg_type}): {e}")
                 self.connected = False
                 return False
 
@@ -328,44 +339,96 @@ class CTraderFixClient:
         
         if msg_type == "A":
             # Logon response
-            self.log("SUCCESS", f"FIX Logon acknowledged for {self.sender_comp_id}")
-            # Don't close connection on logon, keep it open
+            self.log("SUCCESS", f"🔐 FIX Logon ACKNOWLEDGED for {self.sender_comp_id}")
+            
         elif msg_type == "0":
-            # Heartbeat
-            self.log("DEBUG", "Heartbeat received")
+            # Heartbeat from server
+            heartbeat_msg = f"[HEARTBEAT] {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')}"
+            self.log("DEBUG", heartbeat_msg)
+            with self.lock:
+                with open(HEARTBEAT_LOG, 'a') as f:
+                    f.write(heartbeat_msg + "\n")
+            
         elif msg_type == "1":
-            # Heartbeat response
-            self.log("DEBUG", "TestRequest")
+            # Test Request
+            self.log("DEBUG", "TestRequest received")
+            
         elif msg_type == "8":
-            # Execution report
+            # Execution Report - ORDER CONFIRMATION
             order_id = tags.get("37", "")
-            status = tags.get("39", "")
+            exec_id = tags.get("17", "")
+            status_code = tags.get("39", "")
             symbol = tags.get("55", "")
-            self.log("INFO", f"Execution Report - OrderID: {order_id}, Status: {status}, Symbol: {symbol}")
-        elif msg_type == "D":
-            # New order single response
-            self.log("INFO", "Order accepted by broker")
+            qty = tags.get("38", "0")
+            last_px = tags.get("31", "0")
+            cum_qty = tags.get("14", "0")
+            side = tags.get("54", "")
+            
+            # Status codes: 0=New, 1=PartialFill, 2=Filled, 3=DoneForDay, 4=Cancelled, etc.
+            status_names = {
+                "0": "NEW",
+                "1": "PARTIAL_FILLED",
+                "2": "FILLED ✓",
+                "3": "DONE_FOR_DAY",
+                "4": "CANCELLED",
+                "5": "REPLACED",
+                "6": "PENDING_CANCEL",
+                "7": "STOPPED",
+                "8": "REJECTED",
+                "9": "SUSPENDED",
+                "10": "PENDING_NEW",
+                "11": "CALCULATED",
+                "12": "EXPIRED",
+                "13": "ACCEPTED_FOR_BIDDING",
+                "14": "PENDING_REPLACE"
+            }
+            
+            status_text = status_names.get(status_code, f"UNKNOWN({status_code})")
+            
+            self.log("SUCCESS", f"📊 EXECUTION REPORT | Symbol={symbol} | Qty={qty} | Price={last_px} | Status={status_text} | ExecID={exec_id}")
+            
+            # Update order status
+            with self.lock:
+                for order in self.orders:
+                    if order["orderId"] == order_id or order["orderId"] in exec_id:
+                        order["status"] = status_text
+                        if float(last_px) > 0:
+                            order["entryPrice"] = float(last_px)
+                        break
+            
+        elif msg_type == "9":
+            # Order Cancel Reject
+            order_id = tags.get("37", "")
+            reason = tags.get("58", "Unknown reason")
+            self.log("ERROR", f"⚠️  ORDER CANCEL REJECTED | OrderID={order_id} | Reason={reason}")
+            
         else:
             # Other message types
-            self.log("DEBUG", f"Received message type: {msg_type}")
+            self.log("DEBUG", f"Message Type: {msg_type}")
 
     def place_market_order(self, symbol, side, qty, sl=None, tp=None):
         """Place market order via FIX API"""
         cl_ord_id = f"BOT_{int(time.time()*1000)}"
         
+        # FIX tag reference: 
+        # 11=ClOrdID, 55=Symbol, 54=Side(1=Buy,2=Sell), 38=OrderQty, 40=OrdType(1=Market)
+        # 99=StopPx, 101=TargetPx, 59=TimeInForce(0=Day,1=IOC,3=FillOrKill), 108=HeartBtInt
+        
         fields = {
-            "11": cl_ord_id,
-            "55": symbol,
-            "54": "1" if side.upper() == "BUY" else "2",
-            "38": str(int(qty * 10000)),  # Convert to standard FIX format
-            "40": "1",  # Market order
-            "59": "0"   # IOC
+            "11": cl_ord_id,                    # Unique order ID
+            "55": symbol,                       # Symbol
+            "54": "1" if side.upper() == "BUY" else "2",  # Side: 1=Buy, 2=Sell
+            "38": str(qty),                     # Quantity (actual lot size, not multiplied)
+            "40": "1",                          # Order Type: 1=Market
+            "59": "1",                          # Time in Force: 1=IOC (Immediate or Cancel)
+            "10": "0"                           # Price (not needed for market order)
         }
         
-        if sl:
-            fields["99"] = str(sl)
-        if tp:
-            fields["114"] = str(tp)
+        # Add stop loss and take profit if provided
+        if sl is not None:
+            fields["99"] = str(sl)              # StopPx
+        if tp is not None:
+            fields["101"] = str(tp)             # TargetPx
         
         success = self.send_msg("D", fields)
         
@@ -377,13 +440,17 @@ class CTraderFixClient:
                 "qty": qty,
                 "sl": sl,
                 "tp": tp,
-                "status": "SENT_FIX",
-                "time": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
+                "status": "PENDING",
+                "time": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC"),
+                "entryPrice": None,
+                "profitLoss": 0.0
             }
             with self.lock:
                 self.orders.insert(0, order_info)
             
-            self.log("SUCCESS", f"Market Order: {side} {qty} {symbol} (SL={sl}, TP={tp})")
+            self.log("SUCCESS", f"✓ ORDER SENT: {side} {qty} {symbol} | SL={sl} | TP={tp} | ID={cl_ord_id}")
+        else:
+            self.log("ERROR", f"✗ Failed to send order: {side} {qty} {symbol}")
         
         return success
 
@@ -556,55 +623,86 @@ def check_telegram_messages():
     except Exception as e:
         FIX_CLIENT.log("ERROR", f"Telegram check failed: {e}")
 
+def load_pair_config():
+    """Load pair configuration from file"""
+    try:
+        if os.path.exists(CONFIG_FILE):
+            with open(CONFIG_FILE, 'r') as f:
+                return json.load(f)
+    except:
+        pass
+    return {}
+
+def save_pair_config(config):
+    """Save pair configuration to file"""
+    try:
+        with open(CONFIG_FILE, 'w') as f:
+            json.dump(config, f, indent=2)
+        return True
+    except Exception as e:
+        FIX_CLIENT.log("ERROR", f"Failed to save pair config: {e}")
+        return False
+
 def main():
     """Main execution loop"""
-    FIX_CLIENT.log("INFO", "=== cTrader FIX API Bot Starting ===")
+    FIX_CLIENT.log("INFO", "=" * 80)
+    FIX_CLIENT.log("INFO", "🤖 cTrader FIX API Bot CYCLE STARTED")
+    FIX_CLIENT.log("INFO", "=" * 80)
+    
+    # Load persistent pair configuration
+    pair_config = load_pair_config()
+    FIX_CLIENT.log("INFO", f"Loaded pair configuration: {len(pair_config)} pairs configured")
     
     # Validate credentials
     if not FIX_PASSWORD:
-        FIX_CLIENT.log("ERROR", "FIX_PASSWORD not set!")
+        FIX_CLIENT.log("ERROR", "❌ FIX_PASSWORD not set!")
         update_dashboard_files()
-        return True  # Return True to not fail the workflow
+        return False
     
     if not FIX_SENDER_COMP_ID:
-        FIX_CLIENT.log("ERROR", "FIX_SENDER_COMP_ID not set!")
+        FIX_CLIENT.log("ERROR", "❌ FIX_SENDER_COMP_ID not set!")
         update_dashboard_files()
-        return True  # Return True to not fail the workflow
+        return False
     
     # Attempt to connect to FIX API
     connection_success = False
     try:
+        FIX_CLIENT.log("INFO", "🔌 Attempting FIX API connection...")
         if FIX_CLIENT.connect():
             connection_success = True
-            FIX_CLIENT.log("INFO", "FIX connection established")
+            FIX_CLIENT.log("SUCCESS", "✓ FIX API connection established!")
+        else:
+            FIX_CLIENT.log("ERROR", "✗ Failed to establish FIX connection")
     except Exception as e:
-        FIX_CLIENT.log("WARNING", f"FIX connection attempt: {e}")
-    
-    # Don't fail the entire bot if FIX connection fails
-    # The Telegram and dashboard functions still work
+        FIX_CLIENT.log("ERROR", f"✗ FIX connection exception: {e}")
     
     # Wait for logon processing
-    time.sleep(3)
+    time.sleep(5)
+    
+    if not connection_success:
+        FIX_CLIENT.log("WARNING", "⚠️  Proceeding without FIX connection - Telegram processing will still work")
     
     # Attempt to check Telegram for signals
     try:
-        FIX_CLIENT.log("INFO", "Checking Telegram for signals...")
+        FIX_CLIENT.log("INFO", "📱 Checking Telegram for trading signals...")
         check_telegram_messages()
     except Exception as e:
-        FIX_CLIENT.log("WARNING", f"Telegram check error: {e}")
+        FIX_CLIENT.log("ERROR", f"✗ Telegram check error: {e}")
     
     # Always update dashboard with current state
     try:
         update_dashboard_files()
-        FIX_CLIENT.log("INFO", "Dashboard files updated")
+        FIX_CLIENT.log("SUCCESS", "✓ Dashboard files updated")
     except Exception as e:
-        FIX_CLIENT.log("WARNING", f"Dashboard update error: {e}")
+        FIX_CLIENT.log("ERROR", f"✗ Dashboard update error: {e}")
     
     # Cleanup
     FIX_CLIENT.disconnect()
     
-    FIX_CLIENT.log("SUCCESS", "Bot cycle completed successfully")
-    return True  # Always return True unless absolutely critical failure
+    FIX_CLIENT.log("SUCCESS", "=" * 80)
+    FIX_CLIENT.log("SUCCESS", "✓ Bot cycle completed successfully")
+    FIX_CLIENT.log("SUCCESS", "=" * 80)
+    return True
 
 if __name__ == "__main__":
     try:

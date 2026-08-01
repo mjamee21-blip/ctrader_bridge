@@ -1,4 +1,4 @@
-name: cTrader FIX API Bot & Dashboard
+name: cTrader FIX API Trading Bot
 
 on:
   workflow_dispatch:
@@ -10,56 +10,37 @@ permissions:
 
 concurrency:
   group: ctrader-bot
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   execute:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
-    
+    timeout-minutes: 5
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      
+
       - name: Setup Python 3.11
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
           cache: 'pip'
-      
-      - name: Validate required secrets
-        run: |
-          if [ -z "${{ secrets.FIX_HOST }}" ]; then
-            echo "❌ ERROR: FIX_HOST secret not set"
-            exit 1
-          fi
-          if [ -z "${{ secrets.FIX_PASSWORD }}" ]; then
-            echo "❌ ERROR: FIX_PASSWORD secret not set"
-            exit 1
-          fi
-          if [ -z "${{ secrets.FIX_SENDER_COMP_ID }}" ]; then
-            echo "❌ ERROR: FIX_SENDER_COMP_ID secret not set"
-            exit 1
-          fi
-          echo "✅ All required secrets verified"
-      
-      - name: Check requirements file
-        run: |
-          if [ ! -f requirements.txt ]; then
-            echo "❌ ERROR: requirements.txt not found"
-            exit 1
-          fi
-          echo "✅ requirements.txt found"
-      
-      - name: Install Python dependencies
+
+      - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt --timeout=30
-      
-      - name: Run Trading Bot Cycle
-        timeout-minutes: 5
+          pip install -r requirements.txt --quiet
+
+      - name: Validate secrets
+        run: |
+          [ -z "${{ secrets.FIX_HOST }}" ] && echo "ERROR: FIX_HOST not set" && exit 1
+          [ -z "${{ secrets.FIX_PASSWORD }}" ] && echo "ERROR: FIX_PASSWORD not set" && exit 1
+          [ -z "${{ secrets.FIX_SENDER_COMP_ID }}" ] && echo "ERROR: FIX_SENDER_COMP_ID not set" && exit 1
+          echo "✓ All secrets validated"
+
+      - name: Run Trading Bot
         env:
-          MODE: bot
           FIX_HOST: ${{ secrets.FIX_HOST }}
           FIX_TRADE_PORT: ${{ secrets.FIX_TRADE_PORT || '5212' }}
           FIX_QUOTE_PORT: ${{ secrets.FIX_QUOTE_PORT || '5211' }}
@@ -71,49 +52,24 @@ jobs:
           TG_CHAT: ${{ secrets.TG_CHAT }}
           CTRADER_DEFAULT_QTY: ${{ secrets.CTRADER_DEFAULT_QTY || '1.0' }}
         run: |
-          echo "🤖 Starting Trading Bot Cycle..."
-          echo "FIX_HOST: $FIX_HOST"
-          echo "FIX_TRADE_PORT: $FIX_TRADE_PORT"
-          echo "FIX_SENDER_COMP_ID: (set)"
+          echo "🤖 Starting cTrader FIX API Bot..."
           python3 ctrader_bot.py
-          # Always report success (bot handles errors internally)
-          echo "✅ Bot cycle completed"
-      
-      - name: Update Dashboard Files
-        run: |
-          if [ -d docs ]; then
-            echo "✅ Dashboard files exist"
-            ls -la docs/
-          else
-            echo "⚠️  docs directory not found"
-          fi
-      
-      - name: Commit and Push Changes
+          echo "✓ Bot cycle completed"
+
+      - name: Commit and Push Updates
         run: |
           git config --global user.email "bot@github.com"
           git config --global user.name "cTrader Bot"
-          git add docs/ 2>/dev/null || echo "No docs to add"
-          
-          if git diff --cached --quiet; then
-            echo "ℹ️  No changes to commit"
-          else
-            git commit -m "cTrader Bot Update: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
-            git push origin main || echo "⚠️  Push may have failed"
-          fi
-      
-      - name: Report Execution Status
+          git add -A 2>/dev/null || true
+          git commit -m "Bot Update: $(date -u '+%Y-%m-%d %H:%M:%S UTC')" 2>/dev/null || echo "Nothing to commit"
+          git push origin main 2>/dev/null || echo "Push failed (nothing to push)"
+
+      - name: Upload Dashboard Assets
+        uses: actions/upload-artifact@v3
         if: always()
-        run: |
-          echo "=== WORKFLOW EXECUTION REPORT ==="
-          echo "✅ Workflow completed"
-          
-          if [ -f docs/system_state.json ]; then
-            echo "✅ System state file created"
-            echo "Size: $(wc -c < docs/system_state.json) bytes"
-          fi
-          
-          if [ -f docs/heartbeat.json ]; then
-            echo "✅ Heartbeat file created"
-          fi
-          
-          echo "=== END REPORT ==="
+        with:
+          name: dashboard-state
+          path: |
+            system_state.json
+            heartbeat.log
+          retention-days: 7
