@@ -65,7 +65,7 @@ jobs:
           git push origin main 2>/dev/null || echo "Push failed (nothing to push)"
 
       - name: Upload Dashboard Assets
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: dashboard-state
