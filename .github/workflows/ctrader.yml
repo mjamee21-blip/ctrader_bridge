@@ -4,6 +4,8 @@ on:
   workflow_dispatch:
   repository_dispatch:
     types: [run-bot]
+  schedule:
+    - cron: '*/5 * * * *'
 
 permissions:
   contents: write
