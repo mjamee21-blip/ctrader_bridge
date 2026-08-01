@@ -1,14 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # cTrader FIX API Telegram Bot + Dashboard (FIX Protocol Edition)
-#
-# Configured with FIX API parameters from cTrader:
-#   Host: demo-uk-eqx-01.p.c-trader.com
-#   Trade Port: 5212 (SSL)
-#   Quote Port: 5211 (SSL)
-#   SenderCompID: demo.deriv.2454444
-#   TargetCompID: cServer
-#   SenderSubID: TRADE / QUOTE
 
 import os
 import json
@@ -41,22 +33,7 @@ FIX_PASSWORD = _clean_sec(os.environ.get("FIX_PASSWORD", os.environ.get("CT_PASS
 
 TG_TOKEN = _clean_sec(os.environ.get("TG_TOKEN", ""))
 TG_CHAT = _clean_sec(os.environ.get("TG_CHAT", ""))
-TG_API_ID = _clean_sec(os.environ.get("TG_API_ID", ""))
-TG_API_HASH = _clean_sec(os.environ.get("TG_API_HASH", ""))
-TG_SESSION = _clean_sec(os.environ.get("TG_SESSION", ""))
 
-HAS_TELETHON = False
-try:
-    from telethon import TelegramClient
-    from telethon.sessions import StringSession
-    HAS_TELETHON = True
-except Exception:
-    HAS_TELETHON = False
-
-USE_USER_ACCOUNT = bool(TG_SESSION and TG_API_ID and TG_API_HASH and HAS_TELETHON)
-
-DASHBOARD_USERNAME = _clean_sec(os.environ.get("DASHBOARD_USERNAME", "admin"))
-DASHBOARD_PASSWORD = _clean_sec(os.environ.get("DASHBOARD_PASSWORD", "changeme"))
 DEFAULT_QTY = float(os.environ.get("CTRADER_DEFAULT_QTY", "1.0") or "1.0")
 MODE = os.environ.get("MODE", "bot")
 
@@ -101,7 +78,6 @@ class CTraderFixClient:
         self.positions = []
         self.orders = []
         self.account_info = {"balance": 10000.0, "equity": 10000.0, "margin": 0.0, "freeMargin": 10000.0, "leverage": 100}
-        self.last_heartbeat = time.time()
 
     def connect(self):
         try:
@@ -119,9 +95,6 @@ class CTraderFixClient:
             
             t = threading.Thread(target=self._recv_loop, daemon=True)
             t.start()
-            
-            hb_t = threading.Thread(target=self._heartbeat_loop, daemon=True)
-            hb_t.start()
             return True
         except Exception as e:
             print(f"[FIX] Connection failed: {e}")
@@ -173,46 +146,28 @@ class CTraderFixClient:
         }
         self.send_msg("A", fields)
 
-    def send_heartbeat(self):
-        self.send_msg("0", {})
-
-    def _heartbeat_loop(self):
-        while self.connected:
-            time.sleep(25)
-            if self.connected:
-                self.send_heartbeat()
-
     def _recv_loop(self):
         buffer = b""
         while self.connected:
             try:
                 chunk = self.ssl_sock.recv(4096)
                 if not chunk:
-                    print("[FIX] Connection closed by remote host.")
                     self.connected = False
                     break
                 buffer += chunk
                 while b"\x01" in buffer:
-                    # Find complete FIX messages
-                    # Simple line / tag splitting
-                    try:
-                        idx = buffer.find(b"\x0110=")
-                        if idx != -1:
-                            end_idx = buffer.find(b"\x01", idx + 4)
-                            if end_idx != -1:
-                                raw_msg = buffer[:end_idx + 1]
-                                buffer = buffer[end_idx + 1:]
-                                self._handle_msg(raw_msg.decode('ascii', errors='ignore'))
-                            else:
-                                break
+                    idx = buffer.find(b"\x0110=")
+                    if idx != -1:
+                        end_idx = buffer.find(b"\x01", idx + 4)
+                        if end_idx != -1:
+                            raw_msg = buffer[:end_idx + 1]
+                            buffer = buffer[end_idx + 1:]
+                            self._handle_msg(raw_msg.decode('ascii', errors='ignore'))
                         else:
                             break
-                    except Exception as parse_err:
-                        print(f"[FIX] Parse error: {parse_err}")
-                        buffer = b""
+                    else:
                         break
             except Exception as e:
-                print(f"[FIX] Recv error: {e}")
                 self.connected = False
                 break
 
@@ -223,19 +178,9 @@ class CTraderFixClient:
                 k, v = part.split("=", 1)
                 tags[k] = v
         msg_type = tags.get("35")
-        print(f"[FIX IN] Type {msg_type} received. Tags: {tags}")
+        print(f"[FIX IN] Type {msg_type} received.")
         if msg_type == "A":
-            print("[FIX] Logon successful!")
-        elif msg_type == "0":
-            # Heartbeat
-            pass
-        elif msg_type == "8":
-            # Execution Report
-            exec_type = tags.get("150")
-            ord_status = tags.get("39")
-            symbol = tags.get("55")
-            cl_ord_id = tags.get("11")
-            print(f"[FIX ORDER] ExecType={exec_type}, Status={ord_status}, Symbol={symbol}, ClOrdID={cl_ord_id}")
+            print("[FIX] Logon acknowledged successfully!")
 
     def place_market_order(self, symbol, side, qty, sl=None, tp=None):
         cl_ord_id = f"BOT_{int(time.time()*1000)}"
@@ -244,8 +189,8 @@ class CTraderFixClient:
             "55": symbol,
             "54": "1" if side.upper() == "BUY" else "2",
             "38": str(qty),
-            "40": "1", # Market
-            "59": "0"  # Day
+            "40": "1",
+            "59": "0"
         }
         if sl:
             fields["99"] = str(sl)
@@ -266,9 +211,6 @@ class CTraderFixClient:
 
 FIX_CLIENT = CTraderFixClient(FIX_HOST, FIX_TRADE_PORT, FIX_SENDER_COMP_ID, FIX_TARGET_COMP_ID, FIX_SENDER_SUB_ID, FIX_PASSWORD)
 
-# =====================================================================
-# SIGNAL PARSING & TELEGRAM / DASHBOARD
-# =====================================================================
 def parse_signal(text):
     if not text:
         return None
@@ -332,52 +274,40 @@ def update_dashboard_files():
     with open("docs/heartbeat.json", "w", encoding="utf-8") as f:
         json.dump({"status": "ok", "time": datetime.now(timezone.utc).isoformat()}, f, indent=2)
 
-def telegram_polling_loop():
+def check_telegram_messages():
     if not TG_TOKEN:
-        print("[TG] No Telegram token provided. Running dashboard/bot loop without Telegram.")
+        print("[TG] No Telegram token provided.")
         return
-    print("[TG] Starting Telegram polling via Bot API...")
-    offset = 0
-    while True:
-        try:
-            url = f"https://api.telegram.org/bot{TG_TOKEN}/getUpdates?offset={offset}&timeout=30"
-            req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-            with urllib.request.urlopen(req, timeout=35) as resp:
-                data = json.loads(resp.read().decode("utf-8"))
-                if data.get("ok"):
-                    for result in data.get("result", []):
-                        offset = result["update_id"] + 1
-                        msg = result.get("message") or result.get("channel_post")
-                        if msg and "text" in msg:
-                            txt = msg["text"]
-                            print(f"[TG MSG] {txt}")
-                            sig = parse_signal(txt)
-                            if sig:
-                                execute_signal(sig)
-        except Exception as e:
-            print(f"[TG] Polling error: {e}")
-            time.sleep(5)
+    try:
+        url = f"https://api.telegram.org/bot{TG_TOKEN}/getUpdates?timeout=5"
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+            if data.get("ok"):
+                for result in data.get("result", []):
+                    msg = result.get("message") or result.get("channel_post")
+                    if msg and "text" in msg:
+                        txt = msg["text"]
+                        print(f"[TG MSG] {txt}")
+                        sig = parse_signal(txt)
+                        if sig:
+                            execute_signal(sig)
+    except Exception as e:
+        print(f"[TG] Error checking messages: {e}")
 
 def main():
     print("=" * 60)
-    print("cTrader FIX API Bot & Dashboard Starting...")
+    print("cTrader FIX API Bot & Dashboard Cycle Starting...")
     print(f"Host: {FIX_HOST}:{FIX_TRADE_PORT} | SenderCompID: {FIX_SENDER_COMP_ID}")
     print("=" * 60)
 
-    # Connect to FIX API
     FIX_CLIENT.connect()
+    time.sleep(3) # Wait for logon response
 
-    # Start Telegram thread
-    t_tg = threading.Thread(target=telegram_polling_loop, daemon=True)
-    t_tg.start()
+    check_telegram_messages()
+    update_dashboard_files()
 
-    # Main dashboard update loop
-    while True:
-        if not FIX_CLIENT.connected:
-            print("[FIX] Reconnecting to FIX API...")
-            FIX_CLIENT.connect()
-        update_dashboard_files()
-        time.sleep(10)
+    print("[CYCLE] Completed successfully. Exiting cleanly.")
 
 if __name__ == "__main__":
     main()

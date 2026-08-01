@@ -6,7 +6,6 @@ on:
 permissions:
   contents: write
 
-# Prevent overlapping runs (two bot instances polling Telegram at once causes HTTP 409 & missed signals)
 concurrency:
   group: ctrader-bot
   cancel-in-progress: true
@@ -30,19 +29,14 @@ jobs:
       - name: Run Trading Bot Cycle
         env:
           MODE: bot
-          CT_CLIENT_ID: ${{ secrets.CT_CLIENT_ID }}
-          CT_CLIENT_SECRET: ${{ secrets.CT_CLIENT_SECRET }}
-          CT_ACCESS_TOKEN: ${{ secrets.CT_ACCESS_TOKEN }}
-          CT_ACCOUNT_ID: ${{ secrets.CT_ACCOUNT_ID }}
-          CT_ENV: ${{ secrets.CT_ENV }}
-          CL_REFRESH_TOKEN: ${{ secrets.CL_REFRESH_TOKEN }}
+          FIX_HOST: ${{ secrets.FIX_HOST }}
+          FIX_TRADE_PORT: ${{ secrets.FIX_TRADE_PORT }}
+          FIX_SENDER_COMP_ID: ${{ secrets.FIX_SENDER_COMP_ID }}
+          FIX_TARGET_COMP_ID: ${{ secrets.FIX_TARGET_COMP_ID }}
+          FIX_SENDER_SUB_ID: ${{ secrets.FIX_SENDER_SUB_ID }}
+          FIX_PASSWORD: ${{ secrets.FIX_PASSWORD }}
           TG_TOKEN: ${{ secrets.TG_TOKEN }}
           TG_CHAT: ${{ secrets.TG_CHAT }}
-          TG_API_ID: ${{ secrets.TG_API_ID }}
-          TG_API_HASH: ${{ secrets.TG_API_HASH }}
-          TG_SESSION: ${{ secrets.TG_SESSION }}
-          DASHBOARD_USERNAME: ${{ secrets.DASHBOARD_USERNAME }}
-          DASHBOARD_PASSWORD: ${{ secrets.DASHBOARD_PASSWORD }}
         run: |
           echo "Starting Trading Bot..."
           python3 ctrader_bot.py
@@ -51,16 +45,14 @@ jobs:
       - name: Generate Dashboard HTML
         env:
           MODE: dashboard
-          CT_CLIENT_ID: ${{ secrets.CT_CLIENT_ID }}
-          CT_CLIENT_SECRET: ${{ secrets.CT_CLIENT_SECRET }}
-          CT_ACCESS_TOKEN: ${{ secrets.CT_ACCESS_TOKEN }}
-          CT_ACCOUNT_ID: ${{ secrets.CT_ACCOUNT_ID }}
-          CT_ENV: ${{ secrets.CT_ENV }}
-          CL_REFRESH_TOKEN: ${{ secrets.CL_REFRESH_TOKEN }}
+          FIX_HOST: ${{ secrets.FIX_HOST }}
+          FIX_TRADE_PORT: ${{ secrets.FIX_TRADE_PORT }}
+          FIX_SENDER_COMP_ID: ${{ secrets.FIX_SENDER_COMP_ID }}
+          FIX_TARGET_COMP_ID: ${{ secrets.FIX_TARGET_COMP_ID }}
+          FIX_SENDER_SUB_ID: ${{ secrets.FIX_SENDER_SUB_ID }}
+          FIX_PASSWORD: ${{ secrets.FIX_PASSWORD }}
           TG_TOKEN: ${{ secrets.TG_TOKEN }}
           TG_CHAT: ${{ secrets.TG_CHAT }}
-          DASHBOARD_USERNAME: ${{ secrets.DASHBOARD_USERNAME }}
-          DASHBOARD_PASSWORD: ${{ secrets.DASHBOARD_PASSWORD }}
         run: |
           echo "Generating Dashboard..."
           python3 ctrader_bot.py
