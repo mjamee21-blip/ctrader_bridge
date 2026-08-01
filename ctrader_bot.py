@@ -96,8 +96,8 @@ class CTraderFixClient:
             ctx.verify_mode = ssl.CERT_NONE
             self.ssl_sock = ctx.wrap_socket(self.sock, server_hostname=self.host)
             self.ssl_sock.connect((self.host, self.port))
-            self.connected = True
-            self.log("SUCCESS", f"SSL Connected successfully to {self.host}:{self.port}")
+            # Note: connected becomes True once FIX Logon response (35=A) is received
+            self.log("SUCCESS", f"SSL Connected successfully to {self.host}:{self.port}. Sending Logon...")
             self.send_logon()
             
             t = threading.Thread(target=self._recv_loop, daemon=True)
@@ -110,8 +110,8 @@ class CTraderFixClient:
 
     def send_msg(self, msg_type, fields):
         with self.lock:
-            if not self.connected or not self.ssl_sock:
-                self.log("WARNING", f"Cannot send {msg_type}: not connected.")
+            if not self.ssl_sock:
+                self.log("WARNING", f"Cannot send {msg_type}: socket not initialized.")
                 return False
             try:
                 body_parts = [
@@ -154,7 +154,7 @@ class CTraderFixClient:
 
     def _recv_loop(self):
         buffer = b""
-        while self.connected:
+        while True:
             try:
                 chunk = self.ssl_sock.recv(4096)
                 if not chunk:
@@ -185,7 +185,11 @@ class CTraderFixClient:
                 tags[k] = v
         msg_type = tags.get("35")
         if msg_type == "A":
+            self.connected = True
             self.log("SUCCESS", f"FIX Logon acknowledged successfully for {self.sender_comp_id}!")
+        elif msg_type == "0":
+            # Heartbeat acknowledgment
+            pass
 
     def place_market_order(self, symbol, side, qty, sl=None, tp=None):
         cl_ord_id = f"BOT_{int(time.time()*1000)}"
@@ -313,7 +317,12 @@ def check_telegram_messages():
 def main():
     FIX_CLIENT.log("INFO", "cTrader FIX API Bot & Dashboard Cycle Starting...")
     FIX_CLIENT.connect()
-    time.sleep(3)
+    
+    # Wait up to 8 seconds for FIX Logon acknowledgment (35=A)
+    for _ in range(8):
+        if FIX_CLIENT.connected:
+            break
+        time.sleep(1)
 
     check_telegram_messages()
     update_dashboard_files()
