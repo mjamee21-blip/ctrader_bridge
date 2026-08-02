@@ -159,6 +159,70 @@ def parse_signal(text):
         "raw": text
     }
 
+def place_order(client, symbol, side, qty, sl=None, tp=None, raw_signal=None):
+    ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
+    
+    # Check if pair is enabled
+    p_cfg = BOT.pairs_config.get(symbol.upper(), {})
+    if p_cfg.get("enabled", True) is False:
+        BOT.log("WARNING", f"⚠️ Pair {symbol} is DISABLED in settings. Skipping order.")
+        return False
+
+    if symbol.upper() in BOT.pairs_config:
+        qty = BOT.pairs_config[symbol.upper()]["lot"]
+
+    SYMBOL_IDS = {
+        "EURUSD": 1, "GBPUSD": 2, "USDJPY": 3, "AUDUSD": 4, "USDCAD": 5,
+        "NZDUSD": 6, "USDCHF": 7, "EURGBP": 8, "EURJPY": 9, "GBPJPY": 10,
+        "XAUUSD": 38, "XAGUSD": 39, "BTCUSD": 22, "ETHUSD": 28, "USOIL": 50,
+        "NAS100": 10001, "US30": 10002, "SPX500": 10003, "GER40": 10004
+    }
+    symbol_id = SYMBOL_IDS.get(symbol.upper(), 1)
+    volume = int(float(qty) * 100000)
+    trade_side = 1 if side.upper() == "BUY" else 2
+
+    order_id = f"BOT_{int(time.time()*1000)}"
+    BOT.log("INFO", f"🚀 Sending order to cTrader OpenAPI: {side} {qty} lots ({volume} units) of {symbol} (ID: {symbol_id})")
+
+    d = client.send(
+        "ProtoOANewOrderReq",
+        ctidTraderAccountId=CT_ACCOUNT_ID,
+        symbolId=symbol_id,
+        orderType="MARKET",
+        tradeSide=trade_side,
+        volume=volume
+    )
+
+    trade = {
+        "orderId": order_id,
+        "symbol": symbol,
+        "side": side,
+        "qty": qty,
+        "sl": sl,
+        "tp": tp,
+        "status": "PENDING",
+        "sentTime": ts,
+        "filledTime": None,
+        "rawSignal": raw_signal or ""
+    }
+    BOT.trades.appendleft(trade)
+    BOT.backend_events.appendleft({"time": ts, "event": f"Order {order_id} sent: {side} {qty} {symbol}", "type": "order"})
+
+    def on_success(msg):
+        BOT.log("SUCCESS", f"✅ Order executed successfully: {msg}")
+        trade["status"] = "FILLED"
+        trade["filledTime"] = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
+        save_state()
+
+    def on_error(err):
+        BOT.error(f"Order execution failed: {err}")
+        trade["status"] = "REJECTED"
+        save_state()
+
+    d.addCallback(on_success)
+    d.addErrback(on_error)
+    return True
+
 def check_telegram(client):
     if not TG_TOKEN:
         BOT.log("WARNING", "⚠️ TG_TOKEN not set, skipping Telegram check")
@@ -170,10 +234,8 @@ def check_telegram(client):
         req = urllib.request.Request(f"{url}?{params}", headers={"User-Agent": "Mozilla/5.0"})
         with urllib.request.urlopen(req, timeout=10) as resp:
             data = json.loads(resp.read().decode("utf-8"))
-            BOT.log("DEBUG", f"Telegram getUpdates response: {data}")
             if data.get("ok"):
                 results = data.get("result", [])
-                BOT.log("INFO", f"📱 Telegram getUpdates returned {len(results)} messages")
                 for result in results:
                     msg = result.get("message") or result.get("channel_post")
                     if msg and "text" in msg:
@@ -190,6 +252,7 @@ def check_telegram(client):
                         BOT.backend_events.appendleft({"time": ts, "event": f"Signal received: {text[:50]}...", "type": "signal"})
                         if signal:
                             BOT.log("INFO", f"📨 Signal: {signal['side']} {signal['qty']} {signal['symbol']}")
+                            place_order(client, signal['symbol'], signal['side'], signal['qty'], signal['sl'], signal['tp'], text)
     except Exception as e:
         BOT.error(f"Telegram check failed: {str(e)}")
 
