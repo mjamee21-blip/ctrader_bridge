@@ -1,5 +1,6 @@
 {
-  "connected": false,
+  "connected": true,
+  "loggedIn": false,
   "account": {
     "balance": 10000.0,
     "equity": 10000.0,
@@ -7,180 +8,79 @@
     "freeMargin": 10000.0,
     "leverage": 100
   },
-  "trades": [
-    {
-      "orderId": "BOT_1785678152791",
-      "symbol": "BTCUSD",
-      "side": "BUY",
-      "qty": 0.1,
-      "sl": null,
-      "tp": null,
-      "status": "PENDING",
-      "sentTime": "2026-08-02 13:42:32 UTC",
-      "filledTime": null,
-      "rawSignal": "Buy BTCUSD now"
-    }
-  ],
-  "signals": [
-    {
-      "time": "2026-08-02 13:42:32 UTC",
-      "text": "Buy BTCUSD now",
-      "parsed": true,
-      "signal": {
-        "side": "BUY",
-        "symbol": "BTCUSD",
-        "qty": 0.1,
-        "sl": null,
-        "tp": null,
-        "raw": "Buy BTCUSD now"
-      }
-    }
-  ],
+  "trades": [],
+  "signals": [],
   "logs": [
     {
-      "time": "2026-08-02 13:42:32 UTC",
+      "time": "2026-08-02 23:02:28 UTC",
       "level": "INFO",
-      "message": "\ud83d\udcbe Saving state..."
+      "message": "Sent Application Authorization Request"
     },
     {
-      "time": "2026-08-02 13:42:32 UTC",
-      "level": "INFO",
-      "message": "\ud83d\udce8 Signal: BUY 0.1 BTCUSD"
-    },
-    {
-      "time": "2026-08-02 13:42:32 UTC",
-      "level": "INFO",
-      "message": "\ud83d\udcf1 Checking Telegram..."
-    },
-    {
-      "time": "2026-08-02 13:42:29 UTC",
-      "level": "INFO",
-      "message": "Logon message sent"
-    },
-    {
-      "time": "2026-08-02 13:42:29 UTC",
-      "level": "DEBUG",
-      "message": "Sent FIX A (120 bytes)"
-    },
-    {
-      "time": "2026-08-02 13:42:29 UTC",
+      "time": "2026-08-02 23:02:28 UTC",
       "level": "SUCCESS",
-      "message": "\u2705 SSL Connected successfully"
+      "message": "\u2705 Connected to cTrader OpenAPI WebSocket"
     },
     {
-      "time": "2026-08-02 13:42:29 UTC",
+      "time": "2026-08-02 23:02:28 UTC",
       "level": "INFO",
-      "message": "\ud83d\udd0c Connecting to demo-uk-eqx-01.p.c-trader.com:5212..."
+      "message": "\ud83d\udd0c Connecting to cTrader OpenAPI WebSocket at wss://demo.ctraderapi.com:5035..."
     },
     {
-      "time": "2026-08-02 13:42:29 UTC",
+      "time": "2026-08-02 23:02:28 UTC",
       "level": "INFO",
       "message": "================================================================================"
     },
     {
-      "time": "2026-08-02 13:42:29 UTC",
+      "time": "2026-08-02 23:02:28 UTC",
       "level": "INFO",
-      "message": "\ud83e\udd16 cTrader FIX API Bot STARTING"
+      "message": "\ud83e\udd16 cTrader OpenAPI Bot STARTING"
     },
     {
-      "time": "2026-08-02 13:42:29 UTC",
+      "time": "2026-08-02 23:02:28 UTC",
       "level": "INFO",
       "message": "================================================================================"
     }
   ],
   "errors": [
     {
-      "time": "2026-08-02 13:42:32 UTC",
-      "error": "Failed to send order: BUY 0.1 BTCUSD"
-    },
-    {
-      "time": "2026-08-02 13:42:32 UTC",
-      "error": "Cannot send: not connected"
+      "time": "2026-08-02 23:02:29 UTC",
+      "error": "OpenAPI Connection/Auth error: received 1000 (OK) Bye; then sent 1000 (OK) Bye"
     }
   ],
   "backendEvents": [
     {
-      "time": "2026-08-02 13:42:32 UTC",
-      "event": "[INFO] \ud83d\udcbe Saving state...",
-      "type": "log"
-    },
-    {
-      "time": "2026-08-02 13:42:32 UTC",
-      "event": "ERROR: Failed to send order: BUY 0.1 BTCUSD",
+      "time": "2026-08-02 23:02:29 UTC",
+      "event": "ERROR: OpenAPI Connection/Auth error: received 1000 (OK) Bye; then sent 1000 (OK) Bye",
       "type": "error"
     },
     {
-      "time": "2026-08-02 13:42:32 UTC",
-      "event": "Order BOT_1785678152791 placed: BUY 0.1 BTCUSD",
-      "type": "order"
-    },
-    {
-      "time": "2026-08-02 13:42:32 UTC",
-      "event": "ERROR: Cannot send: not connected",
-      "type": "error"
-    },
-    {
-      "time": "2026-08-02 13:42:32 UTC",
-      "event": "[INFO] \ud83d\udce8 Signal: BUY 0.1 BTCUSD",
+      "time": "2026-08-02 23:02:28 UTC",
+      "event": "[INFO] Sent Application Authorization Request",
       "type": "log"
     },
     {
-      "time": "2026-08-02 13:42:32 UTC",
-      "event": "Signal received: Buy BTCUSD now...",
-      "type": "signal"
-    },
-    {
-      "time": "2026-08-02 13:42:32 UTC",
-      "event": "[INFO] \ud83d\udcf1 Checking Telegram...",
+      "time": "2026-08-02 23:02:28 UTC",
+      "event": "[SUCCESS] \u2705 Connected to cTrader OpenAPI WebSocket",
       "type": "log"
     },
     {
-      "time": "2026-08-02 13:42:29 UTC",
-      "event": "[INFO] Logon message sent",
+      "time": "2026-08-02 23:02:28 UTC",
+      "event": "[INFO] \ud83d\udd0c Connecting to cTrader OpenAPI WebSocket at wss://demo.ctraderapi.com:5035...",
       "type": "log"
     },
     {
-      "time": "2026-08-02 13:42:29 UTC",
-      "event": "[DEBUG] Sent FIX A (120 bytes)",
-      "type": "log"
-    },
-    {
-      "time": "2026-08-02 13:42:29 UTC",
-      "event": "Sending LOGON message",
-      "type": "fix"
-    },
-    {
-      "time": "2026-08-02 13:42:29 UTC",
-      "event": "SSL handshake complete",
-      "type": "connection"
-    },
-    {
-      "time": "2026-08-02 13:42:29 UTC",
-      "event": "[SUCCESS] \u2705 SSL Connected successfully",
-      "type": "log"
-    },
-    {
-      "time": "2026-08-02 13:42:29 UTC",
-      "event": "Initiating SSL connection",
-      "type": "connection"
-    },
-    {
-      "time": "2026-08-02 13:42:29 UTC",
-      "event": "[INFO] \ud83d\udd0c Connecting to demo-uk-eqx-01.p.c-trader.com:5212...",
-      "type": "log"
-    },
-    {
-      "time": "2026-08-02 13:42:29 UTC",
+      "time": "2026-08-02 23:02:28 UTC",
       "event": "[INFO] ================================================================================",
       "type": "log"
     },
     {
-      "time": "2026-08-02 13:42:29 UTC",
-      "event": "[INFO] \ud83e\udd16 cTrader FIX API Bot STARTING",
+      "time": "2026-08-02 23:02:28 UTC",
+      "event": "[INFO] \ud83e\udd16 cTrader OpenAPI Bot STARTING",
       "type": "log"
     },
     {
-      "time": "2026-08-02 13:42:29 UTC",
+      "time": "2026-08-02 23:02:28 UTC",
       "event": "[INFO] ================================================================================",
       "type": "log"
     }
@@ -211,6 +111,56 @@
       "enabled": true,
       "category": "Forex"
     },
+    "AUDUSD": {
+      "lot": 0.01,
+      "enabled": true,
+      "category": "Forex"
+    },
+    "USDCAD": {
+      "lot": 0.01,
+      "enabled": true,
+      "category": "Forex"
+    },
+    "NZDUSD": {
+      "lot": 0.01,
+      "enabled": true,
+      "category": "Forex"
+    },
+    "USDCHF": {
+      "lot": 0.01,
+      "enabled": true,
+      "category": "Forex"
+    },
+    "EURGBP": {
+      "lot": 0.01,
+      "enabled": true,
+      "category": "Forex"
+    },
+    "EURJPY": {
+      "lot": 0.01,
+      "enabled": true,
+      "category": "Forex"
+    },
+    "GBPJPY": {
+      "lot": 0.01,
+      "enabled": true,
+      "category": "Forex"
+    },
+    "AUDJPY": {
+      "lot": 0.01,
+      "enabled": true,
+      "category": "Forex"
+    },
+    "EURAUD": {
+      "lot": 0.01,
+      "enabled": true,
+      "category": "Forex"
+    },
+    "EURCAD": {
+      "lot": 0.01,
+      "enabled": true,
+      "category": "Forex"
+    },
     "BTCUSD": {
       "lot": 0.1,
       "enabled": true,
@@ -221,7 +171,22 @@
       "enabled": true,
       "category": "Crypto"
     },
+    "LTCUSD": {
+      "lot": 0.1,
+      "enabled": true,
+      "category": "Crypto"
+    },
+    "XRPUSD": {
+      "lot": 10.0,
+      "enabled": true,
+      "category": "Crypto"
+    },
     "USOIL": {
+      "lot": 0.1,
+      "enabled": true,
+      "category": "Commodity"
+    },
+    "UKOIL": {
       "lot": 0.1,
       "enabled": true,
       "category": "Commodity"
@@ -235,7 +200,17 @@
       "lot": 0.1,
       "enabled": true,
       "category": "Indices"
+    },
+    "SPX500": {
+      "lot": 0.1,
+      "enabled": true,
+      "category": "Indices"
+    },
+    "GER40": {
+      "lot": 0.1,
+      "enabled": true,
+      "category": "Indices"
     }
   },
-  "lastUpdate": "2026-08-02T13:42:32.791638+00:00"
+  "lastUpdate": "2026-08-02T23:02:29.004908+00:00"
 }
