@@ -1,11 +1,11 @@
 # cTrader FIX API Bot & Dashboard
 
-A Telegram trading bot that connects directly to cTrader via the **FIX API**, plus an auto-updating dashboard.
+A Telegram trading bot that connects directly to cTrader via the industry-standard **FIX API (Financial Information Exchange v4.4)**, designed for advanced trading robots, algorithmic execution, and real-time state synchronization.
 
-## ✨ Features
-- 🔌 **cTrader FIX API Connection** — Secure SSL TCP connection (`demo-uk-eqx-01.p.c-trader.com:5212`) using FIX 4.4 protocol, Logon (`35=A`), and automated heartbeats.
-- ⚡ **Market Execution** — Places market orders (`35=D` New Order Single) immediately from Telegram signals with SL and TP.
-- 📊 **Dashboard & State Sync** — Generates [`docs/system_state.json`](docs/system_state.json) and [`docs/index.html`](docs/index.html) for live monitoring.
+## ✨ Features & Alignment with cTrader FIX API Specifications
+- 🔌 **FIX 4.4 Protocol Connection** — Secure SSL TCP connection (`demo-uk-eqx-01.p.c-trader.com:5212`) adhering to the official cTrader FIX API Getting Started specifications (Logon [`35=A`](ctrader_bot.py:362), Session management, and heartbeats).
+- ⚡ **Advanced Trading Robot / Algorithmic Execution** — Instantly parses Telegram signals and executes market orders (`35=D` New Order Single) with Stop Loss and Take Profit.
+- 📊 **Dashboard & State Sync** — Generates [`docs/system_state.json`](docs/system_state.json) and [`docs/index.html`](docs/index.html) for live institutional-grade monitoring.
 
 ## 📦 Setup Instructions
 

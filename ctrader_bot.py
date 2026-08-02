@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # cTrader FIX API Bot - Complete Signal & Trade Tracking
+# Fully aligned with cTrader FIX API v4.4 Getting Started specifications
+# Supports advanced trading robots, institutional connectivity, and secure SSL execution.
 import os
 import json
 import re
@@ -17,6 +19,19 @@ from collections import deque
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
+
+# Load .env if present
+if os.path.exists(".env"):
+    try:
+        with open(".env", "r") as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith("#") and "=" in line:
+                    k, v = line.split("=", 1)
+                    os.environ[k.strip()] = v.strip().strip('"').strip("'")
+        print("[INFO] Loaded environment variables from .env")
+    except Exception as e:
+        print(f"[WARNING] Failed to load .env: {e}")
 
 def _clean_sec(val):
     return str(val or "").strip().strip('"').strip("'").strip()
@@ -114,14 +129,20 @@ class CTraderFIXBot:
         entry = {"time": ts, "level": level, "message": msg}
         self.logs.appendleft(entry)
         self.backend_events.appendleft({"time": ts, "event": f"[{level}] {msg}", "type": "log"})
-        print(f"[{level}] {msg}")
+        try:
+            print(f"[{level}] {msg}")
+        except UnicodeEncodeError:
+            print(f"[{level}] {msg}".encode('ascii', 'ignore').decode('ascii'))
 
     def error(self, msg):
         ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
         entry = {"time": ts, "error": msg}
         self.errors.appendleft(entry)
         self.backend_events.appendleft({"time": ts, "event": f"ERROR: {msg}", "type": "error"})
-        print(f"[ERROR] {msg}")
+        try:
+            print(f"[ERROR] {msg}")
+        except UnicodeEncodeError:
+            print(f"[ERROR] {msg}".encode('ascii', 'ignore').decode('ascii'))
 
     def connect(self):
         try:
