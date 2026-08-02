@@ -161,15 +161,20 @@ def parse_signal(text):
 
 def check_telegram(client):
     if not TG_TOKEN:
+        BOT.log("WARNING", "⚠️ TG_TOKEN not set, skipping Telegram check")
         return
     try:
+        BOT.log("INFO", "📱 Checking Telegram updates...")
         url = f"https://api.telegram.org/bot{TG_TOKEN}/getUpdates"
         params = urllib.parse.urlencode({"timeout": "5"})
         req = urllib.request.Request(f"{url}?{params}", headers={"User-Agent": "Mozilla/5.0"})
         with urllib.request.urlopen(req, timeout=10) as resp:
             data = json.loads(resp.read().decode("utf-8"))
+            BOT.log("DEBUG", f"Telegram getUpdates response: {data}")
             if data.get("ok"):
-                for result in data.get("result", []):
+                results = data.get("result", [])
+                BOT.log("INFO", f"📱 Telegram getUpdates returned {len(results)} messages")
+                for result in results:
                     msg = result.get("message") or result.get("channel_post")
                     if msg and "text" in msg:
                         text = msg["text"]
