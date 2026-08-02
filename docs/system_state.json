@@ -9,69 +9,69 @@
   },
   "trades": [
     {
-      "orderId": "BOT_1785637471442",
+      "orderId": "BOT_1785637594835",
       "symbol": "BTCUSD",
       "side": "BUY",
       "qty": 0.1,
       "sl": null,
       "tp": null,
       "status": "PENDING",
-      "sentTime": "2026-08-02 02:24:31 UTC",
+      "sentTime": "2026-08-02 02:26:34 UTC",
       "filledTime": null,
       "rawSignal": "Buy BTCUSD now"
     },
     {
-      "orderId": "BOT_1785637471442",
+      "orderId": "BOT_1785637594835",
       "symbol": "BTCUSD",
       "side": "BUY",
       "qty": 0.1,
       "sl": null,
       "tp": null,
       "status": "PENDING",
-      "sentTime": "2026-08-02 02:24:31 UTC",
+      "sentTime": "2026-08-02 02:26:34 UTC",
       "filledTime": null,
       "rawSignal": "Buy BTC now 1"
     },
     {
-      "orderId": "BOT_1785637471442",
+      "orderId": "BOT_1785637594835",
       "symbol": "BTCUSD",
       "side": "BUY",
       "qty": 0.1,
       "sl": null,
       "tp": null,
       "status": "PENDING",
-      "sentTime": "2026-08-02 02:24:31 UTC",
+      "sentTime": "2026-08-02 02:26:34 UTC",
       "filledTime": null,
       "rawSignal": "Buy BTCUSD now"
     },
     {
-      "orderId": "BOT_1785637471442",
+      "orderId": "BOT_1785637594835",
       "symbol": "BTCUSD",
       "side": "BUY",
       "qty": 0.1,
       "sl": null,
       "tp": null,
       "status": "PENDING",
-      "sentTime": "2026-08-02 02:24:31 UTC",
+      "sentTime": "2026-08-02 02:26:34 UTC",
       "filledTime": null,
       "rawSignal": "Buy BTCUSD now"
     },
     {
-      "orderId": "BOT_1785637471442",
+      "orderId": "BOT_1785637594835",
       "symbol": "BTCUSD",
       "side": "BUY",
       "qty": 0.1,
       "sl": null,
       "tp": null,
       "status": "PENDING",
-      "sentTime": "2026-08-02 02:24:31 UTC",
+      "sentTime": "2026-08-02 02:26:34 UTC",
       "filledTime": null,
       "rawSignal": "Buy BTCUSD now"
     }
   ],
   "signals": [
     {
-      "time": "2026-08-02 02:24:31 UTC",
+      "time": "2026-08-02 02:26:34 UTC",
       "text": "Buy BTCUSD now",
       "parsed": true,
       "signal": {
@@ -84,7 +84,7 @@
       }
     },
     {
-      "time": "2026-08-02 02:24:31 UTC",
+      "time": "2026-08-02 02:26:34 UTC",
       "text": "Buy BTC now 1",
       "parsed": true,
       "signal": {
@@ -97,7 +97,7 @@
       }
     },
     {
-      "time": "2026-08-02 02:24:31 UTC",
+      "time": "2026-08-02 02:26:34 UTC",
       "text": "Buy BTCUSD now",
       "parsed": true,
       "signal": {
@@ -110,7 +110,7 @@
       }
     },
     {
-      "time": "2026-08-02 02:24:31 UTC",
+      "time": "2026-08-02 02:26:34 UTC",
       "text": "Buy BTCUSD now",
       "parsed": true,
       "signal": {
@@ -123,7 +123,7 @@
       }
     },
     {
-      "time": "2026-08-02 02:24:31 UTC",
+      "time": "2026-08-02 02:26:34 UTC",
       "text": "Buy BTCUSD now",
       "parsed": true,
       "signal": {
@@ -138,304 +138,304 @@
   ],
   "logs": [
     {
-      "time": "2026-08-02 02:24:31 UTC",
+      "time": "2026-08-02 02:26:34 UTC",
       "level": "INFO",
       "message": "\ud83d\udcbe Saving state..."
     },
     {
-      "time": "2026-08-02 02:24:31 UTC",
+      "time": "2026-08-02 02:26:34 UTC",
       "level": "INFO",
       "message": "\ud83d\udce8 Signal: BUY 0.1 BTCUSD"
     },
     {
-      "time": "2026-08-02 02:24:31 UTC",
+      "time": "2026-08-02 02:26:34 UTC",
       "level": "INFO",
       "message": "\ud83d\udce8 Signal: BUY 0.1 BTCUSD"
     },
     {
-      "time": "2026-08-02 02:24:31 UTC",
+      "time": "2026-08-02 02:26:34 UTC",
       "level": "INFO",
       "message": "\ud83d\udce8 Signal: BUY 0.1 BTCUSD"
     },
     {
-      "time": "2026-08-02 02:24:31 UTC",
+      "time": "2026-08-02 02:26:34 UTC",
       "level": "INFO",
       "message": "\ud83d\udce8 Signal: BUY 0.1 BTCUSD"
     },
     {
-      "time": "2026-08-02 02:24:31 UTC",
+      "time": "2026-08-02 02:26:34 UTC",
       "level": "INFO",
       "message": "\ud83d\udce8 Signal: BUY 0.1 BTCUSD"
     },
     {
-      "time": "2026-08-02 02:24:31 UTC",
+      "time": "2026-08-02 02:26:34 UTC",
       "level": "INFO",
       "message": "\ud83d\udcf1 Checking Telegram..."
     },
     {
-      "time": "2026-08-02 02:24:28 UTC",
+      "time": "2026-08-02 02:26:31 UTC",
       "level": "INFO",
       "message": "Logon message sent"
     },
     {
-      "time": "2026-08-02 02:24:28 UTC",
+      "time": "2026-08-02 02:26:31 UTC",
       "level": "DEBUG",
       "message": "Sent FIX A (120 bytes)"
     },
     {
-      "time": "2026-08-02 02:24:28 UTC",
+      "time": "2026-08-02 02:26:31 UTC",
       "level": "SUCCESS",
       "message": "\u2705 SSL Connected successfully"
     },
     {
-      "time": "2026-08-02 02:24:27 UTC",
+      "time": "2026-08-02 02:26:31 UTC",
       "level": "INFO",
       "message": "\ud83d\udd0c Connecting to demo-uk-eqx-01.p.c-trader.com:5212..."
     },
     {
-      "time": "2026-08-02 02:24:27 UTC",
+      "time": "2026-08-02 02:26:31 UTC",
       "level": "INFO",
       "message": "================================================================================"
     },
     {
-      "time": "2026-08-02 02:24:27 UTC",
+      "time": "2026-08-02 02:26:31 UTC",
       "level": "INFO",
       "message": "\ud83e\udd16 cTrader FIX API Bot STARTING"
     },
     {
-      "time": "2026-08-02 02:24:27 UTC",
+      "time": "2026-08-02 02:26:31 UTC",
       "level": "INFO",
       "message": "================================================================================"
     }
   ],
   "errors": [
     {
-      "time": "2026-08-02 02:24:31 UTC",
+      "time": "2026-08-02 02:26:34 UTC",
       "error": "Failed to send order: BUY 0.1 BTCUSD"
     },
     {
-      "time": "2026-08-02 02:24:31 UTC",
+      "time": "2026-08-02 02:26:34 UTC",
       "error": "Cannot send: not connected"
     },
     {
-      "time": "2026-08-02 02:24:31 UTC",
+      "time": "2026-08-02 02:26:34 UTC",
       "error": "Failed to send order: BUY 0.1 BTCUSD"
     },
     {
-      "time": "2026-08-02 02:24:31 UTC",
+      "time": "2026-08-02 02:26:34 UTC",
       "error": "Cannot send: not connected"
     },
     {
-      "time": "2026-08-02 02:24:31 UTC",
+      "time": "2026-08-02 02:26:34 UTC",
       "error": "Failed to send order: BUY 0.1 BTCUSD"
     },
     {
-      "time": "2026-08-02 02:24:31 UTC",
+      "time": "2026-08-02 02:26:34 UTC",
       "error": "Cannot send: not connected"
     },
     {
-      "time": "2026-08-02 02:24:31 UTC",
+      "time": "2026-08-02 02:26:34 UTC",
       "error": "Failed to send order: BUY 0.1 BTCUSD"
     },
     {
-      "time": "2026-08-02 02:24:31 UTC",
+      "time": "2026-08-02 02:26:34 UTC",
       "error": "Cannot send: not connected"
     },
     {
-      "time": "2026-08-02 02:24:31 UTC",
+      "time": "2026-08-02 02:26:34 UTC",
       "error": "Failed to send order: BUY 0.1 BTCUSD"
     },
     {
-      "time": "2026-08-02 02:24:31 UTC",
+      "time": "2026-08-02 02:26:34 UTC",
       "error": "Cannot send: not connected"
     }
   ],
   "backendEvents": [
     {
-      "time": "2026-08-02 02:24:31 UTC",
+      "time": "2026-08-02 02:26:34 UTC",
       "event": "[INFO] \ud83d\udcbe Saving state...",
       "type": "log"
     },
     {
-      "time": "2026-08-02 02:24:31 UTC",
+      "time": "2026-08-02 02:26:34 UTC",
       "event": "ERROR: Failed to send order: BUY 0.1 BTCUSD",
       "type": "error"
     },
     {
-      "time": "2026-08-02 02:24:31 UTC",
-      "event": "Order BOT_1785637471442 placed: BUY 0.1 BTCUSD",
+      "time": "2026-08-02 02:26:34 UTC",
+      "event": "Order BOT_1785637594835 placed: BUY 0.1 BTCUSD",
       "type": "order"
     },
     {
-      "time": "2026-08-02 02:24:31 UTC",
+      "time": "2026-08-02 02:26:34 UTC",
       "event": "ERROR: Cannot send: not connected",
       "type": "error"
     },
     {
-      "time": "2026-08-02 02:24:31 UTC",
+      "time": "2026-08-02 02:26:34 UTC",
       "event": "[INFO] \ud83d\udce8 Signal: BUY 0.1 BTCUSD",
       "type": "log"
     },
     {
-      "time": "2026-08-02 02:24:31 UTC",
+      "time": "2026-08-02 02:26:34 UTC",
       "event": "Signal received: Buy BTCUSD now...",
       "type": "signal"
     },
     {
-      "time": "2026-08-02 02:24:31 UTC",
+      "time": "2026-08-02 02:26:34 UTC",
       "event": "ERROR: Failed to send order: BUY 0.1 BTCUSD",
       "type": "error"
     },
     {
-      "time": "2026-08-02 02:24:31 UTC",
-      "event": "Order BOT_1785637471442 placed: BUY 0.1 BTCUSD",
+      "time": "2026-08-02 02:26:34 UTC",
+      "event": "Order BOT_1785637594835 placed: BUY 0.1 BTCUSD",
       "type": "order"
     },
     {
-      "time": "2026-08-02 02:24:31 UTC",
+      "time": "2026-08-02 02:26:34 UTC",
       "event": "ERROR: Cannot send: not connected",
       "type": "error"
     },
     {
-      "time": "2026-08-02 02:24:31 UTC",
+      "time": "2026-08-02 02:26:34 UTC",
       "event": "[INFO] \ud83d\udce8 Signal: BUY 0.1 BTCUSD",
       "type": "log"
     },
     {
-      "time": "2026-08-02 02:24:31 UTC",
+      "time": "2026-08-02 02:26:34 UTC",
       "event": "Signal received: Buy BTC now 1...",
       "type": "signal"
     },
     {
-      "time": "2026-08-02 02:24:31 UTC",
+      "time": "2026-08-02 02:26:34 UTC",
       "event": "ERROR: Failed to send order: BUY 0.1 BTCUSD",
       "type": "error"
     },
     {
-      "time": "2026-08-02 02:24:31 UTC",
-      "event": "Order BOT_1785637471442 placed: BUY 0.1 BTCUSD",
+      "time": "2026-08-02 02:26:34 UTC",
+      "event": "Order BOT_1785637594835 placed: BUY 0.1 BTCUSD",
       "type": "order"
     },
     {
-      "time": "2026-08-02 02:24:31 UTC",
+      "time": "2026-08-02 02:26:34 UTC",
       "event": "ERROR: Cannot send: not connected",
       "type": "error"
     },
     {
-      "time": "2026-08-02 02:24:31 UTC",
+      "time": "2026-08-02 02:26:34 UTC",
       "event": "[INFO] \ud83d\udce8 Signal: BUY 0.1 BTCUSD",
       "type": "log"
     },
     {
-      "time": "2026-08-02 02:24:31 UTC",
+      "time": "2026-08-02 02:26:34 UTC",
       "event": "Signal received: Buy BTCUSD now...",
       "type": "signal"
     },
     {
-      "time": "2026-08-02 02:24:31 UTC",
+      "time": "2026-08-02 02:26:34 UTC",
       "event": "ERROR: Failed to send order: BUY 0.1 BTCUSD",
       "type": "error"
     },
     {
-      "time": "2026-08-02 02:24:31 UTC",
-      "event": "Order BOT_1785637471442 placed: BUY 0.1 BTCUSD",
+      "time": "2026-08-02 02:26:34 UTC",
+      "event": "Order BOT_1785637594835 placed: BUY 0.1 BTCUSD",
       "type": "order"
     },
     {
-      "time": "2026-08-02 02:24:31 UTC",
+      "time": "2026-08-02 02:26:34 UTC",
       "event": "ERROR: Cannot send: not connected",
       "type": "error"
     },
     {
-      "time": "2026-08-02 02:24:31 UTC",
+      "time": "2026-08-02 02:26:34 UTC",
       "event": "[INFO] \ud83d\udce8 Signal: BUY 0.1 BTCUSD",
       "type": "log"
     },
     {
-      "time": "2026-08-02 02:24:31 UTC",
+      "time": "2026-08-02 02:26:34 UTC",
       "event": "Signal received: Buy BTCUSD now...",
       "type": "signal"
     },
     {
-      "time": "2026-08-02 02:24:31 UTC",
+      "time": "2026-08-02 02:26:34 UTC",
       "event": "ERROR: Failed to send order: BUY 0.1 BTCUSD",
       "type": "error"
     },
     {
-      "time": "2026-08-02 02:24:31 UTC",
-      "event": "Order BOT_1785637471442 placed: BUY 0.1 BTCUSD",
+      "time": "2026-08-02 02:26:34 UTC",
+      "event": "Order BOT_1785637594835 placed: BUY 0.1 BTCUSD",
       "type": "order"
     },
     {
-      "time": "2026-08-02 02:24:31 UTC",
+      "time": "2026-08-02 02:26:34 UTC",
       "event": "ERROR: Cannot send: not connected",
       "type": "error"
     },
     {
-      "time": "2026-08-02 02:24:31 UTC",
+      "time": "2026-08-02 02:26:34 UTC",
       "event": "[INFO] \ud83d\udce8 Signal: BUY 0.1 BTCUSD",
       "type": "log"
     },
     {
-      "time": "2026-08-02 02:24:31 UTC",
+      "time": "2026-08-02 02:26:34 UTC",
       "event": "Signal received: Buy BTCUSD now...",
       "type": "signal"
     },
     {
-      "time": "2026-08-02 02:24:31 UTC",
+      "time": "2026-08-02 02:26:34 UTC",
       "event": "[INFO] \ud83d\udcf1 Checking Telegram...",
       "type": "log"
     },
     {
-      "time": "2026-08-02 02:24:28 UTC",
+      "time": "2026-08-02 02:26:31 UTC",
       "event": "[INFO] Logon message sent",
       "type": "log"
     },
     {
-      "time": "2026-08-02 02:24:28 UTC",
+      "time": "2026-08-02 02:26:31 UTC",
       "event": "[DEBUG] Sent FIX A (120 bytes)",
       "type": "log"
     },
     {
-      "time": "2026-08-02 02:24:28 UTC",
+      "time": "2026-08-02 02:26:31 UTC",
       "event": "Sending LOGON message",
       "type": "fix"
     },
     {
-      "time": "2026-08-02 02:24:28 UTC",
+      "time": "2026-08-02 02:26:31 UTC",
       "event": "SSL handshake complete",
       "type": "connection"
     },
     {
-      "time": "2026-08-02 02:24:28 UTC",
+      "time": "2026-08-02 02:26:31 UTC",
       "event": "[SUCCESS] \u2705 SSL Connected successfully",
       "type": "log"
     },
     {
-      "time": "2026-08-02 02:24:27 UTC",
+      "time": "2026-08-02 02:26:31 UTC",
       "event": "Initiating SSL connection",
       "type": "connection"
     },
     {
-      "time": "2026-08-02 02:24:27 UTC",
+      "time": "2026-08-02 02:26:31 UTC",
       "event": "[INFO] \ud83d\udd0c Connecting to demo-uk-eqx-01.p.c-trader.com:5212...",
       "type": "log"
     },
     {
-      "time": "2026-08-02 02:24:27 UTC",
+      "time": "2026-08-02 02:26:31 UTC",
       "event": "[INFO] ================================================================================",
       "type": "log"
     },
     {
-      "time": "2026-08-02 02:24:27 UTC",
+      "time": "2026-08-02 02:26:31 UTC",
       "event": "[INFO] \ud83e\udd16 cTrader FIX API Bot STARTING",
       "type": "log"
     },
     {
-      "time": "2026-08-02 02:24:27 UTC",
+      "time": "2026-08-02 02:26:31 UTC",
       "event": "[INFO] ================================================================================",
       "type": "log"
     }
   ],
-  "lastUpdate": "2026-08-02T02:24:31.442797+00:00"
+  "lastUpdate": "2026-08-02T02:26:34.835531+00:00"
 }
