@@ -11,7 +11,7 @@
   "trades": [],
   "signals": [
     {
-      "time": "2026-08-02 23:36:59 UTC",
+      "time": "2026-08-02 23:38:34 UTC",
       "text": "\ud83d\udfe2 BUY BTC/USD\n\nEntry: MARKET (Ref: 63542.65)\nSL: 63322.23\nTP: 63792.45\nRR: 1:1.13\n\nSignals are news-filtered and system-link compatible.\n\nUsers may use their own copy system by their own choice. Some solutions are available here: Telegram Bot",
       "parsed": true,
       "signal": {
@@ -26,37 +26,37 @@
   ],
   "logs": [
     {
-      "time": "2026-08-02 23:36:59 UTC",
+      "time": "2026-08-02 23:38:34 UTC",
       "level": "INFO",
       "message": "\ud83d\udce8 Signal: BUY 0.1 BTCUSD"
     },
     {
-      "time": "2026-08-02 23:36:59 UTC",
+      "time": "2026-08-02 23:38:34 UTC",
       "level": "SUCCESS",
       "message": "\ud83d\udd10 Account Authorized successfully"
     },
     {
-      "time": "2026-08-02 23:36:58 UTC",
+      "time": "2026-08-02 23:38:33 UTC",
       "level": "SUCCESS",
       "message": "\ud83d\udd10 Application Authorized successfully"
     },
     {
-      "time": "2026-08-02 23:36:57 UTC",
+      "time": "2026-08-02 23:38:32 UTC",
       "level": "SUCCESS",
       "message": "\u2705 Connected to cTrader OpenAPI at demo.ctraderapi.com:5035"
     },
     {
-      "time": "2026-08-02 23:36:39 UTC",
+      "time": "2026-08-02 23:38:32 UTC",
       "level": "INFO",
       "message": "================================================================================"
     },
     {
-      "time": "2026-08-02 23:36:39 UTC",
+      "time": "2026-08-02 23:38:32 UTC",
       "level": "INFO",
       "message": "\ud83e\udd16 cTrader OpenAPI Bot STARTING"
     },
     {
-      "time": "2026-08-02 23:36:39 UTC",
+      "time": "2026-08-02 23:38:32 UTC",
       "level": "INFO",
       "message": "================================================================================"
     }
@@ -64,42 +64,42 @@
   "errors": [],
   "backendEvents": [
     {
-      "time": "2026-08-02 23:36:59 UTC",
+      "time": "2026-08-02 23:38:34 UTC",
       "event": "[INFO] \ud83d\udce8 Signal: BUY 0.1 BTCUSD",
       "type": "log"
     },
     {
-      "time": "2026-08-02 23:36:59 UTC",
+      "time": "2026-08-02 23:38:34 UTC",
       "event": "Signal received: \ud83d\udfe2 BUY BTC/USD\n\nEntry: MARKET (Ref: 63542.65)\nSL: 6...",
       "type": "signal"
     },
     {
-      "time": "2026-08-02 23:36:59 UTC",
+      "time": "2026-08-02 23:38:34 UTC",
       "event": "[SUCCESS] \ud83d\udd10 Account Authorized successfully",
       "type": "log"
     },
     {
-      "time": "2026-08-02 23:36:58 UTC",
+      "time": "2026-08-02 23:38:33 UTC",
       "event": "[SUCCESS] \ud83d\udd10 Application Authorized successfully",
       "type": "log"
     },
     {
-      "time": "2026-08-02 23:36:57 UTC",
+      "time": "2026-08-02 23:38:32 UTC",
       "event": "[SUCCESS] \u2705 Connected to cTrader OpenAPI at demo.ctraderapi.com:5035",
       "type": "log"
     },
     {
-      "time": "2026-08-02 23:36:39 UTC",
+      "time": "2026-08-02 23:38:32 UTC",
       "event": "[INFO] ================================================================================",
       "type": "log"
     },
     {
-      "time": "2026-08-02 23:36:39 UTC",
+      "time": "2026-08-02 23:38:32 UTC",
       "event": "[INFO] \ud83e\udd16 cTrader OpenAPI Bot STARTING",
       "type": "log"
     },
     {
-      "time": "2026-08-02 23:36:39 UTC",
+      "time": "2026-08-02 23:38:32 UTC",
       "event": "[INFO] ================================================================================",
       "type": "log"
     }
@@ -231,5 +231,5 @@
       "category": "Indices"
     }
   },
-  "lastUpdate": "2026-08-02T23:36:59.643072+00:00"
+  "lastUpdate": "2026-08-02T23:38:34.930142+00:00"
 }
