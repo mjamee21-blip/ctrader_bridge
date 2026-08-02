@@ -39,8 +39,23 @@ DEFAULT_LOTS = {
     "BTCUSD": 0.10, "ETHUSD": 0.10, "XAUUSD": 0.05, "XAGUSD": 0.10,
     "EURUSD": 0.01, "GBPUSD": 0.01, "USDJPY": 0.01, "NAS100": 0.10, "US30": 0.10,
 }
+DEFAULT_PAIRS_CONFIG = {
+    "XAUUSD": {"lot": 0.05, "enabled": True, "category": "Gold"},
+    "XAGUSD": {"lot": 0.10, "enabled": True, "category": "Gold"},
+    "EURUSD": {"lot": 0.01, "enabled": True, "category": "Forex"},
+    "GBPUSD": {"lot": 0.01, "enabled": True, "category": "Forex"},
+    "USDJPY": {"lot": 0.01, "enabled": True, "category": "Forex"},
+    "BTCUSD": {"lot": 0.10, "enabled": True, "category": "Crypto"},
+    "ETHUSD": {"lot": 0.10, "enabled": True, "category": "Crypto"},
+    "USOIL": {"lot": 0.10, "enabled": True, "category": "Commodity"},
+    "NAS100": {"lot": 0.10, "enabled": True, "category": "Indices"},
+    "US30": {"lot": 0.10, "enabled": True, "category": "Indices"},
+}
 def lot_for(pair):
-    return DEFAULT_LOTS.get((pair or "").upper(), 1.0)
+    p = (pair or "").upper()
+    if p in DEFAULT_PAIRS_CONFIG:
+        return DEFAULT_PAIRS_CONFIG[p]["lot"]
+    return DEFAULT_LOTS.get(p, 1.0)
 class CTraderFIXBot:
     def __init__(self):
         self.sock = None
@@ -59,6 +74,7 @@ class CTraderFIXBot:
             "balance": 10000.0, "equity": 10000.0, "margin": 0.0,
             "freeMargin": 10000.0, "leverage": 100
         }
+        self.pairs_config = DEFAULT_PAIRS_CONFIG.copy()
     def log(self, level, msg):
         ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
         entry = {"time": ts, "level": level, "message": msg}
@@ -200,6 +216,17 @@ class CTraderFIXBot:
                     break
     def place_order(self, symbol, side, qty, sl=None, tp=None, raw_signal=None):
         ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
+        
+        # Check if pair is enabled
+        p_cfg = self.pairs_config.get(symbol.upper(), {})
+        if p_cfg.get("enabled", True) is False:
+            self.log("WARNING", f"⚠️ Pair {symbol} is DISABLED in settings. Skipping order.")
+            return False
+        
+        # Use configured lot size if qty wasn't explicitly customized
+        if symbol.upper() in self.pairs_config:
+            qty = self.pairs_config[symbol.upper()]["lot"]
+
         order_id = f"BOT_{int(time.time()*1000)}"
         
         fields = {
@@ -325,6 +352,7 @@ def save_state():
             "logs": list(BOT.logs),
             "errors": list(BOT.errors),
             "backendEvents": list(BOT.backend_events),
+            "pairsConfig": BOT.pairs_config,
             "lastUpdate": datetime.now(timezone.utc).isoformat()
         }
         
