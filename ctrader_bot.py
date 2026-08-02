@@ -112,34 +112,53 @@ class CTraderFIXBot:
         try:
             self.log("INFO", f"🔌 Connecting to {FIX_HOST}:{FIX_TRADE_PORT}...")
             self.backend_events.appendleft({"time": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC"), "event": "Initiating SSL connection", "type": "connection"})
-            
-            self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            self.sock.settimeout(20)
+
+            try:
+                addr_info = socket.getaddrinfo(FIX_HOST, FIX_TRADE_PORT, type=socket.SOCK_STREAM)
+            except socket.gaierror as e:
+                raise RuntimeError(f"DNS lookup failed for {FIX_HOST}: {e}") from e
+
+            if not addr_info:
+                raise RuntimeError(f"No socket addresses found for {FIX_HOST}:{FIX_TRADE_PORT}")
+
             ctx = ssl.create_default_context()
             ctx.check_hostname = False
             ctx.verify_mode = ssl.CERT_NONE
-            
-            self.ssl_sock = ctx.wrap_socket(self.sock, server_hostname=FIX_HOST)
-            self.ssl_sock.connect((FIX_HOST, FIX_TRADE_PORT))
-            self.connected = True
-            
-            self.log("SUCCESS", f"✅ SSL Connected successfully")
-            self.backend_events.appendleft({"time": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC"), "event": "SSL handshake complete", "type": "connection"})
-            
-            threading.Thread(target=self._recv_loop, daemon=True).start()
-            self.send_logon()
-            
-            # Wait for logon ACK (up to 5 seconds)
-            for _ in range(50):
-                if self.logged_in:
+            if hasattr(ssl, "TLSVersion"):
+                ctx.minimum_version = ssl.TLSVersion.TLSv1_2
+
+            last_error = None
+            for family, socktype, proto, _, sockaddr in addr_info:
+                try:
+                    self.sock = socket.socket(family, socktype, proto)
+                    self.sock.settimeout(30)
+                    self.log("DEBUG", f"Trying {FIX_HOST} via {sockaddr[0]}:{sockaddr[1]} ...")
+                    self.sock.connect(sockaddr)
+                    self.ssl_sock = ctx.wrap_socket(self.sock, server_hostname=FIX_HOST)
+                    self.connected = True
+
+                    self.log("SUCCESS", "✅ SSL Connected successfully")
+                    self.backend_events.appendleft({"time": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC"), "event": "SSL handshake complete", "type": "connection"})
+
+                    threading.Thread(target=self._recv_loop, daemon=True).start()
+                    self.send_logon()
+
+                    for _ in range(150):
+                        if self.logged_in:
+                            return True
+                        time.sleep(0.1)
+
+                    if not self.logged_in:
+                        raise TimeoutError("Logon timeout / not acknowledged by server")
                     return True
-                time.sleep(0.1)
-            
-            if not self.logged_in:
-                self.error("Logon timeout / not acknowledged by server")
-                self.disconnect()
-                return False
-            return True
+                except Exception as e:
+                    last_error = e
+                    self.log("WARNING", f"Connection attempt failed to {sockaddr[0]}:{sockaddr[1]}: {e}")
+                    self.disconnect()
+                    self.sock = None
+                    self.ssl_sock = None
+
+            raise last_error or RuntimeError(f"Failed to connect to {FIX_HOST}:{FIX_TRADE_PORT}")
         except Exception as e:
             self.error(f"Connection failed: {str(e)}")
             self.disconnect()
@@ -161,7 +180,7 @@ class CTraderFIXBot:
                 "108": "30",
                 "141": "Y",
                 "553": FIX_SENDER_COMP_ID,
-                "554": FIX_PASSWORD
+                "554": FIX_PASSWORD,
             }
             self.send_msg("A", fields)
             self.log("INFO", "Logon message sent with Username and ResetSeqNumFlag")
