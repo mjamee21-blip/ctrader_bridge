@@ -29,11 +29,16 @@ TG_TOKEN = _clean_sec(os.environ.get("TG_TOKEN", ""))
 TG_CHAT = _clean_sec(os.environ.get("TG_CHAT", ""))
 PAIR_ALIASES = {
     "BTC": "BTCUSD", "BITCOIN": "BTCUSD", "ETH": "ETHUSD", "ETHEREUM": "ETHUSD",
+    "LTC": "LTCUSD", "XRP": "XRPUSD",
     "GOLD": "XAUUSD", "XAU": "XAUUSD", "SILVER": "XAGUSD", "XAG": "XAGUSD",
     "OIL": "USOIL", "WTI": "USOIL", "CRUDE": "USOIL", "BRENT": "UKOIL",
     "NAS100": "NAS100", "NASDAQ": "NAS100", "US100": "NAS100",
     "US30": "US30", "DOW": "US30", "SPX500": "SPX500", "SP500": "SPX500",
     "GER40": "GER40", "DAX": "GER40",
+    "EURUSD": "EURUSD", "GBPUSD": "GBPUSD", "USDJPY": "USDJPY",
+    "AUDUSD": "AUDUSD", "USDCAD": "USDCAD", "NZDUSD": "NZDUSD", "USDCHF": "USDCHF",
+    "EURGBP": "EURGBP", "EURJPY": "EURJPY", "GBPJPY": "GBPJPY", "AUDJPY": "AUDJPY",
+    "EURAUD": "EURAUD", "EURCAD": "EURCAD"
 }
 DEFAULT_LOTS = {
     "BTCUSD": 0.10, "ETHUSD": 0.10, "XAUUSD": 0.05, "XAGUSD": 0.10,
@@ -45,11 +50,26 @@ DEFAULT_PAIRS_CONFIG = {
     "EURUSD": {"lot": 0.01, "enabled": True, "category": "Forex"},
     "GBPUSD": {"lot": 0.01, "enabled": True, "category": "Forex"},
     "USDJPY": {"lot": 0.01, "enabled": True, "category": "Forex"},
+    "AUDUSD": {"lot": 0.01, "enabled": True, "category": "Forex"},
+    "USDCAD": {"lot": 0.01, "enabled": True, "category": "Forex"},
+    "NZDUSD": {"lot": 0.01, "enabled": True, "category": "Forex"},
+    "USDCHF": {"lot": 0.01, "enabled": True, "category": "Forex"},
+    "EURGBP": {"lot": 0.01, "enabled": True, "category": "Forex"},
+    "EURJPY": {"lot": 0.01, "enabled": True, "category": "Forex"},
+    "GBPJPY": {"lot": 0.01, "enabled": True, "category": "Forex"},
+    "AUDJPY": {"lot": 0.01, "enabled": True, "category": "Forex"},
+    "EURAUD": {"lot": 0.01, "enabled": True, "category": "Forex"},
+    "EURCAD": {"lot": 0.01, "enabled": True, "category": "Forex"},
     "BTCUSD": {"lot": 0.10, "enabled": True, "category": "Crypto"},
     "ETHUSD": {"lot": 0.10, "enabled": True, "category": "Crypto"},
+    "LTCUSD": {"lot": 0.10, "enabled": True, "category": "Crypto"},
+    "XRPUSD": {"lot": 10.0, "enabled": True, "category": "Crypto"},
     "USOIL": {"lot": 0.10, "enabled": True, "category": "Commodity"},
+    "UKOIL": {"lot": 0.10, "enabled": True, "category": "Commodity"},
     "NAS100": {"lot": 0.10, "enabled": True, "category": "Indices"},
     "US30": {"lot": 0.10, "enabled": True, "category": "Indices"},
+    "SPX500": {"lot": 0.10, "enabled": True, "category": "Indices"},
+    "GER40": {"lot": 0.10, "enabled": True, "category": "Indices"},
 }
 def lot_for(pair):
     p = (pair or "").upper()
@@ -61,6 +81,7 @@ class CTraderFIXBot:
         self.sock = None
         self.ssl_sock = None
         self.connected = False
+        self.logged_in = False
         self.msg_seq = 1
         self.lock = threading.Lock()
         
@@ -107,6 +128,17 @@ class CTraderFIXBot:
             
             threading.Thread(target=self._recv_loop, daemon=True).start()
             self.send_logon()
+            
+            # Wait for logon ACK (up to 5 seconds)
+            for _ in range(50):
+                if self.logged_in:
+                    return True
+                time.sleep(0.1)
+            
+            if not self.logged_in:
+                self.error("Logon timeout / not acknowledged by server")
+                self.disconnect()
+                return False
             return True
         except Exception as e:
             self.error(f"Connection failed: {str(e)}")
@@ -190,6 +222,7 @@ class CTraderFIXBot:
         msg_type = tags.get("35", "")
         
         if msg_type == "A":
+            self.logged_in = True
             self.log("SUCCESS", f"🔐 FIX Logon ACKNOWLEDGED")
             self.backend_events.appendleft({"time": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC"), "event": "Logon acknowledged by server", "type": "fix"})
         elif msg_type == "0":
