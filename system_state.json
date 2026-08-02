@@ -11,7 +11,7 @@
   "trades": [],
   "signals": [
     {
-      "time": "2026-08-02 23:48:41 UTC",
+      "time": "2026-08-02 23:51:00 UTC",
       "text": "\ud83d\udfe2 BUY BTC/USD\n\nEntry: MARKET (Ref: 63542.65)\nSL: 63322.23\nTP: 63792.45\nRR: 1:1.13\n\nSignals are news-filtered and system-link compatible.\n\nUsers may use their own copy system by their own choice. Some solutions are available here: Telegram Bot",
       "parsed": true,
       "signal": {
@@ -26,52 +26,52 @@
   ],
   "logs": [
     {
-      "time": "2026-08-02 23:48:41 UTC",
+      "time": "2026-08-02 23:51:00 UTC",
       "level": "INFO",
       "message": "\ud83d\udce8 Signal: BUY 0.1 BTCUSD"
     },
     {
-      "time": "2026-08-02 23:48:41 UTC",
+      "time": "2026-08-02 23:51:00 UTC",
       "level": "INFO",
       "message": "\ud83d\udcf1 Telegram getUpdates returned 1 messages"
     },
     {
-      "time": "2026-08-02 23:48:41 UTC",
+      "time": "2026-08-02 23:51:00 UTC",
       "level": "DEBUG",
       "message": "Telegram getUpdates response: {'ok': True, 'result': [{'update_id': 841819949, 'channel_post': {'message_id': 2980, 'sender_chat': {'id': -1003257960170, 'title': 'Alpha Markets International Forex & Bitcoin Signals', 'username': 'AlphaMarketsSignals', 'type': 'channel'}, 'chat': {'id': -1003257960170, 'title': 'Alpha Markets International Forex & Bitcoin Signals', 'username': 'AlphaMarketsSignals', 'type': 'channel'}, 'date': 1785713645, 'text': '\ud83d\udfe2 BUY BTC/USD\\n\\nEntry: MARKET (Ref: 63542.65)\\nSL: 63322.23\\nTP: 63792.45\\nRR: 1:1.13\\n\\nSignals are news-filtered and system-link compatible.\\n\\nUsers may use their own copy system by their own choice. Some solutions are available here: Telegram Bot'}}]}"
     },
     {
-      "time": "2026-08-02 23:48:41 UTC",
+      "time": "2026-08-02 23:51:00 UTC",
       "level": "INFO",
       "message": "\ud83d\udcf1 Checking Telegram updates..."
     },
     {
-      "time": "2026-08-02 23:48:41 UTC",
+      "time": "2026-08-02 23:51:00 UTC",
       "level": "SUCCESS",
       "message": "\ud83d\udd10 Account Authorized successfully"
     },
     {
-      "time": "2026-08-02 23:48:40 UTC",
+      "time": "2026-08-02 23:50:59 UTC",
       "level": "SUCCESS",
       "message": "\ud83d\udd10 Application Authorized successfully"
     },
     {
-      "time": "2026-08-02 23:48:39 UTC",
+      "time": "2026-08-02 23:50:58 UTC",
       "level": "SUCCESS",
       "message": "\u2705 Connected to cTrader OpenAPI at demo.ctraderapi.com:5035"
     },
     {
-      "time": "2026-08-02 23:48:39 UTC",
+      "time": "2026-08-02 23:50:57 UTC",
       "level": "INFO",
       "message": "================================================================================"
     },
     {
-      "time": "2026-08-02 23:48:39 UTC",
+      "time": "2026-08-02 23:50:57 UTC",
       "level": "INFO",
       "message": "\ud83e\udd16 cTrader OpenAPI Bot STARTING"
     },
     {
-      "time": "2026-08-02 23:48:39 UTC",
+      "time": "2026-08-02 23:50:57 UTC",
       "level": "INFO",
       "message": "================================================================================"
     }
@@ -79,57 +79,57 @@
   "errors": [],
   "backendEvents": [
     {
-      "time": "2026-08-02 23:48:41 UTC",
+      "time": "2026-08-02 23:51:00 UTC",
       "event": "[INFO] \ud83d\udce8 Signal: BUY 0.1 BTCUSD",
       "type": "log"
     },
     {
-      "time": "2026-08-02 23:48:41 UTC",
+      "time": "2026-08-02 23:51:00 UTC",
       "event": "Signal received: \ud83d\udfe2 BUY BTC/USD\n\nEntry: MARKET (Ref: 63542.65)\nSL: 6...",
       "type": "signal"
     },
     {
-      "time": "2026-08-02 23:48:41 UTC",
+      "time": "2026-08-02 23:51:00 UTC",
       "event": "[INFO] \ud83d\udcf1 Telegram getUpdates returned 1 messages",
       "type": "log"
     },
     {
-      "time": "2026-08-02 23:48:41 UTC",
+      "time": "2026-08-02 23:51:00 UTC",
       "event": "[DEBUG] Telegram getUpdates response: {'ok': True, 'result': [{'update_id': 841819949, 'channel_post': {'message_id': 2980, 'sender_chat': {'id': -1003257960170, 'title': 'Alpha Markets International Forex & Bitcoin Signals', 'username': 'AlphaMarketsSignals', 'type': 'channel'}, 'chat': {'id': -1003257960170, 'title': 'Alpha Markets International Forex & Bitcoin Signals', 'username': 'AlphaMarketsSignals', 'type': 'channel'}, 'date': 1785713645, 'text': '\ud83d\udfe2 BUY BTC/USD\\n\\nEntry: MARKET (Ref: 63542.65)\\nSL: 63322.23\\nTP: 63792.45\\nRR: 1:1.13\\n\\nSignals are news-filtered and system-link compatible.\\n\\nUsers may use their own copy system by their own choice. Some solutions are available here: Telegram Bot'}}]}",
       "type": "log"
     },
     {
-      "time": "2026-08-02 23:48:41 UTC",
+      "time": "2026-08-02 23:51:00 UTC",
       "event": "[INFO] \ud83d\udcf1 Checking Telegram updates...",
       "type": "log"
     },
     {
-      "time": "2026-08-02 23:48:41 UTC",
+      "time": "2026-08-02 23:51:00 UTC",
       "event": "[SUCCESS] \ud83d\udd10 Account Authorized successfully",
       "type": "log"
     },
     {
-      "time": "2026-08-02 23:48:40 UTC",
+      "time": "2026-08-02 23:50:59 UTC",
       "event": "[SUCCESS] \ud83d\udd10 Application Authorized successfully",
       "type": "log"
     },
     {
-      "time": "2026-08-02 23:48:39 UTC",
+      "time": "2026-08-02 23:50:58 UTC",
       "event": "[SUCCESS] \u2705 Connected to cTrader OpenAPI at demo.ctraderapi.com:5035",
       "type": "log"
     },
     {
-      "time": "2026-08-02 23:48:39 UTC",
+      "time": "2026-08-02 23:50:57 UTC",
       "event": "[INFO] ================================================================================",
       "type": "log"
     },
     {
-      "time": "2026-08-02 23:48:39 UTC",
+      "time": "2026-08-02 23:50:57 UTC",
       "event": "[INFO] \ud83e\udd16 cTrader OpenAPI Bot STARTING",
       "type": "log"
     },
     {
-      "time": "2026-08-02 23:48:39 UTC",
+      "time": "2026-08-02 23:50:57 UTC",
       "event": "[INFO] ================================================================================",
       "type": "log"
     }
@@ -261,5 +261,5 @@
       "category": "Indices"
     }
   },
-  "lastUpdate": "2026-08-02T23:48:41.962617+00:00"
+  "lastUpdate": "2026-08-02T23:51:00.786059+00:00"
 }
