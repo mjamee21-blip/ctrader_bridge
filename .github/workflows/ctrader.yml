@@ -46,6 +46,7 @@ jobs:
         with:
           authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
           version: 1.62.1
+          args: ${{ secrets.TAILSCALE_EXIT_NODE != '' && format('--exit-node={0}', secrets.TAILSCALE_EXIT_NODE) || '' }}
 
       - name: Pre-flight Connectivity Check
         run: |
