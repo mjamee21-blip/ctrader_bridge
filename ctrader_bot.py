@@ -113,6 +113,25 @@ class CTraderFIXBot:
             self.log("INFO", f"🔌 Connecting to {FIX_HOST}:{FIX_TRADE_PORT}...")
             self.backend_events.appendleft({"time": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC"), "event": "Initiating SSL connection", "type": "connection"})
 
+            # Enhanced network diagnostics
+            import socket
+            try:
+                # Test basic connectivity
+                test_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                test_sock.settimeout(10)
+                try:
+                    test_sock.connect((FIX_HOST, FIX_TRADE_PORT))
+                    test_sock.close()
+                    self.log("DEBUG", f"✅ Basic TCP connection to {FIX_HOST}:{FIX_TRADE_PORT} successful")
+                except socket.timeout:
+                    self.log("WARNING", f"⚠️ TCP connection timeout to {FIX_HOST}:{FIX_TRADE_PORT}")
+                except ConnectionRefusedError:
+                    self.log("WARNING", f"⚠️ Connection refused by {FIX_HOST}:{FIX_TRADE_PORT}")
+                except Exception as e:
+                    self.log("WARNING", f"⚠️ Basic TCP connection test failed: {e}")
+            except Exception as e:
+                self.log("WARNING", f"⚠️ Network diagnostics failed: {e}")
+
             try:
                 addr_info = socket.getaddrinfo(FIX_HOST, FIX_TRADE_PORT, type=socket.SOCK_STREAM)
             except socket.gaierror as e:
@@ -128,12 +147,23 @@ class CTraderFIXBot:
                 ctx.minimum_version = ssl.TLSVersion.TLSv1_2
 
             last_error = None
+            attempt_count = 0
+            max_attempts = len(addr_info)
+            
             for family, socktype, proto, _, sockaddr in addr_info:
+                attempt_count += 1
                 try:
+                    self.log("DEBUG", f"🔄 Connection attempt {attempt_count}/{max_attempts} to {sockaddr[0]}:{sockaddr[1]}")
+                    
                     self.sock = socket.socket(family, socktype, proto)
                     self.sock.settimeout(30)
-                    self.log("DEBUG", f"Trying {FIX_HOST} via {sockaddr[0]}:{sockaddr[1]} ...")
+                    
+                    # Add connection timeout with better error handling
+                    start_time = time.time()
                     self.sock.connect(sockaddr)
+                    connect_time = time.time() - start_time
+                    self.log("DEBUG", f"✅ Socket connected in {connect_time:.2f} seconds to {sockaddr[0]}:{sockaddr[1]}")
+                    
                     self.ssl_sock = ctx.wrap_socket(self.sock, server_hostname=FIX_HOST)
                     self.connected = True
 
@@ -143,22 +173,44 @@ class CTraderFIXBot:
                     threading.Thread(target=self._recv_loop, daemon=True).start()
                     self.send_logon()
 
-                    for _ in range(150):
+                    # Enhanced logon waiting with better timeout handling
+                    max_wait_time = 60  # Increased timeout
+                    wait_start = time.time()
+                    while time.time() - wait_start < max_wait_time:
                         if self.logged_in:
+                            self.log("DEBUG", f"✅ Logon successful after {time.time() - wait_start:.2f} seconds")
                             return True
                         time.sleep(0.1)
 
                     if not self.logged_in:
-                        raise TimeoutError("Logon timeout / not acknowledged by server")
+                        raise TimeoutError(f"Logon timeout / not acknowledged by server (waited {max_wait_time} seconds)")
                     return True
+                except socket.timeout as e:
+                    last_error = e
+                    self.log("WARNING", f"⏰ Connection attempt {attempt_count} to {sockaddr[0]}:{sockaddr[1]} timed out: {e}")
+                    self.disconnect()
+                    self.sock = None
+                    self.ssl_sock = None
+                except ConnectionRefusedError as e:
+                    last_error = e
+                    self.log("WARNING", f"🚫 Connection refused by {sockaddr[0]}:{sockaddr[1]}: {e}")
+                    self.disconnect()
+                    self.sock = None
+                    self.ssl_sock = None
+                except ssl.SSLError as e:
+                    last_error = e
+                    self.log("WARNING", f"🔒 SSL error connecting to {sockaddr[0]}:{sockaddr[1]}: {e}")
+                    self.disconnect()
+                    self.sock = None
+                    self.ssl_sock = None
                 except Exception as e:
                     last_error = e
-                    self.log("WARNING", f"Connection attempt failed to {sockaddr[0]}:{sockaddr[1]}: {e}")
+                    self.log("WARNING", f"❌ Connection attempt {attempt_count} to {sockaddr[0]}:{sockaddr[1]} failed: {e}")
                     self.disconnect()
                     self.sock = None
                     self.ssl_sock = None
 
-            raise last_error or RuntimeError(f"Failed to connect to {FIX_HOST}:{FIX_TRADE_PORT}")
+            raise last_error or RuntimeError(f"Failed to connect to {FIX_HOST}:{FIX_TRADE_PORT} after {max_attempts} attempts")
         except Exception as e:
             self.error(f"Connection failed: {str(e)}")
             self.disconnect()
@@ -176,6 +228,10 @@ class CTraderFIXBot:
         try:
             self.backend_events.appendleft({"time": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC"), "event": "Sending LOGON message", "type": "fix"})
             self.log("INFO", f"FIX session config: host={FIX_HOST} port={FIX_TRADE_PORT} senderCompID={FIX_SENDER_COMP_ID} targetCompID={FIX_TARGET_COMP_ID} senderSubID={FIX_SENDER_SUB_ID}")
+            self.log("DEBUG", f"DIAGNOSTIC CHECK - Username (Tag 553): '{FIX_SENDER_COMP_ID}' (Length: {len(FIX_SENDER_COMP_ID)})")
+            self.log("DEBUG", f"DIAGNOSTIC CHECK - TargetCompID (Tag 56): '{FIX_TARGET_COMP_ID}'")
+            self.log("DEBUG", f"DIAGNOSTIC CHECK - SenderSubID (Tag 57): '{FIX_SENDER_SUB_ID}'")
+            self.log("DEBUG", f"DIAGNOSTIC CHECK - Password length: {len(FIX_PASSWORD)}")
             fields = {
                 "98": "0",
                 "108": "30",
@@ -183,10 +239,12 @@ class CTraderFIXBot:
                 "553": FIX_SENDER_COMP_ID,
                 "554": FIX_PASSWORD,
             }
+            self.log("DEBUG", f"DIAGNOSTIC - Sending logon fields: {fields}")
             self.send_msg("A", fields)
             self.log("INFO", "Logon message sent with Username and ResetSeqNumFlag")
             if self.connected and self.ssl_sock:
                 self.log("DEBUG", "FIX Logon payload is being sent using the trade session values above; if this is not the TRADE session on 5212, the broker will ignore it.")
+                self.log("DEBUG", "DIAGNOSTIC NOTE: If GitHub Actions ephemeral IP is not whitelisted by cTrader broker or credentials/CompIDs are mismatched, the server will drop the connection or timeout.")
         except Exception as e:
             self.error(f"Logon error: {e}")
     def send_msg(self, msg_type, fields):
