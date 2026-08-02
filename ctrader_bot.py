@@ -175,6 +175,7 @@ class CTraderFIXBot:
     def send_logon(self):
         try:
             self.backend_events.appendleft({"time": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC"), "event": "Sending LOGON message", "type": "fix"})
+            self.log("INFO", f"FIX session config: host={FIX_HOST} port={FIX_TRADE_PORT} senderCompID={FIX_SENDER_COMP_ID} targetCompID={FIX_TARGET_COMP_ID} senderSubID={FIX_SENDER_SUB_ID}")
             fields = {
                 "98": "0",
                 "108": "30",
@@ -184,6 +185,8 @@ class CTraderFIXBot:
             }
             self.send_msg("A", fields)
             self.log("INFO", "Logon message sent with Username and ResetSeqNumFlag")
+            if self.connected and self.ssl_sock:
+                self.log("DEBUG", "FIX Logon payload is being sent using the trade session values above; if this is not the TRADE session on 5212, the broker will ignore it.")
         except Exception as e:
             self.error(f"Logon error: {e}")
     def send_msg(self, msg_type, fields):
@@ -207,6 +210,7 @@ class CTraderFIXBot:
             message = header + body
             checksum = self._calculate_checksum(message)
             full_msg = message + f"10={checksum:03d}\x01"
+            self.log("DEBUG", f"Raw FIX {msg_type} packet: {full_msg.replace(chr(1), '|')}")
             self.ssl_sock.sendall(full_msg.encode('ascii'))
             self.log("DEBUG", f"Sent FIX {msg_type} ({len(full_msg)} bytes)")
             return True
