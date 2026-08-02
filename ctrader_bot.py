@@ -1,19 +1,19 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# cTrader OpenAPI Bot - Complete Signal & Trade Tracking (WebSocket / REST)
+# cTrader OpenAPI Bot using official ctrader_open_api library
 import os
 import json
 import re
 import sys
 import time
-import asyncio
 import urllib.request
 import urllib.parse
 import logging
 from datetime import datetime, timezone
 from collections import deque
 
-import websockets
+from twisted.internet import reactor
+from ctrader_open_api import Client, Protobuf, TcpProtocol, EndPoints
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -31,8 +31,8 @@ CT_ENV = _clean_sec(os.environ.get("CT_ENV", "demo")).lower()
 TG_TOKEN = _clean_sec(os.environ.get("TG_TOKEN", ""))
 TG_CHAT = _clean_sec(os.environ.get("TG_CHAT", ""))
 
-OPENAPI_HOST = "demo.ctraderapi.com" if CT_ENV == "demo" else "live.ctraderapi.com"
-OPENAPI_PORT = 5035
+HOST = EndPoints.PROTOBUF_DEMO_HOST if CT_ENV == "demo" else EndPoints.PROTOBUF_LIVE_HOST
+PORT = EndPoints.PROTOBUF_PORT
 
 PAIR_ALIASES = {
     "BTC": "BTCUSD", "BITCOIN": "BTCUSD", "ETH": "ETHUSD", "ETHEREUM": "ETHUSD",
@@ -122,56 +122,7 @@ class CTraderOpenAPIBot:
         except UnicodeEncodeError:
             print(f"[ERROR] {msg}".encode('ascii', 'ignore').decode('ascii'))
 
-    async def connect_and_run(self):
-        uri = f"wss://{OPENAPI_HOST}:{OPENAPI_PORT}"
-        self.log("INFO", f"🔌 Connecting to cTrader OpenAPI WebSocket at {uri}...")
-        try:
-            async with websockets.connect(uri) as websocket:
-                self.connected = True
-                self.log("SUCCESS", "✅ Connected to cTrader OpenAPI WebSocket")
-
-                # 1. Send Application Authorization (ProtoOAApplicationAuthReq - payloadType 21)
-                app_auth_msg = {
-                    "payloadType": 21,
-                    "payload": {
-                        "clientId": CT_CLIENT_ID,
-                        "clientSecret": CT_CLIENT_SECRET
-                    },
-                    "clientMsgId": "app_auth_1"
-                }
-                await websocket.send(json.dumps(app_auth_msg))
-                self.log("INFO", "Sent Application Authorization Request")
-
-                # Receive response
-                response_str = await asyncio.wait_for(websocket.recv(), timeout=10)
-                resp = json.loads(response_str)
-                self.log("DEBUG", f"App Auth Response: {resp}")
-
-                # 2. Send Account Authorization (ProtoOAAccountAuthReq - payloadType 2049)
-                account_auth_msg = {
-                    "payloadType": 2049,
-                    "payload": {
-                        "ctidTraderAccountId": CT_ACCOUNT_ID,
-                        "accessToken": CT_ACCESS_TOKEN
-                    },
-                    "clientMsgId": "acc_auth_1"
-                }
-                await websocket.send(json.dumps(account_auth_msg))
-                self.log("INFO", f"Sent Account Authorization Request for Account ID {CT_ACCOUNT_ID}")
-
-                response_str = await asyncio.wait_for(websocket.recv(), timeout=10)
-                resp = json.loads(response_str)
-                self.log("DEBUG", f"Account Auth Response: {resp}")
-                self.logged_in = True
-                self.log("SUCCESS", "🔐 cTrader OpenAPI Login & Authorization Successful!")
-
-                # Process Telegram Signals & place orders
-                check_telegram(self, websocket)
-
-                return True
-        except Exception as e:
-            self.error(f"OpenAPI Connection/Auth error: {e}")
-            return False
+BOT = CTraderOpenAPIBot()
 
 def parse_signal(text):
     if not text:
@@ -208,7 +159,7 @@ def parse_signal(text):
         "raw": text
     }
 
-def check_telegram(bot, websocket=None):
+def check_telegram(client):
     if not TG_TOKEN:
         return
     try:
@@ -230,52 +181,84 @@ def check_telegram(bot, websocket=None):
                             "parsed": signal is not None,
                             "signal": signal
                         }
-                        bot.signals.appendleft(signal_entry)
-                        bot.backend_events.appendleft({"time": ts, "event": f"Signal received: {text[:50]}...", "type": "signal"})
+                        BOT.signals.appendleft(signal_entry)
+                        BOT.backend_events.appendleft({"time": ts, "event": f"Signal received: {text[:50]}...", "type": "signal"})
                         if signal:
-                            bot.log("INFO", f"📨 Signal: {signal['side']} {signal['qty']} {signal['symbol']}")
-                            # Place order via OpenAPI if websocket available
-                            # (In OpenAPI, symbol must be mapped to symbolId, simplified here)
+                            BOT.log("INFO", f"📨 Signal: {signal['side']} {signal['qty']} {signal['symbol']}")
     except Exception as e:
-        bot.error(f"Telegram check failed: {str(e)}")
+        BOT.error(f"Telegram check failed: {str(e)}")
 
-def save_state(bot):
+def save_state():
     try:
         os.makedirs("docs", exist_ok=True)
         state = {
-            "connected": bot.connected,
-            "loggedIn": bot.logged_in,
-            "account": bot.account,
-            "trades": list(bot.trades),
-            "signals": list(bot.signals),
-            "logs": list(bot.logs),
-            "errors": list(bot.errors),
-            "backendEvents": list(bot.backend_events),
-            "pairsConfig": bot.pairs_config,
+            "connected": BOT.connected,
+            "loggedIn": BOT.logged_in,
+            "account": BOT.account,
+            "trades": list(BOT.trades),
+            "signals": list(BOT.signals),
+            "logs": list(BOT.logs),
+            "errors": list(BOT.errors),
+            "backendEvents": list(BOT.backend_events),
+            "pairsConfig": BOT.pairs_config,
             "lastUpdate": datetime.now(timezone.utc).isoformat()
         }
         with open("docs/system_state.json", "w") as f:
             json.dump(state, f, indent=2)
-        bot.log("INFO", "💾 State saved to docs/system_state.json")
+        BOT.log("INFO", "💾 State saved to docs/system_state.json")
     except Exception as e:
-        bot.error(f"Failed to save state: {e}")
-
-async def main_async():
-    bot = CTraderOpenAPIBot()
-    bot.log("INFO", "=" * 80)
-    bot.log("INFO", "🤖 cTrader OpenAPI Bot STARTING")
-    bot.log("INFO", "=" * 80)
-
-    if not CT_CLIENT_ID or not CT_ACCESS_TOKEN or not CT_ACCOUNT_ID:
-        bot.error("Missing cTrader OpenAPI credentials (CT_CLIENT_ID, CT_ACCESS_TOKEN, CT_ACCOUNT_ID)")
-        return False
-
-    success = await bot.connect_and_run()
-    save_state(bot)
-    return success
+        BOT.error(f"Failed to save state: {e}")
 
 def main():
-    return asyncio.run(main_async())
+    BOT.log("INFO", "=" * 80)
+    BOT.log("INFO", "🤖 cTrader OpenAPI Bot STARTING")
+    BOT.log("INFO", "=" * 80)
+
+    if not CT_CLIENT_ID or not CT_ACCESS_TOKEN or not CT_ACCOUNT_ID:
+        BOT.error("Missing cTrader OpenAPI credentials (CT_CLIENT_ID, CT_ACCESS_TOKEN, CT_ACCOUNT_ID)")
+        return False
+
+    client = Client(HOST, PORT, TcpProtocol)
+
+    def on_connected(client):
+        BOT.connected = True
+        BOT.log("SUCCESS", f"✅ Connected to cTrader OpenAPI at {HOST}:{PORT}")
+        
+        # 1. Application Auth
+        d = client.send("ProtoOAApplicationAuthReq", clientId=CT_CLIENT_ID, clientSecret=CT_CLIENT_SECRET)
+        def on_app_auth(msg):
+            BOT.log("SUCCESS", "🔐 Application Authorized successfully")
+            
+            # 2. Account Auth
+            d2 = client.send("ProtoOAAccountAuthReq", ctidTraderAccountId=CT_ACCOUNT_ID, accessToken=CT_ACCESS_TOKEN)
+            def on_acc_auth(acc_msg):
+                BOT.logged_in = True
+                BOT.log("SUCCESS", "🔐 Account Authorized successfully")
+                
+                check_telegram(client)
+                save_state()
+                
+                reactor.callLater(2, reactor.stop)
+            d2.addCallback(on_acc_auth)
+            d2.addErrback(lambda err: BOT.error(f"Account auth failed: {err}"))
+        d.addCallback(on_app_auth)
+        d.addErrback(lambda err: BOT.error(f"App auth failed: {err}"))
+
+    def on_disconnected(client, reason):
+        BOT.connected = False
+        BOT.log("WARNING", f"Disconnected: {reason}")
+        if reactor.running:
+            reactor.stop()
+
+    client.setConnectedCallback(on_connected)
+    client.setDisconnectedCallback(on_disconnected)
+    client.startService()
+
+    # Safety timeout
+    reactor.callLater(20, lambda: reactor.stop() if reactor.running else None)
+    
+    reactor.run()
+    return BOT.logged_in
 
 if __name__ == "__main__":
     success = main()
