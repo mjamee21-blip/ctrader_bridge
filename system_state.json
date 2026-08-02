@@ -12,75 +12,75 @@
   "signals": [],
   "logs": [
     {
-      "time": "2026-08-02 23:04:30 UTC",
+      "time": "2026-08-02 23:06:34 UTC",
       "level": "INFO",
       "message": "Sent Application Authorization Request"
     },
     {
-      "time": "2026-08-02 23:04:30 UTC",
+      "time": "2026-08-02 23:06:34 UTC",
       "level": "SUCCESS",
       "message": "\u2705 Connected to cTrader OpenAPI WebSocket"
     },
     {
-      "time": "2026-08-02 23:04:29 UTC",
+      "time": "2026-08-02 23:06:34 UTC",
       "level": "INFO",
       "message": "\ud83d\udd0c Connecting to cTrader OpenAPI WebSocket at wss://demo.ctraderapi.com:5035..."
     },
     {
-      "time": "2026-08-02 23:04:29 UTC",
+      "time": "2026-08-02 23:06:34 UTC",
       "level": "INFO",
       "message": "================================================================================"
     },
     {
-      "time": "2026-08-02 23:04:29 UTC",
+      "time": "2026-08-02 23:06:34 UTC",
       "level": "INFO",
       "message": "\ud83e\udd16 cTrader OpenAPI Bot STARTING"
     },
     {
-      "time": "2026-08-02 23:04:29 UTC",
+      "time": "2026-08-02 23:06:34 UTC",
       "level": "INFO",
       "message": "================================================================================"
     }
   ],
   "errors": [
     {
-      "time": "2026-08-02 23:04:30 UTC",
+      "time": "2026-08-02 23:06:34 UTC",
       "error": "OpenAPI Connection/Auth error: received 1000 (OK) Bye; then sent 1000 (OK) Bye"
     }
   ],
   "backendEvents": [
     {
-      "time": "2026-08-02 23:04:30 UTC",
+      "time": "2026-08-02 23:06:34 UTC",
       "event": "ERROR: OpenAPI Connection/Auth error: received 1000 (OK) Bye; then sent 1000 (OK) Bye",
       "type": "error"
     },
     {
-      "time": "2026-08-02 23:04:30 UTC",
+      "time": "2026-08-02 23:06:34 UTC",
       "event": "[INFO] Sent Application Authorization Request",
       "type": "log"
     },
     {
-      "time": "2026-08-02 23:04:30 UTC",
+      "time": "2026-08-02 23:06:34 UTC",
       "event": "[SUCCESS] \u2705 Connected to cTrader OpenAPI WebSocket",
       "type": "log"
     },
     {
-      "time": "2026-08-02 23:04:29 UTC",
+      "time": "2026-08-02 23:06:34 UTC",
       "event": "[INFO] \ud83d\udd0c Connecting to cTrader OpenAPI WebSocket at wss://demo.ctraderapi.com:5035...",
       "type": "log"
     },
     {
-      "time": "2026-08-02 23:04:29 UTC",
+      "time": "2026-08-02 23:06:34 UTC",
       "event": "[INFO] ================================================================================",
       "type": "log"
     },
     {
-      "time": "2026-08-02 23:04:29 UTC",
+      "time": "2026-08-02 23:06:34 UTC",
       "event": "[INFO] \ud83e\udd16 cTrader OpenAPI Bot STARTING",
       "type": "log"
     },
     {
-      "time": "2026-08-02 23:04:29 UTC",
+      "time": "2026-08-02 23:06:34 UTC",
       "event": "[INFO] ================================================================================",
       "type": "log"
     }
@@ -212,5 +212,5 @@
       "category": "Indices"
     }
   },
-  "lastUpdate": "2026-08-02T23:04:30.278038+00:00"
+  "lastUpdate": "2026-08-02T23:06:34.982712+00:00"
 }
