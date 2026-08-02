@@ -42,9 +42,6 @@ jobs:
           echo "✓ All required secrets validated"
 
       - name: Connect to Tailscale (Static IP VPN)
-        env:
-          TAILSCALE_AUTHKEY: ${{ secrets.TAILSCALE_AUTHKEY }}
-        if: env.TAILSCALE_AUTHKEY != ''
         uses: tailscale/github-action@v2
         with:
           authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
