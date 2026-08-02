@@ -156,9 +156,15 @@ class CTraderFIXBot:
     def send_logon(self):
         try:
             self.backend_events.appendleft({"time": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC"), "event": "Sending LOGON message", "type": "fix"})
-            fields = {"98": "0", "108": "30", "554": FIX_PASSWORD}
+            fields = {
+                "98": "0",
+                "108": "30",
+                "141": "Y",
+                "553": FIX_SENDER_COMP_ID,
+                "554": FIX_PASSWORD
+            }
             self.send_msg("A", fields)
-            self.log("INFO", "Logon message sent")
+            self.log("INFO", "Logon message sent with Username and ResetSeqNumFlag")
         except Exception as e:
             self.error(f"Logon error: {e}")
     def send_msg(self, msg_type, fields):
