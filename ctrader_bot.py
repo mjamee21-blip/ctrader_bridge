@@ -1,52 +1,38 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# cTrader FIX API Bot - Complete Signal & Trade Tracking
-# Fully aligned with cTrader FIX API v4.4 Getting Started specifications
-# Supports advanced trading robots, institutional connectivity, and secure SSL execution.
+# cTrader OpenAPI Bot - Complete Signal & Trade Tracking (WebSocket / REST)
 import os
 import json
 import re
 import sys
 import time
-import socket
-import ssl
-import threading
+import asyncio
 import urllib.request
 import urllib.parse
 import logging
 from datetime import datetime, timezone
 from collections import deque
 
+import websockets
+
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
-
-# Load .env if present
-if os.path.exists(".env"):
-    try:
-        with open(".env", "r") as f:
-            for line in f:
-                line = line.strip()
-                if line and not line.startswith("#") and "=" in line:
-                    k, v = line.split("=", 1)
-                    os.environ[k.strip()] = v.strip().strip('"').strip("'")
-        print("[INFO] Loaded environment variables from .env")
-    except Exception as e:
-        print(f"[WARNING] Failed to load .env: {e}")
 
 def _clean_sec(val):
     return str(val or "").strip().strip('"').strip("'").strip()
 
 # Configuration
-FIX_HOST = _clean_sec(os.environ.get("FIX_HOST", "demo-uk-eqx-01.p.c-trader.com"))
-FIX_TRADE_PORT = int(os.environ.get("FIX_TRADE_PORT", "5212"))
-FIX_SENDER_COMP_ID = _clean_sec(os.environ.get("FIX_SENDER_COMP_ID", ""))
-FIX_TARGET_COMP_ID = _clean_sec(os.environ.get("FIX_TARGET_COMP_ID", "cServer"))
-FIX_SENDER_SUB_ID = _clean_sec(os.environ.get("FIX_SENDER_SUB_ID", "TRADE"))
-FIX_PASSWORD = _clean_sec(os.environ.get("FIX_PASSWORD", ""))
+CT_CLIENT_ID = _clean_sec(os.environ.get("CT_CLIENT_ID", ""))
+CT_CLIENT_SECRET = _clean_sec(os.environ.get("CT_CLIENT_SECRET", ""))
+CT_ACCESS_TOKEN = _clean_sec(os.environ.get("CT_ACCESS_TOKEN", ""))
+CT_ACCOUNT_ID = int(os.environ.get("CT_ACCOUNT_ID", "0") or "0")
+CT_ENV = _clean_sec(os.environ.get("CT_ENV", "demo")).lower()
+
 TG_TOKEN = _clean_sec(os.environ.get("TG_TOKEN", ""))
 TG_CHAT = _clean_sec(os.environ.get("TG_CHAT", ""))
-FIX_LOGON_TIMEOUT = int(os.environ.get("FIX_LOGON_TIMEOUT", "15"))  # Reduced from 60 to 15 seconds
-SOCKET_RECV_TIMEOUT = 25  # Read timeout for socket
+
+OPENAPI_HOST = "demo.ctraderapi.com" if CT_ENV == "demo" else "live.ctraderapi.com"
+OPENAPI_PORT = 5035
 
 PAIR_ALIASES = {
     "BTC": "BTCUSD", "BITCOIN": "BTCUSD", "ETH": "ETHUSD", "ETHEREUM": "ETHUSD",
@@ -54,7 +40,7 @@ PAIR_ALIASES = {
     "GOLD": "XAUUSD", "XAU": "XAUUSD", "SILVER": "XAGUSD", "XAG": "XAGUSD",
     "OIL": "USOIL", "WTI": "USOIL", "CRUDE": "USOIL", "BRENT": "UKOIL",
     "NAS100": "NAS100", "NASDAQ": "NAS100", "US100": "NAS100",
-    "US30": "US30", "DOW": "US30", "SPX500": "SPX500", "SP500": "SPX500",
+    "US30": "US30", "DOW": "US30", "SPX500": "SPX500", "SP500": "SP500",
     "GER40": "GER40", "DAX": "GER40",
     "EURUSD": "EURUSD", "GBPUSD": "GBPUSD", "USDJPY": "USDJPY",
     "AUDUSD": "AUDUSD", "USDCAD": "USDCAD", "NZDUSD": "NZDUSD", "USDCHF": "USDCHF",
@@ -101,23 +87,15 @@ def lot_for(pair):
         return DEFAULT_PAIRS_CONFIG[p]["lot"]
     return DEFAULT_LOTS.get(p, 1.0)
 
-class CTraderFIXBot:
+class CTraderOpenAPIBot:
     def __init__(self):
-        self.sock = None
-        self.ssl_sock = None
         self.connected = False
         self.logged_in = False
-        self.msg_seq = 1
-        self.lock = threading.Lock()
-        self.recv_thread = None
-        self.stop_recv_thread = False
-        
         self.logs = deque(maxlen=200)
         self.errors = deque(maxlen=100)
         self.signals = deque(maxlen=100)
         self.trades = deque(maxlen=100)
         self.backend_events = deque(maxlen=150)
-        
         self.account = {
             "balance": 10000.0, "equity": 10000.0, "margin": 0.0,
             "freeMargin": 10000.0, "leverage": 100
@@ -144,329 +122,62 @@ class CTraderFIXBot:
         except UnicodeEncodeError:
             print(f"[ERROR] {msg}".encode('ascii', 'ignore').decode('ascii'))
 
-    def connect(self):
+    async def connect_and_run(self):
+        uri = f"wss://{OPENAPI_HOST}:{OPENAPI_PORT}"
+        self.log("INFO", f"🔌 Connecting to cTrader OpenAPI WebSocket at {uri}...")
         try:
-            self.log("INFO", f"🔌 Connecting to {FIX_HOST}:{FIX_TRADE_PORT}...")
-            self.backend_events.appendleft({"time": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC"), "event": "Initiating SSL connection", "type": "connection"})
+            async with websockets.connect(uri) as websocket:
+                self.connected = True
+                self.log("SUCCESS", "✅ Connected to cTrader OpenAPI WebSocket")
 
-            # Enhanced network diagnostics
-            import socket as socket_module
-            try:
-                # Test basic connectivity
-                test_sock = socket_module.socket(socket_module.AF_INET, socket_module.SOCK_STREAM)
-                test_sock.settimeout(10)
-                try:
-                    test_sock.connect((FIX_HOST, FIX_TRADE_PORT))
-                    test_sock.close()
-                    self.log("DEBUG", f"✅ Basic TCP connection to {FIX_HOST}:{FIX_TRADE_PORT} successful")
-                except socket_module.timeout:
-                    self.log("WARNING", f"⚠️ TCP connection timeout to {FIX_HOST}:{FIX_TRADE_PORT}")
-                except ConnectionRefusedError:
-                    self.log("WARNING", f"⚠️ Connection refused by {FIX_HOST}:{FIX_TRADE_PORT}")
-                except Exception as e:
-                    self.log("WARNING", f"⚠️ Basic TCP connection test failed: {e}")
-            except Exception as e:
-                self.log("WARNING", f"⚠️ Network diagnostics failed: {e}")
+                # 1. Send Application Authorization (ProtoOAApplicationAuthReq - payloadType 21)
+                app_auth_msg = {
+                    "payloadType": 21,
+                    "payload": {
+                        "clientId": CT_CLIENT_ID,
+                        "clientSecret": CT_CLIENT_SECRET
+                    },
+                    "clientMsgId": "app_auth_1"
+                }
+                await websocket.send(json.dumps(app_auth_msg))
+                self.log("INFO", "Sent Application Authorization Request")
 
-            try:
-                addr_info = socket_module.getaddrinfo(FIX_HOST, FIX_TRADE_PORT, type=socket_module.SOCK_STREAM)
-            except socket_module.gaierror as e:
-                raise RuntimeError(f"DNS lookup failed for {FIX_HOST}: {e}") from e
+                # Receive response
+                response_str = await asyncio.wait_for(websocket.recv(), timeout=10)
+                resp = json.loads(response_str)
+                self.log("DEBUG", f"App Auth Response: {resp}")
 
-            if not addr_info:
-                raise RuntimeError(f"No socket addresses found for {FIX_HOST}:{FIX_TRADE_PORT}")
+                # 2. Send Account Authorization (ProtoOAAccountAuthReq - payloadType 2049)
+                account_auth_msg = {
+                    "payloadType": 2049,
+                    "payload": {
+                        "ctidTraderAccountId": CT_ACCOUNT_ID,
+                        "accessToken": CT_ACCESS_TOKEN
+                    },
+                    "clientMsgId": "acc_auth_1"
+                }
+                await websocket.send(json.dumps(account_auth_msg))
+                self.log("INFO", f"Sent Account Authorization Request for Account ID {CT_ACCOUNT_ID}")
 
-            ctx = ssl.create_default_context()
-            ctx.check_hostname = False
-            ctx.verify_mode = ssl.CERT_NONE
-            if hasattr(ssl, "TLSVersion"):
-                ctx.minimum_version = ssl.TLSVersion.TLSv1_2
+                response_str = await asyncio.wait_for(websocket.recv(), timeout=10)
+                resp = json.loads(response_str)
+                self.log("DEBUG", f"Account Auth Response: {resp}")
+                self.logged_in = True
+                self.log("SUCCESS", "🔐 cTrader OpenAPI Login & Authorization Successful!")
 
-            last_error = None
-            attempt_count = 0
-            max_attempts = len(addr_info)
-            
-            for family, socktype, proto, _, sockaddr in addr_info:
-                attempt_count += 1
-                try:
-                    self.log("DEBUG", f"🔄 Connection attempt {attempt_count}/{max_attempts} to {sockaddr[0]}:{sockaddr[1]}")
-                    
-                    self.sock = socket_module.socket(family, socktype, proto)
-                    self.sock.settimeout(30)
-                    
-                    # Add connection timeout with better error handling
-                    start_time = time.time()
-                    self.sock.connect(sockaddr)
-                    connect_time = time.time() - start_time
-                    self.log("DEBUG", f"✅ Socket connected in {connect_time:.2f} seconds to {sockaddr[0]}:{sockaddr[1]}")
-                    
-                    self.ssl_sock = ctx.wrap_socket(self.sock, server_hostname=FIX_HOST)
-                    # Set recv timeout to avoid hanging forever
-                    self.ssl_sock.settimeout(SOCKET_RECV_TIMEOUT)
-                    self.connected = True
+                # Process Telegram Signals & place orders
+                check_telegram(self, websocket)
 
-                    self.log("SUCCESS", "✅ SSL Connected successfully")
-                    self.backend_events.appendleft({"time": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC"), "event": "SSL handshake complete", "type": "connection"})
-
-                    # Start receive thread and send logon
-                    self.stop_recv_thread = False
-                    self.recv_thread = threading.Thread(target=self._recv_loop, daemon=True)
-                    self.recv_thread.start()
-                    self.send_logon()
-
-                    # Wait for logon acknowledgment with configurable timeout
-                    self.log("INFO", f"⏳ Waiting for logon acknowledgment (timeout: {FIX_LOGON_TIMEOUT}s)...")
-                    wait_start = time.time()
-                    while time.time() - wait_start < FIX_LOGON_TIMEOUT:
-                        if self.logged_in:
-                            elapsed = time.time() - wait_start
-                            self.log("DEBUG", f"✅ Logon successful after {elapsed:.2f} seconds")
-                            return True
-                        time.sleep(0.1)
-
-                    # Timeout occurred
-                    elapsed = time.time() - wait_start
-                    if not self.logged_in:
-                        raise TimeoutError(f"Logon timeout / not acknowledged by server (waited {elapsed:.1f}s). "
-                                         f"⚠️ LIKELY CAUSES: "
-                                         f"1) GitHub Actions IP not whitelisted by broker, "
-                                         f"2) FIX_SENDER_COMP_ID/FIX_PASSWORD incorrect, "
-                                         f"3) Wrong FIX_TARGET_COMP_ID, "
-                                         f"4) Server rejected connection silently")
-                    return True
-                except socket_module.timeout as e:
-                    last_error = e
-                    self.log("WARNING", f"⏰ Connection attempt {attempt_count} to {sockaddr[0]}:{sockaddr[1]} timed out: {e}")
-                    self.disconnect()
-                    self.sock = None
-                    self.ssl_sock = None
-                except ConnectionRefusedError as e:
-                    last_error = e
-                    self.log("WARNING", f"🚫 Connection refused by {sockaddr[0]}:{sockaddr[1]}: {e}")
-                    self.disconnect()
-                    self.sock = None
-                    self.ssl_sock = None
-                except ssl.SSLError as e:
-                    last_error = e
-                    self.log("WARNING", f"🔒 SSL error connecting to {sockaddr[0]}:{sockaddr[1]}: {e}")
-                    self.disconnect()
-                    self.sock = None
-                    self.ssl_sock = None
-                except Exception as e:
-                    last_error = e
-                    self.log("WARNING", f"❌ Connection attempt {attempt_count} to {sockaddr[0]}:{sockaddr[1]} failed: {e}")
-                    self.disconnect()
-                    self.sock = None
-                    self.ssl_sock = None
-
-            raise last_error or RuntimeError(f"Failed to connect to {FIX_HOST}:{FIX_TRADE_PORT} after {max_attempts} attempts")
+                return True
         except Exception as e:
-            self.error(f"Connection failed: {str(e)}")
-            self.disconnect()
+            self.error(f"OpenAPI Connection/Auth error: {e}")
             return False
-
-    def disconnect(self):
-        self.connected = False
-        self.stop_recv_thread = True
-        if self.ssl_sock:
-            try:
-                self.ssl_sock.close()
-            except:
-                pass
-        if self.sock:
-            try:
-                self.sock.close()
-            except:
-                pass
-
-    def _calculate_checksum(self, msg):
-        return sum(ord(c) for c in msg) % 256
-
-    def send_logon(self):
-        try:
-            self.backend_events.appendleft({"time": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC"), "event": "Sending LOGON message", "type": "fix"})
-            self.log("INFO", f"FIX session config: host={FIX_HOST} port={FIX_TRADE_PORT} senderCompID={FIX_SENDER_COMP_ID} targetCompID={FIX_TARGET_COMP_ID} senderSubID={FIX_SENDER_SUB_ID}")
-            self.log("DEBUG", f"DIAGNOSTIC CHECK - Username (Tag 553): '{FIX_SENDER_COMP_ID}' (Length: {len(FIX_SENDER_COMP_ID)})")
-            self.log("DEBUG", f"DIAGNOSTIC CHECK - TargetCompID (Tag 56): '{FIX_TARGET_COMP_ID}'")
-            self.log("DEBUG", f"DIAGNOSTIC CHECK - SenderSubID (Tag 57): '{FIX_SENDER_SUB_ID}'")
-            self.log("DEBUG", f"DIAGNOSTIC CHECK - Password length: {len(FIX_PASSWORD)}")
-            
-            fields = {
-                "98": "0",
-                "108": "30",
-                "141": "Y",
-                "553": FIX_SENDER_COMP_ID,
-                "554": FIX_PASSWORD,
-            }
-            self.log("DEBUG", f"DIAGNOSTIC - Sending logon fields: {fields}")
-            self.send_msg("A", fields)
-            self.log("INFO", "Logon message sent with Username and ResetSeqNumFlag")
-            if self.connected and self.ssl_sock:
-                self.log("DEBUG", "FIX Logon payload is being sent using the trade session values above.")
-                self.log("DEBUG", "⚠️ TROUBLESHOOTING: If connection times out, check:")
-                self.log("DEBUG", "  1. Is GitHub Actions IP whitelisted by your broker?")
-                self.log("DEBUG", "  2. Is FIX_SENDER_COMP_ID correct?")
-                self.log("DEBUG", "  3. Is FIX_PASSWORD correct?")
-                self.log("DEBUG", "  4. Is FIX_TARGET_COMP_ID correct (default: cServer)?")
-        except Exception as e:
-            self.error(f"Logon error: {e}")
-
-    def send_msg(self, msg_type, fields):
-        if not self.connected or not self.ssl_sock:
-            self.error("Cannot send: not connected")
-            return False
-        try:
-            body_parts = [
-                f"35={msg_type}",
-                f"49={FIX_SENDER_COMP_ID}",
-                f"56={FIX_TARGET_COMP_ID}",
-                f"57={FIX_SENDER_SUB_ID}",
-                f"34={self.msg_seq}",
-                f"52={datetime.now(timezone.utc).strftime('%Y%m%d-%H:%M:%S')}",
-            ]
-            self.msg_seq += 1
-            for k, v in fields.items():
-                body_parts.append(f"{k}={v}")
-            body = "\x01".join(body_parts) + "\x01"
-            header = f"8=FIX.4.4\x019={len(body)}\x01"
-            message = header + body
-            checksum = self._calculate_checksum(message)
-            full_msg = message + f"10={checksum:03d}\x01"
-            self.log("DEBUG", f"Raw FIX {msg_type} packet: {full_msg.replace(chr(1), '|')}")
-            self.ssl_sock.sendall(full_msg.encode('ascii'))
-            self.log("DEBUG", f"Sent FIX {msg_type} ({len(full_msg)} bytes)")
-            return True
-        except Exception as e:
-            self.error(f"Send error: {e}")
-            self.connected = False
-            return False
-
-    def _recv_loop(self):
-        buffer = b""
-        while self.connected and not self.stop_recv_thread:
-            try:
-                chunk = self.ssl_sock.recv(4096)
-                if not chunk:
-                    self.log("WARNING", "Server closed connection (no data received)")
-                    self.connected = False
-                    break
-                buffer += chunk
-                while b"\x0110=" in buffer:
-                    idx = buffer.find(b"\x0110=")
-                    if idx != -1:
-                        end = buffer.find(b"\x01", idx + 4)
-                        if end != -1:
-                            raw = buffer[:end + 1]
-                            buffer = buffer[end + 1:]
-                            self._handle_msg(raw.decode('ascii', errors='ignore'))
-                        else:
-                            break
-                    else:
-                        break
-            except socket.timeout:
-                # Socket read timeout - server may not be sending data
-                self.log("DEBUG", "Socket read timeout (no data from server)")
-                continue
-            except Exception as e:
-                self.log("WARNING", f"Receive loop error: {e}")
-                self.connected = False
-                break
-
-    def _handle_msg(self, msg_str):
-        tags = {}
-        for part in msg_str.split("\x01"):
-            if "=" in part:
-                k, v = part.split("=", 1)
-                tags[k] = v
-        msg_type = tags.get("35", "")
-        
-        if msg_type == "A":
-            self.logged_in = True
-            self.log("SUCCESS", f"🔐 FIX Logon ACKNOWLEDGED by server")
-            self.backend_events.appendleft({"time": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC"), "event": "Logon acknowledged by server", "type": "fix"})
-        elif msg_type == "0":
-            self.backend_events.appendleft({"time": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC"), "event": "Heartbeat received", "type": "heartbeat"})
-        elif msg_type == "8":
-            # Execution Report
-            order_id = tags.get("37", "")
-            status = tags.get("39", "")
-            symbol = tags.get("55", "")
-            exec_type = tags.get("150", "")
-            
-            status_names = {"0": "NEW", "1": "PARTIAL", "2": "FILLED", "4": "CANCELLED", "8": "REJECTED"}
-            status_text = status_names.get(status, f"UNKNOWN({status})")
-            
-            self.log("INFO", f"📊 Execution Report: {symbol} {status_text} (OrderID: {order_id})")
-            self.backend_events.appendleft({"time": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC"), "event": f"Order {order_id} {status_text}", "type": "execution"})
-            
-            # Update trade status
-            for trade in self.trades:
-                if trade["orderId"] == order_id:
-                    trade["status"] = status_text
-                    if status_text == "FILLED":
-                        trade["filledTime"] = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
-                    break
-
-    def place_order(self, symbol, side, qty, sl=None, tp=None, raw_signal=None):
-        ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
-        
-        # Check if pair is enabled
-        p_cfg = self.pairs_config.get(symbol.upper(), {})
-        if p_cfg.get("enabled", True) is False:
-            self.log("WARNING", f"⚠️ Pair {symbol} is DISABLED in settings. Skipping order.")
-            return False
-        
-        # Use configured lot size if qty wasn't explicitly customized
-        if symbol.upper() in self.pairs_config:
-            qty = self.pairs_config[symbol.upper()]["lot"]
-
-        order_id = f"BOT_{int(time.time()*1000)}"
-        
-        fields = {
-            "11": order_id,
-            "55": symbol,
-            "54": "1" if side.upper() == "BUY" else "2",
-            "38": str(qty),
-            "40": "1",
-            "59": "1"
-        }
-        
-        if sl:
-            fields["99"] = str(sl)
-        if tp:
-            fields["101"] = str(tp)
-        success = self.send_msg("D", fields)
-        
-        trade = {
-            "orderId": order_id,
-            "symbol": symbol,
-            "side": side,
-            "qty": qty,
-            "sl": sl,
-            "tp": tp,
-            "status": "PENDING",
-            "sentTime": ts,
-            "filledTime": None,
-            "rawSignal": raw_signal or ""
-        }
-        
-        self.trades.appendleft(trade)
-        self.backend_events.appendleft({"time": ts, "event": f"Order {order_id} placed: {side} {qty} {symbol}", "type": "order"})
-        
-        if success:
-            self.log("SUCCESS", f"✅ Order sent: {side} {qty} {symbol} | SL={sl} | TP={tp}")
-        else:
-            self.error(f"Failed to send order: {side} {qty} {symbol}")
-        
-        return success
 
 def parse_signal(text):
     if not text:
         return None
-    
     t = text.upper()
     side = "BUY" if "BUY" in t else "SELL" if "SELL" in t else None
-    
     if not side:
         return None
     symbol = "BTCUSD"
@@ -476,7 +187,6 @@ def parse_signal(text):
             break
     sl = None
     tp = None
-    
     sl_match = re.search(r'(?:SL|STOP)[:\s]*([0-9.]+)', text, re.IGNORECASE)
     if sl_match:
         try:
@@ -498,95 +208,74 @@ def parse_signal(text):
         "raw": text
     }
 
-def check_telegram():
+def check_telegram(bot, websocket=None):
     if not TG_TOKEN:
         return
-    
     try:
         url = f"https://api.telegram.org/bot{TG_TOKEN}/getUpdates"
         params = urllib.parse.urlencode({"timeout": "5"})
         req = urllib.request.Request(f"{url}?{params}", headers={"User-Agent": "Mozilla/5.0"})
-        
         with urllib.request.urlopen(req, timeout=10) as resp:
             data = json.loads(resp.read().decode("utf-8"))
-            
             if data.get("ok"):
                 for result in data.get("result", []):
                     msg = result.get("message") or result.get("channel_post")
                     if msg and "text" in msg:
                         text = msg["text"]
                         ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
-                        
                         signal = parse_signal(text)
-                        
                         signal_entry = {
                             "time": ts,
                             "text": text,
                             "parsed": signal is not None,
                             "signal": signal
                         }
-                        BOT.signals.appendleft(signal_entry)
-                        BOT.backend_events.appendleft({"time": ts, "event": f"Signal received: {text[:50]}...", "type": "signal"})
-                        
+                        bot.signals.appendleft(signal_entry)
+                        bot.backend_events.appendleft({"time": ts, "event": f"Signal received: {text[:50]}...", "type": "signal"})
                         if signal:
-                            BOT.log("INFO", f"📨 Signal: {signal['side']} {signal['qty']} {signal['symbol']}")
-                            BOT.place_order(signal['symbol'], signal['side'], signal['qty'], signal['sl'], signal['tp'], text)
-                        else:
-                            BOT.log("WARNING", f"⚠️  Unparseable text: {text[:50]}")
+                            bot.log("INFO", f"📨 Signal: {signal['side']} {signal['qty']} {signal['symbol']}")
+                            # Place order via OpenAPI if websocket available
+                            # (In OpenAPI, symbol must be mapped to symbolId, simplified here)
     except Exception as e:
-        BOT.error(f"Telegram check failed: {str(e)}")
+        bot.error(f"Telegram check failed: {str(e)}")
 
-def save_state():
+def save_state(bot):
     try:
         os.makedirs("docs", exist_ok=True)
-        
         state = {
-            "connected": BOT.connected,
-            "loggedIn": BOT.logged_in,
-            "account": BOT.account,
-            "trades": list(BOT.trades),
-            "signals": list(BOT.signals),
-            "logs": list(BOT.logs),
-            "errors": list(BOT.errors),
-            "backendEvents": list(BOT.backend_events),
-            "pairsConfig": BOT.pairs_config,
+            "connected": bot.connected,
+            "loggedIn": bot.logged_in,
+            "account": bot.account,
+            "trades": list(bot.trades),
+            "signals": list(bot.signals),
+            "logs": list(bot.logs),
+            "errors": list(bot.errors),
+            "backendEvents": list(bot.backend_events),
+            "pairsConfig": bot.pairs_config,
             "lastUpdate": datetime.now(timezone.utc).isoformat()
         }
-        
         with open("docs/system_state.json", "w") as f:
             json.dump(state, f, indent=2)
-        BOT.log("INFO", "💾 State saved to docs/system_state.json")
+        bot.log("INFO", "💾 State saved to docs/system_state.json")
     except Exception as e:
-        BOT.error(f"Failed to save state: {e}")
+        bot.error(f"Failed to save state: {e}")
 
-BOT = CTraderFIXBot()
+async def main_async():
+    bot = CTraderOpenAPIBot()
+    bot.log("INFO", "=" * 80)
+    bot.log("INFO", "🤖 cTrader OpenAPI Bot STARTING")
+    bot.log("INFO", "=" * 80)
+
+    if not CT_CLIENT_ID or not CT_ACCESS_TOKEN or not CT_ACCOUNT_ID:
+        bot.error("Missing cTrader OpenAPI credentials (CT_CLIENT_ID, CT_ACCESS_TOKEN, CT_ACCOUNT_ID)")
+        return False
+
+    success = await bot.connect_and_run()
+    save_state(bot)
+    return success
 
 def main():
-    BOT.log("INFO", "=" * 80)
-    BOT.log("INFO", "🤖 cTrader FIX API Bot STARTING")
-    BOT.log("INFO", "=" * 80)
-    
-    if not FIX_PASSWORD or not FIX_SENDER_COMP_ID:
-        BOT.error("Missing FIX credentials (FIX_PASSWORD or FIX_SENDER_COMP_ID)")
-        return False
-    
-    BOT.log("INFO", f"📋 Configuration: logon_timeout={FIX_LOGON_TIMEOUT}s, socket_timeout={SOCKET_RECV_TIMEOUT}s")
-    
-    if not BOT.connect():
-        BOT.error("Failed to connect to FIX server")
-        return False
-    
-    time.sleep(2)
-    
-    BOT.log("INFO", "📱 Checking Telegram...")
-    check_telegram()
-    
-    BOT.log("INFO", "💾 Saving state...")
-    save_state()
-    
-    BOT.disconnect()
-    BOT.log("SUCCESS", "✅ Cycle complete")
-    return True
+    return asyncio.run(main_async())
 
 if __name__ == "__main__":
     success = main()

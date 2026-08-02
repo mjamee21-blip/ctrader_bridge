@@ -1,4 +1,4 @@
-name: cTrader FIX API Trading Bot
+name: cTrader OpenAPI Trading Bot
 
 on:
   workflow_dispatch:
@@ -17,7 +17,7 @@ concurrency:
 jobs:
   execute:
     runs-on: ubuntu-latest
-    timeout-minutes: 3  # Reduced from 5 to 3 minutes
+    timeout-minutes: 3
 
     steps:
       - name: Checkout repository
@@ -36,47 +36,23 @@ jobs:
 
       - name: Validate secrets
         run: |
-          [ -z "${{ secrets.FIX_HOST }}" ] && echo "ERROR: FIX_HOST not set" && exit 1
-          [ -z "${{ secrets.FIX_PASSWORD }}" ] && echo "ERROR: FIX_PASSWORD not set" && exit 1
-          [ -z "${{ secrets.FIX_SENDER_COMP_ID }}" ] && echo "ERROR: FIX_SENDER_COMP_ID not set" && exit 1
-          echo "✓ All required secrets validated"
-
-      - name: Connect to Tailscale (Static IP VPN)
-        uses: tailscale/github-action@v2
-        with:
-          authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
-          version: 1.62.1
-          args: ${{ secrets.TAILSCALE_EXIT_NODE != '' && format('--exit-node={0}', secrets.TAILSCALE_EXIT_NODE) || '' }}
-
-      - name: Pre-flight Connectivity Check
-        run: |
-          echo "🔍 GitHub Actions Environment Check:"
-          echo "Python version: $(python3 --version)"
-          echo "Hostname: $(hostname)"
-          echo "Current IP (what broker sees): $(curl -s https://api.ipify.org 2>/dev/null || echo 'Unknown')"
-          echo ""
-          echo "⚠️  IMPORTANT: Your broker must whitelist the GitHub Actions IP ranges"
-          echo "   See: https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners/about-github-hosted-runners#ip-addresses"
-          echo ""
-          echo "Testing DNS resolution for ${{ secrets.FIX_HOST }}"
-          nslookup ${{ secrets.FIX_HOST }} || echo "⚠️  DNS lookup may have failed"
+          [ -z "${{ secrets.CT_CLIENT_ID }}" ] && echo "ERROR: CT_CLIENT_ID not set" && exit 1
+          [ -z "${{ secrets.CT_ACCESS_TOKEN }}" ] && echo "ERROR: CT_ACCESS_TOKEN not set" && exit 1
+          [ -z "${{ secrets.CT_ACCOUNT_ID }}" ] && echo "ERROR: CT_ACCOUNT_ID not set" && exit 1
+          echo "✓ All required cTrader OpenAPI secrets validated"
 
       - name: Run Trading Bot
         id: run_bot
         env:
-          FIX_HOST: ${{ secrets.FIX_HOST }}
-          FIX_TRADE_PORT: ${{ secrets.FIX_TRADE_PORT || '5212' }}
-          FIX_QUOTE_PORT: ${{ secrets.FIX_QUOTE_PORT || '5211' }}
-          FIX_SENDER_COMP_ID: ${{ secrets.FIX_SENDER_COMP_ID }}
-          FIX_TARGET_COMP_ID: ${{ secrets.FIX_TARGET_COMP_ID || 'cServer' }}
-          FIX_SENDER_SUB_ID: ${{ secrets.FIX_SENDER_SUB_ID || 'TRADE' }}
-          FIX_PASSWORD: ${{ secrets.FIX_PASSWORD }}
+          CT_CLIENT_ID: ${{ secrets.CT_CLIENT_ID }}
+          CT_CLIENT_SECRET: ${{ secrets.CT_CLIENT_SECRET }}
+          CT_ACCESS_TOKEN: ${{ secrets.CT_ACCESS_TOKEN }}
+          CT_ACCOUNT_ID: ${{ secrets.CT_ACCOUNT_ID }}
+          CT_ENV: ${{ secrets.CT_ENV || 'demo' }}
           TG_TOKEN: ${{ secrets.TG_TOKEN || '' }}
           TG_CHAT: ${{ secrets.TG_CHAT || '' }}
-          CTRADER_DEFAULT_QTY: ${{ secrets.CTRADER_DEFAULT_QTY || '1.0' }}
-          FIX_LOGON_TIMEOUT: 15  # Reduced from 60 to 15 seconds
         run: |
-          echo "🤖 Starting cTrader FIX API Bot..."
+          echo "🤖 Starting cTrader OpenAPI Bot..."
           python3 ctrader_bot.py
           BOT_EXIT_CODE=$?
           echo "bot_exit_code=$BOT_EXIT_CODE" >> $GITHUB_OUTPUT
@@ -86,13 +62,6 @@ jobs:
             exit 0
           else
             echo "❌ Bot cycle failed with exit code: $BOT_EXIT_CODE"
-            echo ""
-            echo "TROUBLESHOOTING STEPS:"
-            echo "1. Check if GitHub Actions IP is whitelisted by your broker"
-            echo "2. Verify FIX_SENDER_COMP_ID is correct (case-sensitive)"
-            echo "3. Verify FIX_PASSWORD is correct"
-            echo "4. Verify FIX_TARGET_COMP_ID is correct (default: cServer)"
-            echo "5. Test with a local machine first to isolate the issue"
             exit $BOT_EXIT_CODE
           fi
 
@@ -104,13 +73,9 @@ jobs:
             cp docs/system_state.json system_state.json
             echo "✓ State file copied to root"
           else
-            echo "⚠️  system_state.json not found in docs/"
-            # Create a minimal state file so artifact upload doesn't fail
             mkdir -p docs
             echo '{"status":"no-connection","lastUpdate":"'$(date -u '+%Y-%m-%dT%H:%M:%SZ'):'"}' > system_state.json
           fi
-          
-          # Create heartbeat log
           echo "[$(date -u '+%Y-%m-%d %H:%M:%S UTC')] Bot cycle completed (exit: ${{ steps.run_bot.outputs.bot_exit_code }})" > heartbeat.log
 
       - name: Commit and Push Updates
@@ -141,7 +106,7 @@ jobs:
       - name: Job Summary
         if: always()
         run: |
-          echo "## cTrader FIX Bot Run Summary" >> $GITHUB_STEP_SUMMARY
+          echo "## cTrader OpenAPI Bot Run Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Exit Code:** ${{ steps.run_bot.outputs.bot_exit_code }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
