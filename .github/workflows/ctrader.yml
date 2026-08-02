@@ -41,6 +41,13 @@ jobs:
           [ -z "${{ secrets.FIX_SENDER_COMP_ID }}" ] && echo "ERROR: FIX_SENDER_COMP_ID not set" && exit 1
           echo "✓ All required secrets validated"
 
+      - name: Connect to Tailscale (Static IP VPN)
+        if: ${{ secrets.TAILSCALE_AUTHKEY != '' }}
+        uses: tailscale/github-action@v2
+        with:
+          authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
+          version: 1.62.1
+
       - name: Pre-flight Connectivity Check
         run: |
           echo "🔍 GitHub Actions Environment Check:"
