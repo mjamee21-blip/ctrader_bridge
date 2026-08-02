@@ -14,10 +14,13 @@ import urllib.parse
 import logging
 from datetime import datetime, timezone
 from collections import deque
+
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
+
 def _clean_sec(val):
     return str(val or "").strip().strip('"').strip("'").strip()
+
 # Configuration
 FIX_HOST = _clean_sec(os.environ.get("FIX_HOST", "demo-uk-eqx-01.p.c-trader.com"))
 FIX_TRADE_PORT = int(os.environ.get("FIX_TRADE_PORT", "5212"))
@@ -27,6 +30,9 @@ FIX_SENDER_SUB_ID = _clean_sec(os.environ.get("FIX_SENDER_SUB_ID", "TRADE"))
 FIX_PASSWORD = _clean_sec(os.environ.get("FIX_PASSWORD", ""))
 TG_TOKEN = _clean_sec(os.environ.get("TG_TOKEN", ""))
 TG_CHAT = _clean_sec(os.environ.get("TG_CHAT", ""))
+FIX_LOGON_TIMEOUT = int(os.environ.get("FIX_LOGON_TIMEOUT", "15"))  # Reduced from 60 to 15 seconds
+SOCKET_RECV_TIMEOUT = 25  # Read timeout for socket
+
 PAIR_ALIASES = {
     "BTC": "BTCUSD", "BITCOIN": "BTCUSD", "ETH": "ETHUSD", "ETHEREUM": "ETHUSD",
     "LTC": "LTCUSD", "XRP": "XRPUSD",
@@ -40,10 +46,12 @@ PAIR_ALIASES = {
     "EURGBP": "EURGBP", "EURJPY": "EURJPY", "GBPJPY": "GBPJPY", "AUDJPY": "AUDJPY",
     "EURAUD": "EURAUD", "EURCAD": "EURCAD"
 }
+
 DEFAULT_LOTS = {
     "BTCUSD": 0.10, "ETHUSD": 0.10, "XAUUSD": 0.05, "XAGUSD": 0.10,
     "EURUSD": 0.01, "GBPUSD": 0.01, "USDJPY": 0.01, "NAS100": 0.10, "US30": 0.10,
 }
+
 DEFAULT_PAIRS_CONFIG = {
     "XAUUSD": {"lot": 0.05, "enabled": True, "category": "Gold"},
     "XAGUSD": {"lot": 0.10, "enabled": True, "category": "Gold"},
@@ -71,11 +79,13 @@ DEFAULT_PAIRS_CONFIG = {
     "SPX500": {"lot": 0.10, "enabled": True, "category": "Indices"},
     "GER40": {"lot": 0.10, "enabled": True, "category": "Indices"},
 }
+
 def lot_for(pair):
     p = (pair or "").upper()
     if p in DEFAULT_PAIRS_CONFIG:
         return DEFAULT_PAIRS_CONFIG[p]["lot"]
     return DEFAULT_LOTS.get(p, 1.0)
+
 class CTraderFIXBot:
     def __init__(self):
         self.sock = None
@@ -84,6 +94,8 @@ class CTraderFIXBot:
         self.logged_in = False
         self.msg_seq = 1
         self.lock = threading.Lock()
+        self.recv_thread = None
+        self.stop_recv_thread = False
         
         self.logs = deque(maxlen=200)
         self.errors = deque(maxlen=100)
@@ -96,34 +108,37 @@ class CTraderFIXBot:
             "freeMargin": 10000.0, "leverage": 100
         }
         self.pairs_config = DEFAULT_PAIRS_CONFIG.copy()
+
     def log(self, level, msg):
         ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
         entry = {"time": ts, "level": level, "message": msg}
         self.logs.appendleft(entry)
         self.backend_events.appendleft({"time": ts, "event": f"[{level}] {msg}", "type": "log"})
         print(f"[{level}] {msg}")
+
     def error(self, msg):
         ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
         entry = {"time": ts, "error": msg}
         self.errors.appendleft(entry)
         self.backend_events.appendleft({"time": ts, "event": f"ERROR: {msg}", "type": "error"})
         print(f"[ERROR] {msg}")
+
     def connect(self):
         try:
             self.log("INFO", f"🔌 Connecting to {FIX_HOST}:{FIX_TRADE_PORT}...")
             self.backend_events.appendleft({"time": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC"), "event": "Initiating SSL connection", "type": "connection"})
 
             # Enhanced network diagnostics
-            import socket
+            import socket as socket_module
             try:
                 # Test basic connectivity
-                test_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                test_sock = socket_module.socket(socket_module.AF_INET, socket_module.SOCK_STREAM)
                 test_sock.settimeout(10)
                 try:
                     test_sock.connect((FIX_HOST, FIX_TRADE_PORT))
                     test_sock.close()
                     self.log("DEBUG", f"✅ Basic TCP connection to {FIX_HOST}:{FIX_TRADE_PORT} successful")
-                except socket.timeout:
+                except socket_module.timeout:
                     self.log("WARNING", f"⚠️ TCP connection timeout to {FIX_HOST}:{FIX_TRADE_PORT}")
                 except ConnectionRefusedError:
                     self.log("WARNING", f"⚠️ Connection refused by {FIX_HOST}:{FIX_TRADE_PORT}")
@@ -133,8 +148,8 @@ class CTraderFIXBot:
                 self.log("WARNING", f"⚠️ Network diagnostics failed: {e}")
 
             try:
-                addr_info = socket.getaddrinfo(FIX_HOST, FIX_TRADE_PORT, type=socket.SOCK_STREAM)
-            except socket.gaierror as e:
+                addr_info = socket_module.getaddrinfo(FIX_HOST, FIX_TRADE_PORT, type=socket_module.SOCK_STREAM)
+            except socket_module.gaierror as e:
                 raise RuntimeError(f"DNS lookup failed for {FIX_HOST}: {e}") from e
 
             if not addr_info:
@@ -155,7 +170,7 @@ class CTraderFIXBot:
                 try:
                     self.log("DEBUG", f"🔄 Connection attempt {attempt_count}/{max_attempts} to {sockaddr[0]}:{sockaddr[1]}")
                     
-                    self.sock = socket.socket(family, socktype, proto)
+                    self.sock = socket_module.socket(family, socktype, proto)
                     self.sock.settimeout(30)
                     
                     # Add connection timeout with better error handling
@@ -165,27 +180,40 @@ class CTraderFIXBot:
                     self.log("DEBUG", f"✅ Socket connected in {connect_time:.2f} seconds to {sockaddr[0]}:{sockaddr[1]}")
                     
                     self.ssl_sock = ctx.wrap_socket(self.sock, server_hostname=FIX_HOST)
+                    # Set recv timeout to avoid hanging forever
+                    self.ssl_sock.settimeout(SOCKET_RECV_TIMEOUT)
                     self.connected = True
 
                     self.log("SUCCESS", "✅ SSL Connected successfully")
                     self.backend_events.appendleft({"time": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC"), "event": "SSL handshake complete", "type": "connection"})
 
-                    threading.Thread(target=self._recv_loop, daemon=True).start()
+                    # Start receive thread and send logon
+                    self.stop_recv_thread = False
+                    self.recv_thread = threading.Thread(target=self._recv_loop, daemon=True)
+                    self.recv_thread.start()
                     self.send_logon()
 
-                    # Enhanced logon waiting with better timeout handling
-                    max_wait_time = 60  # Increased timeout
+                    # Wait for logon acknowledgment with configurable timeout
+                    self.log("INFO", f"⏳ Waiting for logon acknowledgment (timeout: {FIX_LOGON_TIMEOUT}s)...")
                     wait_start = time.time()
-                    while time.time() - wait_start < max_wait_time:
+                    while time.time() - wait_start < FIX_LOGON_TIMEOUT:
                         if self.logged_in:
-                            self.log("DEBUG", f"✅ Logon successful after {time.time() - wait_start:.2f} seconds")
+                            elapsed = time.time() - wait_start
+                            self.log("DEBUG", f"✅ Logon successful after {elapsed:.2f} seconds")
                             return True
                         time.sleep(0.1)
 
+                    # Timeout occurred
+                    elapsed = time.time() - wait_start
                     if not self.logged_in:
-                        raise TimeoutError(f"Logon timeout / not acknowledged by server (waited {max_wait_time} seconds)")
+                        raise TimeoutError(f"Logon timeout / not acknowledged by server (waited {elapsed:.1f}s). "
+                                         f"⚠️ LIKELY CAUSES: "
+                                         f"1) GitHub Actions IP not whitelisted by broker, "
+                                         f"2) FIX_SENDER_COMP_ID/FIX_PASSWORD incorrect, "
+                                         f"3) Wrong FIX_TARGET_COMP_ID, "
+                                         f"4) Server rejected connection silently")
                     return True
-                except socket.timeout as e:
+                except socket_module.timeout as e:
                     last_error = e
                     self.log("WARNING", f"⏰ Connection attempt {attempt_count} to {sockaddr[0]}:{sockaddr[1]} timed out: {e}")
                     self.disconnect()
@@ -215,15 +243,24 @@ class CTraderFIXBot:
             self.error(f"Connection failed: {str(e)}")
             self.disconnect()
             return False
+
     def disconnect(self):
         self.connected = False
+        self.stop_recv_thread = True
         if self.ssl_sock:
             try:
                 self.ssl_sock.close()
             except:
                 pass
+        if self.sock:
+            try:
+                self.sock.close()
+            except:
+                pass
+
     def _calculate_checksum(self, msg):
         return sum(ord(c) for c in msg) % 256
+
     def send_logon(self):
         try:
             self.backend_events.appendleft({"time": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC"), "event": "Sending LOGON message", "type": "fix"})
@@ -232,6 +269,7 @@ class CTraderFIXBot:
             self.log("DEBUG", f"DIAGNOSTIC CHECK - TargetCompID (Tag 56): '{FIX_TARGET_COMP_ID}'")
             self.log("DEBUG", f"DIAGNOSTIC CHECK - SenderSubID (Tag 57): '{FIX_SENDER_SUB_ID}'")
             self.log("DEBUG", f"DIAGNOSTIC CHECK - Password length: {len(FIX_PASSWORD)}")
+            
             fields = {
                 "98": "0",
                 "108": "30",
@@ -243,10 +281,15 @@ class CTraderFIXBot:
             self.send_msg("A", fields)
             self.log("INFO", "Logon message sent with Username and ResetSeqNumFlag")
             if self.connected and self.ssl_sock:
-                self.log("DEBUG", "FIX Logon payload is being sent using the trade session values above; if this is not the TRADE session on 5212, the broker will ignore it.")
-                self.log("DEBUG", "DIAGNOSTIC NOTE: If GitHub Actions ephemeral IP is not whitelisted by cTrader broker or credentials/CompIDs are mismatched, the server will drop the connection or timeout.")
+                self.log("DEBUG", "FIX Logon payload is being sent using the trade session values above.")
+                self.log("DEBUG", "⚠️ TROUBLESHOOTING: If connection times out, check:")
+                self.log("DEBUG", "  1. Is GitHub Actions IP whitelisted by your broker?")
+                self.log("DEBUG", "  2. Is FIX_SENDER_COMP_ID correct?")
+                self.log("DEBUG", "  3. Is FIX_PASSWORD correct?")
+                self.log("DEBUG", "  4. Is FIX_TARGET_COMP_ID correct (default: cServer)?")
         except Exception as e:
             self.error(f"Logon error: {e}")
+
     def send_msg(self, msg_type, fields):
         if not self.connected or not self.ssl_sock:
             self.error("Cannot send: not connected")
@@ -276,12 +319,14 @@ class CTraderFIXBot:
             self.error(f"Send error: {e}")
             self.connected = False
             return False
+
     def _recv_loop(self):
         buffer = b""
-        while self.connected:
+        while self.connected and not self.stop_recv_thread:
             try:
                 chunk = self.ssl_sock.recv(4096)
                 if not chunk:
+                    self.log("WARNING", "Server closed connection (no data received)")
                     self.connected = False
                     break
                 buffer += chunk
@@ -297,9 +342,15 @@ class CTraderFIXBot:
                             break
                     else:
                         break
-            except:
+            except socket.timeout:
+                # Socket read timeout - server may not be sending data
+                self.log("DEBUG", "Socket read timeout (no data from server)")
+                continue
+            except Exception as e:
+                self.log("WARNING", f"Receive loop error: {e}")
                 self.connected = False
                 break
+
     def _handle_msg(self, msg_str):
         tags = {}
         for part in msg_str.split("\x01"):
@@ -310,7 +361,7 @@ class CTraderFIXBot:
         
         if msg_type == "A":
             self.logged_in = True
-            self.log("SUCCESS", f"🔐 FIX Logon ACKNOWLEDGED")
+            self.log("SUCCESS", f"🔐 FIX Logon ACKNOWLEDGED by server")
             self.backend_events.appendleft({"time": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC"), "event": "Logon acknowledged by server", "type": "fix"})
         elif msg_type == "0":
             self.backend_events.appendleft({"time": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC"), "event": "Heartbeat received", "type": "heartbeat"})
@@ -334,6 +385,7 @@ class CTraderFIXBot:
                     if status_text == "FILLED":
                         trade["filledTime"] = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
                     break
+
     def place_order(self, symbol, side, qty, sl=None, tp=None, raw_signal=None):
         ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
         
@@ -386,6 +438,7 @@ class CTraderFIXBot:
             self.error(f"Failed to send order: {side} {qty} {symbol}")
         
         return success
+
 def parse_signal(text):
     if not text:
         return None
@@ -423,6 +476,7 @@ def parse_signal(text):
         "tp": tp,
         "raw": text
     }
+
 def check_telegram():
     if not TG_TOKEN:
         return
@@ -460,12 +514,14 @@ def check_telegram():
                             BOT.log("WARNING", f"⚠️  Unparseable text: {text[:50]}")
     except Exception as e:
         BOT.error(f"Telegram check failed: {str(e)}")
+
 def save_state():
     try:
         os.makedirs("docs", exist_ok=True)
         
         state = {
             "connected": BOT.connected,
+            "loggedIn": BOT.logged_in,
             "account": BOT.account,
             "trades": list(BOT.trades),
             "signals": list(BOT.signals),
@@ -478,23 +534,28 @@ def save_state():
         
         with open("docs/system_state.json", "w") as f:
             json.dump(state, f, indent=2)
+        BOT.log("INFO", "💾 State saved to docs/system_state.json")
     except Exception as e:
-        print(f"Failed to save state: {e}")
+        BOT.error(f"Failed to save state: {e}")
+
 BOT = CTraderFIXBot()
+
 def main():
     BOT.log("INFO", "=" * 80)
     BOT.log("INFO", "🤖 cTrader FIX API Bot STARTING")
     BOT.log("INFO", "=" * 80)
     
     if not FIX_PASSWORD or not FIX_SENDER_COMP_ID:
-        BOT.error("Missing FIX credentials")
+        BOT.error("Missing FIX credentials (FIX_PASSWORD or FIX_SENDER_COMP_ID)")
         return False
+    
+    BOT.log("INFO", f"📋 Configuration: logon_timeout={FIX_LOGON_TIMEOUT}s, socket_timeout={SOCKET_RECV_TIMEOUT}s")
     
     if not BOT.connect():
-        BOT.error("Failed to connect")
+        BOT.error("Failed to connect to FIX server")
         return False
     
-    time.sleep(3)
+    time.sleep(2)
     
     BOT.log("INFO", "📱 Checking Telegram...")
     check_telegram()
@@ -505,6 +566,7 @@ def main():
     BOT.disconnect()
     BOT.log("SUCCESS", "✅ Cycle complete")
     return True
+
 if __name__ == "__main__":
     success = main()
     sys.exit(0 if success else 1)

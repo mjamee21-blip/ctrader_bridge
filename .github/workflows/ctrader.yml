@@ -17,7 +17,7 @@ concurrency:
 jobs:
   execute:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 3  # Reduced from 5 to 3 minutes
 
     steps:
       - name: Checkout repository
@@ -32,16 +32,30 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt --quiet
+          pip install -r requirements.txt --quiet 2>/dev/null || true
 
       - name: Validate secrets
         run: |
           [ -z "${{ secrets.FIX_HOST }}" ] && echo "ERROR: FIX_HOST not set" && exit 1
           [ -z "${{ secrets.FIX_PASSWORD }}" ] && echo "ERROR: FIX_PASSWORD not set" && exit 1
           [ -z "${{ secrets.FIX_SENDER_COMP_ID }}" ] && echo "ERROR: FIX_SENDER_COMP_ID not set" && exit 1
-          echo "✓ All secrets validated"
+          echo "✓ All required secrets validated"
+
+      - name: Pre-flight Connectivity Check
+        run: |
+          echo "🔍 GitHub Actions Environment Check:"
+          echo "Python version: $(python3 --version)"
+          echo "Hostname: $(hostname)"
+          echo "Current IP (what broker sees): $(curl -s https://api.ipify.org 2>/dev/null || echo 'Unknown')"
+          echo ""
+          echo "⚠️  IMPORTANT: Your broker must whitelist the GitHub Actions IP ranges"
+          echo "   See: https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners/about-github-hosted-runners#ip-addresses"
+          echo ""
+          echo "Testing DNS resolution for ${{ secrets.FIX_HOST }}"
+          nslookup ${{ secrets.FIX_HOST }} || echo "⚠️  DNS lookup may have failed"
 
       - name: Run Trading Bot
+        id: run_bot
         env:
           FIX_HOST: ${{ secrets.FIX_HOST }}
           FIX_TRADE_PORT: ${{ secrets.FIX_TRADE_PORT || '5212' }}
@@ -50,21 +64,61 @@ jobs:
           FIX_TARGET_COMP_ID: ${{ secrets.FIX_TARGET_COMP_ID || 'cServer' }}
           FIX_SENDER_SUB_ID: ${{ secrets.FIX_SENDER_SUB_ID || 'TRADE' }}
           FIX_PASSWORD: ${{ secrets.FIX_PASSWORD }}
-          TG_TOKEN: ${{ secrets.TG_TOKEN }}
-          TG_CHAT: ${{ secrets.TG_CHAT }}
+          TG_TOKEN: ${{ secrets.TG_TOKEN || '' }}
+          TG_CHAT: ${{ secrets.TG_CHAT || '' }}
           CTRADER_DEFAULT_QTY: ${{ secrets.CTRADER_DEFAULT_QTY || '1.0' }}
+          FIX_LOGON_TIMEOUT: 15  # Reduced from 60 to 15 seconds
         run: |
           echo "🤖 Starting cTrader FIX API Bot..."
           python3 ctrader_bot.py
-          echo "✓ Bot cycle completed"
+          BOT_EXIT_CODE=$?
+          echo "bot_exit_code=$BOT_EXIT_CODE" >> $GITHUB_OUTPUT
+          
+          if [ $BOT_EXIT_CODE -eq 0 ]; then
+            echo "✅ Bot cycle completed successfully"
+            exit 0
+          else
+            echo "❌ Bot cycle failed with exit code: $BOT_EXIT_CODE"
+            echo ""
+            echo "TROUBLESHOOTING STEPS:"
+            echo "1. Check if GitHub Actions IP is whitelisted by your broker"
+            echo "2. Verify FIX_SENDER_COMP_ID is correct (case-sensitive)"
+            echo "3. Verify FIX_PASSWORD is correct"
+            echo "4. Verify FIX_TARGET_COMP_ID is correct (default: cServer)"
+            echo "5. Test with a local machine first to isolate the issue"
+            exit $BOT_EXIT_CODE
+          fi
+
+      - name: Check and Move State Files
+        if: always()
+        run: |
+          echo "📁 Organizing output files..."
+          if [ -f "docs/system_state.json" ]; then
+            cp docs/system_state.json system_state.json
+            echo "✓ State file copied to root"
+          else
+            echo "⚠️  system_state.json not found in docs/"
+            # Create a minimal state file so artifact upload doesn't fail
+            mkdir -p docs
+            echo '{"status":"no-connection","lastUpdate":"'$(date -u '+%Y-%m-%dT%H:%M:%SZ'):'"}' > system_state.json
+          fi
+          
+          # Create heartbeat log
+          echo "[$(date -u '+%Y-%m-%d %H:%M:%S UTC')] Bot cycle completed (exit: ${{ steps.run_bot.outputs.bot_exit_code }})" > heartbeat.log
 
       - name: Commit and Push Updates
+        if: always()
         run: |
-          git config --global user.email "bot@github.com"
-          git config --global user.name "cTrader Bot"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
           git add -A 2>/dev/null || true
-          git commit -m "Bot Update: $(date -u '+%Y-%m-%d %H:%M:%S UTC')" 2>/dev/null || echo "Nothing to commit"
-          git push origin main 2>/dev/null || echo "Push failed (nothing to push)"
+          
+          if git diff --cached --quiet; then
+            echo "ℹ️  No changes to commit"
+          else
+            git commit -m "Bot Update: $(date -u '+%Y-%m-%d %H:%M:%S UTC')" || true
+            git push origin HEAD:main 2>/dev/null || echo "⚠️  Push failed (likely no new commits)"
+          fi
 
       - name: Upload Dashboard Assets
         uses: actions/upload-artifact@v4
@@ -75,3 +129,19 @@ jobs:
             system_state.json
             heartbeat.log
           retention-days: 7
+          if-no-files-found: warn
+
+      - name: Job Summary
+        if: always()
+        run: |
+          echo "## cTrader FIX Bot Run Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Exit Code:** ${{ steps.run_bot.outputs.bot_exit_code }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ -f "system_state.json" ]; then
+            echo "**Last State:** " >> $GITHUB_STEP_SUMMARY
+            echo '```json' >> $GITHUB_STEP_SUMMARY
+            head -20 system_state.json >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+          fi
