@@ -78,6 +78,20 @@ jobs:
           fi
           echo "[$(date -u '+%Y-%m-%d %H:%M:%S UTC')] Bot cycle completed (exit: ${{ steps.run_bot.outputs.bot_exit_code }})" > heartbeat.log
 
+      - name: Inject Dashboard Credentials
+        if: always()
+        env:
+          DASHBOARD_USER: ${{ secrets.DASHBOARD_USER }}
+          DASHBOARD_PASS: ${{ secrets.DASHBOARD_PASS }}
+        run: |
+          USER="${DASHBOARD_USER:-admin}"
+          PASS="${DASHBOARD_PASS:-password123}"
+          if [ -f "docs/login.html" ]; then
+            sed -i "s/__DASHBOARD_USER__/$USER/g" docs/login.html
+            sed -i "s/__DASHBOARD_PASS__/$PASS/g" docs/login.html
+            echo "✓ Dashboard credentials injected into login.html"
+          fi
+
       - name: Commit and Push Updates
         if: always()
         run: |
