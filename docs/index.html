@@ -224,9 +224,16 @@
 
                     // Pairs Config
                     if (data.pairsConfig) {
-                        cachedPairsConfig = data.pairsConfig;
+                        let saved = data.pairsConfig;
+                        try {
+                            const local = localStorage.getItem('ctrader_pairs_config');
+                            if (local) {
+                                saved = JSON.parse(local);
+                            }
+                        } catch(e) {}
+                        cachedPairsConfig = saved;
                         const pairsBody = document.getElementById('pairsConfigBody');
-                        pairsBody.innerHTML = Object.entries(data.pairsConfig).map(([pair, cfg]) => `
+                        pairsBody.innerHTML = Object.entries(cachedPairsConfig).map(([pair, cfg]) => `
                             <tr>
                                 <td><strong>${pair}</strong></td>
                                 <td><span style="background: #334155; padding: 3px 8px; border-radius: 4px; font-size: 11px;">${cfg.category || 'General'}</span></td>
@@ -331,7 +338,13 @@
                     category: cachedPairsConfig[pair].category || 'General'
                 };
             }
-            alert('Pair setups updated locally! (Note: To persist across backend runs, update `ctrader_bot.py` or configuration file). Current lot sizes and toggles: ' + JSON.stringify(updatedConfig, null, 2));
+            cachedPairsConfig = updatedConfig;
+            try {
+                localStorage.setItem('ctrader_pairs_config', JSON.stringify(updatedConfig));
+                alert('✅ Pair setups successfully saved and persisted in browser storage! Your lot sizes and ON/OFF toggles will now persist across page refreshes.');
+            } catch(e) {
+                alert('Pair setups updated locally.');
+            }
         }
 
         function logout() {

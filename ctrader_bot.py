@@ -118,6 +118,14 @@ class CTraderOpenAPIBot:
             "environment": CT_ENV.upper()
         }
         self.pairs_config = DEFAULT_PAIRS_CONFIG.copy()
+        if os.path.exists("docs/system_state.json"):
+            try:
+                with open("docs/system_state.json", "r") as f:
+                    st = json.load(f)
+                    if "pairsConfig" in st and isinstance(st["pairsConfig"], dict):
+                        self.pairs_config.update(st["pairsConfig"])
+            except:
+                pass
 
     def log(self, level, msg):
         ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
