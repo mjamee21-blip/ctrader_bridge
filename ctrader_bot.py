@@ -98,7 +98,11 @@ class CTraderOpenAPIBot:
         self.backend_events = deque(maxlen=150)
         self.account = {
             "balance": 10000.0, "equity": 10000.0, "margin": 0.0,
-            "freeMargin": 10000.0, "leverage": 100
+            "freeMargin": 10000.0, "leverage": 100,
+            "accountId": CT_ACCOUNT_ID,
+            "accountNumber": 2454414,
+            "broker": "Deriv",
+            "environment": CT_ENV.upper()
         }
         self.pairs_config = DEFAULT_PAIRS_CONFIG.copy()
 

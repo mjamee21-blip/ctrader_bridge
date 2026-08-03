@@ -89,6 +89,18 @@
                     <div class="stat-value" id="tgStatus" style="font-size: 16px; color: #38bdf8;">Active (Polling)</div>
                 </div>
                 <div class="stat-box">
+                    <div class="stat-label">Account ID</div>
+                    <div class="stat-value" id="accountId" style="font-size: 16px; color: #60a5fa;">48038510</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Account Number</div>
+                    <div class="stat-value" id="accountNumber" style="font-size: 16px; color: #60a5fa;">2454414</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Broker / Env</div>
+                    <div class="stat-value" id="brokerEnv" style="font-size: 15px; color: #10b981;">Deriv (DEMO)</div>
+                </div>
+                <div class="stat-box">
                     <div class="stat-label">Total P&L</div>
                     <div class="stat-value positive" id="pnl">$0.00</div>
                 </div>
@@ -205,6 +217,9 @@
                     document.getElementById('freeMargin').textContent = '$' + (data.account?.freeMargin || 10000).toFixed(2);
                     document.getElementById('connStatus').textContent = data.connected ? '🟢 Connected' : '🔴 Offline';
                     document.getElementById('connStatus').className = data.connected ? 'stat-value status-connected' : 'stat-value status-disconnected';
+                    document.getElementById('accountId').textContent = data.account?.accountId || '48038510';
+                    document.getElementById('accountNumber').textContent = data.account?.accountNumber || '2454414';
+                    document.getElementById('brokerEnv').textContent = (data.account?.broker || 'Deriv') + ' (' + (data.account?.environment || 'DEMO') + ')';
 
                     // Pairs Config
                     if (data.pairsConfig) {
