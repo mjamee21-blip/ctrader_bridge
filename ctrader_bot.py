@@ -18,6 +18,18 @@ from ctrader_open_api import Client, Protobuf, TcpProtocol, EndPoints
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
+if os.path.exists(".env"):
+    try:
+        with open(".env", "r") as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith("#") and "=" in line:
+                    k, v = line.split("=", 1)
+                    os.environ[k.strip()] = v.strip().strip('"').strip("'")
+        print("[INFO] Loaded environment variables from .env")
+    except Exception as e:
+        print(f"[WARNING] Failed to load .env: {e}")
+
 def _clean_sec(val):
     return str(val or "").strip().strip('"').strip("'").strip()
 
@@ -182,7 +194,7 @@ def place_order(client, symbol, side, qty, sl=None, tp=None, raw_signal=None):
         "NAS100": 10001, "US30": 10002, "SPX500": 10003, "GER40": 10004
     }
     symbol_id = SYMBOL_IDS.get(symbol.upper(), 1)
-    volume = max(int(float(qty) * 100000), 1000)
+    volume = int(float(qty) * 1000000)
     trade_side = 1 if side.upper() == "BUY" else 2
 
     order_id = f"BOT_{int(time.time()*1000)}"
@@ -312,10 +324,17 @@ def main():
                 BOT.logged_in = True
                 BOT.log("SUCCESS", "🔐 Account Authorized successfully")
                 
+                # Test placing the requested signal
+                test_signal_text = "🟢 BUY BTC/USD Entry: MARKET (Ref: 63262.83) SL: 62993.03 TP: 63500.91 RR: 1:1.13"
+                signal = parse_signal(test_signal_text)
+                if signal:
+                    BOT.log("INFO", f"🧪 Testing signal order placement: {signal['side']} {signal['qty']} {signal['symbol']}")
+                    place_order(client, signal['symbol'], signal['side'], signal['qty'], signal['sl'], signal['tp'], test_signal_text)
+
                 check_telegram(client)
                 save_state()
                 
-                reactor.callLater(2, reactor.stop)
+                reactor.callLater(4, reactor.stop)
             d2.addCallback(on_acc_auth)
             d2.addErrback(lambda err: BOT.error(f"Account auth failed: {err}"))
         d.addCallback(on_app_auth)
