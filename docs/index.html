@@ -130,8 +130,8 @@
 
         <!-- 3. Trades (Details) -->
         <div class="section">
-            <div class="section-title">📋 All Trades - Full Details</div>
-            <table>
+            <div class="section-title">📋 All Trades - Full Details & Rejection Reasons</div>
+            <table style="overflow-x: auto; display: block;">
                 <thead>
                     <tr>
                         <th>Order ID</th>
@@ -139,15 +139,16 @@
                         <th>Side</th>
                         <th>Qty</th>
                         <th>Sent Time</th>
-                        <th>Filled Time</th>
+                        <th>Filled / Closed Time</th>
                         <th>SL</th>
                         <th>TP</th>
                         <th>Status</th>
+                        <th>Rejection Reason / Why Not Placed</th>
                         <th>Signal</th>
                     </tr>
                 </thead>
                 <tbody id="tradesBody">
-                    <tr><td colspan="10" style="text-align: center; padding: 15px;">No trades yet</td></tr>
+                    <tr><td colspan="11" style="text-align: center; padding: 15px;">No trades yet</td></tr>
                 </tbody>
             </table>
         </div>
@@ -248,16 +249,19 @@
                             <tr>
                                 <td><strong>${t.orderId}</strong></td>
                                 <td><strong>${t.symbol}</strong></td>
-                                <td style="color: ${t.side === 'BUY' ? '#10b981' : '#ef4444'}">${t.side}</td>
+                                <td style="color: ${t.side === 'BUY' ? '#10b981' : '#ef4444'}; font-weight: bold;">${t.side}</td>
                                 <td>${t.qty}</td>
                                 <td>${t.sentTime}</td>
-                                <td>${t.filledTime || '-'}</td>
+                                <td>${t.filledTime || t.closedTime || '-'}</td>
                                 <td>${t.sl || '-'}</td>
                                 <td>${t.tp || '-'}</td>
-                                <td><strong>${t.status}</strong></td>
-                                <td style="max-width: 200px; word-break: break-word;">${t.rawSignal ? t.rawSignal.substring(0, 50) + '...' : '-'}</td>
+                                <td><span style="padding: 3px 8px; border-radius: 4px; background: ${t.status === 'FILLED' ? '#10b98122' : '#ef444422'}; color: ${t.status === 'FILLED' ? '#10b981' : '#ef4444'}; font-weight: bold;">${t.status}</span></td>
+                                <td style="color: #ef4444; font-size: 11px; max-width: 250px; word-break: break-word;">${t.rejectionReason || '-'}</td>
+                                <td style="max-width: 180px; word-break: break-word; font-size: 11px; color: #94a3b8;">${t.rawSignal ? t.rawSignal.substring(0, 45) + '...' : '-'}</td>
                             </tr>
                         `).join('');
+                    } else {
+                        tradesBody.innerHTML = '<tr><td colspan="11" style="text-align: center; padding: 15px; color: #94a3b8;">No trades yet</td></tr>';
                     }
 
                     // Signals Table

@@ -219,25 +219,53 @@ def place_order(client, symbol, side, qty, sl=None, tp=None, raw_signal=None):
         "status": "PENDING",
         "sentTime": ts,
         "filledTime": None,
+        "closedTime": None,
+        "rejectionReason": None,
         "rawSignal": raw_signal or ""
     }
     BOT.trades.appendleft(trade)
     BOT.backend_events.appendleft({"time": ts, "event": f"Order {order_id} sent: {side} {qty} {symbol}", "type": "order"})
 
     def on_success(msg):
-        BOT.log("SUCCESS", f"✅ Order executed successfully: {msg}")
-        trade["status"] = "FILLED"
-        trade["filledTime"] = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
+        msg_str = str(msg)
+        close_ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
+        if "TOO_MANY_POSITIONS" in msg_str:
+            reason = "Open positions limit exceeded (TOO_MANY_POSITIONS)"
+            BOT.error(f"Order {order_id} failed: {reason} | Details: {msg_str}")
+            trade["status"] = "REJECTED"
+            trade["closedTime"] = close_ts
+            trade["rejectionReason"] = reason
+        elif "SYMBOL_NOT_FOUND" in msg_str:
+            reason = f"Symbol not found on cTrader (SYMBOL_NOT_FOUND) for {symbol}"
+            BOT.error(f"Order {order_id} failed: {reason} | Details: {msg_str}")
+            trade["status"] = "REJECTED"
+            trade["closedTime"] = close_ts
+            trade["rejectionReason"] = reason
+        elif "ERROR" in msg_str.upper() or "REFUSED" in msg_str.upper():
+            reason = f"Order refused by broker: {msg_str}"
+            BOT.error(f"Order {order_id} failed: {reason}")
+            trade["status"] = "REJECTED"
+            trade["closedTime"] = close_ts
+            trade["rejectionReason"] = reason
+        else:
+            BOT.log("SUCCESS", f"✅ Order executed successfully: {msg}")
+            trade["status"] = "FILLED"
+            trade["filledTime"] = close_ts
         save_state()
 
     def on_error(err):
         err_str = str(err)
+        close_ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
+        reason = err_str
         if "Trading account is not authorized" in err_str or "INVALID_REQUEST" in err_str:
+            reason = "Trading account not authorized or missing TRADING scope in cTrader Access Token"
             BOT.error(f"Order execution failed: {err}")
-            BOT.error("⚠️ CRITICAL FIX: Your cTrader OpenAPI Access Token lacks TRADING permissions. Please generate a new Access Token in the cTrader ID Developer Portal with both 'Account Information' and 'Trading' scopes enabled, and update CT_ACCESS_TOKEN in GitHub secrets.")
+            BOT.error("⚠️ CRITICAL FIX: Your cTrader OpenAPI Access Token lacks TRADING permissions. Please generate a new Access Token in the cTrader ID Developer Portal with both 'Account Information' and 'Trading' scopes enabled.")
         else:
             BOT.error(f"Order execution failed: {err}")
         trade["status"] = "REJECTED"
+        trade["closedTime"] = close_ts
+        trade["rejectionReason"] = reason
         save_state()
 
     d.addCallback(on_success)
