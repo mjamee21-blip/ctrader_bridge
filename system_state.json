@@ -14,189 +14,189 @@
   },
   "trades": [
     {
-      "orderId": "BOT_1785752081952",
+      "orderId": "BOT_1785752210639",
       "symbol": "BTCUSD",
       "side": "SELL",
       "qty": 0.1,
       "sl": null,
       "tp": null,
       "status": "FILLED",
-      "sentTime": "2026-08-03 10:14:41 UTC",
-      "filledTime": "2026-08-03 10:14:44 UTC",
+      "sentTime": "2026-08-03 10:16:50 UTC",
+      "filledTime": "2026-08-03 10:16:53 UTC",
       "rawSignal": "\u274c SL HIT - CAD/JPY\nDirection: SELL\nPips: -38.0"
     },
     {
-      "orderId": "BOT_1785752081952",
+      "orderId": "BOT_1785752210639",
       "symbol": "BTCUSD",
       "side": "SELL",
       "qty": 0.1,
       "sl": null,
       "tp": null,
       "status": "FILLED",
-      "sentTime": "2026-08-03 10:14:41 UTC",
-      "filledTime": "2026-08-03 10:14:44 UTC",
+      "sentTime": "2026-08-03 10:16:50 UTC",
+      "filledTime": "2026-08-03 10:16:53 UTC",
       "rawSignal": "\u274c SL HIT - EUR/JPY\nDirection: SELL\nPips: -65.0"
     },
     {
-      "orderId": "BOT_1785752081952",
+      "orderId": "BOT_1785752210638",
       "symbol": "BTCUSD",
       "side": "SELL",
       "qty": 0.1,
       "sl": null,
       "tp": null,
       "status": "FILLED",
-      "sentTime": "2026-08-03 10:14:41 UTC",
-      "filledTime": "2026-08-03 10:14:44 UTC",
+      "sentTime": "2026-08-03 10:16:50 UTC",
+      "filledTime": "2026-08-03 10:16:53 UTC",
       "rawSignal": "\u274c SL HIT - CHF/JPY\nDirection: SELL\nPips: -58.9"
     },
     {
-      "orderId": "BOT_1785752081952",
+      "orderId": "BOT_1785752210638",
       "symbol": "BTCUSD",
       "side": "BUY",
       "qty": 0.1,
       "sl": null,
       "tp": null,
       "status": "FILLED",
-      "sentTime": "2026-08-03 10:14:41 UTC",
-      "filledTime": "2026-08-03 10:14:44 UTC",
+      "sentTime": "2026-08-03 10:16:50 UTC",
+      "filledTime": "2026-08-03 10:16:53 UTC",
       "rawSignal": "\u274c SL HIT - EUR/CHF\nDirection: BUY\nPips: -11.9"
     },
     {
-      "orderId": "BOT_1785752081952",
+      "orderId": "BOT_1785752210638",
       "symbol": "BTCUSD",
       "side": "SELL",
       "qty": 0.1,
       "sl": 194.062,
       "tp": 192.805,
       "status": "FILLED",
-      "sentTime": "2026-08-03 10:14:41 UTC",
-      "filledTime": "2026-08-03 10:14:44 UTC",
+      "sentTime": "2026-08-03 10:16:50 UTC",
+      "filledTime": "2026-08-03 10:16:53 UTC",
       "rawSignal": "\ud83d\udd34 SELL CHF/JPY\n\nEntry: MARKET (Ref: 193.473)\nSL: 194.062\nTP: 192.805\nRR: 1:1.13\n\nSignals are news-filtered and system-link compatible.\n\nUsers may use their own copy system by their own choice. Some solutions are available here: Telegram Bot"
     },
     {
-      "orderId": "BOT_1785752081952",
+      "orderId": "BOT_1785752210638",
       "symbol": "BTCUSD",
       "side": "SELL",
       "qty": 0.1,
       "sl": 111.867,
       "tp": 111.056,
       "status": "FILLED",
-      "sentTime": "2026-08-03 10:14:41 UTC",
-      "filledTime": "2026-08-03 10:14:43 UTC",
+      "sentTime": "2026-08-03 10:16:50 UTC",
+      "filledTime": "2026-08-03 10:16:52 UTC",
       "rawSignal": "\ud83d\udd34 SELL CAD/JPY\n\nEntry: MARKET (Ref: 111.487)\nSL: 111.867\nTP: 111.056\nRR: 1:1.13\n\nSignals are news-filtered and system-link compatible.\n\nUsers may use their own copy system by their own choice. Some solutions are available here: Telegram Bot"
     },
     {
-      "orderId": "BOT_1785752081951",
+      "orderId": "BOT_1785752210638",
       "symbol": "BTCUSD",
       "side": "SELL",
       "qty": 0.1,
       "sl": 181.082,
       "tp": 179.696,
       "status": "FILLED",
-      "sentTime": "2026-08-03 10:14:41 UTC",
-      "filledTime": "2026-08-03 10:14:43 UTC",
+      "sentTime": "2026-08-03 10:16:50 UTC",
+      "filledTime": "2026-08-03 10:16:52 UTC",
       "rawSignal": "\ud83d\udd34 SELL EUR/JPY\n\nEntry: MARKET (Ref: 180.433)\nSL: 181.082\nTP: 179.696\nRR: 1:1.13\n\nSignals are news-filtered and system-link compatible.\n\nUsers may use their own copy system by their own choice. Some solutions are available here: Telegram Bot"
     },
     {
-      "orderId": "BOT_1785752081951",
+      "orderId": "BOT_1785752210638",
       "symbol": "BTCUSD",
       "side": "SELL",
       "qty": 0.1,
       "sl": 92.367,
       "tp": 91.677,
       "status": "FILLED",
-      "sentTime": "2026-08-03 10:14:41 UTC",
-      "filledTime": "2026-08-03 10:14:43 UTC",
+      "sentTime": "2026-08-03 10:16:50 UTC",
+      "filledTime": "2026-08-03 10:16:52 UTC",
       "rawSignal": "\ud83d\udd34 SELL NZD/JPY\n\nEntry: MARKET (Ref: 92.043)\nSL: 92.367\nTP: 91.677\nRR: 1:1.13\n\nSignals are news-filtered and system-link compatible.\n\nUsers may use their own copy system by their own choice. Some solutions are available here: Telegram Bot"
     },
     {
-      "orderId": "BOT_1785752081951",
+      "orderId": "BOT_1785752210637",
       "symbol": "BTCUSD",
       "side": "SELL",
       "qty": 0.1,
       "sl": 110.439,
       "tp": 109.585,
       "status": "FILLED",
-      "sentTime": "2026-08-03 10:14:41 UTC",
-      "filledTime": "2026-08-03 10:14:43 UTC",
+      "sentTime": "2026-08-03 10:16:50 UTC",
+      "filledTime": "2026-08-03 10:16:52 UTC",
       "rawSignal": "\ud83d\udd34 SELL AUD/JPY\n\nEntry: MARKET (Ref: 110.039)\nSL: 110.439\nTP: 109.585\nRR: 1:1.13\n\nSignals are news-filtered and system-link compatible.\n\nUsers may use their own copy system by their own choice. Some solutions are available here: Telegram Bot"
     },
     {
-      "orderId": "BOT_1785752081951",
+      "orderId": "BOT_1785752210637",
       "symbol": "BTCUSD",
       "side": "BUY",
       "qty": 0.1,
       "sl": 0.93145,
       "tp": 0.93399,
       "status": "FILLED",
-      "sentTime": "2026-08-03 10:14:41 UTC",
-      "filledTime": "2026-08-03 10:14:43 UTC",
+      "sentTime": "2026-08-03 10:16:50 UTC",
+      "filledTime": "2026-08-03 10:16:52 UTC",
       "rawSignal": "\ud83d\udfe2 BUY EUR/CHF\n\nEntry: MARKET (Ref: 0.93264)\nSL: 0.93145\nTP: 0.93399\nRR: 1:1.13\n\nSignals are news-filtered and system-link compatible.\n\nUsers may use their own copy system by their own choice. Some solutions are available here: Telegram Bot"
     },
     {
-      "orderId": "BOT_1785752081951",
+      "orderId": "BOT_1785752210637",
       "symbol": "BTCUSD",
       "side": "BUY",
       "qty": 0.1,
       "sl": 62993.03,
       "tp": 63500.91,
       "status": "FILLED",
-      "sentTime": "2026-08-03 10:14:41 UTC",
-      "filledTime": "2026-08-03 10:14:42 UTC",
+      "sentTime": "2026-08-03 10:16:50 UTC",
+      "filledTime": "2026-08-03 10:16:51 UTC",
       "rawSignal": "\ud83d\udfe2 BUY BTC/USD\n\nEntry: MARKET (Ref: 63262.83)\nSL: 62993.03\nTP: 63500.91\nRR: 1:1.13\n\nSignals are news-filtered and system-link compatible.\n\nUsers may use their own copy system by their own choice. Some solutions are available here: Telegram Bot"
     },
     {
-      "orderId": "BOT_1785752081951",
+      "orderId": "BOT_1785752210637",
       "symbol": "BTCUSD",
       "side": "BUY",
       "qty": 0.1,
       "sl": 62993.04,
       "tp": 63500.9,
       "status": "FILLED",
-      "sentTime": "2026-08-03 10:14:41 UTC",
-      "filledTime": "2026-08-03 10:14:42 UTC",
+      "sentTime": "2026-08-03 10:16:50 UTC",
+      "filledTime": "2026-08-03 10:16:51 UTC",
       "rawSignal": "\ud83d\udfe2 BUY BTC/USD\n\nEntry: MARKET (Ref: 63262.84)\nSL: 62993.04\nTP: 63500.90\nRR: 1:1.13\n\nSignals are news-filtered and system-link compatible.\n\nUsers may use their own copy system by their own choice. Some solutions are available here: Telegram Bot"
     },
     {
-      "orderId": "BOT_1785752081950",
+      "orderId": "BOT_1785752210637",
       "symbol": "BTCUSD",
       "side": "BUY",
       "qty": 0.1,
       "sl": 63322.21,
       "tp": 63792.46,
       "status": "FILLED",
-      "sentTime": "2026-08-03 10:14:41 UTC",
-      "filledTime": "2026-08-03 10:14:42 UTC",
+      "sentTime": "2026-08-03 10:16:50 UTC",
+      "filledTime": "2026-08-03 10:16:51 UTC",
       "rawSignal": "\ud83d\udfe2 BUY BTC/USD\n\nEntry: MARKET (Ref: 63542.66)\nSL: 63322.21\nTP: 63792.46\nRR: 1:1.13\n\nSignals are news-filtered and system-link compatible.\n\nUsers may use their own copy system by their own choice. Some solutions are available here: Telegram Bot"
     },
     {
-      "orderId": "BOT_1785752081950",
+      "orderId": "BOT_1785752210636",
       "symbol": "BTCUSD",
       "side": "BUY",
       "qty": 0.1,
       "sl": 63322.23,
       "tp": 63792.45,
       "status": "FILLED",
-      "sentTime": "2026-08-03 10:14:41 UTC",
-      "filledTime": "2026-08-03 10:14:42 UTC",
+      "sentTime": "2026-08-03 10:16:50 UTC",
+      "filledTime": "2026-08-03 10:16:51 UTC",
       "rawSignal": "\ud83d\udfe2 BUY BTC/USD\n\nEntry: MARKET (Ref: 63542.65)\nSL: 63322.23\nTP: 63792.45\nRR: 1:1.13\n\nSignals are news-filtered and system-link compatible.\n\nUsers may use their own copy system by their own choice. Some solutions are available here: Telegram Bot"
     },
     {
-      "orderId": "BOT_1785752081355",
+      "orderId": "BOT_1785752210098",
       "symbol": "BTCUSD",
       "side": "BUY",
       "qty": 0.1,
       "sl": 62993.03,
       "tp": 63500.91,
       "status": "FILLED",
-      "sentTime": "2026-08-03 10:14:41 UTC",
-      "filledTime": "2026-08-03 10:14:42 UTC",
+      "sentTime": "2026-08-03 10:16:50 UTC",
+      "filledTime": "2026-08-03 10:16:51 UTC",
       "rawSignal": "\ud83d\udfe2 BUY BTC/USD Entry: MARKET (Ref: 63262.83) SL: 62993.03 TP: 63500.91 RR: 1:1.13"
     }
   ],
   "signals": [
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "text": "\u274c SL HIT - CAD/JPY\nDirection: SELL\nPips: -38.0",
       "parsed": true,
       "signal": {
@@ -209,7 +209,7 @@
       }
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "text": "\u274c SL HIT - EUR/JPY\nDirection: SELL\nPips: -65.0",
       "parsed": true,
       "signal": {
@@ -222,7 +222,7 @@
       }
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "text": "\u274c SL HIT - CHF/JPY\nDirection: SELL\nPips: -58.9",
       "parsed": true,
       "signal": {
@@ -235,7 +235,7 @@
       }
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "text": "\u274c SL HIT - EUR/CHF\nDirection: BUY\nPips: -11.9",
       "parsed": true,
       "signal": {
@@ -248,19 +248,19 @@
       }
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "text": "DO YOU WANT A FREE SIGNAL? \ud83d\ude80",
       "parsed": false,
       "signal": null
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "text": "New month, new week \ud83d\udd25",
       "parsed": false,
       "signal": null
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "text": "\ud83d\udd34 SELL CHF/JPY\n\nEntry: MARKET (Ref: 193.473)\nSL: 194.062\nTP: 192.805\nRR: 1:1.13\n\nSignals are news-filtered and system-link compatible.\n\nUsers may use their own copy system by their own choice. Some solutions are available here: Telegram Bot",
       "parsed": true,
       "signal": {
@@ -273,7 +273,7 @@
       }
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "text": "\ud83d\udd34 SELL CAD/JPY\n\nEntry: MARKET (Ref: 111.487)\nSL: 111.867\nTP: 111.056\nRR: 1:1.13\n\nSignals are news-filtered and system-link compatible.\n\nUsers may use their own copy system by their own choice. Some solutions are available here: Telegram Bot",
       "parsed": true,
       "signal": {
@@ -286,7 +286,7 @@
       }
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "text": "\ud83d\udd34 SELL EUR/JPY\n\nEntry: MARKET (Ref: 180.433)\nSL: 181.082\nTP: 179.696\nRR: 1:1.13\n\nSignals are news-filtered and system-link compatible.\n\nUsers may use their own copy system by their own choice. Some solutions are available here: Telegram Bot",
       "parsed": true,
       "signal": {
@@ -299,7 +299,7 @@
       }
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "text": "\ud83d\udd34 SELL NZD/JPY\n\nEntry: MARKET (Ref: 92.043)\nSL: 92.367\nTP: 91.677\nRR: 1:1.13\n\nSignals are news-filtered and system-link compatible.\n\nUsers may use their own copy system by their own choice. Some solutions are available here: Telegram Bot",
       "parsed": true,
       "signal": {
@@ -312,7 +312,7 @@
       }
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "text": "\ud83d\udd34 SELL AUD/JPY\n\nEntry: MARKET (Ref: 110.039)\nSL: 110.439\nTP: 109.585\nRR: 1:1.13\n\nSignals are news-filtered and system-link compatible.\n\nUsers may use their own copy system by their own choice. Some solutions are available here: Telegram Bot",
       "parsed": true,
       "signal": {
@@ -325,7 +325,7 @@
       }
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "text": "\ud83d\udfe2 BUY EUR/CHF\n\nEntry: MARKET (Ref: 0.93264)\nSL: 0.93145\nTP: 0.93399\nRR: 1:1.13\n\nSignals are news-filtered and system-link compatible.\n\nUsers may use their own copy system by their own choice. Some solutions are available here: Telegram Bot",
       "parsed": true,
       "signal": {
@@ -338,13 +338,13 @@
       }
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "text": "GOOD MORNING TRADERS \ud83d\udd25",
       "parsed": false,
       "signal": null
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "text": "\ud83d\udfe2 BUY BTC/USD\n\nEntry: MARKET (Ref: 63262.83)\nSL: 62993.03\nTP: 63500.91\nRR: 1:1.13\n\nSignals are news-filtered and system-link compatible.\n\nUsers may use their own copy system by their own choice. Some solutions are available here: Telegram Bot",
       "parsed": true,
       "signal": {
@@ -357,7 +357,7 @@
       }
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "text": "\ud83d\udfe2 BUY BTC/USD\n\nEntry: MARKET (Ref: 63262.84)\nSL: 62993.04\nTP: 63500.90\nRR: 1:1.13\n\nSignals are news-filtered and system-link compatible.\n\nUsers may use their own copy system by their own choice. Some solutions are available here: Telegram Bot",
       "parsed": true,
       "signal": {
@@ -370,7 +370,7 @@
       }
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "text": "\ud83d\udfe2 BUY BTC/USD\n\nEntry: MARKET (Ref: 63542.66)\nSL: 63322.21\nTP: 63792.46\nRR: 1:1.13\n\nSignals are news-filtered and system-link compatible.\n\nUsers may use their own copy system by their own choice. Some solutions are available here: Telegram Bot",
       "parsed": true,
       "signal": {
@@ -383,7 +383,7 @@
       }
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "text": "\ud83d\udfe2 BUY BTC/USD\n\nEntry: MARKET (Ref: 63542.65)\nSL: 63322.23\nTP: 63792.45\nRR: 1:1.13\n\nSignals are news-filtered and system-link compatible.\n\nUsers may use their own copy system by their own choice. Some solutions are available here: Telegram Bot",
       "parsed": true,
       "signal": {
@@ -398,337 +398,337 @@
   ],
   "logs": [
     {
-      "time": "2026-08-03 10:14:44 UTC",
+      "time": "2026-08-03 10:16:53 UTC",
       "level": "SUCCESS",
-      "message": "\u2705 Order executed successfully: payloadType: 2126\npayload: \"\\020\\356\\204\\364\\026\\030\\002\\\"4\\010\\372\\356\\311.\\022\\r\\010\\026\\020\\000\\030\\0020\\000B\\003USD\\030\\003 \\000)\\000\\000\\000\\000\\000\\000\\000\\000H\\000Q\\000\\000\\000\\000\\000\\000\\000\\000X\\000`\\000h\\000x\\002*G\\010\\240\\335\\316\\023\\022\\026\\010\\026\\020\\240\\215\\006\\030\\002 \\370\\274\\371\\270\\37430\\000B\\003USD\\030\\001 \\001@\\000H\\370\\274\\371\\270\\3743`\\000\\212\\001\\017140502049964688\\220\\001\\003\\230\\001\\372\\356\\311.P\\000\"\nclientMsgId: \"140502049964688\"\n"
+      "message": "\u2705 Order executed successfully: payloadType: 2126\npayload: \"\\020\\356\\204\\364\\026\\030\\002\\\"4\\010\\347\\363\\311.\\022\\r\\010\\026\\020\\000\\030\\0020\\000B\\003USD\\030\\003 \\000)\\000\\000\\000\\000\\000\\000\\000\\000H\\000Q\\000\\000\\000\\000\\000\\000\\000\\000X\\000`\\000h\\000x\\002*G\\010\\360\\335\\316\\023\\022\\026\\010\\026\\020\\240\\215\\006\\030\\002 \\240\\254\\201\\271\\37430\\000B\\003USD\\030\\001 \\001@\\000H\\240\\254\\201\\271\\3743`\\000\\212\\001\\017140221842257552\\220\\001\\003\\230\\001\\347\\363\\311.P\\000\"\nclientMsgId: \"140221842257552\"\n"
     },
     {
-      "time": "2026-08-03 10:14:44 UTC",
+      "time": "2026-08-03 10:16:53 UTC",
       "level": "INFO",
       "message": "\ud83d\udcbe State saved to docs/system_state.json"
     },
     {
-      "time": "2026-08-03 10:14:44 UTC",
+      "time": "2026-08-03 10:16:53 UTC",
       "level": "SUCCESS",
-      "message": "\u2705 Order executed successfully: payloadType: 2126\npayload: \"\\020\\356\\204\\364\\026\\030\\002\\\"4\\010\\371\\356\\311.\\022\\r\\010\\026\\020\\000\\030\\0020\\000B\\003USD\\030\\003 \\000)\\000\\000\\000\\000\\000\\000\\000\\000H\\000Q\\000\\000\\000\\000\\000\\000\\000\\000X\\000`\\000h\\000x\\002*G\\010\\237\\335\\316\\023\\022\\026\\010\\026\\020\\240\\215\\006\\030\\002 \\370\\274\\371\\270\\37430\\000B\\003USD\\030\\001 \\001@\\000H\\370\\274\\371\\270\\3743`\\000\\212\\001\\017140502049978512\\220\\001\\003\\230\\001\\371\\356\\311.P\\000\"\nclientMsgId: \"140502049978512\"\n"
+      "message": "\u2705 Order executed successfully: payloadType: 2126\npayload: \"\\020\\356\\204\\364\\026\\030\\002\\\"4\\010\\346\\363\\311.\\022\\r\\010\\026\\020\\000\\030\\0020\\000B\\003USD\\030\\003 \\000)\\000\\000\\000\\000\\000\\000\\000\\000H\\000Q\\000\\000\\000\\000\\000\\000\\000\\000X\\000`\\000h\\000x\\002*G\\010\\357\\335\\316\\023\\022\\026\\010\\026\\020\\240\\215\\006\\030\\002 \\240\\254\\201\\271\\37430\\000B\\003USD\\030\\001 \\001@\\000H\\240\\254\\201\\271\\3743`\\000\\212\\001\\017140221842254416\\220\\001\\003\\230\\001\\346\\363\\311.P\\000\"\nclientMsgId: \"140221842254416\"\n"
     },
     {
-      "time": "2026-08-03 10:14:44 UTC",
+      "time": "2026-08-03 10:16:53 UTC",
       "level": "INFO",
       "message": "\ud83d\udcbe State saved to docs/system_state.json"
     },
     {
-      "time": "2026-08-03 10:14:44 UTC",
+      "time": "2026-08-03 10:16:53 UTC",
       "level": "SUCCESS",
-      "message": "\u2705 Order executed successfully: payloadType: 2126\npayload: \"\\020\\356\\204\\364\\026\\030\\002\\\"4\\010\\370\\356\\311.\\022\\r\\010\\026\\020\\000\\030\\0020\\000B\\003USD\\030\\003 \\000)\\000\\000\\000\\000\\000\\000\\000\\000H\\000Q\\000\\000\\000\\000\\000\\000\\000\\000X\\000`\\000h\\000x\\002*G\\010\\236\\335\\316\\023\\022\\026\\010\\026\\020\\240\\215\\006\\030\\002 \\370\\274\\371\\270\\37430\\000B\\003USD\\030\\001 \\001@\\000H\\370\\274\\371\\270\\3743`\\000\\212\\001\\017140502049975120\\220\\001\\003\\230\\001\\370\\356\\311.P\\000\"\nclientMsgId: \"140502049975120\"\n"
+      "message": "\u2705 Order executed successfully: payloadType: 2126\npayload: \"\\020\\356\\204\\364\\026\\030\\002\\\"4\\010\\345\\363\\311.\\022\\r\\010\\026\\020\\000\\030\\0020\\000B\\003USD\\030\\003 \\000)\\000\\000\\000\\000\\000\\000\\000\\000H\\000Q\\000\\000\\000\\000\\000\\000\\000\\000X\\000`\\000h\\000x\\002*G\\010\\356\\335\\316\\023\\022\\026\\010\\026\\020\\240\\215\\006\\030\\002 \\240\\254\\201\\271\\37430\\000B\\003USD\\030\\001 \\001@\\000H\\240\\254\\201\\271\\3743`\\000\\212\\001\\017140221842250960\\220\\001\\003\\230\\001\\345\\363\\311.P\\000\"\nclientMsgId: \"140221842250960\"\n"
     },
     {
-      "time": "2026-08-03 10:14:44 UTC",
+      "time": "2026-08-03 10:16:53 UTC",
       "level": "INFO",
       "message": "\ud83d\udcbe State saved to docs/system_state.json"
     },
     {
-      "time": "2026-08-03 10:14:44 UTC",
+      "time": "2026-08-03 10:16:53 UTC",
       "level": "SUCCESS",
-      "message": "\u2705 Order executed successfully: payloadType: 2126\npayload: \"\\020\\356\\204\\364\\026\\030\\002\\\"4\\010\\367\\356\\311.\\022\\r\\010\\026\\020\\000\\030\\0020\\000B\\003USD\\030\\003 \\000)\\000\\000\\000\\000\\000\\000\\000\\000H\\000Q\\000\\000\\000\\000\\000\\000\\000\\000X\\000`\\000h\\000x\\002*G\\010\\235\\335\\316\\023\\022\\026\\010\\026\\020\\240\\215\\006\\030\\002 \\367\\274\\371\\270\\37430\\000B\\003USD\\030\\001 \\001@\\000H\\367\\274\\371\\270\\3743`\\000\\212\\001\\017140502049971984\\220\\001\\003\\230\\001\\367\\356\\311.P\\000\"\nclientMsgId: \"140502049971984\"\n"
+      "message": "\u2705 Order executed successfully: payloadType: 2126\npayload: \"\\020\\356\\204\\364\\026\\030\\002\\\"4\\010\\344\\363\\311.\\022\\r\\010\\026\\020\\000\\030\\0010\\000B\\003USD\\030\\003 \\000)\\000\\000\\000\\000\\000\\000\\000\\000H\\000Q\\000\\000\\000\\000\\000\\000\\000\\000X\\000`\\000h\\000x\\002*G\\010\\355\\335\\316\\023\\022\\026\\010\\026\\020\\240\\215\\006\\030\\001 \\240\\254\\201\\271\\37430\\000B\\003USD\\030\\001 \\001@\\000H\\240\\254\\201\\271\\3743`\\000\\212\\001\\017140221842247568\\220\\001\\003\\230\\001\\344\\363\\311.P\\000\"\nclientMsgId: \"140221842247568\"\n"
     },
     {
-      "time": "2026-08-03 10:14:44 UTC",
+      "time": "2026-08-03 10:16:53 UTC",
       "level": "INFO",
       "message": "\ud83d\udcbe State saved to docs/system_state.json"
     },
     {
-      "time": "2026-08-03 10:14:44 UTC",
+      "time": "2026-08-03 10:16:53 UTC",
       "level": "SUCCESS",
-      "message": "\u2705 Order executed successfully: payloadType: 2126\npayload: \"\\020\\356\\204\\364\\026\\030\\002\\\"4\\010\\366\\356\\311.\\022\\r\\010\\026\\020\\000\\030\\0010\\000B\\003USD\\030\\003 \\000)\\000\\000\\000\\000\\000\\000\\000\\000H\\000Q\\000\\000\\000\\000\\000\\000\\000\\000X\\000`\\000h\\000x\\002*G\\010\\234\\335\\316\\023\\022\\026\\010\\026\\020\\240\\215\\006\\030\\001 \\367\\274\\371\\270\\37430\\000B\\003USD\\030\\001 \\001@\\000H\\367\\274\\371\\270\\3743`\\000\\212\\001\\017140502049968528\\220\\001\\003\\230\\001\\366\\356\\311.P\\000\"\nclientMsgId: \"140502049968528\"\n"
+      "message": "\u2705 Order executed successfully: payloadType: 2126\npayload: \"\\020\\356\\204\\364\\026\\030\\002\\\"4\\010\\343\\363\\311.\\022\\r\\010\\026\\020\\000\\030\\0020\\000B\\003USD\\030\\003 \\000)\\000\\000\\000\\000\\000\\000\\000\\000H\\000Q\\000\\000\\000\\000\\000\\000\\000\\000X\\000`\\000h\\000x\\002*G\\010\\354\\335\\316\\023\\022\\026\\010\\026\\020\\240\\215\\006\\030\\002 \\237\\254\\201\\271\\37430\\000B\\003USD\\030\\001 \\001@\\000H\\237\\254\\201\\271\\3743`\\000\\212\\001\\017140221842243984\\220\\001\\003\\230\\001\\343\\363\\311.P\\000\"\nclientMsgId: \"140221842243984\"\n"
     },
     {
-      "time": "2026-08-03 10:14:43 UTC",
+      "time": "2026-08-03 10:16:52 UTC",
       "level": "INFO",
       "message": "\ud83d\udcbe State saved to docs/system_state.json"
     },
     {
-      "time": "2026-08-03 10:14:43 UTC",
+      "time": "2026-08-03 10:16:52 UTC",
       "level": "SUCCESS",
-      "message": "\u2705 Order executed successfully: payloadType: 2126\npayload: \"\\020\\356\\204\\364\\026\\030\\002\\\"4\\010\\363\\356\\311.\\022\\r\\010\\026\\020\\000\\030\\0020\\000B\\003USD\\030\\003 \\000)\\000\\000\\000\\000\\000\\000\\000\\000H\\000Q\\000\\000\\000\\000\\000\\000\\000\\000X\\000`\\000h\\000x\\002*G\\010\\233\\335\\316\\023\\022\\026\\010\\026\\020\\240\\215\\006\\030\\002 \\217\\265\\371\\270\\37430\\000B\\003USD\\030\\001 \\001@\\000H\\217\\265\\371\\270\\3743`\\000\\212\\001\\017140502049928400\\220\\001\\003\\230\\001\\363\\356\\311.P\\000\"\nclientMsgId: \"140502049928400\"\n"
+      "message": "\u2705 Order executed successfully: payloadType: 2126\npayload: \"\\020\\356\\204\\364\\026\\030\\002\\\"4\\010\\330\\363\\311.\\022\\r\\010\\026\\020\\000\\030\\0020\\000B\\003USD\\030\\003 \\000)\\000\\000\\000\\000\\000\\000\\000\\000H\\000Q\\000\\000\\000\\000\\000\\000\\000\\000X\\000`\\000h\\000x\\002*G\\010\\350\\335\\316\\023\\022\\026\\010\\026\\020\\240\\215\\006\\030\\002 \\271\\244\\201\\271\\37430\\000B\\003USD\\030\\001 \\001@\\000H\\271\\244\\201\\271\\3743`\\000\\212\\001\\017140221842207760\\220\\001\\003\\230\\001\\330\\363\\311.P\\000\"\nclientMsgId: \"140221842207760\"\n"
     },
     {
-      "time": "2026-08-03 10:14:43 UTC",
+      "time": "2026-08-03 10:16:52 UTC",
       "level": "INFO",
       "message": "\ud83d\udcbe State saved to docs/system_state.json"
     },
     {
-      "time": "2026-08-03 10:14:43 UTC",
+      "time": "2026-08-03 10:16:52 UTC",
       "level": "SUCCESS",
-      "message": "\u2705 Order executed successfully: payloadType: 2126\npayload: \"\\020\\356\\204\\364\\026\\030\\002\\\"4\\010\\362\\356\\311.\\022\\r\\010\\026\\020\\000\\030\\0020\\000B\\003USD\\030\\003 \\000)\\000\\000\\000\\000\\000\\000\\000\\000H\\000Q\\000\\000\\000\\000\\000\\000\\000\\000X\\000`\\000h\\000x\\002*G\\010\\232\\335\\316\\023\\022\\026\\010\\026\\020\\240\\215\\006\\030\\002 \\217\\265\\371\\270\\37430\\000B\\003USD\\030\\001 \\001@\\000H\\217\\265\\371\\270\\3743`\\000\\212\\001\\017140502049925072\\220\\001\\003\\230\\001\\362\\356\\311.P\\000\"\nclientMsgId: \"140502049925072\"\n"
+      "message": "\u2705 Order executed successfully: payloadType: 2126\npayload: \"\\020\\356\\204\\364\\026\\030\\002\\\"4\\010\\327\\363\\311.\\022\\r\\010\\026\\020\\000\\030\\0020\\000B\\003USD\\030\\003 \\000)\\000\\000\\000\\000\\000\\000\\000\\000H\\000Q\\000\\000\\000\\000\\000\\000\\000\\000X\\000`\\000h\\000x\\002*G\\010\\347\\335\\316\\023\\022\\026\\010\\026\\020\\240\\215\\006\\030\\002 \\271\\244\\201\\271\\37430\\000B\\003USD\\030\\001 \\001@\\000H\\271\\244\\201\\271\\3743`\\000\\212\\001\\017140221842200976\\220\\001\\003\\230\\001\\327\\363\\311.P\\000\"\nclientMsgId: \"140221842200976\"\n"
     },
     {
-      "time": "2026-08-03 10:14:43 UTC",
+      "time": "2026-08-03 10:16:52 UTC",
       "level": "INFO",
       "message": "\ud83d\udcbe State saved to docs/system_state.json"
     },
     {
-      "time": "2026-08-03 10:14:43 UTC",
+      "time": "2026-08-03 10:16:52 UTC",
       "level": "SUCCESS",
-      "message": "\u2705 Order executed successfully: payloadType: 2126\npayload: \"\\020\\356\\204\\364\\026\\030\\002\\\"4\\010\\361\\356\\311.\\022\\r\\010\\026\\020\\000\\030\\0020\\000B\\003USD\\030\\003 \\000)\\000\\000\\000\\000\\000\\000\\000\\000H\\000Q\\000\\000\\000\\000\\000\\000\\000\\000X\\000`\\000h\\000x\\002*G\\010\\231\\335\\316\\023\\022\\026\\010\\026\\020\\240\\215\\006\\030\\002 \\217\\265\\371\\270\\37430\\000B\\003USD\\030\\001 \\001@\\000H\\217\\265\\371\\270\\3743`\\000\\212\\001\\017140502049921872\\220\\001\\003\\230\\001\\361\\356\\311.P\\000\"\nclientMsgId: \"140502049921872\"\n"
+      "message": "\u2705 Order executed successfully: payloadType: 2126\npayload: \"\\020\\356\\204\\364\\026\\030\\002\\\"4\\010\\326\\363\\311.\\022\\r\\010\\026\\020\\000\\030\\0020\\000B\\003USD\\030\\003 \\000)\\000\\000\\000\\000\\000\\000\\000\\000H\\000Q\\000\\000\\000\\000\\000\\000\\000\\000X\\000`\\000h\\000x\\002*G\\010\\346\\335\\316\\023\\022\\026\\010\\026\\020\\240\\215\\006\\030\\002 \\271\\244\\201\\271\\37430\\000B\\003USD\\030\\001 \\001@\\000H\\271\\244\\201\\271\\3743`\\000\\212\\001\\017140221842204368\\220\\001\\003\\230\\001\\326\\363\\311.P\\000\"\nclientMsgId: \"140221842204368\"\n"
     },
     {
-      "time": "2026-08-03 10:14:43 UTC",
+      "time": "2026-08-03 10:16:52 UTC",
       "level": "INFO",
       "message": "\ud83d\udcbe State saved to docs/system_state.json"
     },
     {
-      "time": "2026-08-03 10:14:43 UTC",
+      "time": "2026-08-03 10:16:52 UTC",
       "level": "SUCCESS",
-      "message": "\u2705 Order executed successfully: payloadType: 2126\npayload: \"\\020\\356\\204\\364\\026\\030\\002\\\"4\\010\\360\\356\\311.\\022\\r\\010\\026\\020\\000\\030\\0020\\000B\\003USD\\030\\003 \\000)\\000\\000\\000\\000\\000\\000\\000\\000H\\000Q\\000\\000\\000\\000\\000\\000\\000\\000X\\000`\\000h\\000x\\002*G\\010\\230\\335\\316\\023\\022\\026\\010\\026\\020\\240\\215\\006\\030\\002 \\217\\265\\371\\270\\37430\\000B\\003USD\\030\\001 \\001@\\000H\\217\\265\\371\\270\\3743`\\000\\212\\001\\017140502049918608\\220\\001\\003\\230\\001\\360\\356\\311.P\\000\"\nclientMsgId: \"140502049918608\"\n"
+      "message": "\u2705 Order executed successfully: payloadType: 2126\npayload: \"\\020\\356\\204\\364\\026\\030\\002\\\"4\\010\\325\\363\\311.\\022\\r\\010\\026\\020\\000\\030\\0010\\000B\\003USD\\030\\003 \\000)\\000\\000\\000\\000\\000\\000\\000\\000H\\000Q\\000\\000\\000\\000\\000\\000\\000\\000X\\000`\\000h\\000x\\002*G\\010\\345\\335\\316\\023\\022\\026\\010\\026\\020\\240\\215\\006\\030\\001 \\270\\244\\201\\271\\37430\\000B\\003USD\\030\\001 \\001@\\000H\\270\\244\\201\\271\\3743`\\000\\212\\001\\017140221842194064\\220\\001\\003\\230\\001\\325\\363\\311.P\\000\"\nclientMsgId: \"140221842194064\"\n"
     },
     {
-      "time": "2026-08-03 10:14:43 UTC",
+      "time": "2026-08-03 10:16:52 UTC",
       "level": "INFO",
       "message": "\ud83d\udcbe State saved to docs/system_state.json"
     },
     {
-      "time": "2026-08-03 10:14:43 UTC",
+      "time": "2026-08-03 10:16:52 UTC",
       "level": "SUCCESS",
-      "message": "\u2705 Order executed successfully: payloadType: 2126\npayload: \"\\020\\356\\204\\364\\026\\030\\002\\\"4\\010\\357\\356\\311.\\022\\r\\010\\026\\020\\000\\030\\0010\\000B\\003USD\\030\\003 \\000)\\000\\000\\000\\000\\000\\000\\000\\000H\\000Q\\000\\000\\000\\000\\000\\000\\000\\000X\\000`\\000h\\000x\\002*G\\010\\227\\335\\316\\023\\022\\026\\010\\026\\020\\240\\215\\006\\030\\001 \\216\\265\\371\\270\\37430\\000B\\003USD\\030\\001 \\001@\\000H\\216\\265\\371\\270\\3743`\\000\\212\\001\\017140502049915152\\220\\001\\003\\230\\001\\357\\356\\311.P\\000\"\nclientMsgId: \"140502049915152\"\n"
+      "message": "\u2705 Order executed successfully: payloadType: 2126\npayload: \"\\020\\356\\204\\364\\026\\030\\002\\\"4\\010\\324\\363\\311.\\022\\r\\010\\026\\020\\000\\030\\0020\\000B\\003USD\\030\\003 \\000)\\000\\000\\000\\000\\000\\000\\000\\000H\\000Q\\000\\000\\000\\000\\000\\000\\000\\000X\\000`\\000h\\000x\\002*G\\010\\344\\335\\316\\023\\022\\026\\010\\026\\020\\240\\215\\006\\030\\002 \\270\\244\\201\\271\\37430\\000B\\003USD\\030\\001 \\001@\\000H\\270\\244\\201\\271\\3743`\\000\\212\\001\\017140221842197584\\220\\001\\003\\230\\001\\324\\363\\311.P\\000\"\nclientMsgId: \"140221842197584\"\n"
     },
     {
-      "time": "2026-08-03 10:14:42 UTC",
+      "time": "2026-08-03 10:16:51 UTC",
       "level": "INFO",
       "message": "\ud83d\udcbe State saved to docs/system_state.json"
     },
     {
-      "time": "2026-08-03 10:14:42 UTC",
+      "time": "2026-08-03 10:16:51 UTC",
       "level": "SUCCESS",
-      "message": "\u2705 Order executed successfully: payloadType: 2126\npayload: \"\\020\\356\\204\\364\\026\\030\\002\\\"4\\010\\347\\356\\311.\\022\\r\\010\\026\\020\\000\\030\\0010\\000B\\003USD\\030\\003 \\000)\\000\\000\\000\\000\\000\\000\\000\\000H\\000Q\\000\\000\\000\\000\\000\\000\\000\\000X\\000`\\000h\\000x\\002*G\\010\\226\\335\\316\\023\\022\\026\\010\\026\\020\\240\\215\\006\\030\\001 \\322\\255\\371\\270\\37430\\000B\\003USD\\030\\001 \\001@\\000H\\322\\255\\371\\270\\3743`\\000\\212\\001\\017140502049911824\\220\\001\\003\\230\\001\\347\\356\\311.P\\000\"\nclientMsgId: \"140502049911824\"\n"
+      "message": "\u2705 Order executed successfully: payloadType: 2126\npayload: \"\\020\\356\\204\\364\\026\\030\\002\\\"4\\010\\316\\363\\311.\\022\\r\\010\\026\\020\\000\\030\\0010\\000B\\003USD\\030\\003 \\000)\\000\\000\\000\\000\\000\\000\\000\\000H\\000Q\\000\\000\\000\\000\\000\\000\\000\\000X\\000`\\000h\\000x\\002*G\\010\\340\\335\\316\\023\\022\\026\\010\\026\\020\\240\\215\\006\\030\\001 \\320\\234\\201\\271\\37430\\000B\\003USD\\030\\001 \\001@\\000H\\320\\234\\201\\271\\3743`\\000\\212\\001\\017140221842190416\\220\\001\\003\\230\\001\\316\\363\\311.P\\000\"\nclientMsgId: \"140221842190416\"\n"
     },
     {
-      "time": "2026-08-03 10:14:42 UTC",
+      "time": "2026-08-03 10:16:51 UTC",
       "level": "INFO",
       "message": "\ud83d\udcbe State saved to docs/system_state.json"
     },
     {
-      "time": "2026-08-03 10:14:42 UTC",
+      "time": "2026-08-03 10:16:51 UTC",
       "level": "SUCCESS",
-      "message": "\u2705 Order executed successfully: payloadType: 2126\npayload: \"\\020\\356\\204\\364\\026\\030\\002\\\"4\\010\\346\\356\\311.\\022\\r\\010\\026\\020\\000\\030\\0010\\000B\\003USD\\030\\003 \\000)\\000\\000\\000\\000\\000\\000\\000\\000H\\000Q\\000\\000\\000\\000\\000\\000\\000\\000X\\000`\\000h\\000x\\002*G\\010\\225\\335\\316\\023\\022\\026\\010\\026\\020\\240\\215\\006\\030\\001 \\322\\255\\371\\270\\37430\\000B\\003USD\\030\\001 \\001@\\000H\\322\\255\\371\\270\\3743`\\000\\212\\001\\017140502049908496\\220\\001\\003\\230\\001\\346\\356\\311.P\\000\"\nclientMsgId: \"140502049908496\"\n"
+      "message": "\u2705 Order executed successfully: payloadType: 2126\npayload: \"\\020\\356\\204\\364\\026\\030\\002\\\"4\\010\\315\\363\\311.\\022\\r\\010\\026\\020\\000\\030\\0010\\000B\\003USD\\030\\003 \\000)\\000\\000\\000\\000\\000\\000\\000\\000H\\000Q\\000\\000\\000\\000\\000\\000\\000\\000X\\000`\\000h\\000x\\002*G\\010\\337\\335\\316\\023\\022\\026\\010\\026\\020\\240\\215\\006\\030\\001 \\320\\234\\201\\271\\37430\\000B\\003USD\\030\\001 \\001@\\000H\\320\\234\\201\\271\\3743`\\000\\212\\001\\017140221842187024\\220\\001\\003\\230\\001\\315\\363\\311.P\\000\"\nclientMsgId: \"140221842187024\"\n"
     },
     {
-      "time": "2026-08-03 10:14:42 UTC",
+      "time": "2026-08-03 10:16:51 UTC",
       "level": "INFO",
       "message": "\ud83d\udcbe State saved to docs/system_state.json"
     },
     {
-      "time": "2026-08-03 10:14:42 UTC",
+      "time": "2026-08-03 10:16:51 UTC",
       "level": "SUCCESS",
-      "message": "\u2705 Order executed successfully: payloadType: 2126\npayload: \"\\020\\356\\204\\364\\026\\030\\002\\\"4\\010\\345\\356\\311.\\022\\r\\010\\026\\020\\000\\030\\0010\\000B\\003USD\\030\\003 \\000)\\000\\000\\000\\000\\000\\000\\000\\000H\\000Q\\000\\000\\000\\000\\000\\000\\000\\000X\\000`\\000h\\000x\\002*G\\010\\224\\335\\316\\023\\022\\026\\010\\026\\020\\240\\215\\006\\030\\001 \\322\\255\\371\\270\\37430\\000B\\003USD\\030\\001 \\001@\\000H\\322\\255\\371\\270\\3743`\\000\\212\\001\\017140502049905040\\220\\001\\003\\230\\001\\345\\356\\311.P\\000\"\nclientMsgId: \"140502049905040\"\n"
+      "message": "\u2705 Order executed successfully: payloadType: 2126\npayload: \"\\020\\356\\204\\364\\026\\030\\002\\\"4\\010\\314\\363\\311.\\022\\r\\010\\026\\020\\000\\030\\0010\\000B\\003USD\\030\\003 \\000)\\000\\000\\000\\000\\000\\000\\000\\000H\\000Q\\000\\000\\000\\000\\000\\000\\000\\000X\\000`\\000h\\000x\\002*G\\010\\336\\335\\316\\023\\022\\026\\010\\026\\020\\240\\215\\006\\030\\001 \\320\\234\\201\\271\\37430\\000B\\003USD\\030\\001 \\001@\\000H\\320\\234\\201\\271\\3743`\\000\\212\\001\\017140221842180496\\220\\001\\003\\230\\001\\314\\363\\311.P\\000\"\nclientMsgId: \"140221842180496\"\n"
     },
     {
-      "time": "2026-08-03 10:14:42 UTC",
+      "time": "2026-08-03 10:16:51 UTC",
       "level": "INFO",
       "message": "\ud83d\udcbe State saved to docs/system_state.json"
     },
     {
-      "time": "2026-08-03 10:14:42 UTC",
+      "time": "2026-08-03 10:16:51 UTC",
       "level": "SUCCESS",
-      "message": "\u2705 Order executed successfully: payloadType: 2126\npayload: \"\\020\\356\\204\\364\\026\\030\\002\\\"4\\010\\344\\356\\311.\\022\\r\\010\\026\\020\\000\\030\\0010\\000B\\003USD\\030\\003 \\000)\\000\\000\\000\\000\\000\\000\\000\\000H\\000Q\\000\\000\\000\\000\\000\\000\\000\\000X\\000`\\000h\\000x\\002*G\\010\\223\\335\\316\\023\\022\\026\\010\\026\\020\\240\\215\\006\\030\\001 \\322\\255\\371\\270\\37430\\000B\\003USD\\030\\001 \\001@\\000H\\322\\255\\371\\270\\3743`\\000\\212\\001\\017140502049901840\\220\\001\\003\\230\\001\\344\\356\\311.P\\000\"\nclientMsgId: \"140502049901840\"\n"
+      "message": "\u2705 Order executed successfully: payloadType: 2126\npayload: \"\\020\\356\\204\\364\\026\\030\\002\\\"4\\010\\313\\363\\311.\\022\\r\\010\\026\\020\\000\\030\\0010\\000B\\003USD\\030\\003 \\000)\\000\\000\\000\\000\\000\\000\\000\\000H\\000Q\\000\\000\\000\\000\\000\\000\\000\\000X\\000`\\000h\\000x\\002*G\\010\\335\\335\\316\\023\\022\\026\\010\\026\\020\\240\\215\\006\\030\\001 \\320\\234\\201\\271\\37430\\000B\\003USD\\030\\001 \\001@\\000H\\320\\234\\201\\271\\3743`\\000\\212\\001\\017140221842183632\\220\\001\\003\\230\\001\\313\\363\\311.P\\000\"\nclientMsgId: \"140221842183632\"\n"
     },
     {
-      "time": "2026-08-03 10:14:42 UTC",
+      "time": "2026-08-03 10:16:51 UTC",
       "level": "INFO",
       "message": "\ud83d\udcbe State saved to docs/system_state.json"
     },
     {
-      "time": "2026-08-03 10:14:42 UTC",
+      "time": "2026-08-03 10:16:51 UTC",
       "level": "SUCCESS",
-      "message": "\u2705 Order executed successfully: payloadType: 2126\npayload: \"\\020\\356\\204\\364\\026\\030\\002\\\"4\\010\\343\\356\\311.\\022\\r\\010\\026\\020\\000\\030\\0010\\000B\\003USD\\030\\003 \\000)\\000\\000\\000\\000\\000\\000\\000\\000H\\000Q\\000\\000\\000\\000\\000\\000\\000\\000X\\000`\\000h\\000x\\002*G\\010\\222\\335\\316\\023\\022\\026\\010\\026\\020\\240\\215\\006\\030\\001 \\321\\255\\371\\270\\37430\\000B\\003USD\\030\\001 \\001@\\000H\\321\\255\\371\\270\\3743`\\000\\212\\001\\017140502051912976\\220\\001\\003\\230\\001\\343\\356\\311.P\\000\"\nclientMsgId: \"140502051912976\"\n"
+      "message": "\u2705 Order executed successfully: payloadType: 2126\npayload: \"\\020\\356\\204\\364\\026\\030\\002\\\"4\\010\\312\\363\\311.\\022\\r\\010\\026\\020\\000\\030\\0010\\000B\\003USD\\030\\003 \\000)\\000\\000\\000\\000\\000\\000\\000\\000H\\000Q\\000\\000\\000\\000\\000\\000\\000\\000X\\000`\\000h\\000x\\002*G\\010\\334\\335\\316\\023\\022\\026\\010\\026\\020\\240\\215\\006\\030\\001 \\317\\234\\201\\271\\37430\\000B\\003USD\\030\\001 \\001@\\000H\\317\\234\\201\\271\\3743`\\000\\212\\001\\017140221844191440\\220\\001\\003\\230\\001\\312\\363\\311.P\\000\"\nclientMsgId: \"140221844191440\"\n"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "level": "INFO",
       "message": "\ud83d\udcbe State saved to docs/system_state.json"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "level": "INFO",
       "message": "\ud83d\ude80 Sending order to cTrader OpenAPI: SELL 0.1 lots (100000 units) of BTCUSD (ID: 22)"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "level": "INFO",
       "message": "\ud83d\udce8 Signal: SELL 0.1 BTCUSD"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "level": "INFO",
       "message": "\ud83d\ude80 Sending order to cTrader OpenAPI: SELL 0.1 lots (100000 units) of BTCUSD (ID: 22)"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "level": "INFO",
       "message": "\ud83d\udce8 Signal: SELL 0.1 BTCUSD"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "level": "INFO",
       "message": "\ud83d\ude80 Sending order to cTrader OpenAPI: SELL 0.1 lots (100000 units) of BTCUSD (ID: 22)"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "level": "INFO",
       "message": "\ud83d\udce8 Signal: SELL 0.1 BTCUSD"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "level": "INFO",
       "message": "\ud83d\ude80 Sending order to cTrader OpenAPI: BUY 0.1 lots (100000 units) of BTCUSD (ID: 22)"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "level": "INFO",
       "message": "\ud83d\udce8 Signal: BUY 0.1 BTCUSD"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "level": "INFO",
       "message": "\ud83d\ude80 Sending order to cTrader OpenAPI: SELL 0.1 lots (100000 units) of BTCUSD (ID: 22)"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "level": "INFO",
       "message": "\ud83d\udce8 Signal: SELL 0.1 BTCUSD"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "level": "INFO",
       "message": "\ud83d\ude80 Sending order to cTrader OpenAPI: SELL 0.1 lots (100000 units) of BTCUSD (ID: 22)"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "level": "INFO",
       "message": "\ud83d\udce8 Signal: SELL 0.1 BTCUSD"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "level": "INFO",
       "message": "\ud83d\ude80 Sending order to cTrader OpenAPI: SELL 0.1 lots (100000 units) of BTCUSD (ID: 22)"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "level": "INFO",
       "message": "\ud83d\udce8 Signal: SELL 0.1 BTCUSD"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "level": "INFO",
       "message": "\ud83d\ude80 Sending order to cTrader OpenAPI: SELL 0.1 lots (100000 units) of BTCUSD (ID: 22)"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "level": "INFO",
       "message": "\ud83d\udce8 Signal: SELL 0.1 BTCUSD"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "level": "INFO",
       "message": "\ud83d\ude80 Sending order to cTrader OpenAPI: SELL 0.1 lots (100000 units) of BTCUSD (ID: 22)"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "level": "INFO",
       "message": "\ud83d\udce8 Signal: SELL 0.1 BTCUSD"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "level": "INFO",
       "message": "\ud83d\ude80 Sending order to cTrader OpenAPI: BUY 0.1 lots (100000 units) of BTCUSD (ID: 22)"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "level": "INFO",
       "message": "\ud83d\udce8 Signal: BUY 0.1 BTCUSD"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "level": "INFO",
       "message": "\ud83d\ude80 Sending order to cTrader OpenAPI: BUY 0.1 lots (100000 units) of BTCUSD (ID: 22)"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "level": "INFO",
       "message": "\ud83d\udce8 Signal: BUY 0.1 BTCUSD"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "level": "INFO",
       "message": "\ud83d\ude80 Sending order to cTrader OpenAPI: BUY 0.1 lots (100000 units) of BTCUSD (ID: 22)"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "level": "INFO",
       "message": "\ud83d\udce8 Signal: BUY 0.1 BTCUSD"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "level": "INFO",
       "message": "\ud83d\ude80 Sending order to cTrader OpenAPI: BUY 0.1 lots (100000 units) of BTCUSD (ID: 22)"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "level": "INFO",
       "message": "\ud83d\udce8 Signal: BUY 0.1 BTCUSD"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "level": "INFO",
       "message": "\ud83d\ude80 Sending order to cTrader OpenAPI: BUY 0.1 lots (100000 units) of BTCUSD (ID: 22)"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "level": "INFO",
       "message": "\ud83d\udce8 Signal: BUY 0.1 BTCUSD"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "level": "INFO",
       "message": "\ud83d\udcf1 Checking Telegram updates..."
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "level": "INFO",
       "message": "\ud83d\ude80 Sending order to cTrader OpenAPI: BUY 0.1 lots (100000 units) of BTCUSD (ID: 22)"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "level": "INFO",
       "message": "\ud83e\uddea Testing signal order placement: BUY 0.1 BTCUSD"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "level": "SUCCESS",
       "message": "\ud83d\udd10 Account Authorized successfully"
     },
     {
-      "time": "2026-08-03 10:14:40 UTC",
+      "time": "2026-08-03 10:16:49 UTC",
       "level": "SUCCESS",
       "message": "\ud83d\udd10 Application Authorized successfully"
     },
     {
-      "time": "2026-08-03 10:14:39 UTC",
+      "time": "2026-08-03 10:16:47 UTC",
       "level": "SUCCESS",
       "message": "\u2705 Connected to cTrader OpenAPI at demo.ctraderapi.com:5035"
     },
     {
-      "time": "2026-08-03 10:14:38 UTC",
+      "time": "2026-08-03 10:16:47 UTC",
       "level": "INFO",
       "message": "================================================================================"
     },
     {
-      "time": "2026-08-03 10:14:38 UTC",
+      "time": "2026-08-03 10:16:47 UTC",
       "level": "INFO",
       "message": "\ud83e\udd16 cTrader OpenAPI Bot STARTING"
     },
     {
-      "time": "2026-08-03 10:14:38 UTC",
+      "time": "2026-08-03 10:16:47 UTC",
       "level": "INFO",
       "message": "================================================================================"
     }
@@ -736,497 +736,497 @@
   "errors": [],
   "backendEvents": [
     {
-      "time": "2026-08-03 10:14:44 UTC",
-      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2126\npayload: \"\\020\\356\\204\\364\\026\\030\\002\\\"4\\010\\372\\356\\311.\\022\\r\\010\\026\\020\\000\\030\\0020\\000B\\003USD\\030\\003 \\000)\\000\\000\\000\\000\\000\\000\\000\\000H\\000Q\\000\\000\\000\\000\\000\\000\\000\\000X\\000`\\000h\\000x\\002*G\\010\\240\\335\\316\\023\\022\\026\\010\\026\\020\\240\\215\\006\\030\\002 \\370\\274\\371\\270\\37430\\000B\\003USD\\030\\001 \\001@\\000H\\370\\274\\371\\270\\3743`\\000\\212\\001\\017140502049964688\\220\\001\\003\\230\\001\\372\\356\\311.P\\000\"\nclientMsgId: \"140502049964688\"\n",
+      "time": "2026-08-03 10:16:53 UTC",
+      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2126\npayload: \"\\020\\356\\204\\364\\026\\030\\002\\\"4\\010\\347\\363\\311.\\022\\r\\010\\026\\020\\000\\030\\0020\\000B\\003USD\\030\\003 \\000)\\000\\000\\000\\000\\000\\000\\000\\000H\\000Q\\000\\000\\000\\000\\000\\000\\000\\000X\\000`\\000h\\000x\\002*G\\010\\360\\335\\316\\023\\022\\026\\010\\026\\020\\240\\215\\006\\030\\002 \\240\\254\\201\\271\\37430\\000B\\003USD\\030\\001 \\001@\\000H\\240\\254\\201\\271\\3743`\\000\\212\\001\\017140221842257552\\220\\001\\003\\230\\001\\347\\363\\311.P\\000\"\nclientMsgId: \"140221842257552\"\n",
       "type": "log"
     },
     {
-      "time": "2026-08-03 10:14:44 UTC",
+      "time": "2026-08-03 10:16:53 UTC",
       "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
       "type": "log"
     },
     {
-      "time": "2026-08-03 10:14:44 UTC",
-      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2126\npayload: \"\\020\\356\\204\\364\\026\\030\\002\\\"4\\010\\371\\356\\311.\\022\\r\\010\\026\\020\\000\\030\\0020\\000B\\003USD\\030\\003 \\000)\\000\\000\\000\\000\\000\\000\\000\\000H\\000Q\\000\\000\\000\\000\\000\\000\\000\\000X\\000`\\000h\\000x\\002*G\\010\\237\\335\\316\\023\\022\\026\\010\\026\\020\\240\\215\\006\\030\\002 \\370\\274\\371\\270\\37430\\000B\\003USD\\030\\001 \\001@\\000H\\370\\274\\371\\270\\3743`\\000\\212\\001\\017140502049978512\\220\\001\\003\\230\\001\\371\\356\\311.P\\000\"\nclientMsgId: \"140502049978512\"\n",
+      "time": "2026-08-03 10:16:53 UTC",
+      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2126\npayload: \"\\020\\356\\204\\364\\026\\030\\002\\\"4\\010\\346\\363\\311.\\022\\r\\010\\026\\020\\000\\030\\0020\\000B\\003USD\\030\\003 \\000)\\000\\000\\000\\000\\000\\000\\000\\000H\\000Q\\000\\000\\000\\000\\000\\000\\000\\000X\\000`\\000h\\000x\\002*G\\010\\357\\335\\316\\023\\022\\026\\010\\026\\020\\240\\215\\006\\030\\002 \\240\\254\\201\\271\\37430\\000B\\003USD\\030\\001 \\001@\\000H\\240\\254\\201\\271\\3743`\\000\\212\\001\\017140221842254416\\220\\001\\003\\230\\001\\346\\363\\311.P\\000\"\nclientMsgId: \"140221842254416\"\n",
       "type": "log"
     },
     {
-      "time": "2026-08-03 10:14:44 UTC",
+      "time": "2026-08-03 10:16:53 UTC",
       "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
       "type": "log"
     },
     {
-      "time": "2026-08-03 10:14:44 UTC",
-      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2126\npayload: \"\\020\\356\\204\\364\\026\\030\\002\\\"4\\010\\370\\356\\311.\\022\\r\\010\\026\\020\\000\\030\\0020\\000B\\003USD\\030\\003 \\000)\\000\\000\\000\\000\\000\\000\\000\\000H\\000Q\\000\\000\\000\\000\\000\\000\\000\\000X\\000`\\000h\\000x\\002*G\\010\\236\\335\\316\\023\\022\\026\\010\\026\\020\\240\\215\\006\\030\\002 \\370\\274\\371\\270\\37430\\000B\\003USD\\030\\001 \\001@\\000H\\370\\274\\371\\270\\3743`\\000\\212\\001\\017140502049975120\\220\\001\\003\\230\\001\\370\\356\\311.P\\000\"\nclientMsgId: \"140502049975120\"\n",
+      "time": "2026-08-03 10:16:53 UTC",
+      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2126\npayload: \"\\020\\356\\204\\364\\026\\030\\002\\\"4\\010\\345\\363\\311.\\022\\r\\010\\026\\020\\000\\030\\0020\\000B\\003USD\\030\\003 \\000)\\000\\000\\000\\000\\000\\000\\000\\000H\\000Q\\000\\000\\000\\000\\000\\000\\000\\000X\\000`\\000h\\000x\\002*G\\010\\356\\335\\316\\023\\022\\026\\010\\026\\020\\240\\215\\006\\030\\002 \\240\\254\\201\\271\\37430\\000B\\003USD\\030\\001 \\001@\\000H\\240\\254\\201\\271\\3743`\\000\\212\\001\\017140221842250960\\220\\001\\003\\230\\001\\345\\363\\311.P\\000\"\nclientMsgId: \"140221842250960\"\n",
       "type": "log"
     },
     {
-      "time": "2026-08-03 10:14:44 UTC",
+      "time": "2026-08-03 10:16:53 UTC",
       "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
       "type": "log"
     },
     {
-      "time": "2026-08-03 10:14:44 UTC",
-      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2126\npayload: \"\\020\\356\\204\\364\\026\\030\\002\\\"4\\010\\367\\356\\311.\\022\\r\\010\\026\\020\\000\\030\\0020\\000B\\003USD\\030\\003 \\000)\\000\\000\\000\\000\\000\\000\\000\\000H\\000Q\\000\\000\\000\\000\\000\\000\\000\\000X\\000`\\000h\\000x\\002*G\\010\\235\\335\\316\\023\\022\\026\\010\\026\\020\\240\\215\\006\\030\\002 \\367\\274\\371\\270\\37430\\000B\\003USD\\030\\001 \\001@\\000H\\367\\274\\371\\270\\3743`\\000\\212\\001\\017140502049971984\\220\\001\\003\\230\\001\\367\\356\\311.P\\000\"\nclientMsgId: \"140502049971984\"\n",
+      "time": "2026-08-03 10:16:53 UTC",
+      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2126\npayload: \"\\020\\356\\204\\364\\026\\030\\002\\\"4\\010\\344\\363\\311.\\022\\r\\010\\026\\020\\000\\030\\0010\\000B\\003USD\\030\\003 \\000)\\000\\000\\000\\000\\000\\000\\000\\000H\\000Q\\000\\000\\000\\000\\000\\000\\000\\000X\\000`\\000h\\000x\\002*G\\010\\355\\335\\316\\023\\022\\026\\010\\026\\020\\240\\215\\006\\030\\001 \\240\\254\\201\\271\\37430\\000B\\003USD\\030\\001 \\001@\\000H\\240\\254\\201\\271\\3743`\\000\\212\\001\\017140221842247568\\220\\001\\003\\230\\001\\344\\363\\311.P\\000\"\nclientMsgId: \"140221842247568\"\n",
       "type": "log"
     },
     {
-      "time": "2026-08-03 10:14:44 UTC",
+      "time": "2026-08-03 10:16:53 UTC",
       "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
       "type": "log"
     },
     {
-      "time": "2026-08-03 10:14:44 UTC",
-      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2126\npayload: \"\\020\\356\\204\\364\\026\\030\\002\\\"4\\010\\366\\356\\311.\\022\\r\\010\\026\\020\\000\\030\\0010\\000B\\003USD\\030\\003 \\000)\\000\\000\\000\\000\\000\\000\\000\\000H\\000Q\\000\\000\\000\\000\\000\\000\\000\\000X\\000`\\000h\\000x\\002*G\\010\\234\\335\\316\\023\\022\\026\\010\\026\\020\\240\\215\\006\\030\\001 \\367\\274\\371\\270\\37430\\000B\\003USD\\030\\001 \\001@\\000H\\367\\274\\371\\270\\3743`\\000\\212\\001\\017140502049968528\\220\\001\\003\\230\\001\\366\\356\\311.P\\000\"\nclientMsgId: \"140502049968528\"\n",
+      "time": "2026-08-03 10:16:53 UTC",
+      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2126\npayload: \"\\020\\356\\204\\364\\026\\030\\002\\\"4\\010\\343\\363\\311.\\022\\r\\010\\026\\020\\000\\030\\0020\\000B\\003USD\\030\\003 \\000)\\000\\000\\000\\000\\000\\000\\000\\000H\\000Q\\000\\000\\000\\000\\000\\000\\000\\000X\\000`\\000h\\000x\\002*G\\010\\354\\335\\316\\023\\022\\026\\010\\026\\020\\240\\215\\006\\030\\002 \\237\\254\\201\\271\\37430\\000B\\003USD\\030\\001 \\001@\\000H\\237\\254\\201\\271\\3743`\\000\\212\\001\\017140221842243984\\220\\001\\003\\230\\001\\343\\363\\311.P\\000\"\nclientMsgId: \"140221842243984\"\n",
       "type": "log"
     },
     {
-      "time": "2026-08-03 10:14:43 UTC",
+      "time": "2026-08-03 10:16:52 UTC",
       "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
       "type": "log"
     },
     {
-      "time": "2026-08-03 10:14:43 UTC",
-      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2126\npayload: \"\\020\\356\\204\\364\\026\\030\\002\\\"4\\010\\363\\356\\311.\\022\\r\\010\\026\\020\\000\\030\\0020\\000B\\003USD\\030\\003 \\000)\\000\\000\\000\\000\\000\\000\\000\\000H\\000Q\\000\\000\\000\\000\\000\\000\\000\\000X\\000`\\000h\\000x\\002*G\\010\\233\\335\\316\\023\\022\\026\\010\\026\\020\\240\\215\\006\\030\\002 \\217\\265\\371\\270\\37430\\000B\\003USD\\030\\001 \\001@\\000H\\217\\265\\371\\270\\3743`\\000\\212\\001\\017140502049928400\\220\\001\\003\\230\\001\\363\\356\\311.P\\000\"\nclientMsgId: \"140502049928400\"\n",
+      "time": "2026-08-03 10:16:52 UTC",
+      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2126\npayload: \"\\020\\356\\204\\364\\026\\030\\002\\\"4\\010\\330\\363\\311.\\022\\r\\010\\026\\020\\000\\030\\0020\\000B\\003USD\\030\\003 \\000)\\000\\000\\000\\000\\000\\000\\000\\000H\\000Q\\000\\000\\000\\000\\000\\000\\000\\000X\\000`\\000h\\000x\\002*G\\010\\350\\335\\316\\023\\022\\026\\010\\026\\020\\240\\215\\006\\030\\002 \\271\\244\\201\\271\\37430\\000B\\003USD\\030\\001 \\001@\\000H\\271\\244\\201\\271\\3743`\\000\\212\\001\\017140221842207760\\220\\001\\003\\230\\001\\330\\363\\311.P\\000\"\nclientMsgId: \"140221842207760\"\n",
       "type": "log"
     },
     {
-      "time": "2026-08-03 10:14:43 UTC",
+      "time": "2026-08-03 10:16:52 UTC",
       "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
       "type": "log"
     },
     {
-      "time": "2026-08-03 10:14:43 UTC",
-      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2126\npayload: \"\\020\\356\\204\\364\\026\\030\\002\\\"4\\010\\362\\356\\311.\\022\\r\\010\\026\\020\\000\\030\\0020\\000B\\003USD\\030\\003 \\000)\\000\\000\\000\\000\\000\\000\\000\\000H\\000Q\\000\\000\\000\\000\\000\\000\\000\\000X\\000`\\000h\\000x\\002*G\\010\\232\\335\\316\\023\\022\\026\\010\\026\\020\\240\\215\\006\\030\\002 \\217\\265\\371\\270\\37430\\000B\\003USD\\030\\001 \\001@\\000H\\217\\265\\371\\270\\3743`\\000\\212\\001\\017140502049925072\\220\\001\\003\\230\\001\\362\\356\\311.P\\000\"\nclientMsgId: \"140502049925072\"\n",
+      "time": "2026-08-03 10:16:52 UTC",
+      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2126\npayload: \"\\020\\356\\204\\364\\026\\030\\002\\\"4\\010\\327\\363\\311.\\022\\r\\010\\026\\020\\000\\030\\0020\\000B\\003USD\\030\\003 \\000)\\000\\000\\000\\000\\000\\000\\000\\000H\\000Q\\000\\000\\000\\000\\000\\000\\000\\000X\\000`\\000h\\000x\\002*G\\010\\347\\335\\316\\023\\022\\026\\010\\026\\020\\240\\215\\006\\030\\002 \\271\\244\\201\\271\\37430\\000B\\003USD\\030\\001 \\001@\\000H\\271\\244\\201\\271\\3743`\\000\\212\\001\\017140221842200976\\220\\001\\003\\230\\001\\327\\363\\311.P\\000\"\nclientMsgId: \"140221842200976\"\n",
       "type": "log"
     },
     {
-      "time": "2026-08-03 10:14:43 UTC",
+      "time": "2026-08-03 10:16:52 UTC",
       "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
       "type": "log"
     },
     {
-      "time": "2026-08-03 10:14:43 UTC",
-      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2126\npayload: \"\\020\\356\\204\\364\\026\\030\\002\\\"4\\010\\361\\356\\311.\\022\\r\\010\\026\\020\\000\\030\\0020\\000B\\003USD\\030\\003 \\000)\\000\\000\\000\\000\\000\\000\\000\\000H\\000Q\\000\\000\\000\\000\\000\\000\\000\\000X\\000`\\000h\\000x\\002*G\\010\\231\\335\\316\\023\\022\\026\\010\\026\\020\\240\\215\\006\\030\\002 \\217\\265\\371\\270\\37430\\000B\\003USD\\030\\001 \\001@\\000H\\217\\265\\371\\270\\3743`\\000\\212\\001\\017140502049921872\\220\\001\\003\\230\\001\\361\\356\\311.P\\000\"\nclientMsgId: \"140502049921872\"\n",
+      "time": "2026-08-03 10:16:52 UTC",
+      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2126\npayload: \"\\020\\356\\204\\364\\026\\030\\002\\\"4\\010\\326\\363\\311.\\022\\r\\010\\026\\020\\000\\030\\0020\\000B\\003USD\\030\\003 \\000)\\000\\000\\000\\000\\000\\000\\000\\000H\\000Q\\000\\000\\000\\000\\000\\000\\000\\000X\\000`\\000h\\000x\\002*G\\010\\346\\335\\316\\023\\022\\026\\010\\026\\020\\240\\215\\006\\030\\002 \\271\\244\\201\\271\\37430\\000B\\003USD\\030\\001 \\001@\\000H\\271\\244\\201\\271\\3743`\\000\\212\\001\\017140221842204368\\220\\001\\003\\230\\001\\326\\363\\311.P\\000\"\nclientMsgId: \"140221842204368\"\n",
       "type": "log"
     },
     {
-      "time": "2026-08-03 10:14:43 UTC",
+      "time": "2026-08-03 10:16:52 UTC",
       "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
       "type": "log"
     },
     {
-      "time": "2026-08-03 10:14:43 UTC",
-      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2126\npayload: \"\\020\\356\\204\\364\\026\\030\\002\\\"4\\010\\360\\356\\311.\\022\\r\\010\\026\\020\\000\\030\\0020\\000B\\003USD\\030\\003 \\000)\\000\\000\\000\\000\\000\\000\\000\\000H\\000Q\\000\\000\\000\\000\\000\\000\\000\\000X\\000`\\000h\\000x\\002*G\\010\\230\\335\\316\\023\\022\\026\\010\\026\\020\\240\\215\\006\\030\\002 \\217\\265\\371\\270\\37430\\000B\\003USD\\030\\001 \\001@\\000H\\217\\265\\371\\270\\3743`\\000\\212\\001\\017140502049918608\\220\\001\\003\\230\\001\\360\\356\\311.P\\000\"\nclientMsgId: \"140502049918608\"\n",
+      "time": "2026-08-03 10:16:52 UTC",
+      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2126\npayload: \"\\020\\356\\204\\364\\026\\030\\002\\\"4\\010\\325\\363\\311.\\022\\r\\010\\026\\020\\000\\030\\0010\\000B\\003USD\\030\\003 \\000)\\000\\000\\000\\000\\000\\000\\000\\000H\\000Q\\000\\000\\000\\000\\000\\000\\000\\000X\\000`\\000h\\000x\\002*G\\010\\345\\335\\316\\023\\022\\026\\010\\026\\020\\240\\215\\006\\030\\001 \\270\\244\\201\\271\\37430\\000B\\003USD\\030\\001 \\001@\\000H\\270\\244\\201\\271\\3743`\\000\\212\\001\\017140221842194064\\220\\001\\003\\230\\001\\325\\363\\311.P\\000\"\nclientMsgId: \"140221842194064\"\n",
       "type": "log"
     },
     {
-      "time": "2026-08-03 10:14:43 UTC",
+      "time": "2026-08-03 10:16:52 UTC",
       "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
       "type": "log"
     },
     {
-      "time": "2026-08-03 10:14:43 UTC",
-      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2126\npayload: \"\\020\\356\\204\\364\\026\\030\\002\\\"4\\010\\357\\356\\311.\\022\\r\\010\\026\\020\\000\\030\\0010\\000B\\003USD\\030\\003 \\000)\\000\\000\\000\\000\\000\\000\\000\\000H\\000Q\\000\\000\\000\\000\\000\\000\\000\\000X\\000`\\000h\\000x\\002*G\\010\\227\\335\\316\\023\\022\\026\\010\\026\\020\\240\\215\\006\\030\\001 \\216\\265\\371\\270\\37430\\000B\\003USD\\030\\001 \\001@\\000H\\216\\265\\371\\270\\3743`\\000\\212\\001\\017140502049915152\\220\\001\\003\\230\\001\\357\\356\\311.P\\000\"\nclientMsgId: \"140502049915152\"\n",
+      "time": "2026-08-03 10:16:52 UTC",
+      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2126\npayload: \"\\020\\356\\204\\364\\026\\030\\002\\\"4\\010\\324\\363\\311.\\022\\r\\010\\026\\020\\000\\030\\0020\\000B\\003USD\\030\\003 \\000)\\000\\000\\000\\000\\000\\000\\000\\000H\\000Q\\000\\000\\000\\000\\000\\000\\000\\000X\\000`\\000h\\000x\\002*G\\010\\344\\335\\316\\023\\022\\026\\010\\026\\020\\240\\215\\006\\030\\002 \\270\\244\\201\\271\\37430\\000B\\003USD\\030\\001 \\001@\\000H\\270\\244\\201\\271\\3743`\\000\\212\\001\\017140221842197584\\220\\001\\003\\230\\001\\324\\363\\311.P\\000\"\nclientMsgId: \"140221842197584\"\n",
       "type": "log"
     },
     {
-      "time": "2026-08-03 10:14:42 UTC",
+      "time": "2026-08-03 10:16:51 UTC",
       "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
       "type": "log"
     },
     {
-      "time": "2026-08-03 10:14:42 UTC",
-      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2126\npayload: \"\\020\\356\\204\\364\\026\\030\\002\\\"4\\010\\347\\356\\311.\\022\\r\\010\\026\\020\\000\\030\\0010\\000B\\003USD\\030\\003 \\000)\\000\\000\\000\\000\\000\\000\\000\\000H\\000Q\\000\\000\\000\\000\\000\\000\\000\\000X\\000`\\000h\\000x\\002*G\\010\\226\\335\\316\\023\\022\\026\\010\\026\\020\\240\\215\\006\\030\\001 \\322\\255\\371\\270\\37430\\000B\\003USD\\030\\001 \\001@\\000H\\322\\255\\371\\270\\3743`\\000\\212\\001\\017140502049911824\\220\\001\\003\\230\\001\\347\\356\\311.P\\000\"\nclientMsgId: \"140502049911824\"\n",
+      "time": "2026-08-03 10:16:51 UTC",
+      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2126\npayload: \"\\020\\356\\204\\364\\026\\030\\002\\\"4\\010\\316\\363\\311.\\022\\r\\010\\026\\020\\000\\030\\0010\\000B\\003USD\\030\\003 \\000)\\000\\000\\000\\000\\000\\000\\000\\000H\\000Q\\000\\000\\000\\000\\000\\000\\000\\000X\\000`\\000h\\000x\\002*G\\010\\340\\335\\316\\023\\022\\026\\010\\026\\020\\240\\215\\006\\030\\001 \\320\\234\\201\\271\\37430\\000B\\003USD\\030\\001 \\001@\\000H\\320\\234\\201\\271\\3743`\\000\\212\\001\\017140221842190416\\220\\001\\003\\230\\001\\316\\363\\311.P\\000\"\nclientMsgId: \"140221842190416\"\n",
       "type": "log"
     },
     {
-      "time": "2026-08-03 10:14:42 UTC",
+      "time": "2026-08-03 10:16:51 UTC",
       "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
       "type": "log"
     },
     {
-      "time": "2026-08-03 10:14:42 UTC",
-      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2126\npayload: \"\\020\\356\\204\\364\\026\\030\\002\\\"4\\010\\346\\356\\311.\\022\\r\\010\\026\\020\\000\\030\\0010\\000B\\003USD\\030\\003 \\000)\\000\\000\\000\\000\\000\\000\\000\\000H\\000Q\\000\\000\\000\\000\\000\\000\\000\\000X\\000`\\000h\\000x\\002*G\\010\\225\\335\\316\\023\\022\\026\\010\\026\\020\\240\\215\\006\\030\\001 \\322\\255\\371\\270\\37430\\000B\\003USD\\030\\001 \\001@\\000H\\322\\255\\371\\270\\3743`\\000\\212\\001\\017140502049908496\\220\\001\\003\\230\\001\\346\\356\\311.P\\000\"\nclientMsgId: \"140502049908496\"\n",
+      "time": "2026-08-03 10:16:51 UTC",
+      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2126\npayload: \"\\020\\356\\204\\364\\026\\030\\002\\\"4\\010\\315\\363\\311.\\022\\r\\010\\026\\020\\000\\030\\0010\\000B\\003USD\\030\\003 \\000)\\000\\000\\000\\000\\000\\000\\000\\000H\\000Q\\000\\000\\000\\000\\000\\000\\000\\000X\\000`\\000h\\000x\\002*G\\010\\337\\335\\316\\023\\022\\026\\010\\026\\020\\240\\215\\006\\030\\001 \\320\\234\\201\\271\\37430\\000B\\003USD\\030\\001 \\001@\\000H\\320\\234\\201\\271\\3743`\\000\\212\\001\\017140221842187024\\220\\001\\003\\230\\001\\315\\363\\311.P\\000\"\nclientMsgId: \"140221842187024\"\n",
       "type": "log"
     },
     {
-      "time": "2026-08-03 10:14:42 UTC",
+      "time": "2026-08-03 10:16:51 UTC",
       "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
       "type": "log"
     },
     {
-      "time": "2026-08-03 10:14:42 UTC",
-      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2126\npayload: \"\\020\\356\\204\\364\\026\\030\\002\\\"4\\010\\345\\356\\311.\\022\\r\\010\\026\\020\\000\\030\\0010\\000B\\003USD\\030\\003 \\000)\\000\\000\\000\\000\\000\\000\\000\\000H\\000Q\\000\\000\\000\\000\\000\\000\\000\\000X\\000`\\000h\\000x\\002*G\\010\\224\\335\\316\\023\\022\\026\\010\\026\\020\\240\\215\\006\\030\\001 \\322\\255\\371\\270\\37430\\000B\\003USD\\030\\001 \\001@\\000H\\322\\255\\371\\270\\3743`\\000\\212\\001\\017140502049905040\\220\\001\\003\\230\\001\\345\\356\\311.P\\000\"\nclientMsgId: \"140502049905040\"\n",
+      "time": "2026-08-03 10:16:51 UTC",
+      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2126\npayload: \"\\020\\356\\204\\364\\026\\030\\002\\\"4\\010\\314\\363\\311.\\022\\r\\010\\026\\020\\000\\030\\0010\\000B\\003USD\\030\\003 \\000)\\000\\000\\000\\000\\000\\000\\000\\000H\\000Q\\000\\000\\000\\000\\000\\000\\000\\000X\\000`\\000h\\000x\\002*G\\010\\336\\335\\316\\023\\022\\026\\010\\026\\020\\240\\215\\006\\030\\001 \\320\\234\\201\\271\\37430\\000B\\003USD\\030\\001 \\001@\\000H\\320\\234\\201\\271\\3743`\\000\\212\\001\\017140221842180496\\220\\001\\003\\230\\001\\314\\363\\311.P\\000\"\nclientMsgId: \"140221842180496\"\n",
       "type": "log"
     },
     {
-      "time": "2026-08-03 10:14:42 UTC",
+      "time": "2026-08-03 10:16:51 UTC",
       "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
       "type": "log"
     },
     {
-      "time": "2026-08-03 10:14:42 UTC",
-      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2126\npayload: \"\\020\\356\\204\\364\\026\\030\\002\\\"4\\010\\344\\356\\311.\\022\\r\\010\\026\\020\\000\\030\\0010\\000B\\003USD\\030\\003 \\000)\\000\\000\\000\\000\\000\\000\\000\\000H\\000Q\\000\\000\\000\\000\\000\\000\\000\\000X\\000`\\000h\\000x\\002*G\\010\\223\\335\\316\\023\\022\\026\\010\\026\\020\\240\\215\\006\\030\\001 \\322\\255\\371\\270\\37430\\000B\\003USD\\030\\001 \\001@\\000H\\322\\255\\371\\270\\3743`\\000\\212\\001\\017140502049901840\\220\\001\\003\\230\\001\\344\\356\\311.P\\000\"\nclientMsgId: \"140502049901840\"\n",
+      "time": "2026-08-03 10:16:51 UTC",
+      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2126\npayload: \"\\020\\356\\204\\364\\026\\030\\002\\\"4\\010\\313\\363\\311.\\022\\r\\010\\026\\020\\000\\030\\0010\\000B\\003USD\\030\\003 \\000)\\000\\000\\000\\000\\000\\000\\000\\000H\\000Q\\000\\000\\000\\000\\000\\000\\000\\000X\\000`\\000h\\000x\\002*G\\010\\335\\335\\316\\023\\022\\026\\010\\026\\020\\240\\215\\006\\030\\001 \\320\\234\\201\\271\\37430\\000B\\003USD\\030\\001 \\001@\\000H\\320\\234\\201\\271\\3743`\\000\\212\\001\\017140221842183632\\220\\001\\003\\230\\001\\313\\363\\311.P\\000\"\nclientMsgId: \"140221842183632\"\n",
       "type": "log"
     },
     {
-      "time": "2026-08-03 10:14:42 UTC",
+      "time": "2026-08-03 10:16:51 UTC",
       "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
       "type": "log"
     },
     {
-      "time": "2026-08-03 10:14:42 UTC",
-      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2126\npayload: \"\\020\\356\\204\\364\\026\\030\\002\\\"4\\010\\343\\356\\311.\\022\\r\\010\\026\\020\\000\\030\\0010\\000B\\003USD\\030\\003 \\000)\\000\\000\\000\\000\\000\\000\\000\\000H\\000Q\\000\\000\\000\\000\\000\\000\\000\\000X\\000`\\000h\\000x\\002*G\\010\\222\\335\\316\\023\\022\\026\\010\\026\\020\\240\\215\\006\\030\\001 \\321\\255\\371\\270\\37430\\000B\\003USD\\030\\001 \\001@\\000H\\321\\255\\371\\270\\3743`\\000\\212\\001\\017140502051912976\\220\\001\\003\\230\\001\\343\\356\\311.P\\000\"\nclientMsgId: \"140502051912976\"\n",
+      "time": "2026-08-03 10:16:51 UTC",
+      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2126\npayload: \"\\020\\356\\204\\364\\026\\030\\002\\\"4\\010\\312\\363\\311.\\022\\r\\010\\026\\020\\000\\030\\0010\\000B\\003USD\\030\\003 \\000)\\000\\000\\000\\000\\000\\000\\000\\000H\\000Q\\000\\000\\000\\000\\000\\000\\000\\000X\\000`\\000h\\000x\\002*G\\010\\334\\335\\316\\023\\022\\026\\010\\026\\020\\240\\215\\006\\030\\001 \\317\\234\\201\\271\\37430\\000B\\003USD\\030\\001 \\001@\\000H\\317\\234\\201\\271\\3743`\\000\\212\\001\\017140221844191440\\220\\001\\003\\230\\001\\312\\363\\311.P\\000\"\nclientMsgId: \"140221844191440\"\n",
       "type": "log"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
       "type": "log"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
-      "event": "Order BOT_1785752081952 sent: SELL 0.1 BTCUSD",
+      "time": "2026-08-03 10:16:50 UTC",
+      "event": "Order BOT_1785752210639 sent: SELL 0.1 BTCUSD",
       "type": "order"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "event": "[INFO] \ud83d\ude80 Sending order to cTrader OpenAPI: SELL 0.1 lots (100000 units) of BTCUSD (ID: 22)",
       "type": "log"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "event": "[INFO] \ud83d\udce8 Signal: SELL 0.1 BTCUSD",
       "type": "log"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "event": "Signal received: \u274c SL HIT - CAD/JPY\nDirection: SELL\nPips: -38.0...",
       "type": "signal"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
-      "event": "Order BOT_1785752081952 sent: SELL 0.1 BTCUSD",
+      "time": "2026-08-03 10:16:50 UTC",
+      "event": "Order BOT_1785752210639 sent: SELL 0.1 BTCUSD",
       "type": "order"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "event": "[INFO] \ud83d\ude80 Sending order to cTrader OpenAPI: SELL 0.1 lots (100000 units) of BTCUSD (ID: 22)",
       "type": "log"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "event": "[INFO] \ud83d\udce8 Signal: SELL 0.1 BTCUSD",
       "type": "log"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "event": "Signal received: \u274c SL HIT - EUR/JPY\nDirection: SELL\nPips: -65.0...",
       "type": "signal"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
-      "event": "Order BOT_1785752081952 sent: SELL 0.1 BTCUSD",
+      "time": "2026-08-03 10:16:50 UTC",
+      "event": "Order BOT_1785752210638 sent: SELL 0.1 BTCUSD",
       "type": "order"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "event": "[INFO] \ud83d\ude80 Sending order to cTrader OpenAPI: SELL 0.1 lots (100000 units) of BTCUSD (ID: 22)",
       "type": "log"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "event": "[INFO] \ud83d\udce8 Signal: SELL 0.1 BTCUSD",
       "type": "log"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "event": "Signal received: \u274c SL HIT - CHF/JPY\nDirection: SELL\nPips: -58.9...",
       "type": "signal"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
-      "event": "Order BOT_1785752081952 sent: BUY 0.1 BTCUSD",
+      "time": "2026-08-03 10:16:50 UTC",
+      "event": "Order BOT_1785752210638 sent: BUY 0.1 BTCUSD",
       "type": "order"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "event": "[INFO] \ud83d\ude80 Sending order to cTrader OpenAPI: BUY 0.1 lots (100000 units) of BTCUSD (ID: 22)",
       "type": "log"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "event": "[INFO] \ud83d\udce8 Signal: BUY 0.1 BTCUSD",
       "type": "log"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "event": "Signal received: \u274c SL HIT - EUR/CHF\nDirection: BUY\nPips: -11.9...",
       "type": "signal"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "event": "Signal received: DO YOU WANT A FREE SIGNAL? \ud83d\ude80...",
       "type": "signal"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "event": "Signal received: New month, new week \ud83d\udd25...",
       "type": "signal"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
-      "event": "Order BOT_1785752081952 sent: SELL 0.1 BTCUSD",
+      "time": "2026-08-03 10:16:50 UTC",
+      "event": "Order BOT_1785752210638 sent: SELL 0.1 BTCUSD",
       "type": "order"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "event": "[INFO] \ud83d\ude80 Sending order to cTrader OpenAPI: SELL 0.1 lots (100000 units) of BTCUSD (ID: 22)",
       "type": "log"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "event": "[INFO] \ud83d\udce8 Signal: SELL 0.1 BTCUSD",
       "type": "log"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "event": "Signal received: \ud83d\udd34 SELL CHF/JPY\n\nEntry: MARKET (Ref: 193.473)\nSL: 1...",
       "type": "signal"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
-      "event": "Order BOT_1785752081952 sent: SELL 0.1 BTCUSD",
+      "time": "2026-08-03 10:16:50 UTC",
+      "event": "Order BOT_1785752210638 sent: SELL 0.1 BTCUSD",
       "type": "order"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "event": "[INFO] \ud83d\ude80 Sending order to cTrader OpenAPI: SELL 0.1 lots (100000 units) of BTCUSD (ID: 22)",
       "type": "log"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "event": "[INFO] \ud83d\udce8 Signal: SELL 0.1 BTCUSD",
       "type": "log"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "event": "Signal received: \ud83d\udd34 SELL CAD/JPY\n\nEntry: MARKET (Ref: 111.487)\nSL: 1...",
       "type": "signal"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
-      "event": "Order BOT_1785752081951 sent: SELL 0.1 BTCUSD",
+      "time": "2026-08-03 10:16:50 UTC",
+      "event": "Order BOT_1785752210638 sent: SELL 0.1 BTCUSD",
       "type": "order"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "event": "[INFO] \ud83d\ude80 Sending order to cTrader OpenAPI: SELL 0.1 lots (100000 units) of BTCUSD (ID: 22)",
       "type": "log"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "event": "[INFO] \ud83d\udce8 Signal: SELL 0.1 BTCUSD",
       "type": "log"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "event": "Signal received: \ud83d\udd34 SELL EUR/JPY\n\nEntry: MARKET (Ref: 180.433)\nSL: 1...",
       "type": "signal"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
-      "event": "Order BOT_1785752081951 sent: SELL 0.1 BTCUSD",
+      "time": "2026-08-03 10:16:50 UTC",
+      "event": "Order BOT_1785752210638 sent: SELL 0.1 BTCUSD",
       "type": "order"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "event": "[INFO] \ud83d\ude80 Sending order to cTrader OpenAPI: SELL 0.1 lots (100000 units) of BTCUSD (ID: 22)",
       "type": "log"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "event": "[INFO] \ud83d\udce8 Signal: SELL 0.1 BTCUSD",
       "type": "log"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "event": "Signal received: \ud83d\udd34 SELL NZD/JPY\n\nEntry: MARKET (Ref: 92.043)\nSL: 92...",
       "type": "signal"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
-      "event": "Order BOT_1785752081951 sent: SELL 0.1 BTCUSD",
+      "time": "2026-08-03 10:16:50 UTC",
+      "event": "Order BOT_1785752210637 sent: SELL 0.1 BTCUSD",
       "type": "order"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "event": "[INFO] \ud83d\ude80 Sending order to cTrader OpenAPI: SELL 0.1 lots (100000 units) of BTCUSD (ID: 22)",
       "type": "log"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "event": "[INFO] \ud83d\udce8 Signal: SELL 0.1 BTCUSD",
       "type": "log"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "event": "Signal received: \ud83d\udd34 SELL AUD/JPY\n\nEntry: MARKET (Ref: 110.039)\nSL: 1...",
       "type": "signal"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
-      "event": "Order BOT_1785752081951 sent: BUY 0.1 BTCUSD",
+      "time": "2026-08-03 10:16:50 UTC",
+      "event": "Order BOT_1785752210637 sent: BUY 0.1 BTCUSD",
       "type": "order"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "event": "[INFO] \ud83d\ude80 Sending order to cTrader OpenAPI: BUY 0.1 lots (100000 units) of BTCUSD (ID: 22)",
       "type": "log"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "event": "[INFO] \ud83d\udce8 Signal: BUY 0.1 BTCUSD",
       "type": "log"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "event": "Signal received: \ud83d\udfe2 BUY EUR/CHF\n\nEntry: MARKET (Ref: 0.93264)\nSL: 0....",
       "type": "signal"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "event": "Signal received: GOOD MORNING TRADERS \ud83d\udd25...",
       "type": "signal"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
-      "event": "Order BOT_1785752081951 sent: BUY 0.1 BTCUSD",
+      "time": "2026-08-03 10:16:50 UTC",
+      "event": "Order BOT_1785752210637 sent: BUY 0.1 BTCUSD",
       "type": "order"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "event": "[INFO] \ud83d\ude80 Sending order to cTrader OpenAPI: BUY 0.1 lots (100000 units) of BTCUSD (ID: 22)",
       "type": "log"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "event": "[INFO] \ud83d\udce8 Signal: BUY 0.1 BTCUSD",
       "type": "log"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "event": "Signal received: \ud83d\udfe2 BUY BTC/USD\n\nEntry: MARKET (Ref: 63262.83)\nSL: 6...",
       "type": "signal"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
-      "event": "Order BOT_1785752081951 sent: BUY 0.1 BTCUSD",
+      "time": "2026-08-03 10:16:50 UTC",
+      "event": "Order BOT_1785752210637 sent: BUY 0.1 BTCUSD",
       "type": "order"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "event": "[INFO] \ud83d\ude80 Sending order to cTrader OpenAPI: BUY 0.1 lots (100000 units) of BTCUSD (ID: 22)",
       "type": "log"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "event": "[INFO] \ud83d\udce8 Signal: BUY 0.1 BTCUSD",
       "type": "log"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "event": "Signal received: \ud83d\udfe2 BUY BTC/USD\n\nEntry: MARKET (Ref: 63262.84)\nSL: 6...",
       "type": "signal"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
-      "event": "Order BOT_1785752081950 sent: BUY 0.1 BTCUSD",
+      "time": "2026-08-03 10:16:50 UTC",
+      "event": "Order BOT_1785752210637 sent: BUY 0.1 BTCUSD",
       "type": "order"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "event": "[INFO] \ud83d\ude80 Sending order to cTrader OpenAPI: BUY 0.1 lots (100000 units) of BTCUSD (ID: 22)",
       "type": "log"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "event": "[INFO] \ud83d\udce8 Signal: BUY 0.1 BTCUSD",
       "type": "log"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "event": "Signal received: \ud83d\udfe2 BUY BTC/USD\n\nEntry: MARKET (Ref: 63542.66)\nSL: 6...",
       "type": "signal"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
-      "event": "Order BOT_1785752081950 sent: BUY 0.1 BTCUSD",
+      "time": "2026-08-03 10:16:50 UTC",
+      "event": "Order BOT_1785752210636 sent: BUY 0.1 BTCUSD",
       "type": "order"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "event": "[INFO] \ud83d\ude80 Sending order to cTrader OpenAPI: BUY 0.1 lots (100000 units) of BTCUSD (ID: 22)",
       "type": "log"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "event": "[INFO] \ud83d\udce8 Signal: BUY 0.1 BTCUSD",
       "type": "log"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "event": "Signal received: \ud83d\udfe2 BUY BTC/USD\n\nEntry: MARKET (Ref: 63542.65)\nSL: 6...",
       "type": "signal"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "event": "[INFO] \ud83d\udcf1 Checking Telegram updates...",
       "type": "log"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
-      "event": "Order BOT_1785752081355 sent: BUY 0.1 BTCUSD",
+      "time": "2026-08-03 10:16:50 UTC",
+      "event": "Order BOT_1785752210098 sent: BUY 0.1 BTCUSD",
       "type": "order"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "event": "[INFO] \ud83d\ude80 Sending order to cTrader OpenAPI: BUY 0.1 lots (100000 units) of BTCUSD (ID: 22)",
       "type": "log"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "event": "[INFO] \ud83e\uddea Testing signal order placement: BUY 0.1 BTCUSD",
       "type": "log"
     },
     {
-      "time": "2026-08-03 10:14:41 UTC",
+      "time": "2026-08-03 10:16:50 UTC",
       "event": "[SUCCESS] \ud83d\udd10 Account Authorized successfully",
       "type": "log"
     },
     {
-      "time": "2026-08-03 10:14:40 UTC",
+      "time": "2026-08-03 10:16:49 UTC",
       "event": "[SUCCESS] \ud83d\udd10 Application Authorized successfully",
       "type": "log"
     },
     {
-      "time": "2026-08-03 10:14:39 UTC",
+      "time": "2026-08-03 10:16:47 UTC",
       "event": "[SUCCESS] \u2705 Connected to cTrader OpenAPI at demo.ctraderapi.com:5035",
       "type": "log"
     },
     {
-      "time": "2026-08-03 10:14:38 UTC",
+      "time": "2026-08-03 10:16:47 UTC",
       "event": "[INFO] ================================================================================",
       "type": "log"
     },
     {
-      "time": "2026-08-03 10:14:38 UTC",
+      "time": "2026-08-03 10:16:47 UTC",
       "event": "[INFO] \ud83e\udd16 cTrader OpenAPI Bot STARTING",
       "type": "log"
     },
     {
-      "time": "2026-08-03 10:14:38 UTC",
+      "time": "2026-08-03 10:16:47 UTC",
       "event": "[INFO] ================================================================================",
       "type": "log"
     }
@@ -1358,5 +1358,5 @@
       "category": "Indices"
     }
   },
-  "lastUpdate": "2026-08-03T10:14:44.164597+00:00"
+  "lastUpdate": "2026-08-03T10:16:53.106839+00:00"
 }
