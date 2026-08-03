@@ -206,6 +206,25 @@
         }
 
         let cachedPairsConfig = {};
+        let pairsInitialized = false;
+
+        function updatePairConfig(pair) {
+            const lotInput = document.getElementById(`lot_${pair}`);
+            const enInput = document.getElementById(`en_${pair}`);
+            const statusSpan = document.getElementById(`status_${pair}`);
+            if (!cachedPairsConfig[pair]) cachedPairsConfig[pair] = {};
+            if (lotInput) cachedPairsConfig[pair].lot = parseFloat(lotInput.value) || 0.01;
+            if (enInput) {
+                cachedPairsConfig[pair].enabled = enInput.checked;
+                if (statusSpan) {
+                    statusSpan.textContent = enInput.checked ? 'ENABLED' : 'DISABLED';
+                    statusSpan.style.color = enInput.checked ? '#10b981' : '#ef4444';
+                }
+            }
+            try {
+                localStorage.setItem('ctrader_pairs_config', JSON.stringify(cachedPairsConfig));
+            } catch(e) {}
+        }
 
         function refreshData() {
             fetch('system_state.json')
@@ -223,7 +242,7 @@
                     document.getElementById('brokerEnv').textContent = (data.account?.broker || 'Deriv') + ' (' + (data.account?.environment || 'DEMO') + ')';
 
                     // Pairs Config
-                    if (data.pairsConfig) {
+                    if (data.pairsConfig && !pairsInitialized) {
                         let saved = data.pairsConfig;
                         try {
                             const local = localStorage.getItem('ctrader_pairs_config');
@@ -232,18 +251,19 @@
                             }
                         } catch(e) {}
                         cachedPairsConfig = saved;
+                        pairsInitialized = true;
                         const pairsBody = document.getElementById('pairsConfigBody');
                         pairsBody.innerHTML = Object.entries(cachedPairsConfig).map(([pair, cfg]) => `
                             <tr>
                                 <td><strong>${pair}</strong></td>
                                 <td><span style="background: #334155; padding: 3px 8px; border-radius: 4px; font-size: 11px;">${cfg.category || 'General'}</span></td>
-                                <td><input type="number" step="0.01" min="0.01" class="lot-input" id="lot_${pair}" value="${cfg.lot}"></td>
+                                <td><input type="number" step="0.01" min="0.01" class="lot-input" id="lot_${pair}" value="${cfg.lot}" oninput="updatePairConfig('${pair}')"></td>
                                 <td>
                                     <label class="toggle-switch">
-                                        <input type="checkbox" id="en_${pair}" ${cfg.enabled ? 'checked' : ''}>
+                                        <input type="checkbox" id="en_${pair}" ${cfg.enabled ? 'checked' : ''} onchange="updatePairConfig('${pair}')">
                                         <span class="slider"></span>
                                     </label>
-                                    <span style="margin-left: 8px; font-weight: bold; color: ${cfg.enabled ? '#10b981' : '#ef4444'}">${cfg.enabled ? 'ENABLED' : 'DISABLED'}</span>
+                                    <span id="status_${pair}" style="margin-left: 8px; font-weight: bold; color: ${cfg.enabled ? '#10b981' : '#ef4444'}">${cfg.enabled ? 'ENABLED' : 'DISABLED'}</span>
                                 </td>
                             </tr>
                         `).join('');
