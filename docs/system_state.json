@@ -14,57 +14,57 @@
   },
   "trades": [
     {
-      "orderId": "BOT_1785721955133",
+      "orderId": "BOT_1785722091828",
       "symbol": "BTCUSD",
       "side": "BUY",
       "qty": 0.1,
       "sl": 62993.03,
       "tp": 63500.91,
       "status": "FILLED",
-      "sentTime": "2026-08-03 01:52:35 UTC",
-      "filledTime": "2026-08-03 01:52:35 UTC",
+      "sentTime": "2026-08-03 01:54:51 UTC",
+      "filledTime": "2026-08-03 01:54:52 UTC",
       "rawSignal": "\ud83d\udfe2 BUY BTC/USD\n\nEntry: MARKET (Ref: 63262.83)\nSL: 62993.03\nTP: 63500.91\nRR: 1:1.13\n\nSignals are news-filtered and system-link compatible.\n\nUsers may use their own copy system by their own choice. Some solutions are available here: Telegram Bot"
     },
     {
-      "orderId": "BOT_1785721955133",
+      "orderId": "BOT_1785722091828",
       "symbol": "BTCUSD",
       "side": "BUY",
       "qty": 0.1,
       "sl": 62993.04,
       "tp": 63500.9,
       "status": "FILLED",
-      "sentTime": "2026-08-03 01:52:35 UTC",
-      "filledTime": "2026-08-03 01:52:36 UTC",
+      "sentTime": "2026-08-03 01:54:51 UTC",
+      "filledTime": "2026-08-03 01:54:52 UTC",
       "rawSignal": "\ud83d\udfe2 BUY BTC/USD\n\nEntry: MARKET (Ref: 63262.84)\nSL: 62993.04\nTP: 63500.90\nRR: 1:1.13\n\nSignals are news-filtered and system-link compatible.\n\nUsers may use their own copy system by their own choice. Some solutions are available here: Telegram Bot"
     },
     {
-      "orderId": "BOT_1785721955133",
+      "orderId": "BOT_1785722091827",
       "symbol": "BTCUSD",
       "side": "BUY",
       "qty": 0.1,
       "sl": 63322.21,
       "tp": 63792.46,
       "status": "FILLED",
-      "sentTime": "2026-08-03 01:52:35 UTC",
-      "filledTime": "2026-08-03 01:52:35 UTC",
+      "sentTime": "2026-08-03 01:54:51 UTC",
+      "filledTime": "2026-08-03 01:54:52 UTC",
       "rawSignal": "\ud83d\udfe2 BUY BTC/USD\n\nEntry: MARKET (Ref: 63542.66)\nSL: 63322.21\nTP: 63792.46\nRR: 1:1.13\n\nSignals are news-filtered and system-link compatible.\n\nUsers may use their own copy system by their own choice. Some solutions are available here: Telegram Bot"
     },
     {
-      "orderId": "BOT_1785721955133",
+      "orderId": "BOT_1785722091827",
       "symbol": "BTCUSD",
       "side": "BUY",
       "qty": 0.1,
       "sl": 63322.23,
       "tp": 63792.45,
       "status": "FILLED",
-      "sentTime": "2026-08-03 01:52:35 UTC",
-      "filledTime": "2026-08-03 01:52:35 UTC",
+      "sentTime": "2026-08-03 01:54:51 UTC",
+      "filledTime": "2026-08-03 01:54:52 UTC",
       "rawSignal": "\ud83d\udfe2 BUY BTC/USD\n\nEntry: MARKET (Ref: 63542.65)\nSL: 63322.23\nTP: 63792.45\nRR: 1:1.13\n\nSignals are news-filtered and system-link compatible.\n\nUsers may use their own copy system by their own choice. Some solutions are available here: Telegram Bot"
     }
   ],
   "signals": [
     {
-      "time": "2026-08-03 01:52:35 UTC",
+      "time": "2026-08-03 01:54:51 UTC",
       "text": "\ud83d\udfe2 BUY BTC/USD\n\nEntry: MARKET (Ref: 63262.83)\nSL: 62993.03\nTP: 63500.91\nRR: 1:1.13\n\nSignals are news-filtered and system-link compatible.\n\nUsers may use their own copy system by their own choice. Some solutions are available here: Telegram Bot",
       "parsed": true,
       "signal": {
@@ -77,7 +77,7 @@
       }
     },
     {
-      "time": "2026-08-03 01:52:35 UTC",
+      "time": "2026-08-03 01:54:51 UTC",
       "text": "\ud83d\udfe2 BUY BTC/USD\n\nEntry: MARKET (Ref: 63262.84)\nSL: 62993.04\nTP: 63500.90\nRR: 1:1.13\n\nSignals are news-filtered and system-link compatible.\n\nUsers may use their own copy system by their own choice. Some solutions are available here: Telegram Bot",
       "parsed": true,
       "signal": {
@@ -90,7 +90,7 @@
       }
     },
     {
-      "time": "2026-08-03 01:52:35 UTC",
+      "time": "2026-08-03 01:54:51 UTC",
       "text": "\ud83d\udfe2 BUY BTC/USD\n\nEntry: MARKET (Ref: 63542.66)\nSL: 63322.21\nTP: 63792.46\nRR: 1:1.13\n\nSignals are news-filtered and system-link compatible.\n\nUsers may use their own copy system by their own choice. Some solutions are available here: Telegram Bot",
       "parsed": true,
       "signal": {
@@ -103,7 +103,7 @@
       }
     },
     {
-      "time": "2026-08-03 01:52:35 UTC",
+      "time": "2026-08-03 01:54:51 UTC",
       "text": "\ud83d\udfe2 BUY BTC/USD\n\nEntry: MARKET (Ref: 63542.65)\nSL: 63322.23\nTP: 63792.45\nRR: 1:1.13\n\nSignals are news-filtered and system-link compatible.\n\nUsers may use their own copy system by their own choice. Some solutions are available here: Telegram Bot",
       "parsed": true,
       "signal": {
@@ -118,117 +118,117 @@
   ],
   "logs": [
     {
-      "time": "2026-08-03 01:52:36 UTC",
+      "time": "2026-08-03 01:54:52 UTC",
       "level": "SUCCESS",
-      "message": "\u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TRADING_BAD_VOLUME(\\356\\204\\364\\026:GOrder volume = 100.00 is smaller than minimum allowed volume = 1000.00.\"\nclientMsgId: \"139780961426000\"\n"
+      "message": "\u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TRADING_BAD_VOLUME(\\356\\204\\364\\026:GOrder volume = 100.00 is smaller than minimum allowed volume = 1000.00.\"\nclientMsgId: \"140125830975632\"\n"
     },
     {
-      "time": "2026-08-03 01:52:36 UTC",
+      "time": "2026-08-03 01:54:52 UTC",
       "level": "INFO",
       "message": "\ud83d\udcbe State saved to docs/system_state.json"
     },
     {
-      "time": "2026-08-03 01:52:35 UTC",
+      "time": "2026-08-03 01:54:52 UTC",
       "level": "SUCCESS",
-      "message": "\u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TRADING_BAD_VOLUME(\\356\\204\\364\\026:GOrder volume = 100.00 is smaller than minimum allowed volume = 1000.00.\"\nclientMsgId: \"139780961428880\"\n"
+      "message": "\u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TRADING_BAD_VOLUME(\\356\\204\\364\\026:GOrder volume = 100.00 is smaller than minimum allowed volume = 1000.00.\"\nclientMsgId: \"140125830981008\"\n"
     },
     {
-      "time": "2026-08-03 01:52:35 UTC",
+      "time": "2026-08-03 01:54:52 UTC",
       "level": "INFO",
       "message": "\ud83d\udcbe State saved to docs/system_state.json"
     },
     {
-      "time": "2026-08-03 01:52:35 UTC",
+      "time": "2026-08-03 01:54:52 UTC",
       "level": "SUCCESS",
-      "message": "\u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TRADING_BAD_VOLUME(\\356\\204\\364\\026:GOrder volume = 100.00 is smaller than minimum allowed volume = 1000.00.\"\nclientMsgId: \"139780981613968\"\n"
+      "message": "\u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TRADING_BAD_VOLUME(\\356\\204\\364\\026:GOrder volume = 100.00 is smaller than minimum allowed volume = 1000.00.\"\nclientMsgId: \"140125830978064\"\n"
     },
     {
-      "time": "2026-08-03 01:52:35 UTC",
+      "time": "2026-08-03 01:54:52 UTC",
       "level": "INFO",
       "message": "\ud83d\udcbe State saved to docs/system_state.json"
     },
     {
-      "time": "2026-08-03 01:52:35 UTC",
+      "time": "2026-08-03 01:54:52 UTC",
       "level": "SUCCESS",
-      "message": "\u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TRADING_BAD_VOLUME(\\356\\204\\364\\026:GOrder volume = 100.00 is smaller than minimum allowed volume = 1000.00.\"\nclientMsgId: \"139780961423440\"\n"
+      "message": "\u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TRADING_BAD_VOLUME(\\356\\204\\364\\026:GOrder volume = 100.00 is smaller than minimum allowed volume = 1000.00.\"\nclientMsgId: \"140125830973328\"\n"
     },
     {
-      "time": "2026-08-03 01:52:35 UTC",
+      "time": "2026-08-03 01:54:51 UTC",
       "level": "INFO",
       "message": "\ud83d\udcbe State saved to docs/system_state.json"
     },
     {
-      "time": "2026-08-03 01:52:35 UTC",
+      "time": "2026-08-03 01:54:51 UTC",
       "level": "INFO",
       "message": "\ud83d\ude80 Sending order to cTrader OpenAPI: BUY 0.1 lots (10000 units) of BTCUSD (ID: 22)"
     },
     {
-      "time": "2026-08-03 01:52:35 UTC",
+      "time": "2026-08-03 01:54:51 UTC",
       "level": "INFO",
       "message": "\ud83d\udce8 Signal: BUY 0.1 BTCUSD"
     },
     {
-      "time": "2026-08-03 01:52:35 UTC",
+      "time": "2026-08-03 01:54:51 UTC",
       "level": "INFO",
       "message": "\ud83d\ude80 Sending order to cTrader OpenAPI: BUY 0.1 lots (10000 units) of BTCUSD (ID: 22)"
     },
     {
-      "time": "2026-08-03 01:52:35 UTC",
+      "time": "2026-08-03 01:54:51 UTC",
       "level": "INFO",
       "message": "\ud83d\udce8 Signal: BUY 0.1 BTCUSD"
     },
     {
-      "time": "2026-08-03 01:52:35 UTC",
+      "time": "2026-08-03 01:54:51 UTC",
       "level": "INFO",
       "message": "\ud83d\ude80 Sending order to cTrader OpenAPI: BUY 0.1 lots (10000 units) of BTCUSD (ID: 22)"
     },
     {
-      "time": "2026-08-03 01:52:35 UTC",
+      "time": "2026-08-03 01:54:51 UTC",
       "level": "INFO",
       "message": "\ud83d\udce8 Signal: BUY 0.1 BTCUSD"
     },
     {
-      "time": "2026-08-03 01:52:35 UTC",
+      "time": "2026-08-03 01:54:51 UTC",
       "level": "INFO",
       "message": "\ud83d\ude80 Sending order to cTrader OpenAPI: BUY 0.1 lots (10000 units) of BTCUSD (ID: 22)"
     },
     {
-      "time": "2026-08-03 01:52:35 UTC",
+      "time": "2026-08-03 01:54:51 UTC",
       "level": "INFO",
       "message": "\ud83d\udce8 Signal: BUY 0.1 BTCUSD"
     },
     {
-      "time": "2026-08-03 01:52:34 UTC",
+      "time": "2026-08-03 01:54:51 UTC",
       "level": "INFO",
       "message": "\ud83d\udcf1 Checking Telegram updates..."
     },
     {
-      "time": "2026-08-03 01:52:34 UTC",
+      "time": "2026-08-03 01:54:51 UTC",
       "level": "SUCCESS",
       "message": "\ud83d\udd10 Account Authorized successfully"
     },
     {
-      "time": "2026-08-03 01:52:33 UTC",
+      "time": "2026-08-03 01:54:50 UTC",
       "level": "SUCCESS",
       "message": "\ud83d\udd10 Application Authorized successfully"
     },
     {
-      "time": "2026-08-03 01:52:32 UTC",
+      "time": "2026-08-03 01:54:49 UTC",
       "level": "SUCCESS",
       "message": "\u2705 Connected to cTrader OpenAPI at demo.ctraderapi.com:5035"
     },
     {
-      "time": "2026-08-03 01:52:32 UTC",
+      "time": "2026-08-03 01:54:38 UTC",
       "level": "INFO",
       "message": "================================================================================"
     },
     {
-      "time": "2026-08-03 01:52:32 UTC",
+      "time": "2026-08-03 01:54:38 UTC",
       "level": "INFO",
       "message": "\ud83e\udd16 cTrader OpenAPI Bot STARTING"
     },
     {
-      "time": "2026-08-03 01:52:32 UTC",
+      "time": "2026-08-03 01:54:38 UTC",
       "level": "INFO",
       "message": "================================================================================"
     }
@@ -236,157 +236,157 @@
   "errors": [],
   "backendEvents": [
     {
-      "time": "2026-08-03 01:52:36 UTC",
-      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TRADING_BAD_VOLUME(\\356\\204\\364\\026:GOrder volume = 100.00 is smaller than minimum allowed volume = 1000.00.\"\nclientMsgId: \"139780961426000\"\n",
+      "time": "2026-08-03 01:54:52 UTC",
+      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TRADING_BAD_VOLUME(\\356\\204\\364\\026:GOrder volume = 100.00 is smaller than minimum allowed volume = 1000.00.\"\nclientMsgId: \"140125830975632\"\n",
       "type": "log"
     },
     {
-      "time": "2026-08-03 01:52:36 UTC",
+      "time": "2026-08-03 01:54:52 UTC",
       "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
       "type": "log"
     },
     {
-      "time": "2026-08-03 01:52:35 UTC",
-      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TRADING_BAD_VOLUME(\\356\\204\\364\\026:GOrder volume = 100.00 is smaller than minimum allowed volume = 1000.00.\"\nclientMsgId: \"139780961428880\"\n",
+      "time": "2026-08-03 01:54:52 UTC",
+      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TRADING_BAD_VOLUME(\\356\\204\\364\\026:GOrder volume = 100.00 is smaller than minimum allowed volume = 1000.00.\"\nclientMsgId: \"140125830981008\"\n",
       "type": "log"
     },
     {
-      "time": "2026-08-03 01:52:35 UTC",
+      "time": "2026-08-03 01:54:52 UTC",
       "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
       "type": "log"
     },
     {
-      "time": "2026-08-03 01:52:35 UTC",
-      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TRADING_BAD_VOLUME(\\356\\204\\364\\026:GOrder volume = 100.00 is smaller than minimum allowed volume = 1000.00.\"\nclientMsgId: \"139780981613968\"\n",
+      "time": "2026-08-03 01:54:52 UTC",
+      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TRADING_BAD_VOLUME(\\356\\204\\364\\026:GOrder volume = 100.00 is smaller than minimum allowed volume = 1000.00.\"\nclientMsgId: \"140125830978064\"\n",
       "type": "log"
     },
     {
-      "time": "2026-08-03 01:52:35 UTC",
+      "time": "2026-08-03 01:54:52 UTC",
       "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
       "type": "log"
     },
     {
-      "time": "2026-08-03 01:52:35 UTC",
-      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TRADING_BAD_VOLUME(\\356\\204\\364\\026:GOrder volume = 100.00 is smaller than minimum allowed volume = 1000.00.\"\nclientMsgId: \"139780961423440\"\n",
+      "time": "2026-08-03 01:54:52 UTC",
+      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TRADING_BAD_VOLUME(\\356\\204\\364\\026:GOrder volume = 100.00 is smaller than minimum allowed volume = 1000.00.\"\nclientMsgId: \"140125830973328\"\n",
       "type": "log"
     },
     {
-      "time": "2026-08-03 01:52:35 UTC",
+      "time": "2026-08-03 01:54:51 UTC",
       "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
       "type": "log"
     },
     {
-      "time": "2026-08-03 01:52:35 UTC",
-      "event": "Order BOT_1785721955133 sent: BUY 0.1 BTCUSD",
+      "time": "2026-08-03 01:54:51 UTC",
+      "event": "Order BOT_1785722091828 sent: BUY 0.1 BTCUSD",
       "type": "order"
     },
     {
-      "time": "2026-08-03 01:52:35 UTC",
+      "time": "2026-08-03 01:54:51 UTC",
       "event": "[INFO] \ud83d\ude80 Sending order to cTrader OpenAPI: BUY 0.1 lots (10000 units) of BTCUSD (ID: 22)",
       "type": "log"
     },
     {
-      "time": "2026-08-03 01:52:35 UTC",
+      "time": "2026-08-03 01:54:51 UTC",
       "event": "[INFO] \ud83d\udce8 Signal: BUY 0.1 BTCUSD",
       "type": "log"
     },
     {
-      "time": "2026-08-03 01:52:35 UTC",
+      "time": "2026-08-03 01:54:51 UTC",
       "event": "Signal received: \ud83d\udfe2 BUY BTC/USD\n\nEntry: MARKET (Ref: 63262.83)\nSL: 6...",
       "type": "signal"
     },
     {
-      "time": "2026-08-03 01:52:35 UTC",
-      "event": "Order BOT_1785721955133 sent: BUY 0.1 BTCUSD",
+      "time": "2026-08-03 01:54:51 UTC",
+      "event": "Order BOT_1785722091828 sent: BUY 0.1 BTCUSD",
       "type": "order"
     },
     {
-      "time": "2026-08-03 01:52:35 UTC",
+      "time": "2026-08-03 01:54:51 UTC",
       "event": "[INFO] \ud83d\ude80 Sending order to cTrader OpenAPI: BUY 0.1 lots (10000 units) of BTCUSD (ID: 22)",
       "type": "log"
     },
     {
-      "time": "2026-08-03 01:52:35 UTC",
+      "time": "2026-08-03 01:54:51 UTC",
       "event": "[INFO] \ud83d\udce8 Signal: BUY 0.1 BTCUSD",
       "type": "log"
     },
     {
-      "time": "2026-08-03 01:52:35 UTC",
+      "time": "2026-08-03 01:54:51 UTC",
       "event": "Signal received: \ud83d\udfe2 BUY BTC/USD\n\nEntry: MARKET (Ref: 63262.84)\nSL: 6...",
       "type": "signal"
     },
     {
-      "time": "2026-08-03 01:52:35 UTC",
-      "event": "Order BOT_1785721955133 sent: BUY 0.1 BTCUSD",
+      "time": "2026-08-03 01:54:51 UTC",
+      "event": "Order BOT_1785722091827 sent: BUY 0.1 BTCUSD",
       "type": "order"
     },
     {
-      "time": "2026-08-03 01:52:35 UTC",
+      "time": "2026-08-03 01:54:51 UTC",
       "event": "[INFO] \ud83d\ude80 Sending order to cTrader OpenAPI: BUY 0.1 lots (10000 units) of BTCUSD (ID: 22)",
       "type": "log"
     },
     {
-      "time": "2026-08-03 01:52:35 UTC",
+      "time": "2026-08-03 01:54:51 UTC",
       "event": "[INFO] \ud83d\udce8 Signal: BUY 0.1 BTCUSD",
       "type": "log"
     },
     {
-      "time": "2026-08-03 01:52:35 UTC",
+      "time": "2026-08-03 01:54:51 UTC",
       "event": "Signal received: \ud83d\udfe2 BUY BTC/USD\n\nEntry: MARKET (Ref: 63542.66)\nSL: 6...",
       "type": "signal"
     },
     {
-      "time": "2026-08-03 01:52:35 UTC",
-      "event": "Order BOT_1785721955133 sent: BUY 0.1 BTCUSD",
+      "time": "2026-08-03 01:54:51 UTC",
+      "event": "Order BOT_1785722091827 sent: BUY 0.1 BTCUSD",
       "type": "order"
     },
     {
-      "time": "2026-08-03 01:52:35 UTC",
+      "time": "2026-08-03 01:54:51 UTC",
       "event": "[INFO] \ud83d\ude80 Sending order to cTrader OpenAPI: BUY 0.1 lots (10000 units) of BTCUSD (ID: 22)",
       "type": "log"
     },
     {
-      "time": "2026-08-03 01:52:35 UTC",
+      "time": "2026-08-03 01:54:51 UTC",
       "event": "[INFO] \ud83d\udce8 Signal: BUY 0.1 BTCUSD",
       "type": "log"
     },
     {
-      "time": "2026-08-03 01:52:35 UTC",
+      "time": "2026-08-03 01:54:51 UTC",
       "event": "Signal received: \ud83d\udfe2 BUY BTC/USD\n\nEntry: MARKET (Ref: 63542.65)\nSL: 6...",
       "type": "signal"
     },
     {
-      "time": "2026-08-03 01:52:34 UTC",
+      "time": "2026-08-03 01:54:51 UTC",
       "event": "[INFO] \ud83d\udcf1 Checking Telegram updates...",
       "type": "log"
     },
     {
-      "time": "2026-08-03 01:52:34 UTC",
+      "time": "2026-08-03 01:54:51 UTC",
       "event": "[SUCCESS] \ud83d\udd10 Account Authorized successfully",
       "type": "log"
     },
     {
-      "time": "2026-08-03 01:52:33 UTC",
+      "time": "2026-08-03 01:54:50 UTC",
       "event": "[SUCCESS] \ud83d\udd10 Application Authorized successfully",
       "type": "log"
     },
     {
-      "time": "2026-08-03 01:52:32 UTC",
+      "time": "2026-08-03 01:54:49 UTC",
       "event": "[SUCCESS] \u2705 Connected to cTrader OpenAPI at demo.ctraderapi.com:5035",
       "type": "log"
     },
     {
-      "time": "2026-08-03 01:52:32 UTC",
+      "time": "2026-08-03 01:54:38 UTC",
       "event": "[INFO] ================================================================================",
       "type": "log"
     },
     {
-      "time": "2026-08-03 01:52:32 UTC",
+      "time": "2026-08-03 01:54:38 UTC",
       "event": "[INFO] \ud83e\udd16 cTrader OpenAPI Bot STARTING",
       "type": "log"
     },
     {
-      "time": "2026-08-03 01:52:32 UTC",
+      "time": "2026-08-03 01:54:38 UTC",
       "event": "[INFO] ================================================================================",
       "type": "log"
     }
@@ -518,5 +518,5 @@
       "category": "Indices"
     }
   },
-  "lastUpdate": "2026-08-03T01:52:36.063970+00:00"
+  "lastUpdate": "2026-08-03T01:54:52.292780+00:00"
 }
