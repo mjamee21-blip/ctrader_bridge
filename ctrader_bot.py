@@ -57,7 +57,8 @@ PAIR_ALIASES = {
     "EURUSD": "EURUSD", "GBPUSD": "GBPUSD", "USDJPY": "USDJPY",
     "AUDUSD": "AUDUSD", "USDCAD": "USDCAD", "NZDUSD": "NZDUSD", "USDCHF": "USDCHF",
     "EURGBP": "EURGBP", "EURJPY": "EURJPY", "GBPJPY": "GBPJPY", "AUDJPY": "AUDJPY",
-    "EURAUD": "EURAUD", "EURCAD": "EURCAD"
+    "EURAUD": "EURAUD", "EURCAD": "EURCAD",
+    "USDNOK": "USDNOK", "USDSEK": "USDSEK"
 }
 
 DEFAULT_LOTS = {
@@ -144,6 +145,9 @@ def parse_signal(text):
     if not text:
         return None
     t = text.upper()
+    if "TP HIT" in t or "SL HIT" in t or "CLOSED" in t or "GOOD MORNING" in t or "NEW MONTH" in t or "DO YOU WANT" in t:
+        return None
+
     side = "BUY" if "BUY" in t else "SELL" if "SELL" in t else None
     if not side:
         return None
