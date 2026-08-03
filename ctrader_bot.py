@@ -182,7 +182,7 @@ def place_order(client, symbol, side, qty, sl=None, tp=None, raw_signal=None):
         "NAS100": 10001, "US30": 10002, "SPX500": 10003, "GER40": 10004
     }
     symbol_id = SYMBOL_IDS.get(symbol.upper(), 1)
-    volume = int(float(qty) * 100000)
+    volume = max(int(float(qty) * 100000), 1000)
     trade_side = 1 if side.upper() == "BUY" else 2
 
     order_id = f"BOT_{int(time.time()*1000)}"
