@@ -14,213 +14,213 @@
   },
   "trades": [
     {
-      "orderId": "BOT_1785767476376",
+      "orderId": "BOT_1785767563905",
       "symbol": "BTCUSD",
       "side": "SELL",
       "qty": 0.1,
       "sl": null,
       "tp": null,
       "status": "FILLED",
-      "sentTime": "2026-08-03 14:31:16 UTC",
-      "filledTime": "2026-08-03 14:31:20 UTC",
+      "sentTime": "2026-08-03 14:32:43 UTC",
+      "filledTime": "2026-08-03 14:32:47 UTC",
       "rawSignal": "\u2705 TP HIT - AUD/JPY\nDirection: SELL\nPips: +45.4"
     },
     {
-      "orderId": "BOT_1785767476376",
+      "orderId": "BOT_1785767563905",
       "symbol": "XAUUSD",
       "side": "BUY",
       "qty": 0.05,
       "sl": null,
       "tp": 1.0,
       "status": "FILLED",
-      "sentTime": "2026-08-03 14:31:16 UTC",
-      "filledTime": "2026-08-03 14:31:19 UTC",
+      "sentTime": "2026-08-03 14:32:43 UTC",
+      "filledTime": "2026-08-03 14:32:47 UTC",
       "rawSignal": "\u26a0\ufe0f FREE SIGNAL\n\n\ud83d\udea8 BUY GOLD NOW  \ud83d\udcc8\n\n\ud83c\udfaf Entry Point: 4052.5 / 4040.5\n\u274c Stop Loss:  4037.5\n\n\u2705 TP1: 4062.5\n\u2705 TP2: 4072.5"
     },
     {
-      "orderId": "BOT_1785767476376",
+      "orderId": "BOT_1785767563904",
       "symbol": "BTCUSD",
       "side": "SELL",
       "qty": 0.1,
       "sl": null,
       "tp": null,
       "status": "FILLED",
-      "sentTime": "2026-08-03 14:31:16 UTC",
-      "filledTime": "2026-08-03 14:31:19 UTC",
+      "sentTime": "2026-08-03 14:32:43 UTC",
+      "filledTime": "2026-08-03 14:32:46 UTC",
       "rawSignal": "\u274c SL HIT - CAD/JPY\nDirection: SELL\nPips: -38.0"
     },
     {
-      "orderId": "BOT_1785767476376",
+      "orderId": "BOT_1785767563904",
       "symbol": "BTCUSD",
       "side": "SELL",
       "qty": 0.1,
       "sl": null,
       "tp": null,
       "status": "FILLED",
-      "sentTime": "2026-08-03 14:31:16 UTC",
-      "filledTime": "2026-08-03 14:31:19 UTC",
+      "sentTime": "2026-08-03 14:32:43 UTC",
+      "filledTime": "2026-08-03 14:32:46 UTC",
       "rawSignal": "\u274c SL HIT - EUR/JPY\nDirection: SELL\nPips: -65.0"
     },
     {
-      "orderId": "BOT_1785767476376",
+      "orderId": "BOT_1785767563904",
       "symbol": "BTCUSD",
       "side": "SELL",
       "qty": 0.1,
       "sl": null,
       "tp": null,
       "status": "FILLED",
-      "sentTime": "2026-08-03 14:31:16 UTC",
-      "filledTime": "2026-08-03 14:31:19 UTC",
+      "sentTime": "2026-08-03 14:32:43 UTC",
+      "filledTime": "2026-08-03 14:32:46 UTC",
       "rawSignal": "\u274c SL HIT - CHF/JPY\nDirection: SELL\nPips: -58.9"
     },
     {
-      "orderId": "BOT_1785767476376",
+      "orderId": "BOT_1785767563904",
       "symbol": "BTCUSD",
       "side": "BUY",
       "qty": 0.1,
       "sl": null,
       "tp": null,
       "status": "FILLED",
-      "sentTime": "2026-08-03 14:31:16 UTC",
-      "filledTime": "2026-08-03 14:31:19 UTC",
+      "sentTime": "2026-08-03 14:32:43 UTC",
+      "filledTime": "2026-08-03 14:32:46 UTC",
       "rawSignal": "\u274c SL HIT - EUR/CHF\nDirection: BUY\nPips: -11.9"
     },
     {
-      "orderId": "BOT_1785767476375",
+      "orderId": "BOT_1785767563904",
       "symbol": "BTCUSD",
       "side": "SELL",
       "qty": 0.1,
       "sl": 194.062,
       "tp": 192.805,
       "status": "FILLED",
-      "sentTime": "2026-08-03 14:31:16 UTC",
-      "filledTime": "2026-08-03 14:31:19 UTC",
+      "sentTime": "2026-08-03 14:32:43 UTC",
+      "filledTime": "2026-08-03 14:32:46 UTC",
       "rawSignal": "\ud83d\udd34 SELL CHF/JPY\n\nEntry: MARKET (Ref: 193.473)\nSL: 194.062\nTP: 192.805\nRR: 1:1.13\n\nSignals are news-filtered and system-link compatible.\n\nUsers may use their own copy system by their own choice. Some solutions are available here: Telegram Bot"
     },
     {
-      "orderId": "BOT_1785767476375",
+      "orderId": "BOT_1785767563904",
       "symbol": "BTCUSD",
       "side": "SELL",
       "qty": 0.1,
       "sl": 111.867,
       "tp": 111.056,
       "status": "FILLED",
-      "sentTime": "2026-08-03 14:31:16 UTC",
-      "filledTime": "2026-08-03 14:31:18 UTC",
+      "sentTime": "2026-08-03 14:32:43 UTC",
+      "filledTime": "2026-08-03 14:32:45 UTC",
       "rawSignal": "\ud83d\udd34 SELL CAD/JPY\n\nEntry: MARKET (Ref: 111.487)\nSL: 111.867\nTP: 111.056\nRR: 1:1.13\n\nSignals are news-filtered and system-link compatible.\n\nUsers may use their own copy system by their own choice. Some solutions are available here: Telegram Bot"
     },
     {
-      "orderId": "BOT_1785767476375",
+      "orderId": "BOT_1785767563904",
       "symbol": "BTCUSD",
       "side": "SELL",
       "qty": 0.1,
       "sl": 181.082,
       "tp": 179.696,
       "status": "FILLED",
-      "sentTime": "2026-08-03 14:31:16 UTC",
-      "filledTime": "2026-08-03 14:31:18 UTC",
+      "sentTime": "2026-08-03 14:32:43 UTC",
+      "filledTime": "2026-08-03 14:32:45 UTC",
       "rawSignal": "\ud83d\udd34 SELL EUR/JPY\n\nEntry: MARKET (Ref: 180.433)\nSL: 181.082\nTP: 179.696\nRR: 1:1.13\n\nSignals are news-filtered and system-link compatible.\n\nUsers may use their own copy system by their own choice. Some solutions are available here: Telegram Bot"
     },
     {
-      "orderId": "BOT_1785767476375",
+      "orderId": "BOT_1785767563903",
       "symbol": "BTCUSD",
       "side": "SELL",
       "qty": 0.1,
       "sl": 92.367,
       "tp": 91.677,
       "status": "FILLED",
-      "sentTime": "2026-08-03 14:31:16 UTC",
-      "filledTime": "2026-08-03 14:31:18 UTC",
+      "sentTime": "2026-08-03 14:32:43 UTC",
+      "filledTime": "2026-08-03 14:32:45 UTC",
       "rawSignal": "\ud83d\udd34 SELL NZD/JPY\n\nEntry: MARKET (Ref: 92.043)\nSL: 92.367\nTP: 91.677\nRR: 1:1.13\n\nSignals are news-filtered and system-link compatible.\n\nUsers may use their own copy system by their own choice. Some solutions are available here: Telegram Bot"
     },
     {
-      "orderId": "BOT_1785767476375",
+      "orderId": "BOT_1785767563903",
       "symbol": "BTCUSD",
       "side": "SELL",
       "qty": 0.1,
       "sl": 110.439,
       "tp": 109.585,
       "status": "FILLED",
-      "sentTime": "2026-08-03 14:31:16 UTC",
-      "filledTime": "2026-08-03 14:31:18 UTC",
+      "sentTime": "2026-08-03 14:32:43 UTC",
+      "filledTime": "2026-08-03 14:32:45 UTC",
       "rawSignal": "\ud83d\udd34 SELL AUD/JPY\n\nEntry: MARKET (Ref: 110.039)\nSL: 110.439\nTP: 109.585\nRR: 1:1.13\n\nSignals are news-filtered and system-link compatible.\n\nUsers may use their own copy system by their own choice. Some solutions are available here: Telegram Bot"
     },
     {
-      "orderId": "BOT_1785767476375",
+      "orderId": "BOT_1785767563903",
       "symbol": "BTCUSD",
       "side": "BUY",
       "qty": 0.1,
       "sl": 0.93145,
       "tp": 0.93399,
       "status": "FILLED",
-      "sentTime": "2026-08-03 14:31:16 UTC",
-      "filledTime": "2026-08-03 14:31:18 UTC",
+      "sentTime": "2026-08-03 14:32:43 UTC",
+      "filledTime": "2026-08-03 14:32:45 UTC",
       "rawSignal": "\ud83d\udfe2 BUY EUR/CHF\n\nEntry: MARKET (Ref: 0.93264)\nSL: 0.93145\nTP: 0.93399\nRR: 1:1.13\n\nSignals are news-filtered and system-link compatible.\n\nUsers may use their own copy system by their own choice. Some solutions are available here: Telegram Bot"
     },
     {
-      "orderId": "BOT_1785767476375",
+      "orderId": "BOT_1785767563903",
       "symbol": "BTCUSD",
       "side": "BUY",
       "qty": 0.1,
       "sl": 62993.03,
       "tp": 63500.91,
       "status": "FILLED",
-      "sentTime": "2026-08-03 14:31:16 UTC",
-      "filledTime": "2026-08-03 14:31:17 UTC",
+      "sentTime": "2026-08-03 14:32:43 UTC",
+      "filledTime": "2026-08-03 14:32:44 UTC",
       "rawSignal": "\ud83d\udfe2 BUY BTC/USD\n\nEntry: MARKET (Ref: 63262.83)\nSL: 62993.03\nTP: 63500.91\nRR: 1:1.13\n\nSignals are news-filtered and system-link compatible.\n\nUsers may use their own copy system by their own choice. Some solutions are available here: Telegram Bot"
     },
     {
-      "orderId": "BOT_1785767476375",
+      "orderId": "BOT_1785767563903",
       "symbol": "BTCUSD",
       "side": "BUY",
       "qty": 0.1,
       "sl": 62993.04,
       "tp": 63500.9,
       "status": "FILLED",
-      "sentTime": "2026-08-03 14:31:16 UTC",
-      "filledTime": "2026-08-03 14:31:17 UTC",
+      "sentTime": "2026-08-03 14:32:43 UTC",
+      "filledTime": "2026-08-03 14:32:44 UTC",
       "rawSignal": "\ud83d\udfe2 BUY BTC/USD\n\nEntry: MARKET (Ref: 63262.84)\nSL: 62993.04\nTP: 63500.90\nRR: 1:1.13\n\nSignals are news-filtered and system-link compatible.\n\nUsers may use their own copy system by their own choice. Some solutions are available here: Telegram Bot"
     },
     {
-      "orderId": "BOT_1785767476374",
+      "orderId": "BOT_1785767563903",
       "symbol": "BTCUSD",
       "side": "BUY",
       "qty": 0.1,
       "sl": 63322.21,
       "tp": 63792.46,
       "status": "FILLED",
-      "sentTime": "2026-08-03 14:31:16 UTC",
-      "filledTime": "2026-08-03 14:31:17 UTC",
+      "sentTime": "2026-08-03 14:32:43 UTC",
+      "filledTime": "2026-08-03 14:32:44 UTC",
       "rawSignal": "\ud83d\udfe2 BUY BTC/USD\n\nEntry: MARKET (Ref: 63542.66)\nSL: 63322.21\nTP: 63792.46\nRR: 1:1.13\n\nSignals are news-filtered and system-link compatible.\n\nUsers may use their own copy system by their own choice. Some solutions are available here: Telegram Bot"
     },
     {
-      "orderId": "BOT_1785767476374",
+      "orderId": "BOT_1785767563902",
       "symbol": "BTCUSD",
       "side": "BUY",
       "qty": 0.1,
       "sl": 63322.23,
       "tp": 63792.45,
       "status": "FILLED",
-      "sentTime": "2026-08-03 14:31:16 UTC",
-      "filledTime": "2026-08-03 14:31:17 UTC",
+      "sentTime": "2026-08-03 14:32:43 UTC",
+      "filledTime": "2026-08-03 14:32:44 UTC",
       "rawSignal": "\ud83d\udfe2 BUY BTC/USD\n\nEntry: MARKET (Ref: 63542.65)\nSL: 63322.23\nTP: 63792.45\nRR: 1:1.13\n\nSignals are news-filtered and system-link compatible.\n\nUsers may use their own copy system by their own choice. Some solutions are available here: Telegram Bot"
     },
     {
-      "orderId": "BOT_1785767476004",
+      "orderId": "BOT_1785767563565",
       "symbol": "BTCUSD",
       "side": "BUY",
       "qty": 0.1,
       "sl": 62993.03,
       "tp": 63500.91,
       "status": "FILLED",
-      "sentTime": "2026-08-03 14:31:16 UTC",
-      "filledTime": "2026-08-03 14:31:17 UTC",
+      "sentTime": "2026-08-03 14:32:43 UTC",
+      "filledTime": "2026-08-03 14:32:44 UTC",
       "rawSignal": "\ud83d\udfe2 BUY BTC/USD Entry: MARKET (Ref: 63262.83) SL: 62993.03 TP: 63500.91 RR: 1:1.13"
     }
   ],
   "signals": [
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "text": "\u2705 TP HIT - AUD/JPY\nDirection: SELL\nPips: +45.4",
       "parsed": true,
       "signal": {
@@ -233,13 +233,13 @@
       }
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "text": "TRADE CLOSED PROFITS SECURED GUYS! \ud83d\udd25",
       "parsed": false,
       "signal": null
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "text": "\u26a0\ufe0f FREE SIGNAL\n\n\ud83d\udea8 BUY GOLD NOW  \ud83d\udcc8\n\n\ud83c\udfaf Entry Point: 4052.5 / 4040.5\n\u274c Stop Loss:  4037.5\n\n\u2705 TP1: 4062.5\n\u2705 TP2: 4072.5",
       "parsed": true,
       "signal": {
@@ -252,7 +252,7 @@
       }
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "text": "\u274c SL HIT - CAD/JPY\nDirection: SELL\nPips: -38.0",
       "parsed": true,
       "signal": {
@@ -265,7 +265,7 @@
       }
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "text": "\u274c SL HIT - EUR/JPY\nDirection: SELL\nPips: -65.0",
       "parsed": true,
       "signal": {
@@ -278,7 +278,7 @@
       }
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "text": "\u274c SL HIT - CHF/JPY\nDirection: SELL\nPips: -58.9",
       "parsed": true,
       "signal": {
@@ -291,7 +291,7 @@
       }
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "text": "\u274c SL HIT - EUR/CHF\nDirection: BUY\nPips: -11.9",
       "parsed": true,
       "signal": {
@@ -304,19 +304,19 @@
       }
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "text": "DO YOU WANT A FREE SIGNAL? \ud83d\ude80",
       "parsed": false,
       "signal": null
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "text": "New month, new week \ud83d\udd25",
       "parsed": false,
       "signal": null
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "text": "\ud83d\udd34 SELL CHF/JPY\n\nEntry: MARKET (Ref: 193.473)\nSL: 194.062\nTP: 192.805\nRR: 1:1.13\n\nSignals are news-filtered and system-link compatible.\n\nUsers may use their own copy system by their own choice. Some solutions are available here: Telegram Bot",
       "parsed": true,
       "signal": {
@@ -329,7 +329,7 @@
       }
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "text": "\ud83d\udd34 SELL CAD/JPY\n\nEntry: MARKET (Ref: 111.487)\nSL: 111.867\nTP: 111.056\nRR: 1:1.13\n\nSignals are news-filtered and system-link compatible.\n\nUsers may use their own copy system by their own choice. Some solutions are available here: Telegram Bot",
       "parsed": true,
       "signal": {
@@ -342,7 +342,7 @@
       }
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "text": "\ud83d\udd34 SELL EUR/JPY\n\nEntry: MARKET (Ref: 180.433)\nSL: 181.082\nTP: 179.696\nRR: 1:1.13\n\nSignals are news-filtered and system-link compatible.\n\nUsers may use their own copy system by their own choice. Some solutions are available here: Telegram Bot",
       "parsed": true,
       "signal": {
@@ -355,7 +355,7 @@
       }
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "text": "\ud83d\udd34 SELL NZD/JPY\n\nEntry: MARKET (Ref: 92.043)\nSL: 92.367\nTP: 91.677\nRR: 1:1.13\n\nSignals are news-filtered and system-link compatible.\n\nUsers may use their own copy system by their own choice. Some solutions are available here: Telegram Bot",
       "parsed": true,
       "signal": {
@@ -368,7 +368,7 @@
       }
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "text": "\ud83d\udd34 SELL AUD/JPY\n\nEntry: MARKET (Ref: 110.039)\nSL: 110.439\nTP: 109.585\nRR: 1:1.13\n\nSignals are news-filtered and system-link compatible.\n\nUsers may use their own copy system by their own choice. Some solutions are available here: Telegram Bot",
       "parsed": true,
       "signal": {
@@ -381,7 +381,7 @@
       }
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "text": "\ud83d\udfe2 BUY EUR/CHF\n\nEntry: MARKET (Ref: 0.93264)\nSL: 0.93145\nTP: 0.93399\nRR: 1:1.13\n\nSignals are news-filtered and system-link compatible.\n\nUsers may use their own copy system by their own choice. Some solutions are available here: Telegram Bot",
       "parsed": true,
       "signal": {
@@ -394,13 +394,13 @@
       }
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "text": "GOOD MORNING TRADERS \ud83d\udd25",
       "parsed": false,
       "signal": null
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "text": "\ud83d\udfe2 BUY BTC/USD\n\nEntry: MARKET (Ref: 63262.83)\nSL: 62993.03\nTP: 63500.91\nRR: 1:1.13\n\nSignals are news-filtered and system-link compatible.\n\nUsers may use their own copy system by their own choice. Some solutions are available here: Telegram Bot",
       "parsed": true,
       "signal": {
@@ -413,7 +413,7 @@
       }
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "text": "\ud83d\udfe2 BUY BTC/USD\n\nEntry: MARKET (Ref: 63262.84)\nSL: 62993.04\nTP: 63500.90\nRR: 1:1.13\n\nSignals are news-filtered and system-link compatible.\n\nUsers may use their own copy system by their own choice. Some solutions are available here: Telegram Bot",
       "parsed": true,
       "signal": {
@@ -426,7 +426,7 @@
       }
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "text": "\ud83d\udfe2 BUY BTC/USD\n\nEntry: MARKET (Ref: 63542.66)\nSL: 63322.21\nTP: 63792.46\nRR: 1:1.13\n\nSignals are news-filtered and system-link compatible.\n\nUsers may use their own copy system by their own choice. Some solutions are available here: Telegram Bot",
       "parsed": true,
       "signal": {
@@ -439,7 +439,7 @@
       }
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "text": "\ud83d\udfe2 BUY BTC/USD\n\nEntry: MARKET (Ref: 63542.65)\nSL: 63322.23\nTP: 63792.45\nRR: 1:1.13\n\nSignals are news-filtered and system-link compatible.\n\nUsers may use their own copy system by their own choice. Some solutions are available here: Telegram Bot",
       "parsed": true,
       "signal": {
@@ -454,377 +454,377 @@
   ],
   "logs": [
     {
-      "time": "2026-08-03 14:31:20 UTC",
+      "time": "2026-08-03 14:32:47 UTC",
       "level": "SUCCESS",
-      "message": "\u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TOO_MANY_POSITIONS\\030\\000(\\356\\204\\364\\0260\\000:7Open positions limit exceeded for trader with id 455433\"\nclientMsgId: \"140531728765072\"\n"
+      "message": "\u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TOO_MANY_POSITIONS\\030\\000(\\356\\204\\364\\0260\\000:7Open positions limit exceeded for trader with id 455433\"\nclientMsgId: \"140578377603152\"\n"
     },
     {
-      "time": "2026-08-03 14:31:20 UTC",
+      "time": "2026-08-03 14:32:47 UTC",
       "level": "INFO",
       "message": "\ud83d\udcbe State saved to docs/system_state.json"
     },
     {
-      "time": "2026-08-03 14:31:19 UTC",
+      "time": "2026-08-03 14:32:47 UTC",
       "level": "SUCCESS",
-      "message": "\u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\020SYMBOL_NOT_FOUND(\\356\\204\\364\\026:\\033Symbol not found with id 38\"\nclientMsgId: \"140531728761936\"\n"
+      "message": "\u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\020SYMBOL_NOT_FOUND(\\356\\204\\364\\026:\\033Symbol not found with id 38\"\nclientMsgId: \"140578377599760\"\n"
     },
     {
-      "time": "2026-08-03 14:31:19 UTC",
+      "time": "2026-08-03 14:32:46 UTC",
       "level": "INFO",
       "message": "\ud83d\udcbe State saved to docs/system_state.json"
     },
     {
-      "time": "2026-08-03 14:31:19 UTC",
+      "time": "2026-08-03 14:32:46 UTC",
       "level": "SUCCESS",
-      "message": "\u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TOO_MANY_POSITIONS\\030\\000(\\356\\204\\364\\0260\\000:7Open positions limit exceeded for trader with id 455433\"\nclientMsgId: \"140531728742288\"\n"
+      "message": "\u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TOO_MANY_POSITIONS\\030\\000(\\356\\204\\364\\0260\\000:7Open positions limit exceeded for trader with id 455433\"\nclientMsgId: \"140578377573584\"\n"
     },
     {
-      "time": "2026-08-03 14:31:19 UTC",
+      "time": "2026-08-03 14:32:46 UTC",
       "level": "INFO",
       "message": "\ud83d\udcbe State saved to docs/system_state.json"
     },
     {
-      "time": "2026-08-03 14:31:19 UTC",
+      "time": "2026-08-03 14:32:46 UTC",
       "level": "SUCCESS",
-      "message": "\u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TOO_MANY_POSITIONS\\030\\000(\\356\\204\\364\\0260\\000:7Open positions limit exceeded for trader with id 455433\"\nclientMsgId: \"140531728739152\"\n"
+      "message": "\u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TOO_MANY_POSITIONS\\030\\000(\\356\\204\\364\\0260\\000:7Open positions limit exceeded for trader with id 455433\"\nclientMsgId: \"140578377570192\"\n"
     },
     {
-      "time": "2026-08-03 14:31:19 UTC",
+      "time": "2026-08-03 14:32:46 UTC",
       "level": "INFO",
       "message": "\ud83d\udcbe State saved to docs/system_state.json"
     },
     {
-      "time": "2026-08-03 14:31:19 UTC",
+      "time": "2026-08-03 14:32:46 UTC",
       "level": "SUCCESS",
-      "message": "\u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TOO_MANY_POSITIONS\\030\\000(\\356\\204\\364\\0260\\000:7Open positions limit exceeded for trader with id 455433\"\nclientMsgId: \"140531728736016\"\n"
+      "message": "\u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TOO_MANY_POSITIONS\\030\\000(\\356\\204\\364\\0260\\000:7Open positions limit exceeded for trader with id 455433\"\nclientMsgId: \"140578377580176\"\n"
     },
     {
-      "time": "2026-08-03 14:31:19 UTC",
+      "time": "2026-08-03 14:32:46 UTC",
       "level": "INFO",
       "message": "\ud83d\udcbe State saved to docs/system_state.json"
     },
     {
-      "time": "2026-08-03 14:31:19 UTC",
+      "time": "2026-08-03 14:32:46 UTC",
       "level": "SUCCESS",
-      "message": "\u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TOO_MANY_POSITIONS\\030\\000(\\356\\204\\364\\0260\\000:7Open positions limit exceeded for trader with id 455433\"\nclientMsgId: \"140531728729104\"\n"
+      "message": "\u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TOO_MANY_POSITIONS\\030\\000(\\356\\204\\364\\0260\\000:7Open positions limit exceeded for trader with id 455433\"\nclientMsgId: \"140578377576656\"\n"
     },
     {
-      "time": "2026-08-03 14:31:19 UTC",
+      "time": "2026-08-03 14:32:46 UTC",
       "level": "INFO",
       "message": "\ud83d\udcbe State saved to docs/system_state.json"
     },
     {
-      "time": "2026-08-03 14:31:19 UTC",
+      "time": "2026-08-03 14:32:46 UTC",
       "level": "SUCCESS",
-      "message": "\u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TOO_MANY_POSITIONS\\030\\000(\\356\\204\\364\\0260\\000:7Open positions limit exceeded for trader with id 455433\"\nclientMsgId: \"140531728732880\"\n"
+      "message": "\u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TOO_MANY_POSITIONS\\030\\000(\\356\\204\\364\\0260\\000:7Open positions limit exceeded for trader with id 455433\"\nclientMsgId: \"140578377566416\"\n"
     },
     {
-      "time": "2026-08-03 14:31:18 UTC",
+      "time": "2026-08-03 14:32:45 UTC",
       "level": "INFO",
       "message": "\ud83d\udcbe State saved to docs/system_state.json"
     },
     {
-      "time": "2026-08-03 14:31:18 UTC",
+      "time": "2026-08-03 14:32:45 UTC",
       "level": "SUCCESS",
-      "message": "\u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TOO_MANY_POSITIONS\\030\\000(\\356\\204\\364\\0260\\000:7Open positions limit exceeded for trader with id 455433\"\nclientMsgId: \"140531728722256\"\n"
+      "message": "\u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TOO_MANY_POSITIONS\\030\\000(\\356\\204\\364\\0260\\000:7Open positions limit exceeded for trader with id 455433\"\nclientMsgId: \"140578377539792\"\n"
     },
     {
-      "time": "2026-08-03 14:31:18 UTC",
+      "time": "2026-08-03 14:32:45 UTC",
       "level": "INFO",
       "message": "\ud83d\udcbe State saved to docs/system_state.json"
     },
     {
-      "time": "2026-08-03 14:31:18 UTC",
+      "time": "2026-08-03 14:32:45 UTC",
       "level": "SUCCESS",
-      "message": "\u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TOO_MANY_POSITIONS\\030\\000(\\356\\204\\364\\0260\\000:7Open positions limit exceeded for trader with id 455433\"\nclientMsgId: \"140531728725584\"\n"
+      "message": "\u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TOO_MANY_POSITIONS\\030\\000(\\356\\204\\364\\0260\\000:7Open positions limit exceeded for trader with id 455433\"\nclientMsgId: \"140578377546512\"\n"
     },
     {
-      "time": "2026-08-03 14:31:18 UTC",
+      "time": "2026-08-03 14:32:45 UTC",
       "level": "INFO",
       "message": "\ud83d\udcbe State saved to docs/system_state.json"
     },
     {
-      "time": "2026-08-03 14:31:18 UTC",
+      "time": "2026-08-03 14:32:45 UTC",
       "level": "SUCCESS",
-      "message": "\u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TOO_MANY_POSITIONS\\030\\000(\\356\\204\\364\\0260\\000:7Open positions limit exceeded for trader with id 455433\"\nclientMsgId: \"140531728715408\"\n"
+      "message": "\u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TOO_MANY_POSITIONS\\030\\000(\\356\\204\\364\\0260\\000:7Open positions limit exceeded for trader with id 455433\"\nclientMsgId: \"140578377543120\"\n"
     },
     {
-      "time": "2026-08-03 14:31:18 UTC",
+      "time": "2026-08-03 14:32:45 UTC",
       "level": "INFO",
       "message": "\ud83d\udcbe State saved to docs/system_state.json"
     },
     {
-      "time": "2026-08-03 14:31:18 UTC",
+      "time": "2026-08-03 14:32:45 UTC",
       "level": "SUCCESS",
-      "message": "\u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TOO_MANY_POSITIONS\\030\\000(\\356\\204\\364\\0260\\000:7Open positions limit exceeded for trader with id 455433\"\nclientMsgId: \"140531728718864\"\n"
+      "message": "\u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TOO_MANY_POSITIONS\\030\\000(\\356\\204\\364\\0260\\000:7Open positions limit exceeded for trader with id 455433\"\nclientMsgId: \"140578377536400\"\n"
     },
     {
-      "time": "2026-08-03 14:31:18 UTC",
+      "time": "2026-08-03 14:32:45 UTC",
       "level": "INFO",
       "message": "\ud83d\udcbe State saved to docs/system_state.json"
     },
     {
-      "time": "2026-08-03 14:31:18 UTC",
+      "time": "2026-08-03 14:32:45 UTC",
       "level": "SUCCESS",
-      "message": "\u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TOO_MANY_POSITIONS\\030\\000(\\356\\204\\364\\0260\\000:7Open positions limit exceeded for trader with id 455433\"\nclientMsgId: \"140531728712016\"\n"
+      "message": "\u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TOO_MANY_POSITIONS\\030\\000(\\356\\204\\364\\0260\\000:7Open positions limit exceeded for trader with id 455433\"\nclientMsgId: \"140578377533072\"\n"
     },
     {
-      "time": "2026-08-03 14:31:17 UTC",
+      "time": "2026-08-03 14:32:44 UTC",
       "level": "INFO",
       "message": "\ud83d\udcbe State saved to docs/system_state.json"
     },
     {
-      "time": "2026-08-03 14:31:17 UTC",
+      "time": "2026-08-03 14:32:44 UTC",
       "level": "SUCCESS",
-      "message": "\u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TOO_MANY_POSITIONS\\030\\000(\\356\\204\\364\\0260\\000:7Open positions limit exceeded for trader with id 455433\"\nclientMsgId: \"140531728672208\"\n"
+      "message": "\u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TOO_MANY_POSITIONS\\030\\000(\\356\\204\\364\\0260\\000:7Open positions limit exceeded for trader with id 455433\"\nclientMsgId: \"140578377512976\"\n"
     },
     {
-      "time": "2026-08-03 14:31:17 UTC",
+      "time": "2026-08-03 14:32:44 UTC",
       "level": "INFO",
       "message": "\ud83d\udcbe State saved to docs/system_state.json"
     },
     {
-      "time": "2026-08-03 14:31:17 UTC",
+      "time": "2026-08-03 14:32:44 UTC",
       "level": "SUCCESS",
-      "message": "\u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TOO_MANY_POSITIONS\\030\\000(\\356\\204\\364\\0260\\000:7Open positions limit exceeded for trader with id 455433\"\nclientMsgId: \"140531728675536\"\n"
+      "message": "\u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TOO_MANY_POSITIONS\\030\\000(\\356\\204\\364\\0260\\000:7Open positions limit exceeded for trader with id 455433\"\nclientMsgId: \"140578377509648\"\n"
     },
     {
-      "time": "2026-08-03 14:31:17 UTC",
+      "time": "2026-08-03 14:32:44 UTC",
       "level": "INFO",
       "message": "\ud83d\udcbe State saved to docs/system_state.json"
     },
     {
-      "time": "2026-08-03 14:31:17 UTC",
+      "time": "2026-08-03 14:32:44 UTC",
       "level": "SUCCESS",
-      "message": "\u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TOO_MANY_POSITIONS\\030\\000(\\356\\204\\364\\0260\\000:7Open positions limit exceeded for trader with id 455433\"\nclientMsgId: \"140531728668816\"\n"
+      "message": "\u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TOO_MANY_POSITIONS\\030\\000(\\356\\204\\364\\0260\\000:7Open positions limit exceeded for trader with id 455433\"\nclientMsgId: \"140578377506320\"\n"
     },
     {
-      "time": "2026-08-03 14:31:17 UTC",
+      "time": "2026-08-03 14:32:44 UTC",
       "level": "INFO",
       "message": "\ud83d\udcbe State saved to docs/system_state.json"
     },
     {
-      "time": "2026-08-03 14:31:17 UTC",
+      "time": "2026-08-03 14:32:44 UTC",
       "level": "SUCCESS",
-      "message": "\u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TOO_MANY_POSITIONS\\030\\000(\\356\\204\\364\\0260\\000:7Open positions limit exceeded for trader with id 455433\"\nclientMsgId: \"140531728665552\"\n"
+      "message": "\u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TOO_MANY_POSITIONS\\030\\000(\\356\\204\\364\\0260\\000:7Open positions limit exceeded for trader with id 455433\"\nclientMsgId: \"140578377431632\"\n"
     },
     {
-      "time": "2026-08-03 14:31:17 UTC",
+      "time": "2026-08-03 14:32:44 UTC",
       "level": "INFO",
       "message": "\ud83d\udcbe State saved to docs/system_state.json"
     },
     {
-      "time": "2026-08-03 14:31:17 UTC",
+      "time": "2026-08-03 14:32:44 UTC",
       "level": "SUCCESS",
-      "message": "\u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TOO_MANY_POSITIONS\\030\\000(\\356\\204\\364\\0260\\000:7Open positions limit exceeded for trader with id 455433\"\nclientMsgId: \"140531730673232\"\n"
+      "message": "\u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TOO_MANY_POSITIONS\\030\\000(\\356\\204\\364\\0260\\000:7Open positions limit exceeded for trader with id 455433\"\nclientMsgId: \"140578377503120\"\n"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "level": "INFO",
       "message": "\ud83d\udcbe State saved to docs/system_state.json"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "level": "INFO",
       "message": "\ud83d\ude80 Sending order to cTrader OpenAPI: SELL 0.1 lots (100000 units) of BTCUSD (ID: 22)"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "level": "INFO",
       "message": "\ud83d\udce8 Signal: SELL 0.1 BTCUSD"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "level": "INFO",
       "message": "\ud83d\ude80 Sending order to cTrader OpenAPI: BUY 0.05 lots (50000 units) of XAUUSD (ID: 38)"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "level": "INFO",
       "message": "\ud83d\udce8 Signal: BUY 0.05 XAUUSD"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "level": "INFO",
       "message": "\ud83d\ude80 Sending order to cTrader OpenAPI: SELL 0.1 lots (100000 units) of BTCUSD (ID: 22)"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "level": "INFO",
       "message": "\ud83d\udce8 Signal: SELL 0.1 BTCUSD"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "level": "INFO",
       "message": "\ud83d\ude80 Sending order to cTrader OpenAPI: SELL 0.1 lots (100000 units) of BTCUSD (ID: 22)"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "level": "INFO",
       "message": "\ud83d\udce8 Signal: SELL 0.1 BTCUSD"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "level": "INFO",
       "message": "\ud83d\ude80 Sending order to cTrader OpenAPI: SELL 0.1 lots (100000 units) of BTCUSD (ID: 22)"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "level": "INFO",
       "message": "\ud83d\udce8 Signal: SELL 0.1 BTCUSD"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "level": "INFO",
       "message": "\ud83d\ude80 Sending order to cTrader OpenAPI: BUY 0.1 lots (100000 units) of BTCUSD (ID: 22)"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "level": "INFO",
       "message": "\ud83d\udce8 Signal: BUY 0.1 BTCUSD"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "level": "INFO",
       "message": "\ud83d\ude80 Sending order to cTrader OpenAPI: SELL 0.1 lots (100000 units) of BTCUSD (ID: 22)"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "level": "INFO",
       "message": "\ud83d\udce8 Signal: SELL 0.1 BTCUSD"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "level": "INFO",
       "message": "\ud83d\ude80 Sending order to cTrader OpenAPI: SELL 0.1 lots (100000 units) of BTCUSD (ID: 22)"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "level": "INFO",
       "message": "\ud83d\udce8 Signal: SELL 0.1 BTCUSD"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "level": "INFO",
       "message": "\ud83d\ude80 Sending order to cTrader OpenAPI: SELL 0.1 lots (100000 units) of BTCUSD (ID: 22)"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "level": "INFO",
       "message": "\ud83d\udce8 Signal: SELL 0.1 BTCUSD"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "level": "INFO",
       "message": "\ud83d\ude80 Sending order to cTrader OpenAPI: SELL 0.1 lots (100000 units) of BTCUSD (ID: 22)"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "level": "INFO",
       "message": "\ud83d\udce8 Signal: SELL 0.1 BTCUSD"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "level": "INFO",
       "message": "\ud83d\ude80 Sending order to cTrader OpenAPI: SELL 0.1 lots (100000 units) of BTCUSD (ID: 22)"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "level": "INFO",
       "message": "\ud83d\udce8 Signal: SELL 0.1 BTCUSD"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "level": "INFO",
       "message": "\ud83d\ude80 Sending order to cTrader OpenAPI: BUY 0.1 lots (100000 units) of BTCUSD (ID: 22)"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "level": "INFO",
       "message": "\ud83d\udce8 Signal: BUY 0.1 BTCUSD"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "level": "INFO",
       "message": "\ud83d\ude80 Sending order to cTrader OpenAPI: BUY 0.1 lots (100000 units) of BTCUSD (ID: 22)"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "level": "INFO",
       "message": "\ud83d\udce8 Signal: BUY 0.1 BTCUSD"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "level": "INFO",
       "message": "\ud83d\ude80 Sending order to cTrader OpenAPI: BUY 0.1 lots (100000 units) of BTCUSD (ID: 22)"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "level": "INFO",
       "message": "\ud83d\udce8 Signal: BUY 0.1 BTCUSD"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "level": "INFO",
       "message": "\ud83d\ude80 Sending order to cTrader OpenAPI: BUY 0.1 lots (100000 units) of BTCUSD (ID: 22)"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "level": "INFO",
       "message": "\ud83d\udce8 Signal: BUY 0.1 BTCUSD"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "level": "INFO",
       "message": "\ud83d\ude80 Sending order to cTrader OpenAPI: BUY 0.1 lots (100000 units) of BTCUSD (ID: 22)"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "level": "INFO",
       "message": "\ud83d\udce8 Signal: BUY 0.1 BTCUSD"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "level": "INFO",
       "message": "\ud83d\udcf1 Checking Telegram updates..."
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "level": "INFO",
       "message": "\ud83d\ude80 Sending order to cTrader OpenAPI: BUY 0.1 lots (100000 units) of BTCUSD (ID: 22)"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "level": "INFO",
       "message": "\ud83e\uddea Testing signal order placement: BUY 0.1 BTCUSD"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "level": "SUCCESS",
       "message": "\ud83d\udd10 Account Authorized successfully"
     },
     {
-      "time": "2026-08-03 14:31:15 UTC",
+      "time": "2026-08-03 14:32:42 UTC",
       "level": "SUCCESS",
       "message": "\ud83d\udd10 Application Authorized successfully"
     },
     {
-      "time": "2026-08-03 14:31:13 UTC",
+      "time": "2026-08-03 14:32:41 UTC",
       "level": "SUCCESS",
       "message": "\u2705 Connected to cTrader OpenAPI at demo.ctraderapi.com:5035"
     },
     {
-      "time": "2026-08-03 14:31:13 UTC",
+      "time": "2026-08-03 14:32:41 UTC",
       "level": "INFO",
       "message": "================================================================================"
     },
     {
-      "time": "2026-08-03 14:31:13 UTC",
+      "time": "2026-08-03 14:32:41 UTC",
       "level": "INFO",
       "message": "\ud83e\udd16 cTrader OpenAPI Bot STARTING"
     },
     {
-      "time": "2026-08-03 14:31:13 UTC",
+      "time": "2026-08-03 14:32:41 UTC",
       "level": "INFO",
       "message": "================================================================================"
     }
@@ -832,562 +832,562 @@
   "errors": [],
   "backendEvents": [
     {
-      "time": "2026-08-03 14:31:20 UTC",
-      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TOO_MANY_POSITIONS\\030\\000(\\356\\204\\364\\0260\\000:7Open positions limit exceeded for trader with id 455433\"\nclientMsgId: \"140531728765072\"\n",
+      "time": "2026-08-03 14:32:47 UTC",
+      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TOO_MANY_POSITIONS\\030\\000(\\356\\204\\364\\0260\\000:7Open positions limit exceeded for trader with id 455433\"\nclientMsgId: \"140578377603152\"\n",
       "type": "log"
     },
     {
-      "time": "2026-08-03 14:31:20 UTC",
+      "time": "2026-08-03 14:32:47 UTC",
       "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
       "type": "log"
     },
     {
-      "time": "2026-08-03 14:31:19 UTC",
-      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\020SYMBOL_NOT_FOUND(\\356\\204\\364\\026:\\033Symbol not found with id 38\"\nclientMsgId: \"140531728761936\"\n",
+      "time": "2026-08-03 14:32:47 UTC",
+      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\020SYMBOL_NOT_FOUND(\\356\\204\\364\\026:\\033Symbol not found with id 38\"\nclientMsgId: \"140578377599760\"\n",
       "type": "log"
     },
     {
-      "time": "2026-08-03 14:31:19 UTC",
+      "time": "2026-08-03 14:32:46 UTC",
       "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
       "type": "log"
     },
     {
-      "time": "2026-08-03 14:31:19 UTC",
-      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TOO_MANY_POSITIONS\\030\\000(\\356\\204\\364\\0260\\000:7Open positions limit exceeded for trader with id 455433\"\nclientMsgId: \"140531728742288\"\n",
+      "time": "2026-08-03 14:32:46 UTC",
+      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TOO_MANY_POSITIONS\\030\\000(\\356\\204\\364\\0260\\000:7Open positions limit exceeded for trader with id 455433\"\nclientMsgId: \"140578377573584\"\n",
       "type": "log"
     },
     {
-      "time": "2026-08-03 14:31:19 UTC",
+      "time": "2026-08-03 14:32:46 UTC",
       "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
       "type": "log"
     },
     {
-      "time": "2026-08-03 14:31:19 UTC",
-      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TOO_MANY_POSITIONS\\030\\000(\\356\\204\\364\\0260\\000:7Open positions limit exceeded for trader with id 455433\"\nclientMsgId: \"140531728739152\"\n",
+      "time": "2026-08-03 14:32:46 UTC",
+      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TOO_MANY_POSITIONS\\030\\000(\\356\\204\\364\\0260\\000:7Open positions limit exceeded for trader with id 455433\"\nclientMsgId: \"140578377570192\"\n",
       "type": "log"
     },
     {
-      "time": "2026-08-03 14:31:19 UTC",
+      "time": "2026-08-03 14:32:46 UTC",
       "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
       "type": "log"
     },
     {
-      "time": "2026-08-03 14:31:19 UTC",
-      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TOO_MANY_POSITIONS\\030\\000(\\356\\204\\364\\0260\\000:7Open positions limit exceeded for trader with id 455433\"\nclientMsgId: \"140531728736016\"\n",
+      "time": "2026-08-03 14:32:46 UTC",
+      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TOO_MANY_POSITIONS\\030\\000(\\356\\204\\364\\0260\\000:7Open positions limit exceeded for trader with id 455433\"\nclientMsgId: \"140578377580176\"\n",
       "type": "log"
     },
     {
-      "time": "2026-08-03 14:31:19 UTC",
+      "time": "2026-08-03 14:32:46 UTC",
       "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
       "type": "log"
     },
     {
-      "time": "2026-08-03 14:31:19 UTC",
-      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TOO_MANY_POSITIONS\\030\\000(\\356\\204\\364\\0260\\000:7Open positions limit exceeded for trader with id 455433\"\nclientMsgId: \"140531728729104\"\n",
+      "time": "2026-08-03 14:32:46 UTC",
+      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TOO_MANY_POSITIONS\\030\\000(\\356\\204\\364\\0260\\000:7Open positions limit exceeded for trader with id 455433\"\nclientMsgId: \"140578377576656\"\n",
       "type": "log"
     },
     {
-      "time": "2026-08-03 14:31:19 UTC",
+      "time": "2026-08-03 14:32:46 UTC",
       "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
       "type": "log"
     },
     {
-      "time": "2026-08-03 14:31:19 UTC",
-      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TOO_MANY_POSITIONS\\030\\000(\\356\\204\\364\\0260\\000:7Open positions limit exceeded for trader with id 455433\"\nclientMsgId: \"140531728732880\"\n",
+      "time": "2026-08-03 14:32:46 UTC",
+      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TOO_MANY_POSITIONS\\030\\000(\\356\\204\\364\\0260\\000:7Open positions limit exceeded for trader with id 455433\"\nclientMsgId: \"140578377566416\"\n",
       "type": "log"
     },
     {
-      "time": "2026-08-03 14:31:18 UTC",
+      "time": "2026-08-03 14:32:45 UTC",
       "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
       "type": "log"
     },
     {
-      "time": "2026-08-03 14:31:18 UTC",
-      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TOO_MANY_POSITIONS\\030\\000(\\356\\204\\364\\0260\\000:7Open positions limit exceeded for trader with id 455433\"\nclientMsgId: \"140531728722256\"\n",
+      "time": "2026-08-03 14:32:45 UTC",
+      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TOO_MANY_POSITIONS\\030\\000(\\356\\204\\364\\0260\\000:7Open positions limit exceeded for trader with id 455433\"\nclientMsgId: \"140578377539792\"\n",
       "type": "log"
     },
     {
-      "time": "2026-08-03 14:31:18 UTC",
+      "time": "2026-08-03 14:32:45 UTC",
       "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
       "type": "log"
     },
     {
-      "time": "2026-08-03 14:31:18 UTC",
-      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TOO_MANY_POSITIONS\\030\\000(\\356\\204\\364\\0260\\000:7Open positions limit exceeded for trader with id 455433\"\nclientMsgId: \"140531728725584\"\n",
+      "time": "2026-08-03 14:32:45 UTC",
+      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TOO_MANY_POSITIONS\\030\\000(\\356\\204\\364\\0260\\000:7Open positions limit exceeded for trader with id 455433\"\nclientMsgId: \"140578377546512\"\n",
       "type": "log"
     },
     {
-      "time": "2026-08-03 14:31:18 UTC",
+      "time": "2026-08-03 14:32:45 UTC",
       "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
       "type": "log"
     },
     {
-      "time": "2026-08-03 14:31:18 UTC",
-      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TOO_MANY_POSITIONS\\030\\000(\\356\\204\\364\\0260\\000:7Open positions limit exceeded for trader with id 455433\"\nclientMsgId: \"140531728715408\"\n",
+      "time": "2026-08-03 14:32:45 UTC",
+      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TOO_MANY_POSITIONS\\030\\000(\\356\\204\\364\\0260\\000:7Open positions limit exceeded for trader with id 455433\"\nclientMsgId: \"140578377543120\"\n",
       "type": "log"
     },
     {
-      "time": "2026-08-03 14:31:18 UTC",
+      "time": "2026-08-03 14:32:45 UTC",
       "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
       "type": "log"
     },
     {
-      "time": "2026-08-03 14:31:18 UTC",
-      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TOO_MANY_POSITIONS\\030\\000(\\356\\204\\364\\0260\\000:7Open positions limit exceeded for trader with id 455433\"\nclientMsgId: \"140531728718864\"\n",
+      "time": "2026-08-03 14:32:45 UTC",
+      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TOO_MANY_POSITIONS\\030\\000(\\356\\204\\364\\0260\\000:7Open positions limit exceeded for trader with id 455433\"\nclientMsgId: \"140578377536400\"\n",
       "type": "log"
     },
     {
-      "time": "2026-08-03 14:31:18 UTC",
+      "time": "2026-08-03 14:32:45 UTC",
       "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
       "type": "log"
     },
     {
-      "time": "2026-08-03 14:31:18 UTC",
-      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TOO_MANY_POSITIONS\\030\\000(\\356\\204\\364\\0260\\000:7Open positions limit exceeded for trader with id 455433\"\nclientMsgId: \"140531728712016\"\n",
+      "time": "2026-08-03 14:32:45 UTC",
+      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TOO_MANY_POSITIONS\\030\\000(\\356\\204\\364\\0260\\000:7Open positions limit exceeded for trader with id 455433\"\nclientMsgId: \"140578377533072\"\n",
       "type": "log"
     },
     {
-      "time": "2026-08-03 14:31:17 UTC",
+      "time": "2026-08-03 14:32:44 UTC",
       "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
       "type": "log"
     },
     {
-      "time": "2026-08-03 14:31:17 UTC",
-      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TOO_MANY_POSITIONS\\030\\000(\\356\\204\\364\\0260\\000:7Open positions limit exceeded for trader with id 455433\"\nclientMsgId: \"140531728672208\"\n",
+      "time": "2026-08-03 14:32:44 UTC",
+      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TOO_MANY_POSITIONS\\030\\000(\\356\\204\\364\\0260\\000:7Open positions limit exceeded for trader with id 455433\"\nclientMsgId: \"140578377512976\"\n",
       "type": "log"
     },
     {
-      "time": "2026-08-03 14:31:17 UTC",
+      "time": "2026-08-03 14:32:44 UTC",
       "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
       "type": "log"
     },
     {
-      "time": "2026-08-03 14:31:17 UTC",
-      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TOO_MANY_POSITIONS\\030\\000(\\356\\204\\364\\0260\\000:7Open positions limit exceeded for trader with id 455433\"\nclientMsgId: \"140531728675536\"\n",
+      "time": "2026-08-03 14:32:44 UTC",
+      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TOO_MANY_POSITIONS\\030\\000(\\356\\204\\364\\0260\\000:7Open positions limit exceeded for trader with id 455433\"\nclientMsgId: \"140578377509648\"\n",
       "type": "log"
     },
     {
-      "time": "2026-08-03 14:31:17 UTC",
+      "time": "2026-08-03 14:32:44 UTC",
       "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
       "type": "log"
     },
     {
-      "time": "2026-08-03 14:31:17 UTC",
-      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TOO_MANY_POSITIONS\\030\\000(\\356\\204\\364\\0260\\000:7Open positions limit exceeded for trader with id 455433\"\nclientMsgId: \"140531728668816\"\n",
+      "time": "2026-08-03 14:32:44 UTC",
+      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TOO_MANY_POSITIONS\\030\\000(\\356\\204\\364\\0260\\000:7Open positions limit exceeded for trader with id 455433\"\nclientMsgId: \"140578377506320\"\n",
       "type": "log"
     },
     {
-      "time": "2026-08-03 14:31:17 UTC",
+      "time": "2026-08-03 14:32:44 UTC",
       "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
       "type": "log"
     },
     {
-      "time": "2026-08-03 14:31:17 UTC",
-      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TOO_MANY_POSITIONS\\030\\000(\\356\\204\\364\\0260\\000:7Open positions limit exceeded for trader with id 455433\"\nclientMsgId: \"140531728665552\"\n",
+      "time": "2026-08-03 14:32:44 UTC",
+      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TOO_MANY_POSITIONS\\030\\000(\\356\\204\\364\\0260\\000:7Open positions limit exceeded for trader with id 455433\"\nclientMsgId: \"140578377431632\"\n",
       "type": "log"
     },
     {
-      "time": "2026-08-03 14:31:17 UTC",
+      "time": "2026-08-03 14:32:44 UTC",
       "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
       "type": "log"
     },
     {
-      "time": "2026-08-03 14:31:17 UTC",
-      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TOO_MANY_POSITIONS\\030\\000(\\356\\204\\364\\0260\\000:7Open positions limit exceeded for trader with id 455433\"\nclientMsgId: \"140531730673232\"\n",
+      "time": "2026-08-03 14:32:44 UTC",
+      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TOO_MANY_POSITIONS\\030\\000(\\356\\204\\364\\0260\\000:7Open positions limit exceeded for trader with id 455433\"\nclientMsgId: \"140578377503120\"\n",
       "type": "log"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
       "type": "log"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
-      "event": "Order BOT_1785767476376 sent: SELL 0.1 BTCUSD",
+      "time": "2026-08-03 14:32:43 UTC",
+      "event": "Order BOT_1785767563905 sent: SELL 0.1 BTCUSD",
       "type": "order"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "event": "[INFO] \ud83d\ude80 Sending order to cTrader OpenAPI: SELL 0.1 lots (100000 units) of BTCUSD (ID: 22)",
       "type": "log"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "event": "[INFO] \ud83d\udce8 Signal: SELL 0.1 BTCUSD",
       "type": "log"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "event": "Signal received: \u2705 TP HIT - AUD/JPY\nDirection: SELL\nPips: +45.4...",
       "type": "signal"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "event": "Signal received: TRADE CLOSED PROFITS SECURED GUYS! \ud83d\udd25...",
       "type": "signal"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
-      "event": "Order BOT_1785767476376 sent: BUY 0.05 XAUUSD",
+      "time": "2026-08-03 14:32:43 UTC",
+      "event": "Order BOT_1785767563905 sent: BUY 0.05 XAUUSD",
       "type": "order"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "event": "[INFO] \ud83d\ude80 Sending order to cTrader OpenAPI: BUY 0.05 lots (50000 units) of XAUUSD (ID: 38)",
       "type": "log"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "event": "[INFO] \ud83d\udce8 Signal: BUY 0.05 XAUUSD",
       "type": "log"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "event": "Signal received: \u26a0\ufe0f FREE SIGNAL\n\n\ud83d\udea8 BUY GOLD NOW  \ud83d\udcc8\n\n\ud83c\udfaf Entry Point: ...",
       "type": "signal"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
-      "event": "Order BOT_1785767476376 sent: SELL 0.1 BTCUSD",
+      "time": "2026-08-03 14:32:43 UTC",
+      "event": "Order BOT_1785767563904 sent: SELL 0.1 BTCUSD",
       "type": "order"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "event": "[INFO] \ud83d\ude80 Sending order to cTrader OpenAPI: SELL 0.1 lots (100000 units) of BTCUSD (ID: 22)",
       "type": "log"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "event": "[INFO] \ud83d\udce8 Signal: SELL 0.1 BTCUSD",
       "type": "log"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "event": "Signal received: \u274c SL HIT - CAD/JPY\nDirection: SELL\nPips: -38.0...",
       "type": "signal"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
-      "event": "Order BOT_1785767476376 sent: SELL 0.1 BTCUSD",
+      "time": "2026-08-03 14:32:43 UTC",
+      "event": "Order BOT_1785767563904 sent: SELL 0.1 BTCUSD",
       "type": "order"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "event": "[INFO] \ud83d\ude80 Sending order to cTrader OpenAPI: SELL 0.1 lots (100000 units) of BTCUSD (ID: 22)",
       "type": "log"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "event": "[INFO] \ud83d\udce8 Signal: SELL 0.1 BTCUSD",
       "type": "log"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "event": "Signal received: \u274c SL HIT - EUR/JPY\nDirection: SELL\nPips: -65.0...",
       "type": "signal"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
-      "event": "Order BOT_1785767476376 sent: SELL 0.1 BTCUSD",
+      "time": "2026-08-03 14:32:43 UTC",
+      "event": "Order BOT_1785767563904 sent: SELL 0.1 BTCUSD",
       "type": "order"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "event": "[INFO] \ud83d\ude80 Sending order to cTrader OpenAPI: SELL 0.1 lots (100000 units) of BTCUSD (ID: 22)",
       "type": "log"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "event": "[INFO] \ud83d\udce8 Signal: SELL 0.1 BTCUSD",
       "type": "log"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "event": "Signal received: \u274c SL HIT - CHF/JPY\nDirection: SELL\nPips: -58.9...",
       "type": "signal"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
-      "event": "Order BOT_1785767476376 sent: BUY 0.1 BTCUSD",
+      "time": "2026-08-03 14:32:43 UTC",
+      "event": "Order BOT_1785767563904 sent: BUY 0.1 BTCUSD",
       "type": "order"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "event": "[INFO] \ud83d\ude80 Sending order to cTrader OpenAPI: BUY 0.1 lots (100000 units) of BTCUSD (ID: 22)",
       "type": "log"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "event": "[INFO] \ud83d\udce8 Signal: BUY 0.1 BTCUSD",
       "type": "log"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "event": "Signal received: \u274c SL HIT - EUR/CHF\nDirection: BUY\nPips: -11.9...",
       "type": "signal"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "event": "Signal received: DO YOU WANT A FREE SIGNAL? \ud83d\ude80...",
       "type": "signal"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "event": "Signal received: New month, new week \ud83d\udd25...",
       "type": "signal"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
-      "event": "Order BOT_1785767476375 sent: SELL 0.1 BTCUSD",
+      "time": "2026-08-03 14:32:43 UTC",
+      "event": "Order BOT_1785767563904 sent: SELL 0.1 BTCUSD",
       "type": "order"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "event": "[INFO] \ud83d\ude80 Sending order to cTrader OpenAPI: SELL 0.1 lots (100000 units) of BTCUSD (ID: 22)",
       "type": "log"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "event": "[INFO] \ud83d\udce8 Signal: SELL 0.1 BTCUSD",
       "type": "log"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "event": "Signal received: \ud83d\udd34 SELL CHF/JPY\n\nEntry: MARKET (Ref: 193.473)\nSL: 1...",
       "type": "signal"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
-      "event": "Order BOT_1785767476375 sent: SELL 0.1 BTCUSD",
+      "time": "2026-08-03 14:32:43 UTC",
+      "event": "Order BOT_1785767563904 sent: SELL 0.1 BTCUSD",
       "type": "order"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "event": "[INFO] \ud83d\ude80 Sending order to cTrader OpenAPI: SELL 0.1 lots (100000 units) of BTCUSD (ID: 22)",
       "type": "log"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "event": "[INFO] \ud83d\udce8 Signal: SELL 0.1 BTCUSD",
       "type": "log"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "event": "Signal received: \ud83d\udd34 SELL CAD/JPY\n\nEntry: MARKET (Ref: 111.487)\nSL: 1...",
       "type": "signal"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
-      "event": "Order BOT_1785767476375 sent: SELL 0.1 BTCUSD",
+      "time": "2026-08-03 14:32:43 UTC",
+      "event": "Order BOT_1785767563904 sent: SELL 0.1 BTCUSD",
       "type": "order"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "event": "[INFO] \ud83d\ude80 Sending order to cTrader OpenAPI: SELL 0.1 lots (100000 units) of BTCUSD (ID: 22)",
       "type": "log"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "event": "[INFO] \ud83d\udce8 Signal: SELL 0.1 BTCUSD",
       "type": "log"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "event": "Signal received: \ud83d\udd34 SELL EUR/JPY\n\nEntry: MARKET (Ref: 180.433)\nSL: 1...",
       "type": "signal"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
-      "event": "Order BOT_1785767476375 sent: SELL 0.1 BTCUSD",
+      "time": "2026-08-03 14:32:43 UTC",
+      "event": "Order BOT_1785767563903 sent: SELL 0.1 BTCUSD",
       "type": "order"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "event": "[INFO] \ud83d\ude80 Sending order to cTrader OpenAPI: SELL 0.1 lots (100000 units) of BTCUSD (ID: 22)",
       "type": "log"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "event": "[INFO] \ud83d\udce8 Signal: SELL 0.1 BTCUSD",
       "type": "log"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "event": "Signal received: \ud83d\udd34 SELL NZD/JPY\n\nEntry: MARKET (Ref: 92.043)\nSL: 92...",
       "type": "signal"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
-      "event": "Order BOT_1785767476375 sent: SELL 0.1 BTCUSD",
+      "time": "2026-08-03 14:32:43 UTC",
+      "event": "Order BOT_1785767563903 sent: SELL 0.1 BTCUSD",
       "type": "order"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "event": "[INFO] \ud83d\ude80 Sending order to cTrader OpenAPI: SELL 0.1 lots (100000 units) of BTCUSD (ID: 22)",
       "type": "log"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "event": "[INFO] \ud83d\udce8 Signal: SELL 0.1 BTCUSD",
       "type": "log"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "event": "Signal received: \ud83d\udd34 SELL AUD/JPY\n\nEntry: MARKET (Ref: 110.039)\nSL: 1...",
       "type": "signal"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
-      "event": "Order BOT_1785767476375 sent: BUY 0.1 BTCUSD",
+      "time": "2026-08-03 14:32:43 UTC",
+      "event": "Order BOT_1785767563903 sent: BUY 0.1 BTCUSD",
       "type": "order"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "event": "[INFO] \ud83d\ude80 Sending order to cTrader OpenAPI: BUY 0.1 lots (100000 units) of BTCUSD (ID: 22)",
       "type": "log"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "event": "[INFO] \ud83d\udce8 Signal: BUY 0.1 BTCUSD",
       "type": "log"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "event": "Signal received: \ud83d\udfe2 BUY EUR/CHF\n\nEntry: MARKET (Ref: 0.93264)\nSL: 0....",
       "type": "signal"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "event": "Signal received: GOOD MORNING TRADERS \ud83d\udd25...",
       "type": "signal"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
-      "event": "Order BOT_1785767476375 sent: BUY 0.1 BTCUSD",
+      "time": "2026-08-03 14:32:43 UTC",
+      "event": "Order BOT_1785767563903 sent: BUY 0.1 BTCUSD",
       "type": "order"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "event": "[INFO] \ud83d\ude80 Sending order to cTrader OpenAPI: BUY 0.1 lots (100000 units) of BTCUSD (ID: 22)",
       "type": "log"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "event": "[INFO] \ud83d\udce8 Signal: BUY 0.1 BTCUSD",
       "type": "log"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "event": "Signal received: \ud83d\udfe2 BUY BTC/USD\n\nEntry: MARKET (Ref: 63262.83)\nSL: 6...",
       "type": "signal"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
-      "event": "Order BOT_1785767476375 sent: BUY 0.1 BTCUSD",
+      "time": "2026-08-03 14:32:43 UTC",
+      "event": "Order BOT_1785767563903 sent: BUY 0.1 BTCUSD",
       "type": "order"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "event": "[INFO] \ud83d\ude80 Sending order to cTrader OpenAPI: BUY 0.1 lots (100000 units) of BTCUSD (ID: 22)",
       "type": "log"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "event": "[INFO] \ud83d\udce8 Signal: BUY 0.1 BTCUSD",
       "type": "log"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "event": "Signal received: \ud83d\udfe2 BUY BTC/USD\n\nEntry: MARKET (Ref: 63262.84)\nSL: 6...",
       "type": "signal"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
-      "event": "Order BOT_1785767476374 sent: BUY 0.1 BTCUSD",
+      "time": "2026-08-03 14:32:43 UTC",
+      "event": "Order BOT_1785767563903 sent: BUY 0.1 BTCUSD",
       "type": "order"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "event": "[INFO] \ud83d\ude80 Sending order to cTrader OpenAPI: BUY 0.1 lots (100000 units) of BTCUSD (ID: 22)",
       "type": "log"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "event": "[INFO] \ud83d\udce8 Signal: BUY 0.1 BTCUSD",
       "type": "log"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "event": "Signal received: \ud83d\udfe2 BUY BTC/USD\n\nEntry: MARKET (Ref: 63542.66)\nSL: 6...",
       "type": "signal"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
-      "event": "Order BOT_1785767476374 sent: BUY 0.1 BTCUSD",
+      "time": "2026-08-03 14:32:43 UTC",
+      "event": "Order BOT_1785767563902 sent: BUY 0.1 BTCUSD",
       "type": "order"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "event": "[INFO] \ud83d\ude80 Sending order to cTrader OpenAPI: BUY 0.1 lots (100000 units) of BTCUSD (ID: 22)",
       "type": "log"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "event": "[INFO] \ud83d\udce8 Signal: BUY 0.1 BTCUSD",
       "type": "log"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "event": "Signal received: \ud83d\udfe2 BUY BTC/USD\n\nEntry: MARKET (Ref: 63542.65)\nSL: 6...",
       "type": "signal"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "event": "[INFO] \ud83d\udcf1 Checking Telegram updates...",
       "type": "log"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
-      "event": "Order BOT_1785767476004 sent: BUY 0.1 BTCUSD",
+      "time": "2026-08-03 14:32:43 UTC",
+      "event": "Order BOT_1785767563565 sent: BUY 0.1 BTCUSD",
       "type": "order"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "event": "[INFO] \ud83d\ude80 Sending order to cTrader OpenAPI: BUY 0.1 lots (100000 units) of BTCUSD (ID: 22)",
       "type": "log"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "event": "[INFO] \ud83e\uddea Testing signal order placement: BUY 0.1 BTCUSD",
       "type": "log"
     },
     {
-      "time": "2026-08-03 14:31:16 UTC",
+      "time": "2026-08-03 14:32:43 UTC",
       "event": "[SUCCESS] \ud83d\udd10 Account Authorized successfully",
       "type": "log"
     },
     {
-      "time": "2026-08-03 14:31:15 UTC",
+      "time": "2026-08-03 14:32:42 UTC",
       "event": "[SUCCESS] \ud83d\udd10 Application Authorized successfully",
       "type": "log"
     },
     {
-      "time": "2026-08-03 14:31:13 UTC",
+      "time": "2026-08-03 14:32:41 UTC",
       "event": "[SUCCESS] \u2705 Connected to cTrader OpenAPI at demo.ctraderapi.com:5035",
       "type": "log"
     },
     {
-      "time": "2026-08-03 14:31:13 UTC",
+      "time": "2026-08-03 14:32:41 UTC",
       "event": "[INFO] ================================================================================",
       "type": "log"
     },
     {
-      "time": "2026-08-03 14:31:13 UTC",
+      "time": "2026-08-03 14:32:41 UTC",
       "event": "[INFO] \ud83e\udd16 cTrader OpenAPI Bot STARTING",
       "type": "log"
     },
     {
-      "time": "2026-08-03 14:31:13 UTC",
+      "time": "2026-08-03 14:32:41 UTC",
       "event": "[INFO] ================================================================================",
       "type": "log"
     }
@@ -1519,5 +1519,5 @@
       "category": "Indices"
     }
   },
-  "lastUpdate": "2026-08-03T14:31:20.001048+00:00"
+  "lastUpdate": "2026-08-03T14:32:47.560575+00:00"
 }
