@@ -215,7 +215,12 @@ def place_order(client, symbol, side, qty, sl=None, tp=None, raw_signal=None):
         save_state()
 
     def on_error(err):
-        BOT.error(f"Order execution failed: {err}")
+        err_str = str(err)
+        if "Trading account is not authorized" in err_str or "INVALID_REQUEST" in err_str:
+            BOT.error(f"Order execution failed: {err}")
+            BOT.error("⚠️ CRITICAL FIX: Your cTrader OpenAPI Access Token lacks TRADING permissions. Please generate a new Access Token in the cTrader ID Developer Portal with both 'Account Information' and 'Trading' scopes enabled, and update CT_ACCESS_TOKEN in GitHub secrets.")
+        else:
+            BOT.error(f"Order execution failed: {err}")
         trade["status"] = "REJECTED"
         save_state()
 
