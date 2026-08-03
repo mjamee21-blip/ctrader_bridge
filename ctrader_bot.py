@@ -147,11 +147,17 @@ def parse_signal(text):
     side = "BUY" if "BUY" in t else "SELL" if "SELL" in t else None
     if not side:
         return None
-    symbol = "BTCUSD"
+    
+    symbol = None
+    clean_t = re.sub(r'[^A-Z0-9]', '', t)
     for alias, real in PAIR_ALIASES.items():
-        if alias in t:
+        if alias in clean_t or alias in t:
             symbol = real
             break
+    
+    if not symbol:
+        return None
+
     sl = None
     tp = None
     sl_match = re.search(r'(?:SL|STOP)[:\s]*([0-9.]+)', text, re.IGNORECASE)
@@ -272,20 +278,44 @@ def place_order(client, symbol, side, qty, sl=None, tp=None, raw_signal=None):
     d.addErrback(on_error)
     return True
 
+def get_last_offset():
+    if os.path.exists("telegram_offset.txt"):
+        try:
+            with open("telegram_offset.txt", "r") as f:
+                return int(f.read().strip() or "0")
+        except:
+            return 0
+    return 0
+
+def save_last_offset(offset):
+    try:
+        with open("telegram_offset.txt", "w") as f:
+            f.write(str(offset))
+    except:
+        pass
+
 def check_telegram(client):
     if not TG_TOKEN:
         BOT.log("WARNING", "⚠️ TG_TOKEN not set, skipping Telegram check")
         return
     try:
-        BOT.log("INFO", "📱 Checking Telegram updates...")
+        offset = get_last_offset()
+        BOT.log("INFO", f"📱 Checking Telegram updates (offset: {offset})...")
         url = f"https://api.telegram.org/bot{TG_TOKEN}/getUpdates"
-        params = urllib.parse.urlencode({"timeout": "5"})
+        params_dict = {"timeout": "5"}
+        if offset > 0:
+            params_dict["offset"] = str(offset)
+        params = urllib.parse.urlencode(params_dict)
         req = urllib.request.Request(f"{url}?{params}", headers={"User-Agent": "Mozilla/5.0"})
         with urllib.request.urlopen(req, timeout=10) as resp:
             data = json.loads(resp.read().decode("utf-8"))
             if data.get("ok"):
                 results = data.get("result", [])
+                max_update_id = offset
                 for result in results:
+                    update_id = result.get("update_id", 0)
+                    if update_id >= max_update_id:
+                        max_update_id = update_id + 1
                     msg = result.get("message") or result.get("channel_post")
                     if msg and "text" in msg:
                         text = msg["text"]
@@ -302,6 +332,8 @@ def check_telegram(client):
                         if signal:
                             BOT.log("INFO", f"📨 Signal: {signal['side']} {signal['qty']} {signal['symbol']}")
                             place_order(client, signal['symbol'], signal['side'], signal['qty'], signal['sl'], signal['tp'], text)
+                if max_update_id > offset:
+                    save_last_offset(max_update_id)
     except Exception as e:
         BOT.error(f"Telegram check failed: {str(e)}")
 
