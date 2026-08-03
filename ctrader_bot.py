@@ -275,7 +275,10 @@ def place_order(client, symbol, side, qty, sl=None, tp=None, raw_signal=None):
         err_str = str(err)
         close_ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
         reason = err_str
-        if "Trading account is not authorized" in err_str or "INVALID_REQUEST" in err_str:
+        if "TimedOutError" in err_str or "Deferred" in err_str or "convertCancelled" in err_str:
+            reason = "cTrader API connection timed out (Deferred timeout)"
+            BOT.error(f"Order execution timed out: cTrader server did not respond in time.")
+        elif "Trading account is not authorized" in err_str or "INVALID_REQUEST" in err_str:
             reason = "Trading account not authorized or missing TRADING scope in cTrader Access Token"
             BOT.error(f"Order execution failed: {err}")
             BOT.error("⚠️ CRITICAL FIX: Your cTrader OpenAPI Access Token lacks TRADING permissions. Please generate a new Access Token in the cTrader ID Developer Portal with both 'Account Information' and 'Trading' scopes enabled.")
@@ -395,13 +398,6 @@ def main():
             def on_acc_auth(acc_msg):
                 BOT.logged_in = True
                 BOT.log("SUCCESS", "🔐 Account Authorized successfully")
-                
-                # Test placing the requested signal
-                test_signal_text = "🟢 BUY BTC/USD Entry: MARKET (Ref: 63262.83) SL: 62993.03 TP: 63500.91 RR: 1:1.13"
-                signal = parse_signal(test_signal_text)
-                if signal:
-                    BOT.log("INFO", f"🧪 Testing signal order placement: {signal['side']} {signal['qty']} {signal['symbol']}")
-                    place_order(client, signal['symbol'], signal['side'], signal['qty'], signal['sl'], signal['tp'], test_signal_text)
 
                 check_telegram(client)
                 save_state()
