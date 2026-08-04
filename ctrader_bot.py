@@ -444,6 +444,7 @@ def check_telegram(client):
                 if max_update_id > offset:
                     save_last_offset(max_update_id)
                     BOT.log("INFO", f"📤 Updated offset to {max_update_id}")
+                save_state()
             else:
                 BOT.error(f"Telegram API error: {data.get('description', 'Unknown error')}")
     except Exception as e:
@@ -530,6 +531,7 @@ def main(single_run=False):
                     def periodic_telegram_check():
                         if BOT.connected and BOT.logged_in:
                             check_telegram(client)
+                            save_state()
                             # Schedule next check in 30 seconds
                             reactor.callLater(30, periodic_telegram_check)
                     
