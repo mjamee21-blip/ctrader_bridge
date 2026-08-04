@@ -396,7 +396,17 @@ def check_telegram(client):
             params_dict["offset"] = str(offset)
         params = urllib.parse.urlencode(params_dict)
         req = urllib.request.Request(f"{url}?{params}", headers={"User-Agent": "Mozilla/5.0"})
-        with urllib.request.urlopen(req, timeout=15) as resp:  # Increased timeout
+        
+        # Create an SSL context that doesn't verify certificates (for environments with SSL issues)
+        import ssl
+        try:
+            ssl_context = ssl._create_unverified_context()
+        except AttributeError:
+            ssl_context = ssl.create_default_context()
+            ssl_context.check_hostname = False
+            ssl_context.verify_mode = ssl.CERT_NONE
+        
+        with urllib.request.urlopen(req, timeout=15, context=ssl_context) as resp:  # Increased timeout
             data = json.loads(resp.read().decode("utf-8"))
             if data.get("ok"):
                 results = data.get("result", [])
