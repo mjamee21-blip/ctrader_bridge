@@ -224,7 +224,8 @@ def place_order(client, symbol, side, qty, sl=None, tp=None, raw_signal=None):
         symbolId=symbol_id,
         orderType="MARKET",
         tradeSide=trade_side,
-        volume=volume
+        volume=volume,
+        responseTimeoutInSeconds=20
     )
 
     trade = {
@@ -389,12 +390,12 @@ def main():
         BOT.log("SUCCESS", f"✅ Connected to cTrader OpenAPI at {HOST}:{PORT}")
         
         # 1. Application Auth
-        d = client.send("ProtoOAApplicationAuthReq", clientId=CT_CLIENT_ID, clientSecret=CT_CLIENT_SECRET)
+        d = client.send("ProtoOAApplicationAuthReq", clientId=CT_CLIENT_ID, clientSecret=CT_CLIENT_SECRET, responseTimeoutInSeconds=20)
         def on_app_auth(msg):
             BOT.log("SUCCESS", "🔐 Application Authorized successfully")
             
             # 2. Account Auth
-            d2 = client.send("ProtoOAAccountAuthReq", ctidTraderAccountId=CT_ACCOUNT_ID, accessToken=CT_ACCESS_TOKEN)
+            d2 = client.send("ProtoOAAccountAuthReq", ctidTraderAccountId=CT_ACCOUNT_ID, accessToken=CT_ACCESS_TOKEN, responseTimeoutInSeconds=20)
             def on_acc_auth(acc_msg):
                 BOT.logged_in = True
                 BOT.log("SUCCESS", "🔐 Account Authorized successfully")

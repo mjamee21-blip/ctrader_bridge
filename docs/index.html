@@ -228,6 +228,10 @@
 
         function refreshData() {
             fetch('system_state.json')
+                .then(r => {
+                    if (!r.ok) return fetch('../system_state.json');
+                    return r;
+                })
                 .then(r => r.json())
                 .then(data => {
                     // Account
