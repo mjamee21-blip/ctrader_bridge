@@ -2,15 +2,15 @@
   "connected": true,
   "loggedIn": true,
   "heartbeat": {
-    "status": "ok_no_new_messages",
-    "last_check": "2026-08-04T16:48:56.400936+00:00",
+    "status": "checking_telegram",
+    "last_check": "2026-08-04T19:12:38.048318+00:00",
     "telegram_token_set": true,
     "telegram_chat_set": true,
     "messages_received": 0,
     "signals_parsed": 10,
     "orders_placed": 10,
-    "last_error": "Full traceback: Traceback (most recent call last):\n  File \"d:\\respo\\ctrader_bridge\\ctrader_bot.py\", line 558, in check_telegram\n    with urllib.request.urlopen(req, timeout=35, context=ssl_context) as resp:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\\Lib\\urllib\\request.py\", line 215, in urlopen\n    return opener.open(url, data, timeout)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\\Lib\\urllib\\request.py\", line 521, in open\n    response = meth(req, response)\n               ^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\\Lib\\urllib\\request.py\", line 630, in http_response\n    response = self.parent.error(\n               ^^^^^^^^^^^^^^^^^^\n  File \"C:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\\Lib\\urllib\\request.py\", line 559, in error\n    return self._call_chain(*args)\n           ^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\\Lib\\urllib\\request.py\", line 492, in _call_chain\n    result = func(*args)\n             ^^^^^^^^^^^\n  File \"C:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\\Lib\\urllib\\request.py\", line 639, in http_error_default\n    raise HTTPError(req.full_url, code, msg, hdrs, fp)\nurllib.error.HTTPError: HTTP Error 409: Conflict\n",
-    "offset": 841819977
+    "last_error": "Error fetching batch 1: HTTP Error 409: Conflict",
+    "offset": 0
   },
   "account": {
     "balance": 10000.0,
@@ -25,141 +25,141 @@
   },
   "trades": [
     {
-      "orderId": "BOT_1785861886561",
+      "orderId": "BOT_1785870512229",
       "symbol": "BTCUSD",
       "side": "BUY",
       "qty": 0.1,
       "sl": 62680.92,
       "tp": 63251.16,
       "status": "FILLED",
-      "sentTime": "2026-08-04 16:44:46 UTC",
-      "filledTime": "2026-08-04 16:44:47 UTC",
+      "sentTime": "2026-08-04 19:08:32 UTC",
+      "filledTime": "2026-08-04 19:08:32 UTC",
       "closedTime": null,
       "rejectionReason": null,
       "rawSignal": "BUY BTCUSD SL:62680.92 TP:63251.16"
     },
     {
-      "orderId": "BOT_1785861886560",
+      "orderId": "BOT_1785870512228",
       "symbol": "CHFJPY",
       "side": "SELL",
       "qty": 0.01,
       "sl": 197.629,
       "tp": 195.97,
       "status": "FILLED",
-      "sentTime": "2026-08-04 16:44:46 UTC",
-      "filledTime": "2026-08-04 16:44:47 UTC",
+      "sentTime": "2026-08-04 19:08:32 UTC",
+      "filledTime": "2026-08-04 19:08:32 UTC",
       "closedTime": null,
       "rejectionReason": null,
       "rawSignal": "SELL CHFJPY SL:197.629 TP:195.97"
     },
     {
-      "orderId": "BOT_1785861886560",
+      "orderId": "BOT_1785870512228",
       "symbol": "CADJPY",
       "side": "SELL",
       "qty": 0.01,
       "sl": 113.967,
       "tp": 112.972,
       "status": "FILLED",
-      "sentTime": "2026-08-04 16:44:46 UTC",
-      "filledTime": "2026-08-04 16:44:47 UTC",
+      "sentTime": "2026-08-04 19:08:32 UTC",
+      "filledTime": "2026-08-04 19:08:32 UTC",
       "closedTime": null,
       "rejectionReason": null,
       "rawSignal": "SELL CADJPY SL:113.967 TP:112.972"
     },
     {
-      "orderId": "BOT_1785861886560",
+      "orderId": "BOT_1785870512228",
       "symbol": "EURJPY",
       "side": "SELL",
       "qty": 0.01,
       "sl": 183.972,
       "tp": 182.379,
       "status": "FILLED",
-      "sentTime": "2026-08-04 16:44:46 UTC",
-      "filledTime": "2026-08-04 16:44:47 UTC",
+      "sentTime": "2026-08-04 19:08:32 UTC",
+      "filledTime": "2026-08-04 19:08:32 UTC",
       "closedTime": null,
       "rejectionReason": null,
       "rawSignal": "SELL EURJPY SL:183.972 TP:182.379"
     },
     {
-      "orderId": "BOT_1785861886560",
+      "orderId": "BOT_1785870512227",
       "symbol": "NZDJPY",
       "side": "SELL",
       "qty": 0.01,
       "sl": 93.947,
       "tp": 93.158,
       "status": "FILLED",
-      "sentTime": "2026-08-04 16:44:46 UTC",
-      "filledTime": "2026-08-04 16:44:47 UTC",
+      "sentTime": "2026-08-04 19:08:32 UTC",
+      "filledTime": "2026-08-04 19:08:32 UTC",
       "closedTime": null,
       "rejectionReason": null,
       "rawSignal": "SELL NZDJPY SL:93.947 TP:93.158"
     },
     {
-      "orderId": "BOT_1785861886559",
+      "orderId": "BOT_1785870512227",
       "symbol": "AUDJPY",
       "side": "SELL",
       "qty": 0.01,
       "sl": 112.322,
       "tp": 111.338,
       "status": "FILLED",
-      "sentTime": "2026-08-04 16:44:46 UTC",
-      "filledTime": "2026-08-04 16:44:46 UTC",
+      "sentTime": "2026-08-04 19:08:32 UTC",
+      "filledTime": "2026-08-04 19:08:32 UTC",
       "closedTime": null,
       "rejectionReason": null,
       "rawSignal": "SELL AUDJPY SL:112.322 TP:111.338"
     },
     {
-      "orderId": "BOT_1785861886559",
+      "orderId": "BOT_1785870512227",
       "symbol": "USDJPY",
       "side": "SELL",
       "qty": 0.01,
       "sl": 159.872,
       "tp": 158.502,
       "status": "FILLED",
-      "sentTime": "2026-08-04 16:44:46 UTC",
-      "filledTime": "2026-08-04 16:44:46 UTC",
+      "sentTime": "2026-08-04 19:08:32 UTC",
+      "filledTime": "2026-08-04 19:08:32 UTC",
       "closedTime": null,
       "rejectionReason": null,
       "rawSignal": "SELL USDJPY SL:159.872 TP:158.502"
     },
     {
-      "orderId": "BOT_1785861886559",
+      "orderId": "BOT_1785870512226",
       "symbol": "EURNZD",
       "side": "SELL",
       "qty": 0.01,
       "sl": 1.96912,
       "tp": 1.96291,
       "status": "FILLED",
-      "sentTime": "2026-08-04 16:44:46 UTC",
-      "filledTime": "2026-08-04 16:44:46 UTC",
+      "sentTime": "2026-08-04 19:08:32 UTC",
+      "filledTime": "2026-08-04 19:08:32 UTC",
       "closedTime": null,
       "rejectionReason": null,
       "rawSignal": "SELL EURNZD SL:1.96912 TP:1.96291"
     },
     {
-      "orderId": "BOT_1785861886558",
+      "orderId": "BOT_1785870512226",
       "symbol": "BTCUSD",
       "side": "BUY",
       "qty": 0.1,
       "sl": null,
       "tp": null,
       "status": "FILLED",
-      "sentTime": "2026-08-04 16:44:46 UTC",
-      "filledTime": "2026-08-04 16:44:47 UTC",
+      "sentTime": "2026-08-04 19:08:32 UTC",
+      "filledTime": "2026-08-04 19:08:32 UTC",
       "closedTime": null,
       "rejectionReason": null,
       "rawSignal": "BUY BTCUSD SL:None TP:None"
     },
     {
-      "orderId": "BOT_1785861886558",
+      "orderId": "BOT_1785870512226",
       "symbol": "BTCUSD",
       "side": "BUY",
       "qty": 0.1,
       "sl": 64177.02,
       "tp": 65002.62,
       "status": "FILLED",
-      "sentTime": "2026-08-04 16:44:46 UTC",
-      "filledTime": "2026-08-04 16:44:46 UTC",
+      "sentTime": "2026-08-04 19:08:32 UTC",
+      "filledTime": "2026-08-04 19:08:32 UTC",
       "closedTime": null,
       "rejectionReason": null,
       "rawSignal": "BUY BTCUSD SL:64177.02 TP:65002.62"
@@ -167,7 +167,7 @@
   ],
   "signals": [
     {
-      "time": "2026-08-04 16:44:46 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "text": "BUY BTCUSD SL:62680.92 TP:63251.16",
       "parsed": true,
       "signal": {
@@ -180,7 +180,7 @@
       }
     },
     {
-      "time": "2026-08-04 16:44:46 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "text": "SELL CHFJPY SL:197.629 TP:195.97",
       "parsed": true,
       "signal": {
@@ -193,7 +193,7 @@
       }
     },
     {
-      "time": "2026-08-04 16:44:46 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "text": "SELL CADJPY SL:113.967 TP:112.972",
       "parsed": true,
       "signal": {
@@ -206,7 +206,7 @@
       }
     },
     {
-      "time": "2026-08-04 16:44:46 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "text": "SELL EURJPY SL:183.972 TP:182.379",
       "parsed": true,
       "signal": {
@@ -219,7 +219,7 @@
       }
     },
     {
-      "time": "2026-08-04 16:44:46 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "text": "SELL NZDJPY SL:93.947 TP:93.158",
       "parsed": true,
       "signal": {
@@ -232,7 +232,7 @@
       }
     },
     {
-      "time": "2026-08-04 16:44:46 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "text": "SELL AUDJPY SL:112.322 TP:111.338",
       "parsed": true,
       "signal": {
@@ -245,7 +245,7 @@
       }
     },
     {
-      "time": "2026-08-04 16:44:46 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "text": "SELL USDJPY SL:159.872 TP:158.502",
       "parsed": true,
       "signal": {
@@ -258,7 +258,7 @@
       }
     },
     {
-      "time": "2026-08-04 16:44:46 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "text": "SELL EURNZD SL:1.96912 TP:1.96291",
       "parsed": true,
       "signal": {
@@ -271,7 +271,7 @@
       }
     },
     {
-      "time": "2026-08-04 16:44:46 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "text": "BUY BTCUSD SL:None TP:None",
       "parsed": true,
       "signal": {
@@ -284,7 +284,7 @@
       }
     },
     {
-      "time": "2026-08-04 16:44:46 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "text": "BUY BTCUSD SL:64177.02 TP:65002.62",
       "parsed": true,
       "signal": {
@@ -299,882 +299,955 @@
   ],
   "logs": [
     {
-      "time": "2026-08-04 16:49:30 UTC",
+      "time": "2026-08-04 19:12:41 UTC",
+      "level": "DEBUG",
+      "message": "Telegram API error response: {\"ok\":false,\"error_code\":409,\"description\":\"Conflict: terminated by other getUpdates request; make sure that only one bot instance is running\"}"
+    },
+    {
+      "time": "2026-08-04 19:12:41 UTC",
+      "level": "ERROR",
+      "message": "Telegram API HTTP error: 409 - Conflict"
+    },
+    {
+      "time": "2026-08-04 19:12:38 UTC",
+      "level": "INFO",
+      "message": "\ud83d\udcf1 Checking Telegram updates (offset: 0)..."
+    },
+    {
+      "time": "2026-08-04 19:12:08 UTC",
       "level": "INFO",
       "message": "\ud83d\udcda Telegram history saved (0 messages)"
     },
     {
-      "time": "2026-08-04 16:49:30 UTC",
+      "time": "2026-08-04 19:12:08 UTC",
       "level": "INFO",
       "message": "\ud83d\udcbe State saved to docs/system_state.json"
     },
     {
-      "time": "2026-08-04 16:49:30 UTC",
+      "time": "2026-08-04 19:12:08 UTC",
+      "level": "INFO",
+      "message": "\ud83d\udcda Telegram history saved (0 messages)"
+    },
+    {
+      "time": "2026-08-04 19:12:08 UTC",
+      "level": "INFO",
+      "message": "\ud83d\udcbe State saved to docs/system_state.json"
+    },
+    {
+      "time": "2026-08-04 19:12:07 UTC",
       "level": "INFO",
       "message": "\u2705 No new messages (up to date)"
     },
     {
-      "time": "2026-08-04 16:49:30 UTC",
+      "time": "2026-08-04 19:12:07 UTC",
       "level": "INFO",
       "message": "\ud83d\udce5 Received 0 Telegram update(s)"
     },
     {
-      "time": "2026-08-04 16:48:56 UTC",
-      "level": "INFO",
-      "message": "\ud83d\udcf1 Checking Telegram updates (offset: 841819977)..."
+      "time": "2026-08-04 19:12:07 UTC",
+      "level": "DEBUG",
+      "message": "Telegram API raw response: {\"ok\":true,\"result\":[]}"
     },
     {
-      "time": "2026-08-04 16:48:26 UTC",
+      "time": "2026-08-04 19:11:37 UTC",
       "level": "INFO",
-      "message": "\ud83d\udcda Telegram history saved (0 messages)"
+      "message": "\ud83d\udcf1 Checking Telegram updates (offset: 0)..."
     },
     {
-      "time": "2026-08-04 16:48:26 UTC",
-      "level": "INFO",
-      "message": "\ud83d\udcbe State saved to docs/system_state.json"
-    },
-    {
-      "time": "2026-08-04 16:48:26 UTC",
+      "time": "2026-08-04 19:11:07 UTC",
       "level": "INFO",
       "message": "\ud83d\udcda Telegram history saved (0 messages)"
     },
     {
-      "time": "2026-08-04 16:48:26 UTC",
+      "time": "2026-08-04 19:11:07 UTC",
       "level": "INFO",
       "message": "\ud83d\udcbe State saved to docs/system_state.json"
     },
     {
-      "time": "2026-08-04 16:48:26 UTC",
+      "time": "2026-08-04 19:11:07 UTC",
+      "level": "DEBUG",
+      "message": "Telegram API error response: {\"ok\":false,\"error_code\":409,\"description\":\"Conflict: terminated by other getUpdates request; make sure that only one bot instance is running\"}"
+    },
+    {
+      "time": "2026-08-04 19:11:07 UTC",
+      "level": "ERROR",
+      "message": "Telegram API HTTP error: 409 - Conflict"
+    },
+    {
+      "time": "2026-08-04 19:11:03 UTC",
+      "level": "INFO",
+      "message": "\ud83d\udcf1 Checking Telegram updates (offset: 0)..."
+    },
+    {
+      "time": "2026-08-04 19:10:33 UTC",
+      "level": "INFO",
+      "message": "\ud83d\udcda Telegram history saved (0 messages)"
+    },
+    {
+      "time": "2026-08-04 19:10:33 UTC",
+      "level": "INFO",
+      "message": "\ud83d\udcbe State saved to docs/system_state.json"
+    },
+    {
+      "time": "2026-08-04 19:10:33 UTC",
+      "level": "INFO",
+      "message": "\ud83d\udcda Telegram history saved (0 messages)"
+    },
+    {
+      "time": "2026-08-04 19:10:33 UTC",
+      "level": "INFO",
+      "message": "\ud83d\udcbe State saved to docs/system_state.json"
+    },
+    {
+      "time": "2026-08-04 19:10:33 UTC",
       "level": "INFO",
       "message": "\u2705 No new messages (up to date)"
     },
     {
-      "time": "2026-08-04 16:48:26 UTC",
+      "time": "2026-08-04 19:10:33 UTC",
       "level": "INFO",
       "message": "\ud83d\udce5 Received 0 Telegram update(s)"
     },
     {
-      "time": "2026-08-04 16:47:55 UTC",
-      "level": "INFO",
-      "message": "\ud83d\udcf1 Checking Telegram updates (offset: 841819977)..."
+      "time": "2026-08-04 19:10:33 UTC",
+      "level": "DEBUG",
+      "message": "Telegram API raw response: {\"ok\":true,\"result\":[]}"
     },
     {
-      "time": "2026-08-04 16:47:25 UTC",
+      "time": "2026-08-04 19:10:02 UTC",
       "level": "INFO",
-      "message": "\ud83d\udcda Telegram history saved (0 messages)"
+      "message": "\ud83d\udcf1 Checking Telegram updates (offset: 0)..."
     },
     {
-      "time": "2026-08-04 16:47:25 UTC",
-      "level": "INFO",
-      "message": "\ud83d\udcbe State saved to docs/system_state.json"
-    },
-    {
-      "time": "2026-08-04 16:47:25 UTC",
+      "time": "2026-08-04 19:09:32 UTC",
       "level": "INFO",
       "message": "\ud83d\udcda Telegram history saved (0 messages)"
     },
     {
-      "time": "2026-08-04 16:47:25 UTC",
+      "time": "2026-08-04 19:09:32 UTC",
       "level": "INFO",
       "message": "\ud83d\udcbe State saved to docs/system_state.json"
     },
     {
-      "time": "2026-08-04 16:47:25 UTC",
+      "time": "2026-08-04 19:09:32 UTC",
+      "level": "INFO",
+      "message": "\ud83d\udcda Telegram history saved (0 messages)"
+    },
+    {
+      "time": "2026-08-04 19:09:32 UTC",
+      "level": "INFO",
+      "message": "\ud83d\udcbe State saved to docs/system_state.json"
+    },
+    {
+      "time": "2026-08-04 19:09:32 UTC",
       "level": "INFO",
       "message": "\u2705 No new messages (up to date)"
     },
     {
-      "time": "2026-08-04 16:47:25 UTC",
+      "time": "2026-08-04 19:09:32 UTC",
       "level": "INFO",
       "message": "\ud83d\udce5 Received 0 Telegram update(s)"
     },
     {
-      "time": "2026-08-04 16:46:54 UTC",
-      "level": "INFO",
-      "message": "\ud83d\udcf1 Checking Telegram updates (offset: 841819977)..."
+      "time": "2026-08-04 19:09:32 UTC",
+      "level": "DEBUG",
+      "message": "Telegram API raw response: {\"ok\":true,\"result\":[]}"
     },
     {
-      "time": "2026-08-04 16:46:24 UTC",
+      "time": "2026-08-04 19:09:02 UTC",
       "level": "INFO",
-      "message": "\ud83d\udcda Telegram history saved (0 messages)"
+      "message": "\ud83d\udcf1 Checking Telegram updates (offset: 0)..."
     },
     {
-      "time": "2026-08-04 16:46:24 UTC",
-      "level": "INFO",
-      "message": "\ud83d\udcbe State saved to docs/system_state.json"
-    },
-    {
-      "time": "2026-08-04 16:46:17 UTC",
-      "level": "INFO",
-      "message": "\ud83d\udcf1 Checking Telegram updates (offset: 841819977)..."
-    },
-    {
-      "time": "2026-08-04 16:45:47 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "level": "INFO",
       "message": "\ud83d\udcda Telegram history saved (0 messages)"
     },
     {
-      "time": "2026-08-04 16:45:47 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "level": "INFO",
       "message": "\ud83d\udcbe State saved to docs/system_state.json"
     },
     {
-      "time": "2026-08-04 16:45:47 UTC",
-      "level": "INFO",
-      "message": "\ud83d\udcda Telegram history saved (0 messages)"
-    },
-    {
-      "time": "2026-08-04 16:45:47 UTC",
-      "level": "INFO",
-      "message": "\ud83d\udcbe State saved to docs/system_state.json"
-    },
-    {
-      "time": "2026-08-04 16:45:47 UTC",
-      "level": "INFO",
-      "message": "\u2705 No new messages (up to date)"
-    },
-    {
-      "time": "2026-08-04 16:45:47 UTC",
-      "level": "INFO",
-      "message": "\ud83d\udce5 Received 0 Telegram update(s)"
-    },
-    {
-      "time": "2026-08-04 16:45:16 UTC",
-      "level": "INFO",
-      "message": "\ud83d\udcf1 Checking Telegram updates (offset: 841819977)..."
-    },
-    {
-      "time": "2026-08-04 16:44:47 UTC",
-      "level": "INFO",
-      "message": "\ud83d\udcda Telegram history saved (0 messages)"
-    },
-    {
-      "time": "2026-08-04 16:44:47 UTC",
-      "level": "INFO",
-      "message": "\ud83d\udcbe State saved to docs/system_state.json"
-    },
-    {
-      "time": "2026-08-04 16:44:47 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "level": "SUCCESS",
-      "message": "\u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\020NOT_ENOUGH_MONEY\\030\\000(\\356\\204\\364\\0260\\000:\\020Not enough funds\"\nclientMsgId: \"1927075816240\"\n"
+      "message": "\u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\020NOT_ENOUGH_MONEY\\030\\000(\\356\\204\\364\\0260\\000:\\020Not enough funds\"\nclientMsgId: \"2566766681968\"\n"
     },
     {
-      "time": "2026-08-04 16:44:47 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "level": "INFO",
       "message": "\ud83d\udcda Telegram history saved (0 messages)"
     },
     {
-      "time": "2026-08-04 16:44:47 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "level": "INFO",
       "message": "\ud83d\udcbe State saved to docs/system_state.json"
     },
     {
-      "time": "2026-08-04 16:44:47 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "level": "SUCCESS",
-      "message": "\u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TRADING_BAD_VOLUME(\\356\\204\\364\\026:GOrder volume = 100.00 is smaller than minimum allowed volume = 1000.00.\"\nclientMsgId: \"1927075815376\"\n"
+      "message": "\u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TRADING_BAD_VOLUME(\\356\\204\\364\\026:GOrder volume = 100.00 is smaller than minimum allowed volume = 1000.00.\"\nclientMsgId: \"2566797978000\"\n"
     },
     {
-      "time": "2026-08-04 16:44:47 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "level": "INFO",
       "message": "\ud83d\udcda Telegram history saved (0 messages)"
     },
     {
-      "time": "2026-08-04 16:44:47 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "level": "INFO",
       "message": "\ud83d\udcbe State saved to docs/system_state.json"
     },
     {
-      "time": "2026-08-04 16:44:47 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "level": "SUCCESS",
-      "message": "\u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TRADING_BAD_VOLUME(\\356\\204\\364\\026:GOrder volume = 100.00 is smaller than minimum allowed volume = 1000.00.\"\nclientMsgId: \"1927075814464\"\n"
+      "message": "\u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TRADING_BAD_VOLUME(\\356\\204\\364\\026:GOrder volume = 100.00 is smaller than minimum allowed volume = 1000.00.\"\nclientMsgId: \"2566797977280\"\n"
     },
     {
-      "time": "2026-08-04 16:44:47 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "level": "INFO",
       "message": "\ud83d\udcda Telegram history saved (0 messages)"
     },
     {
-      "time": "2026-08-04 16:44:47 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "level": "INFO",
       "message": "\ud83d\udcbe State saved to docs/system_state.json"
     },
     {
-      "time": "2026-08-04 16:44:47 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "level": "SUCCESS",
-      "message": "\u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TRADING_BAD_VOLUME(\\356\\204\\364\\026:GOrder volume = 100.00 is smaller than minimum allowed volume = 1000.00.\"\nclientMsgId: \"1927075813888\"\n"
+      "message": "\u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TRADING_BAD_VOLUME(\\356\\204\\364\\026:GOrder volume = 100.00 is smaller than minimum allowed volume = 1000.00.\"\nclientMsgId: \"2566797976464\"\n"
     },
     {
-      "time": "2026-08-04 16:44:47 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "level": "INFO",
       "message": "\ud83d\udcda Telegram history saved (0 messages)"
     },
     {
-      "time": "2026-08-04 16:44:47 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "level": "INFO",
       "message": "\ud83d\udcbe State saved to docs/system_state.json"
     },
     {
-      "time": "2026-08-04 16:44:47 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "level": "SUCCESS",
-      "message": "\u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TRADING_BAD_VOLUME(\\356\\204\\364\\026:GOrder volume = 100.00 is smaller than minimum allowed volume = 1000.00.\"\nclientMsgId: \"1927075813072\"\n"
+      "message": "\u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TRADING_BAD_VOLUME(\\356\\204\\364\\026:GOrder volume = 100.00 is smaller than minimum allowed volume = 1000.00.\"\nclientMsgId: \"2566797975648\"\n"
     },
     {
-      "time": "2026-08-04 16:44:47 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "level": "INFO",
       "message": "\ud83d\udcda Telegram history saved (0 messages)"
     },
     {
-      "time": "2026-08-04 16:44:47 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "level": "INFO",
       "message": "\ud83d\udcbe State saved to docs/system_state.json"
     },
     {
-      "time": "2026-08-04 16:44:47 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "level": "SUCCESS",
-      "message": "\u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\020NOT_ENOUGH_MONEY\\030\\000(\\356\\204\\364\\0260\\000:\\020Not enough funds\"\nclientMsgId: \"1927075809808\"\n"
+      "message": "\u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\020NOT_ENOUGH_MONEY\\030\\000(\\356\\204\\364\\0260\\000:\\020Not enough funds\"\nclientMsgId: \"2566797972480\"\n"
     },
     {
-      "time": "2026-08-04 16:44:47 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "level": "INFO",
       "message": "\ud83d\udcda Telegram history saved (0 messages)"
     },
     {
-      "time": "2026-08-04 16:44:47 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "level": "INFO",
       "message": "\ud83d\udcbe State saved to docs/system_state.json"
     },
     {
-      "time": "2026-08-04 16:44:46 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "level": "SUCCESS",
-      "message": "\u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\020NOT_ENOUGH_MONEY\\030\\000(\\356\\204\\364\\0260\\000:\\020Not enough funds\"\nclientMsgId: \"1927075808896\"\n"
+      "message": "\u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\020NOT_ENOUGH_MONEY\\030\\000(\\356\\204\\364\\0260\\000:\\020Not enough funds\"\nclientMsgId: \"2566797971568\"\n"
     },
     {
-      "time": "2026-08-04 16:44:46 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "level": "INFO",
       "message": "\ud83d\udcda Telegram history saved (0 messages)"
     },
     {
-      "time": "2026-08-04 16:44:46 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "level": "INFO",
       "message": "\ud83d\udcbe State saved to docs/system_state.json"
     },
     {
-      "time": "2026-08-04 16:44:46 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "level": "SUCCESS",
-      "message": "\u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TRADING_BAD_VOLUME(\\356\\204\\364\\026:GOrder volume = 100.00 is smaller than minimum allowed volume = 1000.00.\"\nclientMsgId: \"1927075811440\"\n"
+      "message": "\u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TRADING_BAD_VOLUME(\\356\\204\\364\\026:GOrder volume = 100.00 is smaller than minimum allowed volume = 1000.00.\"\nclientMsgId: \"2566797974112\"\n"
     },
     {
-      "time": "2026-08-04 16:44:46 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "level": "INFO",
       "message": "\ud83d\udcda Telegram history saved (0 messages)"
     },
     {
-      "time": "2026-08-04 16:44:46 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "level": "INFO",
       "message": "\ud83d\udcbe State saved to docs/system_state.json"
     },
     {
-      "time": "2026-08-04 16:44:46 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "level": "SUCCESS",
-      "message": "\u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TRADING_BAD_VOLUME(\\356\\204\\364\\026:GOrder volume = 100.00 is smaller than minimum allowed volume = 1000.00.\"\nclientMsgId: \"1927075812256\"\n"
+      "message": "\u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TRADING_BAD_VOLUME(\\356\\204\\364\\026:GOrder volume = 100.00 is smaller than minimum allowed volume = 1000.00.\"\nclientMsgId: \"2566797974928\"\n"
     },
     {
-      "time": "2026-08-04 16:44:46 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "level": "INFO",
       "message": "\ud83d\udcda Telegram history saved (0 messages)"
     },
     {
-      "time": "2026-08-04 16:44:46 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "level": "INFO",
       "message": "\ud83d\udcbe State saved to docs/system_state.json"
     },
     {
-      "time": "2026-08-04 16:44:46 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "level": "SUCCESS",
-      "message": "\u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TRADING_BAD_VOLUME(\\356\\204\\364\\026:GOrder volume = 100.00 is smaller than minimum allowed volume = 1000.00.\"\nclientMsgId: \"1927075810624\"\n"
+      "message": "\u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TRADING_BAD_VOLUME(\\356\\204\\364\\026:GOrder volume = 100.00 is smaller than minimum allowed volume = 1000.00.\"\nclientMsgId: \"2566797973296\"\n"
     },
     {
-      "time": "2026-08-04 16:44:46 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "level": "INFO",
       "message": "\ud83d\udcda Telegram history saved (0 messages)"
     },
     {
-      "time": "2026-08-04 16:44:46 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "level": "INFO",
       "message": "\ud83d\udcbe State saved to docs/system_state.json"
     },
     {
-      "time": "2026-08-04 16:44:46 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "level": "INFO",
       "message": "Loaded signals from docs/pending_signals.json"
     },
     {
-      "time": "2026-08-04 16:44:46 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "level": "INFO",
       "message": "\ud83d\ude80 Sending order to cTrader OpenAPI: BUY 0.1 lots (100000 units) of BTCUSD (ID: 22)"
     },
     {
-      "time": "2026-08-04 16:44:46 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "level": "INFO",
       "message": "\ud83d\ude80 Sending order to cTrader OpenAPI: SELL 0.01 lots (10000 units) of CHFJPY (ID: 1)"
     },
     {
-      "time": "2026-08-04 16:44:46 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "level": "INFO",
       "message": "\ud83d\ude80 Sending order to cTrader OpenAPI: SELL 0.01 lots (10000 units) of CADJPY (ID: 1)"
     },
     {
-      "time": "2026-08-04 16:44:46 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "level": "INFO",
       "message": "\ud83d\ude80 Sending order to cTrader OpenAPI: SELL 0.01 lots (10000 units) of EURJPY (ID: 9)"
     },
     {
-      "time": "2026-08-04 16:44:46 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "level": "INFO",
       "message": "\ud83d\ude80 Sending order to cTrader OpenAPI: SELL 0.01 lots (10000 units) of NZDJPY (ID: 1)"
     },
     {
-      "time": "2026-08-04 16:44:46 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "level": "INFO",
       "message": "\ud83d\ude80 Sending order to cTrader OpenAPI: SELL 0.01 lots (10000 units) of AUDJPY (ID: 1)"
     },
     {
-      "time": "2026-08-04 16:44:46 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "level": "INFO",
       "message": "\ud83d\ude80 Sending order to cTrader OpenAPI: SELL 0.01 lots (10000 units) of USDJPY (ID: 3)"
     },
     {
-      "time": "2026-08-04 16:44:46 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "level": "INFO",
       "message": "\ud83d\ude80 Sending order to cTrader OpenAPI: SELL 0.01 lots (10000 units) of EURNZD (ID: 1)"
     },
     {
-      "time": "2026-08-04 16:44:46 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "level": "INFO",
       "message": "\ud83d\ude80 Sending order to cTrader OpenAPI: BUY 0.1 lots (100000 units) of BTCUSD (ID: 22)"
     },
     {
-      "time": "2026-08-04 16:44:46 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "level": "INFO",
       "message": "\ud83d\ude80 Sending order to cTrader OpenAPI: BUY 0.1 lots (100000 units) of BTCUSD (ID: 22)"
     },
     {
-      "time": "2026-08-04 16:44:42 UTC",
-      "level": "INFO",
-      "message": "\ud83d\udcf1 Checking Telegram updates (offset: 841819977)..."
+      "time": "2026-08-04 19:08:32 UTC",
+      "level": "DEBUG",
+      "message": "Telegram API error response: {\"ok\":false,\"error_code\":409,\"description\":\"Conflict: terminated by other getUpdates request; make sure that only one bot instance is running\"}"
     },
     {
-      "time": "2026-08-04 16:44:42 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
+      "level": "ERROR",
+      "message": "Telegram API HTTP error: 409 - Conflict"
+    },
+    {
+      "time": "2026-08-04 19:08:28 UTC",
+      "level": "INFO",
+      "message": "\ud83d\udcf1 Checking Telegram updates (offset: 0)..."
+    },
+    {
+      "time": "2026-08-04 19:08:28 UTC",
+      "level": "INFO",
+      "message": "\ud83d\udcbe Storing all 0 messages in memory"
+    },
+    {
+      "time": "2026-08-04 19:08:28 UTC",
+      "level": "INFO",
+      "message": "\ud83d\udcda Total Telegram messages loaded: 0"
+    },
+    {
+      "time": "2026-08-04 19:08:05 UTC",
+      "level": "INFO",
+      "message": "\ud83d\udd04 Starting history fetch with negative offset..."
+    },
+    {
+      "time": "2026-08-04 19:08:05 UTC",
+      "level": "INFO",
+      "message": "\ud83d\udcda Fetching Telegram channel history (last 30 days) - USING NEGATIVE OFFSET..."
+    },
+    {
+      "time": "2026-08-04 19:08:05 UTC",
+      "level": "INFO",
+      "message": "\ud83d\udd04 Resetting history - fetching all messages from start..."
+    },
+    {
+      "time": "2026-08-04 19:08:05 UTC",
       "level": "SUCCESS",
       "message": "\ud83d\udd10 Account Authorized successfully"
     },
     {
-      "time": "2026-08-04 16:44:42 UTC",
+      "time": "2026-08-04 19:08:04 UTC",
       "level": "SUCCESS",
       "message": "\ud83d\udd10 Application Authorized successfully"
     },
     {
-      "time": "2026-08-04 16:44:40 UTC",
+      "time": "2026-08-04 19:08:00 UTC",
       "level": "SUCCESS",
       "message": "\u2705 Connected to cTrader OpenAPI at demo.ctraderapi.com:5035"
     },
     {
-      "time": "2026-08-04 16:44:39 UTC",
+      "time": "2026-08-04 19:07:59 UTC",
       "level": "INFO",
       "message": "================================================================================"
     },
     {
-      "time": "2026-08-04 16:44:39 UTC",
+      "time": "2026-08-04 19:07:59 UTC",
       "level": "INFO",
       "message": "\ud83e\udd16 cTrader OpenAPI Bot STARTING"
     },
     {
-      "time": "2026-08-04 16:44:39 UTC",
+      "time": "2026-08-04 19:07:59 UTC",
       "level": "INFO",
       "message": "================================================================================"
     }
   ],
   "errors": [
     {
-      "time": "2026-08-04 16:46:24 UTC",
-      "error": "Full traceback: Traceback (most recent call last):\n  File \"d:\\respo\\ctrader_bridge\\ctrader_bot.py\", line 558, in check_telegram\n    with urllib.request.urlopen(req, timeout=35, context=ssl_context) as resp:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\\Lib\\urllib\\request.py\", line 215, in urlopen\n    return opener.open(url, data, timeout)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\\Lib\\urllib\\request.py\", line 521, in open\n    response = meth(req, response)\n               ^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\\Lib\\urllib\\request.py\", line 630, in http_response\n    response = self.parent.error(\n               ^^^^^^^^^^^^^^^^^^\n  File \"C:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\\Lib\\urllib\\request.py\", line 559, in error\n    return self._call_chain(*args)\n           ^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\\Lib\\urllib\\request.py\", line 492, in _call_chain\n    result = func(*args)\n             ^^^^^^^^^^^\n  File \"C:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\\Lib\\urllib\\request.py\", line 639, in http_error_default\n    raise HTTPError(req.full_url, code, msg, hdrs, fp)\nurllib.error.HTTPError: HTTP Error 409: Conflict\n"
-    },
-    {
-      "time": "2026-08-04 16:46:24 UTC",
-      "error": "Telegram check failed: HTTP Error 409: Conflict"
-    },
-    {
-      "time": "2026-08-04 16:44:46 UTC",
-      "error": "Full traceback: Traceback (most recent call last):\n  File \"d:\\respo\\ctrader_bridge\\ctrader_bot.py\", line 558, in check_telegram\n    with urllib.request.urlopen(req, timeout=35, context=ssl_context) as resp:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\\Lib\\urllib\\request.py\", line 215, in urlopen\n    return opener.open(url, data, timeout)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\\Lib\\urllib\\request.py\", line 521, in open\n    response = meth(req, response)\n               ^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\\Lib\\urllib\\request.py\", line 630, in http_response\n    response = self.parent.error(\n               ^^^^^^^^^^^^^^^^^^\n  File \"C:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\\Lib\\urllib\\request.py\", line 559, in error\n    return self._call_chain(*args)\n           ^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\\Lib\\urllib\\request.py\", line 492, in _call_chain\n    result = func(*args)\n             ^^^^^^^^^^^\n  File \"C:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\\Lib\\urllib\\request.py\", line 639, in http_error_default\n    raise HTTPError(req.full_url, code, msg, hdrs, fp)\nurllib.error.HTTPError: HTTP Error 409: Conflict\n"
-    },
-    {
-      "time": "2026-08-04 16:44:46 UTC",
-      "error": "Telegram check failed: HTTP Error 409: Conflict"
+      "time": "2026-08-04 19:08:28 UTC",
+      "error": "Error fetching batch 1: HTTP Error 409: Conflict"
     }
   ],
   "backendEvents": [
     {
-      "time": "2026-08-04 16:49:30 UTC",
+      "time": "2026-08-04 19:12:41 UTC",
+      "event": "[DEBUG] Telegram API error response: {\"ok\":false,\"error_code\":409,\"description\":\"Conflict: terminated by other getUpdates request; make sure that only one bot instance is running\"}",
+      "type": "log"
+    },
+    {
+      "time": "2026-08-04 19:12:41 UTC",
+      "event": "[ERROR] Telegram API HTTP error: 409 - Conflict",
+      "type": "log"
+    },
+    {
+      "time": "2026-08-04 19:12:38 UTC",
+      "event": "[INFO] \ud83d\udcf1 Checking Telegram updates (offset: 0)...",
+      "type": "log"
+    },
+    {
+      "time": "2026-08-04 19:12:08 UTC",
       "event": "[INFO] \ud83d\udcda Telegram history saved (0 messages)",
       "type": "log"
     },
     {
-      "time": "2026-08-04 16:49:30 UTC",
+      "time": "2026-08-04 19:12:08 UTC",
       "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
       "type": "log"
     },
     {
-      "time": "2026-08-04 16:49:30 UTC",
+      "time": "2026-08-04 19:12:08 UTC",
+      "event": "[INFO] \ud83d\udcda Telegram history saved (0 messages)",
+      "type": "log"
+    },
+    {
+      "time": "2026-08-04 19:12:08 UTC",
+      "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
+      "type": "log"
+    },
+    {
+      "time": "2026-08-04 19:12:07 UTC",
       "event": "[INFO] \u2705 No new messages (up to date)",
       "type": "log"
     },
     {
-      "time": "2026-08-04 16:49:30 UTC",
+      "time": "2026-08-04 19:12:07 UTC",
       "event": "[INFO] \ud83d\udce5 Received 0 Telegram update(s)",
       "type": "log"
     },
     {
-      "time": "2026-08-04 16:48:56 UTC",
-      "event": "[INFO] \ud83d\udcf1 Checking Telegram updates (offset: 841819977)...",
+      "time": "2026-08-04 19:12:07 UTC",
+      "event": "[DEBUG] Telegram API raw response: {\"ok\":true,\"result\":[]}",
       "type": "log"
     },
     {
-      "time": "2026-08-04 16:48:26 UTC",
+      "time": "2026-08-04 19:11:37 UTC",
+      "event": "[INFO] \ud83d\udcf1 Checking Telegram updates (offset: 0)...",
+      "type": "log"
+    },
+    {
+      "time": "2026-08-04 19:11:07 UTC",
       "event": "[INFO] \ud83d\udcda Telegram history saved (0 messages)",
       "type": "log"
     },
     {
-      "time": "2026-08-04 16:48:26 UTC",
+      "time": "2026-08-04 19:11:07 UTC",
       "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
       "type": "log"
     },
     {
-      "time": "2026-08-04 16:48:26 UTC",
+      "time": "2026-08-04 19:11:07 UTC",
+      "event": "[DEBUG] Telegram API error response: {\"ok\":false,\"error_code\":409,\"description\":\"Conflict: terminated by other getUpdates request; make sure that only one bot instance is running\"}",
+      "type": "log"
+    },
+    {
+      "time": "2026-08-04 19:11:07 UTC",
+      "event": "[ERROR] Telegram API HTTP error: 409 - Conflict",
+      "type": "log"
+    },
+    {
+      "time": "2026-08-04 19:11:03 UTC",
+      "event": "[INFO] \ud83d\udcf1 Checking Telegram updates (offset: 0)...",
+      "type": "log"
+    },
+    {
+      "time": "2026-08-04 19:10:33 UTC",
       "event": "[INFO] \ud83d\udcda Telegram history saved (0 messages)",
       "type": "log"
     },
     {
-      "time": "2026-08-04 16:48:26 UTC",
+      "time": "2026-08-04 19:10:33 UTC",
       "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
       "type": "log"
     },
     {
-      "time": "2026-08-04 16:48:26 UTC",
+      "time": "2026-08-04 19:10:33 UTC",
+      "event": "[INFO] \ud83d\udcda Telegram history saved (0 messages)",
+      "type": "log"
+    },
+    {
+      "time": "2026-08-04 19:10:33 UTC",
+      "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
+      "type": "log"
+    },
+    {
+      "time": "2026-08-04 19:10:33 UTC",
       "event": "[INFO] \u2705 No new messages (up to date)",
       "type": "log"
     },
     {
-      "time": "2026-08-04 16:48:26 UTC",
+      "time": "2026-08-04 19:10:33 UTC",
       "event": "[INFO] \ud83d\udce5 Received 0 Telegram update(s)",
       "type": "log"
     },
     {
-      "time": "2026-08-04 16:47:55 UTC",
-      "event": "[INFO] \ud83d\udcf1 Checking Telegram updates (offset: 841819977)...",
+      "time": "2026-08-04 19:10:33 UTC",
+      "event": "[DEBUG] Telegram API raw response: {\"ok\":true,\"result\":[]}",
       "type": "log"
     },
     {
-      "time": "2026-08-04 16:47:25 UTC",
+      "time": "2026-08-04 19:10:02 UTC",
+      "event": "[INFO] \ud83d\udcf1 Checking Telegram updates (offset: 0)...",
+      "type": "log"
+    },
+    {
+      "time": "2026-08-04 19:09:32 UTC",
       "event": "[INFO] \ud83d\udcda Telegram history saved (0 messages)",
       "type": "log"
     },
     {
-      "time": "2026-08-04 16:47:25 UTC",
+      "time": "2026-08-04 19:09:32 UTC",
       "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
       "type": "log"
     },
     {
-      "time": "2026-08-04 16:47:25 UTC",
+      "time": "2026-08-04 19:09:32 UTC",
       "event": "[INFO] \ud83d\udcda Telegram history saved (0 messages)",
       "type": "log"
     },
     {
-      "time": "2026-08-04 16:47:25 UTC",
+      "time": "2026-08-04 19:09:32 UTC",
       "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
       "type": "log"
     },
     {
-      "time": "2026-08-04 16:47:25 UTC",
+      "time": "2026-08-04 19:09:32 UTC",
       "event": "[INFO] \u2705 No new messages (up to date)",
       "type": "log"
     },
     {
-      "time": "2026-08-04 16:47:25 UTC",
+      "time": "2026-08-04 19:09:32 UTC",
       "event": "[INFO] \ud83d\udce5 Received 0 Telegram update(s)",
       "type": "log"
     },
     {
-      "time": "2026-08-04 16:46:54 UTC",
-      "event": "[INFO] \ud83d\udcf1 Checking Telegram updates (offset: 841819977)...",
+      "time": "2026-08-04 19:09:32 UTC",
+      "event": "[DEBUG] Telegram API raw response: {\"ok\":true,\"result\":[]}",
       "type": "log"
     },
     {
-      "time": "2026-08-04 16:46:24 UTC",
+      "time": "2026-08-04 19:09:02 UTC",
+      "event": "[INFO] \ud83d\udcf1 Checking Telegram updates (offset: 0)...",
+      "type": "log"
+    },
+    {
+      "time": "2026-08-04 19:08:32 UTC",
       "event": "[INFO] \ud83d\udcda Telegram history saved (0 messages)",
       "type": "log"
     },
     {
-      "time": "2026-08-04 16:46:24 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
       "type": "log"
     },
     {
-      "time": "2026-08-04 16:46:24 UTC",
-      "event": "ERROR: Full traceback: Traceback (most recent call last):\n  File \"d:\\respo\\ctrader_bridge\\ctrader_bot.py\", line 558, in check_telegram\n    with urllib.request.urlopen(req, timeout=35, context=ssl_context) as resp:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\\Lib\\urllib\\request.py\", line 215, in urlopen\n    return opener.open(url, data, timeout)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\\Lib\\urllib\\request.py\", line 521, in open\n    response = meth(req, response)\n               ^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\\Lib\\urllib\\request.py\", line 630, in http_response\n    response = self.parent.error(\n               ^^^^^^^^^^^^^^^^^^\n  File \"C:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\\Lib\\urllib\\request.py\", line 559, in error\n    return self._call_chain(*args)\n           ^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\\Lib\\urllib\\request.py\", line 492, in _call_chain\n    result = func(*args)\n             ^^^^^^^^^^^\n  File \"C:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\\Lib\\urllib\\request.py\", line 639, in http_error_default\n    raise HTTPError(req.full_url, code, msg, hdrs, fp)\nurllib.error.HTTPError: HTTP Error 409: Conflict\n",
-      "type": "error"
-    },
-    {
-      "time": "2026-08-04 16:46:24 UTC",
-      "event": "ERROR: Telegram check failed: HTTP Error 409: Conflict",
-      "type": "error"
-    },
-    {
-      "time": "2026-08-04 16:46:17 UTC",
-      "event": "[INFO] \ud83d\udcf1 Checking Telegram updates (offset: 841819977)...",
+      "time": "2026-08-04 19:08:32 UTC",
+      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\020NOT_ENOUGH_MONEY\\030\\000(\\356\\204\\364\\0260\\000:\\020Not enough funds\"\nclientMsgId: \"2566766681968\"\n",
       "type": "log"
     },
     {
-      "time": "2026-08-04 16:45:47 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "event": "[INFO] \ud83d\udcda Telegram history saved (0 messages)",
       "type": "log"
     },
     {
-      "time": "2026-08-04 16:45:47 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
       "type": "log"
     },
     {
-      "time": "2026-08-04 16:45:47 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
+      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TRADING_BAD_VOLUME(\\356\\204\\364\\026:GOrder volume = 100.00 is smaller than minimum allowed volume = 1000.00.\"\nclientMsgId: \"2566797978000\"\n",
+      "type": "log"
+    },
+    {
+      "time": "2026-08-04 19:08:32 UTC",
       "event": "[INFO] \ud83d\udcda Telegram history saved (0 messages)",
       "type": "log"
     },
     {
-      "time": "2026-08-04 16:45:47 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
       "type": "log"
     },
     {
-      "time": "2026-08-04 16:45:47 UTC",
-      "event": "[INFO] \u2705 No new messages (up to date)",
+      "time": "2026-08-04 19:08:32 UTC",
+      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TRADING_BAD_VOLUME(\\356\\204\\364\\026:GOrder volume = 100.00 is smaller than minimum allowed volume = 1000.00.\"\nclientMsgId: \"2566797977280\"\n",
       "type": "log"
     },
     {
-      "time": "2026-08-04 16:45:47 UTC",
-      "event": "[INFO] \ud83d\udce5 Received 0 Telegram update(s)",
-      "type": "log"
-    },
-    {
-      "time": "2026-08-04 16:45:16 UTC",
-      "event": "[INFO] \ud83d\udcf1 Checking Telegram updates (offset: 841819977)...",
-      "type": "log"
-    },
-    {
-      "time": "2026-08-04 16:44:47 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "event": "[INFO] \ud83d\udcda Telegram history saved (0 messages)",
       "type": "log"
     },
     {
-      "time": "2026-08-04 16:44:47 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
       "type": "log"
     },
     {
-      "time": "2026-08-04 16:44:47 UTC",
-      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\020NOT_ENOUGH_MONEY\\030\\000(\\356\\204\\364\\0260\\000:\\020Not enough funds\"\nclientMsgId: \"1927075816240\"\n",
+      "time": "2026-08-04 19:08:32 UTC",
+      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TRADING_BAD_VOLUME(\\356\\204\\364\\026:GOrder volume = 100.00 is smaller than minimum allowed volume = 1000.00.\"\nclientMsgId: \"2566797976464\"\n",
       "type": "log"
     },
     {
-      "time": "2026-08-04 16:44:47 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "event": "[INFO] \ud83d\udcda Telegram history saved (0 messages)",
       "type": "log"
     },
     {
-      "time": "2026-08-04 16:44:47 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
       "type": "log"
     },
     {
-      "time": "2026-08-04 16:44:47 UTC",
-      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TRADING_BAD_VOLUME(\\356\\204\\364\\026:GOrder volume = 100.00 is smaller than minimum allowed volume = 1000.00.\"\nclientMsgId: \"1927075815376\"\n",
+      "time": "2026-08-04 19:08:32 UTC",
+      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TRADING_BAD_VOLUME(\\356\\204\\364\\026:GOrder volume = 100.00 is smaller than minimum allowed volume = 1000.00.\"\nclientMsgId: \"2566797975648\"\n",
       "type": "log"
     },
     {
-      "time": "2026-08-04 16:44:47 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "event": "[INFO] \ud83d\udcda Telegram history saved (0 messages)",
       "type": "log"
     },
     {
-      "time": "2026-08-04 16:44:47 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
       "type": "log"
     },
     {
-      "time": "2026-08-04 16:44:47 UTC",
-      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TRADING_BAD_VOLUME(\\356\\204\\364\\026:GOrder volume = 100.00 is smaller than minimum allowed volume = 1000.00.\"\nclientMsgId: \"1927075814464\"\n",
+      "time": "2026-08-04 19:08:32 UTC",
+      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\020NOT_ENOUGH_MONEY\\030\\000(\\356\\204\\364\\0260\\000:\\020Not enough funds\"\nclientMsgId: \"2566797972480\"\n",
       "type": "log"
     },
     {
-      "time": "2026-08-04 16:44:47 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "event": "[INFO] \ud83d\udcda Telegram history saved (0 messages)",
       "type": "log"
     },
     {
-      "time": "2026-08-04 16:44:47 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
       "type": "log"
     },
     {
-      "time": "2026-08-04 16:44:47 UTC",
-      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TRADING_BAD_VOLUME(\\356\\204\\364\\026:GOrder volume = 100.00 is smaller than minimum allowed volume = 1000.00.\"\nclientMsgId: \"1927075813888\"\n",
+      "time": "2026-08-04 19:08:32 UTC",
+      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\020NOT_ENOUGH_MONEY\\030\\000(\\356\\204\\364\\0260\\000:\\020Not enough funds\"\nclientMsgId: \"2566797971568\"\n",
       "type": "log"
     },
     {
-      "time": "2026-08-04 16:44:47 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "event": "[INFO] \ud83d\udcda Telegram history saved (0 messages)",
       "type": "log"
     },
     {
-      "time": "2026-08-04 16:44:47 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
       "type": "log"
     },
     {
-      "time": "2026-08-04 16:44:47 UTC",
-      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TRADING_BAD_VOLUME(\\356\\204\\364\\026:GOrder volume = 100.00 is smaller than minimum allowed volume = 1000.00.\"\nclientMsgId: \"1927075813072\"\n",
+      "time": "2026-08-04 19:08:32 UTC",
+      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TRADING_BAD_VOLUME(\\356\\204\\364\\026:GOrder volume = 100.00 is smaller than minimum allowed volume = 1000.00.\"\nclientMsgId: \"2566797974112\"\n",
       "type": "log"
     },
     {
-      "time": "2026-08-04 16:44:47 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "event": "[INFO] \ud83d\udcda Telegram history saved (0 messages)",
       "type": "log"
     },
     {
-      "time": "2026-08-04 16:44:47 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
       "type": "log"
     },
     {
-      "time": "2026-08-04 16:44:47 UTC",
-      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\020NOT_ENOUGH_MONEY\\030\\000(\\356\\204\\364\\0260\\000:\\020Not enough funds\"\nclientMsgId: \"1927075809808\"\n",
+      "time": "2026-08-04 19:08:32 UTC",
+      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TRADING_BAD_VOLUME(\\356\\204\\364\\026:GOrder volume = 100.00 is smaller than minimum allowed volume = 1000.00.\"\nclientMsgId: \"2566797974928\"\n",
       "type": "log"
     },
     {
-      "time": "2026-08-04 16:44:47 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "event": "[INFO] \ud83d\udcda Telegram history saved (0 messages)",
       "type": "log"
     },
     {
-      "time": "2026-08-04 16:44:47 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
       "type": "log"
     },
     {
-      "time": "2026-08-04 16:44:46 UTC",
-      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\020NOT_ENOUGH_MONEY\\030\\000(\\356\\204\\364\\0260\\000:\\020Not enough funds\"\nclientMsgId: \"1927075808896\"\n",
+      "time": "2026-08-04 19:08:32 UTC",
+      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TRADING_BAD_VOLUME(\\356\\204\\364\\026:GOrder volume = 100.00 is smaller than minimum allowed volume = 1000.00.\"\nclientMsgId: \"2566797973296\"\n",
       "type": "log"
     },
     {
-      "time": "2026-08-04 16:44:46 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "event": "[INFO] \ud83d\udcda Telegram history saved (0 messages)",
       "type": "log"
     },
     {
-      "time": "2026-08-04 16:44:46 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
       "type": "log"
     },
     {
-      "time": "2026-08-04 16:44:46 UTC",
-      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TRADING_BAD_VOLUME(\\356\\204\\364\\026:GOrder volume = 100.00 is smaller than minimum allowed volume = 1000.00.\"\nclientMsgId: \"1927075811440\"\n",
-      "type": "log"
-    },
-    {
-      "time": "2026-08-04 16:44:46 UTC",
-      "event": "[INFO] \ud83d\udcda Telegram history saved (0 messages)",
-      "type": "log"
-    },
-    {
-      "time": "2026-08-04 16:44:46 UTC",
-      "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
-      "type": "log"
-    },
-    {
-      "time": "2026-08-04 16:44:46 UTC",
-      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TRADING_BAD_VOLUME(\\356\\204\\364\\026:GOrder volume = 100.00 is smaller than minimum allowed volume = 1000.00.\"\nclientMsgId: \"1927075812256\"\n",
-      "type": "log"
-    },
-    {
-      "time": "2026-08-04 16:44:46 UTC",
-      "event": "[INFO] \ud83d\udcda Telegram history saved (0 messages)",
-      "type": "log"
-    },
-    {
-      "time": "2026-08-04 16:44:46 UTC",
-      "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
-      "type": "log"
-    },
-    {
-      "time": "2026-08-04 16:44:46 UTC",
-      "event": "[SUCCESS] \u2705 Order executed successfully: payloadType: 2132\npayload: \"\\022\\022TRADING_BAD_VOLUME(\\356\\204\\364\\026:GOrder volume = 100.00 is smaller than minimum allowed volume = 1000.00.\"\nclientMsgId: \"1927075810624\"\n",
-      "type": "log"
-    },
-    {
-      "time": "2026-08-04 16:44:46 UTC",
-      "event": "[INFO] \ud83d\udcda Telegram history saved (0 messages)",
-      "type": "log"
-    },
-    {
-      "time": "2026-08-04 16:44:46 UTC",
-      "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
-      "type": "log"
-    },
-    {
-      "time": "2026-08-04 16:44:46 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "event": "[INFO] Loaded signals from docs/pending_signals.json",
       "type": "log"
     },
     {
-      "time": "2026-08-04 16:44:46 UTC",
-      "event": "Order BOT_1785861886561 sent: BUY 0.1 BTCUSD",
+      "time": "2026-08-04 19:08:32 UTC",
+      "event": "Order BOT_1785870512229 sent: BUY 0.1 BTCUSD",
       "type": "order"
     },
     {
-      "time": "2026-08-04 16:44:46 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "event": "[INFO] \ud83d\ude80 Sending order to cTrader OpenAPI: BUY 0.1 lots (100000 units) of BTCUSD (ID: 22)",
       "type": "log"
     },
     {
-      "time": "2026-08-04 16:44:46 UTC",
-      "event": "Order BOT_1785861886560 sent: SELL 0.01 CHFJPY",
+      "time": "2026-08-04 19:08:32 UTC",
+      "event": "Order BOT_1785870512228 sent: SELL 0.01 CHFJPY",
       "type": "order"
     },
     {
-      "time": "2026-08-04 16:44:46 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "event": "[INFO] \ud83d\ude80 Sending order to cTrader OpenAPI: SELL 0.01 lots (10000 units) of CHFJPY (ID: 1)",
       "type": "log"
     },
     {
-      "time": "2026-08-04 16:44:46 UTC",
-      "event": "Order BOT_1785861886560 sent: SELL 0.01 CADJPY",
+      "time": "2026-08-04 19:08:32 UTC",
+      "event": "Order BOT_1785870512228 sent: SELL 0.01 CADJPY",
       "type": "order"
     },
     {
-      "time": "2026-08-04 16:44:46 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "event": "[INFO] \ud83d\ude80 Sending order to cTrader OpenAPI: SELL 0.01 lots (10000 units) of CADJPY (ID: 1)",
       "type": "log"
     },
     {
-      "time": "2026-08-04 16:44:46 UTC",
-      "event": "Order BOT_1785861886560 sent: SELL 0.01 EURJPY",
+      "time": "2026-08-04 19:08:32 UTC",
+      "event": "Order BOT_1785870512228 sent: SELL 0.01 EURJPY",
       "type": "order"
     },
     {
-      "time": "2026-08-04 16:44:46 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "event": "[INFO] \ud83d\ude80 Sending order to cTrader OpenAPI: SELL 0.01 lots (10000 units) of EURJPY (ID: 9)",
       "type": "log"
     },
     {
-      "time": "2026-08-04 16:44:46 UTC",
-      "event": "Order BOT_1785861886560 sent: SELL 0.01 NZDJPY",
+      "time": "2026-08-04 19:08:32 UTC",
+      "event": "Order BOT_1785870512227 sent: SELL 0.01 NZDJPY",
       "type": "order"
     },
     {
-      "time": "2026-08-04 16:44:46 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "event": "[INFO] \ud83d\ude80 Sending order to cTrader OpenAPI: SELL 0.01 lots (10000 units) of NZDJPY (ID: 1)",
       "type": "log"
     },
     {
-      "time": "2026-08-04 16:44:46 UTC",
-      "event": "Order BOT_1785861886559 sent: SELL 0.01 AUDJPY",
+      "time": "2026-08-04 19:08:32 UTC",
+      "event": "Order BOT_1785870512227 sent: SELL 0.01 AUDJPY",
       "type": "order"
     },
     {
-      "time": "2026-08-04 16:44:46 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "event": "[INFO] \ud83d\ude80 Sending order to cTrader OpenAPI: SELL 0.01 lots (10000 units) of AUDJPY (ID: 1)",
       "type": "log"
     },
     {
-      "time": "2026-08-04 16:44:46 UTC",
-      "event": "Order BOT_1785861886559 sent: SELL 0.01 USDJPY",
+      "time": "2026-08-04 19:08:32 UTC",
+      "event": "Order BOT_1785870512227 sent: SELL 0.01 USDJPY",
       "type": "order"
     },
     {
-      "time": "2026-08-04 16:44:46 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "event": "[INFO] \ud83d\ude80 Sending order to cTrader OpenAPI: SELL 0.01 lots (10000 units) of USDJPY (ID: 3)",
       "type": "log"
     },
     {
-      "time": "2026-08-04 16:44:46 UTC",
-      "event": "Order BOT_1785861886559 sent: SELL 0.01 EURNZD",
+      "time": "2026-08-04 19:08:32 UTC",
+      "event": "Order BOT_1785870512226 sent: SELL 0.01 EURNZD",
       "type": "order"
     },
     {
-      "time": "2026-08-04 16:44:46 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "event": "[INFO] \ud83d\ude80 Sending order to cTrader OpenAPI: SELL 0.01 lots (10000 units) of EURNZD (ID: 1)",
       "type": "log"
     },
     {
-      "time": "2026-08-04 16:44:46 UTC",
-      "event": "Order BOT_1785861886558 sent: BUY 0.1 BTCUSD",
+      "time": "2026-08-04 19:08:32 UTC",
+      "event": "Order BOT_1785870512226 sent: BUY 0.1 BTCUSD",
       "type": "order"
     },
     {
-      "time": "2026-08-04 16:44:46 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "event": "[INFO] \ud83d\ude80 Sending order to cTrader OpenAPI: BUY 0.1 lots (100000 units) of BTCUSD (ID: 22)",
       "type": "log"
     },
     {
-      "time": "2026-08-04 16:44:46 UTC",
-      "event": "Order BOT_1785861886558 sent: BUY 0.1 BTCUSD",
+      "time": "2026-08-04 19:08:32 UTC",
+      "event": "Order BOT_1785870512226 sent: BUY 0.1 BTCUSD",
       "type": "order"
     },
     {
-      "time": "2026-08-04 16:44:46 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
       "event": "[INFO] \ud83d\ude80 Sending order to cTrader OpenAPI: BUY 0.1 lots (100000 units) of BTCUSD (ID: 22)",
       "type": "log"
     },
     {
-      "time": "2026-08-04 16:44:46 UTC",
-      "event": "ERROR: Full traceback: Traceback (most recent call last):\n  File \"d:\\respo\\ctrader_bridge\\ctrader_bot.py\", line 558, in check_telegram\n    with urllib.request.urlopen(req, timeout=35, context=ssl_context) as resp:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\\Lib\\urllib\\request.py\", line 215, in urlopen\n    return opener.open(url, data, timeout)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\\Lib\\urllib\\request.py\", line 521, in open\n    response = meth(req, response)\n               ^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\\Lib\\urllib\\request.py\", line 630, in http_response\n    response = self.parent.error(\n               ^^^^^^^^^^^^^^^^^^\n  File \"C:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\\Lib\\urllib\\request.py\", line 559, in error\n    return self._call_chain(*args)\n           ^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\\Lib\\urllib\\request.py\", line 492, in _call_chain\n    result = func(*args)\n             ^^^^^^^^^^^\n  File \"C:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\\Lib\\urllib\\request.py\", line 639, in http_error_default\n    raise HTTPError(req.full_url, code, msg, hdrs, fp)\nurllib.error.HTTPError: HTTP Error 409: Conflict\n",
-      "type": "error"
-    },
-    {
-      "time": "2026-08-04 16:44:46 UTC",
-      "event": "ERROR: Telegram check failed: HTTP Error 409: Conflict",
-      "type": "error"
-    },
-    {
-      "time": "2026-08-04 16:44:42 UTC",
-      "event": "[INFO] \ud83d\udcf1 Checking Telegram updates (offset: 841819977)...",
+      "time": "2026-08-04 19:08:32 UTC",
+      "event": "[DEBUG] Telegram API error response: {\"ok\":false,\"error_code\":409,\"description\":\"Conflict: terminated by other getUpdates request; make sure that only one bot instance is running\"}",
       "type": "log"
     },
     {
-      "time": "2026-08-04 16:44:42 UTC",
+      "time": "2026-08-04 19:08:32 UTC",
+      "event": "[ERROR] Telegram API HTTP error: 409 - Conflict",
+      "type": "log"
+    },
+    {
+      "time": "2026-08-04 19:08:28 UTC",
+      "event": "[INFO] \ud83d\udcf1 Checking Telegram updates (offset: 0)...",
+      "type": "log"
+    },
+    {
+      "time": "2026-08-04 19:08:28 UTC",
+      "event": "[INFO] \ud83d\udcbe Storing all 0 messages in memory",
+      "type": "log"
+    },
+    {
+      "time": "2026-08-04 19:08:28 UTC",
+      "event": "[INFO] \ud83d\udcda Total Telegram messages loaded: 0",
+      "type": "log"
+    },
+    {
+      "time": "2026-08-04 19:08:28 UTC",
+      "event": "ERROR: Error fetching batch 1: HTTP Error 409: Conflict",
+      "type": "error"
+    },
+    {
+      "time": "2026-08-04 19:08:05 UTC",
+      "event": "[INFO] \ud83d\udd04 Starting history fetch with negative offset...",
+      "type": "log"
+    },
+    {
+      "time": "2026-08-04 19:08:05 UTC",
+      "event": "[INFO] \ud83d\udcda Fetching Telegram channel history (last 30 days) - USING NEGATIVE OFFSET...",
+      "type": "log"
+    },
+    {
+      "time": "2026-08-04 19:08:05 UTC",
+      "event": "[INFO] \ud83d\udd04 Resetting history - fetching all messages from start...",
+      "type": "log"
+    },
+    {
+      "time": "2026-08-04 19:08:05 UTC",
       "event": "[SUCCESS] \ud83d\udd10 Account Authorized successfully",
       "type": "log"
     },
     {
-      "time": "2026-08-04 16:44:42 UTC",
+      "time": "2026-08-04 19:08:04 UTC",
       "event": "[SUCCESS] \ud83d\udd10 Application Authorized successfully",
       "type": "log"
     },
     {
-      "time": "2026-08-04 16:44:40 UTC",
+      "time": "2026-08-04 19:08:00 UTC",
       "event": "[SUCCESS] \u2705 Connected to cTrader OpenAPI at demo.ctraderapi.com:5035",
       "type": "log"
     },
     {
-      "time": "2026-08-04 16:44:39 UTC",
+      "time": "2026-08-04 19:07:59 UTC",
       "event": "[INFO] ================================================================================",
       "type": "log"
     },
     {
-      "time": "2026-08-04 16:44:39 UTC",
+      "time": "2026-08-04 19:07:59 UTC",
       "event": "[INFO] \ud83e\udd16 cTrader OpenAPI Bot STARTING",
       "type": "log"
     },
     {
-      "time": "2026-08-04 16:44:39 UTC",
+      "time": "2026-08-04 19:07:59 UTC",
       "event": "[INFO] ================================================================================",
       "type": "log"
     }
@@ -1308,5 +1381,5 @@
       "category": "Indices"
     }
   },
-  "lastUpdate": "2026-08-04T16:49:30.355453+00:00"
+  "lastUpdate": "2026-08-04T19:12:41.961732+00:00"
 }
