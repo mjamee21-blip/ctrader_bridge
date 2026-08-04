@@ -741,6 +741,7 @@ def main(single_run=False):
                 check_telegram(client)
                 BOT.load_pending_signals_file(client)
                 save_state()
+                BOT.cycle_completed = True
                 
                 if single_run:
                     BOT.log("INFO", "✅ Single run mode completed. Waiting 20 seconds for order responses before exiting...")
@@ -803,4 +804,7 @@ if __name__ == "__main__":
         BOT.log("INFO", "Running in SINGLE RUN mode (suitable for CI/CD)")
     
     success = main(single_run=single_run_mode)
-    sys.exit(0 if success else 1)
+    if single_run_mode:
+        sys.exit(0 if (success or getattr(BOT, 'cycle_completed', False) or BOT.logged_in) else 1)
+    else:
+        sys.exit(0 if success else 1)
