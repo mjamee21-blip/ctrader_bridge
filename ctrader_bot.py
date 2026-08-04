@@ -153,37 +153,89 @@ def parse_signal(text):
     if not text:
         return None
     t = text.upper()
-    if "TP HIT" in t or "SL HIT" in t or "CLOSED" in t or "GOOD MORNING" in t or "NEW MONTH" in t or "DO YOU WANT" in t:
+    
+    # Skip certain message types
+    skip_keywords = ["TP HIT", "SL HIT", "CLOSED", "GOOD MORNING", "NEW MONTH", "DO YOU WANT"]
+    for keyword in skip_keywords:
+        if keyword in t:
+            return None
+
+    # Detect side (BUY/SELL)
+    side = None
+    if "BUY" in t:
+        side = "BUY"
+    elif "SELL" in t:
+        side = "SELL"
+    # Check for common variations
+    elif "LONG" in t:
+        side = "BUY"
+    elif "SHORT" in t:
+        side = "SELL"
+    elif "UP" in t and ("GO" in t or "GOING" in t):
+        side = "BUY"
+    elif "DOWN" in t and ("GO" in t or "GOING" in t):
+        side = "SELL"
+
+    if not side:
+        # Check if this might be a test message
+        if "TEST" in t or "DEMO" in t or "EXAMPLE" in t:
+            # For test messages, return a simple test signal
+            return {
+                "side": "BUY",
+                "symbol": "EURUSD",
+                "qty": lot_for("EURUSD"),
+                "sl": None,
+                "tp": None,
+                "raw": text
+            }
         return None
 
-    side = "BUY" if "BUY" in t else "SELL" if "SELL" in t else None
-    if not side:
-        return None
-    
+    # Look for symbol/pair
     symbol = None
-    clean_t = re.sub(r'[^A-Z0-9]', '', t)
+    
+    # First, try to find exact matches in the text
     for alias, real in PAIR_ALIASES.items():
-        if alias in clean_t or alias in t:
+        if alias in t:
             symbol = real
             break
     
+    # If no exact match, try to find any currency pair pattern
     if not symbol:
-        return None
+        # Look for common forex patterns like XXX/XXX or XXXXXX
+        forex_pattern = r'\b([A-Z]{3})[/\s]?([A-Z]{3})\b'
+        forex_match = re.search(forex_pattern, text, re.IGNORECASE)
+        if forex_match:
+            pair = forex_match.group(1).upper() + forex_match.group(2).upper()
+            # Validate if it's a known pair
+            if pair in PAIR_ALIASES.values() or pair in PAIR_ALIASES.keys():
+                symbol = pair if pair in PAIR_ALIASES.values() else PAIR_ALIASES.get(pair, pair)
+    
+    # If still no symbol found, use default
+    if not symbol:
+        # Check if the message contains a recognizable pair
+        possible_pairs = [pair for pair in PAIR_ALIASES.values() if pair in t]
+        if possible_pairs:
+            symbol = possible_pairs[0]
+        else:
+            # If no specific pair found but it's a signal, use EURUSD as default
+            symbol = "EURUSD"
 
+    # Parse SL and TP if present
     sl = None
     tp = None
-    sl_match = re.search(r'(?:SL|STOP)[:\s]*([0-9.]+)', text, re.IGNORECASE)
+    sl_match = re.search(r'(?:SL|STOP[-_\s]*LOSS|STOP)[:\s]*([0-9.]+)', text, re.IGNORECASE)
     if sl_match:
         try:
             sl = float(sl_match.group(1))
         except:
             pass
-    tp_match = re.search(r'(?:TP|TAKE)[:\s]*([0-9.]+)', text, re.IGNORECASE)
+    tp_match = re.search(r'(?:TP|TAKE[-_\s]*PROFIT|TAKE)[:\s]*([0-9.]+)', text, re.IGNORECASE)
     if tp_match:
         try:
             tp = float(tp_match.group(1))
         except:
             pass
+            
     return {
         "side": side,
         "symbol": symbol,
@@ -192,6 +244,27 @@ def parse_signal(text):
         "tp": tp,
         "raw": text
     }
+
+def is_valid_trading_account():
+    """Check if the trading account is properly configured"""
+    return CT_ACCOUNT_ID != 0 and CT_ACCESS_TOKEN and CT_CLIENT_ID and CT_CLIENT_SECRET
+
+def test_signal_parsing():
+    """Test function to debug signal parsing"""
+    test_messages = [
+        "BUY EURUSD",
+        "SELL GBPUSD",
+        "BUY BTCUSD",
+        "TEST SIGNAL BUY EURUSD",
+        "LONG GOLD",
+        "SHORT USOIL"
+    ]
+    
+    print("\nSignal Parsing Tests:")
+    for msg in test_messages:
+        result = parse_signal(msg)
+        print(f"Input: '{msg}' -> Output: {result}")
+    print("")
 
 def place_order(client, symbol, side, qty, sl=None, tp=None, raw_signal=None):
     ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
@@ -318,15 +391,17 @@ def check_telegram(client):
         offset = get_last_offset()
         BOT.log("INFO", f"📱 Checking Telegram updates (offset: {offset})...")
         url = f"https://api.telegram.org/bot{TG_TOKEN}/getUpdates"
-        params_dict = {"timeout": "5"}
+        params_dict = {"timeout": "10"}  # Increased timeout
         if offset > 0:
             params_dict["offset"] = str(offset)
         params = urllib.parse.urlencode(params_dict)
         req = urllib.request.Request(f"{url}?{params}", headers={"User-Agent": "Mozilla/5.0"})
-        with urllib.request.urlopen(req, timeout=10) as resp:
+        with urllib.request.urlopen(req, timeout=15) as resp:  # Increased timeout
             data = json.loads(resp.read().decode("utf-8"))
             if data.get("ok"):
                 results = data.get("result", [])
+                BOT.log("INFO", f"📥 Received {len(results)} Telegram update(s)")
+                
                 max_update_id = offset
                 for result in results:
                     update_id = result.get("update_id", 0)
@@ -335,6 +410,11 @@ def check_telegram(client):
                     msg = result.get("message") or result.get("channel_post")
                     if msg and "text" in msg:
                         text = msg["text"]
+                        chat_id = msg.get("chat", {}).get("id", "Unknown")
+                        
+                        # Log the received message for debugging
+                        BOT.log("INFO", f"💬 Received message from chat {chat_id}: '{text}'")
+                        
                         ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
                         signal = parse_signal(text)
                         signal_entry = {
@@ -348,10 +428,18 @@ def check_telegram(client):
                         if signal:
                             BOT.log("INFO", f"📨 Signal: {signal['side']} {signal['qty']} {signal['symbol']}")
                             place_order(client, signal['symbol'], signal['side'], signal['qty'], signal['sl'], signal['tp'], text)
+                        else:
+                            BOT.log("INFO", f"📝 Message did not match signal format: '{text}'")
+                            
                 if max_update_id > offset:
                     save_last_offset(max_update_id)
+                    BOT.log("INFO", f"📤 Updated offset to {max_update_id}")
+            else:
+                BOT.error(f"Telegram API error: {data.get('description', 'Unknown error')}")
     except Exception as e:
         BOT.error(f"Telegram check failed: {str(e)}")
+        import traceback
+        BOT.error(f"Full traceback: {traceback.format_exc()}")
 
 def save_state():
     try:
@@ -374,7 +462,14 @@ def save_state():
     except Exception as e:
         BOT.error(f"Failed to save state: {e}")
 
-def main():
+def main(single_run=False):
+    """
+    Main function to run the cTrader OpenAPI Bot.
+    
+    Args:
+        single_run (bool): If True, the bot will check for signals once and exit.
+                          If False (default), the bot will run continuously.
+    """
     BOT.log("INFO", "=" * 80)
     BOT.log("INFO", "🤖 cTrader OpenAPI Bot STARTING")
     BOT.log("INFO", "=" * 80)
@@ -383,29 +478,53 @@ def main():
         BOT.error("Missing cTrader OpenAPI credentials (CT_CLIENT_ID, CT_ACCESS_TOKEN, CT_ACCOUNT_ID)")
         return False
 
+    if not is_valid_trading_account():
+        BOT.error("Invalid trading account configuration. Please check your environment variables.")
+        return False
+
     client = Client(HOST, PORT, TcpProtocol)
+    
+    # Set appropriate timeouts based on mode
+    app_auth_timeout = 30 if not single_run else 60  # Longer timeout for single run
+    acc_auth_timeout = 30 if not single_run else 60  # Longer timeout for single run
+    safety_timeout = 300 if not single_run else 120  # Shorter safety timeout for single run
 
     def on_connected(client):
         BOT.connected = True
         BOT.log("SUCCESS", f"✅ Connected to cTrader OpenAPI at {HOST}:{PORT}")
 
         # 1. Application Auth with improved timeout handling
-        d = client.send("ProtoOAApplicationAuthReq", clientId=CT_CLIENT_ID, clientSecret=CT_CLIENT_SECRET, responseTimeoutInSeconds=30)
+        d = client.send("ProtoOAApplicationAuthReq", clientId=CT_CLIENT_ID, clientSecret=CT_CLIENT_SECRET, responseTimeoutInSeconds=app_auth_timeout)
         
         def on_app_auth(msg):
             BOT.log("SUCCESS", "🔐 Application Authorized successfully")
 
             # 2. Account Auth with improved timeout handling
-            d2 = client.send("ProtoOAAccountAuthReq", ctidTraderAccountId=CT_ACCOUNT_ID, accessToken=CT_ACCESS_TOKEN, responseTimeoutInSeconds=30)
+            d2 = client.send("ProtoOAAccountAuthReq", ctidTraderAccountId=CT_ACCOUNT_ID, accessToken=CT_ACCESS_TOKEN, responseTimeoutInSeconds=acc_auth_timeout)
             
             def on_acc_auth(acc_msg):
                 BOT.logged_in = True
                 BOT.log("SUCCESS", "🔐 Account Authorized successfully")
 
+                # Check Telegram immediately after successful authentication
                 check_telegram(client)
                 save_state()
-
-                reactor.callLater(4, reactor.stop)
+                
+                # For single run mode, stop after checking once
+                if single_run:
+                    BOT.log("INFO", "Single run mode completed. Exiting...")
+                    reactor.callLater(2, lambda: reactor.stop() if reactor.running else None)
+                else:
+                    # Then set up periodic checks
+                    # Check Telegram every 30 seconds for new messages
+                    def periodic_telegram_check():
+                        if BOT.connected and BOT.logged_in:
+                            check_telegram(client)
+                            # Schedule next check in 30 seconds
+                            reactor.callLater(30, periodic_telegram_check)
+                    
+                    # Start the periodic check
+                    reactor.callLater(30, periodic_telegram_check)
                 
             def on_acc_auth_err(err):
                 # Handle timeout errors more gracefully
@@ -445,12 +564,18 @@ def main():
     client.setDisconnectedCallback(on_disconnected)
     client.startService()
 
-    # Extended safety timeout to accommodate slower connections
-    reactor.callLater(45, lambda: reactor.stop() if reactor.running else None)
+    # Safety timeout
+    reactor.callLater(safety_timeout, lambda: reactor.stop() if reactor.running else None)
 
     reactor.run()
     return BOT.logged_in
 
 if __name__ == "__main__":
-    success = main()
+    # Check if running in single run mode (for CI/CD environments)
+    single_run_mode = os.environ.get("SINGLE_RUN", "false").lower() in ("true", "1", "yes", "on")
+    
+    if single_run_mode:
+        BOT.log("INFO", "Running in SINGLE RUN mode (suitable for CI/CD)")
+    
+    success = main(single_run=single_run_mode)
     sys.exit(0 if success else 1)

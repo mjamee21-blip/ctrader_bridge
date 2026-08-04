@@ -17,7 +17,7 @@ concurrency:
 jobs:
   execute:
     runs-on: ubuntu-latest
-    timeout-minutes: 3
+    timeout-minutes: 5
 
     steps:
       - name: Checkout repository
@@ -51,6 +51,7 @@ jobs:
           CT_ENV: ${{ secrets.CT_ENV || 'demo' }}
           TG_TOKEN: ${{ secrets.TG_TOKEN || '' }}
           TG_CHAT: ${{ secrets.TG_CHAT || '' }}
+          SINGLE_RUN: "true"
         run: |
           echo "🤖 Starting cTrader OpenAPI Bot..."
           python3 ctrader_bot.py
