@@ -16,79 +16,47 @@
   "signals": [],
   "logs": [
     {
-<<<<<<< Updated upstream
-      "time": "2026-08-04 12:07:22 UTC",
-=======
-      "time": "2026-08-04 12:04:45 UTC",
->>>>>>> Stashed changes
+      "time": "2026-08-04 12:08:55 UTC",
       "level": "INFO",
       "message": "\ud83d\udce5 Received 0 Telegram update(s)"
     },
     {
-<<<<<<< Updated upstream
-      "time": "2026-08-04 12:07:11 UTC",
-=======
-      "time": "2026-08-04 12:04:35 UTC",
->>>>>>> Stashed changes
+      "time": "2026-08-04 12:08:45 UTC",
       "level": "INFO",
       "message": "\ud83d\udcf1 Checking Telegram updates (offset: 0)..."
     },
     {
-<<<<<<< Updated upstream
-      "time": "2026-08-04 12:07:11 UTC",
-=======
-      "time": "2026-08-04 12:04:35 UTC",
->>>>>>> Stashed changes
+      "time": "2026-08-04 12:08:45 UTC",
       "level": "SUCCESS",
       "message": "\ud83d\udd10 Account Authorized successfully"
     },
     {
-<<<<<<< Updated upstream
-      "time": "2026-08-04 12:07:11 UTC",
-=======
-      "time": "2026-08-04 12:04:34 UTC",
->>>>>>> Stashed changes
+      "time": "2026-08-04 12:08:44 UTC",
       "level": "SUCCESS",
       "message": "\ud83d\udd10 Application Authorized successfully"
     },
     {
-<<<<<<< Updated upstream
-      "time": "2026-08-04 12:07:03 UTC",
-=======
-      "time": "2026-08-04 12:04:32 UTC",
->>>>>>> Stashed changes
+      "time": "2026-08-04 12:08:43 UTC",
       "level": "SUCCESS",
       "message": "\u2705 Connected to cTrader OpenAPI at demo.ctraderapi.com:5035"
     },
     {
-<<<<<<< Updated upstream
-      "time": "2026-08-04 12:06:43 UTC",
-=======
-      "time": "2026-08-04 12:04:32 UTC",
->>>>>>> Stashed changes
+      "time": "2026-08-04 12:08:42 UTC",
       "level": "INFO",
       "message": "================================================================================"
     },
     {
-<<<<<<< Updated upstream
-      "time": "2026-08-04 12:06:43 UTC",
-=======
-      "time": "2026-08-04 12:04:32 UTC",
->>>>>>> Stashed changes
+      "time": "2026-08-04 12:08:42 UTC",
       "level": "INFO",
       "message": "\ud83e\udd16 cTrader OpenAPI Bot STARTING"
     },
     {
-<<<<<<< Updated upstream
-      "time": "2026-08-04 12:06:43 UTC",
-=======
-      "time": "2026-08-04 12:04:32 UTC",
->>>>>>> Stashed changes
+      "time": "2026-08-04 12:08:42 UTC",
       "level": "INFO",
       "message": "================================================================================"
     },
     {
-      "time": "2026-08-04 12:06:43 UTC",
+      "time": "2026-08-04 12:08:42 UTC",
       "level": "INFO",
       "message": "Running in SINGLE RUN mode (suitable for CI/CD)"
     }
@@ -96,79 +64,47 @@
   "errors": [],
   "backendEvents": [
     {
-<<<<<<< Updated upstream
-      "time": "2026-08-04 12:07:22 UTC",
-=======
-      "time": "2026-08-04 12:04:45 UTC",
->>>>>>> Stashed changes
+      "time": "2026-08-04 12:08:55 UTC",
       "event": "[INFO] \ud83d\udce5 Received 0 Telegram update(s)",
       "type": "log"
     },
     {
-<<<<<<< Updated upstream
-      "time": "2026-08-04 12:07:11 UTC",
-=======
-      "time": "2026-08-04 12:04:35 UTC",
->>>>>>> Stashed changes
+      "time": "2026-08-04 12:08:45 UTC",
       "event": "[INFO] \ud83d\udcf1 Checking Telegram updates (offset: 0)...",
       "type": "log"
     },
     {
-<<<<<<< Updated upstream
-      "time": "2026-08-04 12:07:11 UTC",
-=======
-      "time": "2026-08-04 12:04:35 UTC",
->>>>>>> Stashed changes
+      "time": "2026-08-04 12:08:45 UTC",
       "event": "[SUCCESS] \ud83d\udd10 Account Authorized successfully",
       "type": "log"
     },
     {
-<<<<<<< Updated upstream
-      "time": "2026-08-04 12:07:11 UTC",
-=======
-      "time": "2026-08-04 12:04:34 UTC",
->>>>>>> Stashed changes
+      "time": "2026-08-04 12:08:44 UTC",
       "event": "[SUCCESS] \ud83d\udd10 Application Authorized successfully",
       "type": "log"
     },
     {
-<<<<<<< Updated upstream
-      "time": "2026-08-04 12:07:03 UTC",
-=======
-      "time": "2026-08-04 12:04:32 UTC",
->>>>>>> Stashed changes
+      "time": "2026-08-04 12:08:43 UTC",
       "event": "[SUCCESS] \u2705 Connected to cTrader OpenAPI at demo.ctraderapi.com:5035",
       "type": "log"
     },
     {
-<<<<<<< Updated upstream
-      "time": "2026-08-04 12:06:43 UTC",
-=======
-      "time": "2026-08-04 12:04:32 UTC",
->>>>>>> Stashed changes
+      "time": "2026-08-04 12:08:42 UTC",
       "event": "[INFO] ================================================================================",
       "type": "log"
     },
     {
-<<<<<<< Updated upstream
-      "time": "2026-08-04 12:06:43 UTC",
-=======
-      "time": "2026-08-04 12:04:32 UTC",
->>>>>>> Stashed changes
+      "time": "2026-08-04 12:08:42 UTC",
       "event": "[INFO] \ud83e\udd16 cTrader OpenAPI Bot STARTING",
       "type": "log"
     },
     {
-<<<<<<< Updated upstream
-      "time": "2026-08-04 12:06:43 UTC",
-=======
-      "time": "2026-08-04 12:04:32 UTC",
->>>>>>> Stashed changes
+      "time": "2026-08-04 12:08:42 UTC",
       "event": "[INFO] ================================================================================",
       "type": "log"
     },
     {
-      "time": "2026-08-04 12:06:43 UTC",
+      "time": "2026-08-04 12:08:42 UTC",
       "event": "[INFO] Running in SINGLE RUN mode (suitable for CI/CD)",
       "type": "log"
     }
@@ -300,9 +236,5 @@
       "category": "Indices"
     }
   },
-<<<<<<< Updated upstream
-  "lastUpdate": "2026-08-04T12:07:22.072522+00:00"
-=======
-  "lastUpdate": "2026-08-04T12:04:45.568406+00:00"
->>>>>>> Stashed changes
+  "lastUpdate": "2026-08-04T12:08:55.731435+00:00"
 }
