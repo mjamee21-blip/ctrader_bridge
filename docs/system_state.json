@@ -2,8 +2,8 @@
   "connected": true,
   "loggedIn": true,
   "heartbeat": {
-    "status": "error_exception",
-    "last_check": "2026-08-04T16:46:17.134062+00:00",
+    "status": "ok_no_new_messages",
+    "last_check": "2026-08-04T16:46:54.565455+00:00",
     "telegram_token_set": true,
     "telegram_chat_set": true,
     "messages_received": 0,
@@ -298,6 +298,41 @@
     }
   ],
   "logs": [
+    {
+      "time": "2026-08-04 16:47:25 UTC",
+      "level": "INFO",
+      "message": "\ud83d\udcda Telegram history saved (0 messages)"
+    },
+    {
+      "time": "2026-08-04 16:47:25 UTC",
+      "level": "INFO",
+      "message": "\ud83d\udcbe State saved to docs/system_state.json"
+    },
+    {
+      "time": "2026-08-04 16:47:25 UTC",
+      "level": "INFO",
+      "message": "\u2705 No new messages (up to date)"
+    },
+    {
+      "time": "2026-08-04 16:47:25 UTC",
+      "level": "INFO",
+      "message": "\ud83d\udce5 Received 0 Telegram update(s)"
+    },
+    {
+      "time": "2026-08-04 16:46:54 UTC",
+      "level": "INFO",
+      "message": "\ud83d\udcf1 Checking Telegram updates (offset: 841819977)..."
+    },
+    {
+      "time": "2026-08-04 16:46:24 UTC",
+      "level": "INFO",
+      "message": "\ud83d\udcda Telegram history saved (0 messages)"
+    },
+    {
+      "time": "2026-08-04 16:46:24 UTC",
+      "level": "INFO",
+      "message": "\ud83d\udcbe State saved to docs/system_state.json"
+    },
     {
       "time": "2026-08-04 16:46:17 UTC",
       "level": "INFO",
@@ -608,6 +643,41 @@
     }
   ],
   "backendEvents": [
+    {
+      "time": "2026-08-04 16:47:25 UTC",
+      "event": "[INFO] \ud83d\udcda Telegram history saved (0 messages)",
+      "type": "log"
+    },
+    {
+      "time": "2026-08-04 16:47:25 UTC",
+      "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
+      "type": "log"
+    },
+    {
+      "time": "2026-08-04 16:47:25 UTC",
+      "event": "[INFO] \u2705 No new messages (up to date)",
+      "type": "log"
+    },
+    {
+      "time": "2026-08-04 16:47:25 UTC",
+      "event": "[INFO] \ud83d\udce5 Received 0 Telegram update(s)",
+      "type": "log"
+    },
+    {
+      "time": "2026-08-04 16:46:54 UTC",
+      "event": "[INFO] \ud83d\udcf1 Checking Telegram updates (offset: 841819977)...",
+      "type": "log"
+    },
+    {
+      "time": "2026-08-04 16:46:24 UTC",
+      "event": "[INFO] \ud83d\udcda Telegram history saved (0 messages)",
+      "type": "log"
+    },
+    {
+      "time": "2026-08-04 16:46:24 UTC",
+      "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
+      "type": "log"
+    },
     {
       "time": "2026-08-04 16:46:24 UTC",
       "event": "ERROR: Full traceback: Traceback (most recent call last):\n  File \"d:\\respo\\ctrader_bridge\\ctrader_bot.py\", line 558, in check_telegram\n    with urllib.request.urlopen(req, timeout=35, context=ssl_context) as resp:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\\Lib\\urllib\\request.py\", line 215, in urlopen\n    return opener.open(url, data, timeout)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\\Lib\\urllib\\request.py\", line 521, in open\n    response = meth(req, response)\n               ^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\\Lib\\urllib\\request.py\", line 630, in http_response\n    response = self.parent.error(\n               ^^^^^^^^^^^^^^^^^^\n  File \"C:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\\Lib\\urllib\\request.py\", line 559, in error\n    return self._call_chain(*args)\n           ^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\\Lib\\urllib\\request.py\", line 492, in _call_chain\n    result = func(*args)\n             ^^^^^^^^^^^\n  File \"C:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\\Lib\\urllib\\request.py\", line 639, in http_error_default\n    raise HTTPError(req.full_url, code, msg, hdrs, fp)\nurllib.error.HTTPError: HTTP Error 409: Conflict\n",
@@ -1098,5 +1168,5 @@
       "category": "Indices"
     }
   },
-  "lastUpdate": "2026-08-04T16:46:24.542023+00:00"
+  "lastUpdate": "2026-08-04T16:47:25.078642+00:00"
 }
