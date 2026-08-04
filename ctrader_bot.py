@@ -388,30 +388,56 @@ def main():
     def on_connected(client):
         BOT.connected = True
         BOT.log("SUCCESS", f"✅ Connected to cTrader OpenAPI at {HOST}:{PORT}")
+
+        # 1. Application Auth with improved timeout handling
+        d = client.send("ProtoOAApplicationAuthReq", clientId=CT_CLIENT_ID, clientSecret=CT_CLIENT_SECRET, responseTimeoutInSeconds=30)
         
-        # 1. Application Auth
-        d = client.send("ProtoOAApplicationAuthReq", clientId=CT_CLIENT_ID, clientSecret=CT_CLIENT_SECRET, responseTimeoutInSeconds=20)
         def on_app_auth(msg):
             BOT.log("SUCCESS", "🔐 Application Authorized successfully")
+
+            # 2. Account Auth with improved timeout handling
+            d2 = client.send("ProtoOAAccountAuthReq", ctidTraderAccountId=CT_ACCOUNT_ID, accessToken=CT_ACCESS_TOKEN, responseTimeoutInSeconds=30)
             
-            # 2. Account Auth
-            d2 = client.send("ProtoOAAccountAuthReq", ctidTraderAccountId=CT_ACCOUNT_ID, accessToken=CT_ACCESS_TOKEN, responseTimeoutInSeconds=20)
             def on_acc_auth(acc_msg):
                 BOT.logged_in = True
                 BOT.log("SUCCESS", "🔐 Account Authorized successfully")
 
                 check_telegram(client)
                 save_state()
-                
+
                 reactor.callLater(4, reactor.stop)
+                
+            def on_acc_auth_err(err):
+                # Handle timeout errors more gracefully
+                err_str = str(err)
+                if "TimeoutError" in err_str or "Deferred" in err_str:
+                    BOT.error("Account auth timed out. This may be due to network issues or cTrader server delays.")
+                    BOT.error("Consider increasing the timeout value or checking your connection.")
+                else:
+                    BOT.error(f"Account auth failed: {err}")
+                reactor.callLater(1, reactor.stop)  # Stop the reactor after error
+            
             d2.addCallback(on_acc_auth)
-            d2.addErrback(lambda err: BOT.error(f"Account auth failed: {err}"))
+            d2.addErrback(on_acc_auth_err)
+        
+        def on_app_auth_err(err):
+            # Handle timeout errors more gracefully
+            err_str = str(err)
+            if "TimeoutError" in err_str or "Deferred" in err_str:
+                BOT.error("Application auth timed out. This may be due to network issues or cTrader server delays.")
+                BOT.error("Consider increasing the timeout value or checking your connection.")
+            else:
+                BOT.error(f"App auth failed: {err}")
+            reactor.callLater(1, reactor.stop)  # Stop the reactor after error
+        
         d.addCallback(on_app_auth)
-        d.addErrback(lambda err: BOT.error(f"App auth failed: {err}"))
+        d.addErrback(on_app_auth_err)
 
     def on_disconnected(client, reason):
         BOT.connected = False
-        BOT.log("WARNING", f"Disconnected: {reason}")
+        # Only log disconnection if not intentional (when reactor is stopping)
+        if reactor.running:
+            BOT.log("WARNING", f"Disconnected: {reason}")
         if reactor.running:
             reactor.stop()
 
@@ -419,9 +445,9 @@ def main():
     client.setDisconnectedCallback(on_disconnected)
     client.startService()
 
-    # Safety timeout
-    reactor.callLater(20, lambda: reactor.stop() if reactor.running else None)
-    
+    # Extended safety timeout to accommodate slower connections
+    reactor.callLater(45, lambda: reactor.stop() if reactor.running else None)
+
     reactor.run()
     return BOT.logged_in
 
