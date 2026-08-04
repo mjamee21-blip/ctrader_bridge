@@ -3,16 +3,16 @@
   "loggedIn": true,
   "heartbeat": {
 <<<<<<< HEAD
-    "status": "checking_telegram",
-    "last_check": "2026-08-04T19:12:38.048318+00:00",
+    "status": "ok_no_new_messages",
+    "last_check": "2026-08-04T19:51:33.461510+00:00",
     "telegram_token_set": true,
     "telegram_chat_set": true,
     "messages_received": 0,
-    "signals_parsed": 10,
-    "orders_placed": 10,
+    "signals_parsed": 0,
+    "orders_placed": 0,
 =======
     "status": "ok_no_new_messages",
-    "last_check": "2026-08-04T19:51:33.461510+00:00",
+    "last_check": "2026-08-04T20:15:15.574846+00:00",
     "telegram_token_set": true,
     "telegram_chat_set": true,
     "messages_received": 0,
@@ -315,6 +315,7 @@
     {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       "time": "2026-08-04 19:12:41 UTC",
       "level": "DEBUG",
       "message": "Telegram API error response: {\"ok\":false,\"error_code\":409,\"description\":\"Conflict: terminated by other getUpdates request; make sure that only one bot instance is running\"}"
@@ -331,35 +332,43 @@
 =======
       "time": "2026-08-04 19:52:03 UTC",
 >>>>>>> 63fe6a4fb43dc733a558fb8445e51fd4182070f5
+=======
+      "time": "2026-08-04 20:15:45 UTC",
+>>>>>>> c4f2ba042a479b9e02e7c9e80cb7ab351d137221
       "level": "INFO",
       "message": "\ud83d\udcda Telegram history saved (0 messages)"
     },
     {
-      "time": "2026-08-04 19:52:03 UTC",
+      "time": "2026-08-04 20:15:45 UTC",
       "level": "INFO",
       "message": "\ud83d\udcbe State saved to docs/system_state.json"
     },
     {
-      "time": "2026-08-04 19:52:03 UTC",
+      "time": "2026-08-04 20:15:45 UTC",
       "level": "INFO",
       "message": "\u2705 No new messages (up to date)"
     },
     {
-      "time": "2026-08-04 19:52:03 UTC",
+      "time": "2026-08-04 20:15:45 UTC",
       "level": "INFO",
       "message": "\ud83d\udce5 Received 0 Telegram update(s)"
     },
     {
+<<<<<<< HEAD
 <<<<<<< HEAD
       "time": "2026-08-04 19:12:57 UTC",
 >>>>>>> 6d1cfb71402042e5fcecd543eb3ea0e956263de0
 =======
       "time": "2026-08-04 19:51:33 UTC",
 >>>>>>> 63fe6a4fb43dc733a558fb8445e51fd4182070f5
+=======
+      "time": "2026-08-04 20:15:15 UTC",
+>>>>>>> c4f2ba042a479b9e02e7c9e80cb7ab351d137221
       "level": "INFO",
       "message": "\ud83d\udcf1 Checking Telegram updates (offset: 0)..."
     },
     {
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "time": "2026-08-04 19:12:08 UTC",
@@ -744,10 +753,14 @@
 =======
       "time": "2026-08-04 19:51:33 UTC",
 >>>>>>> 63fe6a4fb43dc733a558fb8445e51fd4182070f5
+=======
+      "time": "2026-08-04 20:15:15 UTC",
+>>>>>>> c4f2ba042a479b9e02e7c9e80cb7ab351d137221
       "level": "INFO",
       "message": "\ud83d\udcbe Storing all 0 messages in memory"
     },
     {
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "time": "2026-08-04 19:08:28 UTC",
@@ -757,10 +770,14 @@
 =======
       "time": "2026-08-04 19:51:33 UTC",
 >>>>>>> 63fe6a4fb43dc733a558fb8445e51fd4182070f5
+=======
+      "time": "2026-08-04 20:15:15 UTC",
+>>>>>>> c4f2ba042a479b9e02e7c9e80cb7ab351d137221
       "level": "INFO",
       "message": "\ud83d\udcda Total Telegram messages loaded: 0"
     },
     {
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "time": "2026-08-04 19:08:05 UTC",
@@ -769,18 +786,26 @@
 >>>>>>> 6d1cfb71402042e5fcecd543eb3ea0e956263de0
 =======
       "time": "2026-08-04 19:51:33 UTC",
+=======
+      "time": "2026-08-04 20:15:15 UTC",
+>>>>>>> c4f2ba042a479b9e02e7c9e80cb7ab351d137221
       "level": "INFO",
       "message": "\u2705 Reached end of Telegram history"
     },
     {
+<<<<<<< HEAD
       "time": "2026-08-04 19:51:02 UTC",
 >>>>>>> 63fe6a4fb43dc733a558fb8445e51fd4182070f5
+=======
+      "time": "2026-08-04 20:14:45 UTC",
+>>>>>>> c4f2ba042a479b9e02e7c9e80cb7ab351d137221
       "level": "INFO",
       "message": "\ud83d\udd04 Starting history fetch with negative offset..."
     },
     {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       "time": "2026-08-04 19:08:05 UTC",
 =======
       "time": "2026-08-04 19:12:41 UTC",
@@ -788,12 +813,16 @@
 =======
       "time": "2026-08-04 19:51:02 UTC",
 >>>>>>> 63fe6a4fb43dc733a558fb8445e51fd4182070f5
+=======
+      "time": "2026-08-04 20:14:45 UTC",
+>>>>>>> c4f2ba042a479b9e02e7c9e80cb7ab351d137221
       "level": "INFO",
       "message": "\ud83d\udcda Fetching Telegram channel history (last 30 days) - USING NEGATIVE OFFSET..."
     },
     {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       "time": "2026-08-04 19:08:05 UTC",
 =======
       "time": "2026-08-04 19:12:41 UTC",
@@ -801,12 +830,16 @@
 =======
       "time": "2026-08-04 19:51:02 UTC",
 >>>>>>> 63fe6a4fb43dc733a558fb8445e51fd4182070f5
+=======
+      "time": "2026-08-04 20:14:45 UTC",
+>>>>>>> c4f2ba042a479b9e02e7c9e80cb7ab351d137221
       "level": "INFO",
       "message": "\ud83d\udd04 Resetting history - fetching all messages from start..."
     },
     {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       "time": "2026-08-04 19:08:05 UTC",
 =======
       "time": "2026-08-04 19:12:41 UTC",
@@ -814,10 +847,14 @@
 =======
       "time": "2026-08-04 19:51:02 UTC",
 >>>>>>> 63fe6a4fb43dc733a558fb8445e51fd4182070f5
+=======
+      "time": "2026-08-04 20:14:45 UTC",
+>>>>>>> c4f2ba042a479b9e02e7c9e80cb7ab351d137221
       "level": "SUCCESS",
       "message": "\ud83d\udd10 Account Authorized successfully"
     },
     {
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "time": "2026-08-04 19:08:04 UTC",
@@ -827,10 +864,14 @@
 =======
       "time": "2026-08-04 19:51:01 UTC",
 >>>>>>> 63fe6a4fb43dc733a558fb8445e51fd4182070f5
+=======
+      "time": "2026-08-04 20:14:44 UTC",
+>>>>>>> c4f2ba042a479b9e02e7c9e80cb7ab351d137221
       "level": "SUCCESS",
       "message": "\ud83d\udd10 Application Authorized successfully"
     },
     {
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "time": "2026-08-04 19:08:00 UTC",
@@ -840,12 +881,16 @@
 =======
       "time": "2026-08-04 19:51:00 UTC",
 >>>>>>> 63fe6a4fb43dc733a558fb8445e51fd4182070f5
+=======
+      "time": "2026-08-04 20:14:43 UTC",
+>>>>>>> c4f2ba042a479b9e02e7c9e80cb7ab351d137221
       "level": "SUCCESS",
       "message": "\u2705 Connected to cTrader OpenAPI at demo.ctraderapi.com:5035"
     },
     {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       "time": "2026-08-04 19:07:59 UTC",
 =======
       "time": "2026-08-04 19:12:39 UTC",
@@ -853,12 +898,16 @@
 =======
       "time": "2026-08-04 19:51:00 UTC",
 >>>>>>> 63fe6a4fb43dc733a558fb8445e51fd4182070f5
+=======
+      "time": "2026-08-04 20:14:42 UTC",
+>>>>>>> c4f2ba042a479b9e02e7c9e80cb7ab351d137221
       "level": "INFO",
       "message": "================================================================================"
     },
     {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       "time": "2026-08-04 19:07:59 UTC",
 =======
       "time": "2026-08-04 19:12:39 UTC",
@@ -866,12 +915,16 @@
 =======
       "time": "2026-08-04 19:51:00 UTC",
 >>>>>>> 63fe6a4fb43dc733a558fb8445e51fd4182070f5
+=======
+      "time": "2026-08-04 20:14:42 UTC",
+>>>>>>> c4f2ba042a479b9e02e7c9e80cb7ab351d137221
       "level": "INFO",
       "message": "\ud83e\udd16 cTrader OpenAPI Bot STARTING"
     },
     {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       "time": "2026-08-04 19:07:59 UTC",
       "level": "INFO",
       "message": "================================================================================"
@@ -880,11 +933,14 @@
 =======
       "time": "2026-08-04 19:51:00 UTC",
 >>>>>>> 63fe6a4fb43dc733a558fb8445e51fd4182070f5
+=======
+      "time": "2026-08-04 20:14:42 UTC",
+>>>>>>> c4f2ba042a479b9e02e7c9e80cb7ab351d137221
       "level": "INFO",
       "message": "================================================================================"
     },
     {
-      "time": "2026-08-04 19:51:00 UTC",
+      "time": "2026-08-04 20:14:42 UTC",
       "level": "INFO",
       "message": "Running in SINGLE RUN mode (suitable for CI/CD)"
 >>>>>>> 6d1cfb71402042e5fcecd543eb3ea0e956263de0
@@ -921,37 +977,46 @@
   "errors": [],
   "backendEvents": [
     {
+<<<<<<< HEAD
       "time": "2026-08-04 19:52:03 UTC",
 >>>>>>> 63fe6a4fb43dc733a558fb8445e51fd4182070f5
+=======
+      "time": "2026-08-04 20:15:45 UTC",
+>>>>>>> c4f2ba042a479b9e02e7c9e80cb7ab351d137221
       "event": "[INFO] \ud83d\udcda Telegram history saved (0 messages)",
       "type": "log"
     },
     {
-      "time": "2026-08-04 19:52:03 UTC",
+      "time": "2026-08-04 20:15:45 UTC",
       "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
       "type": "log"
     },
     {
-      "time": "2026-08-04 19:52:03 UTC",
+      "time": "2026-08-04 20:15:45 UTC",
       "event": "[INFO] \u2705 No new messages (up to date)",
       "type": "log"
     },
     {
-      "time": "2026-08-04 19:52:03 UTC",
+      "time": "2026-08-04 20:15:45 UTC",
       "event": "[INFO] \ud83d\udce5 Received 0 Telegram update(s)",
       "type": "log"
     },
     {
+<<<<<<< HEAD
 <<<<<<< HEAD
       "time": "2026-08-04 19:12:57 UTC",
 >>>>>>> 6d1cfb71402042e5fcecd543eb3ea0e956263de0
 =======
       "time": "2026-08-04 19:51:33 UTC",
 >>>>>>> 63fe6a4fb43dc733a558fb8445e51fd4182070f5
+=======
+      "time": "2026-08-04 20:15:15 UTC",
+>>>>>>> c4f2ba042a479b9e02e7c9e80cb7ab351d137221
       "event": "[INFO] \ud83d\udcf1 Checking Telegram updates (offset: 0)...",
       "type": "log"
     },
     {
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "time": "2026-08-04 19:12:08 UTC",
@@ -1386,10 +1451,14 @@
 =======
       "time": "2026-08-04 19:51:33 UTC",
 >>>>>>> 63fe6a4fb43dc733a558fb8445e51fd4182070f5
+=======
+      "time": "2026-08-04 20:15:15 UTC",
+>>>>>>> c4f2ba042a479b9e02e7c9e80cb7ab351d137221
       "event": "[INFO] \ud83d\udcbe Storing all 0 messages in memory",
       "type": "log"
     },
     {
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "time": "2026-08-04 19:08:28 UTC",
@@ -1399,10 +1468,14 @@
 =======
       "time": "2026-08-04 19:51:33 UTC",
 >>>>>>> 63fe6a4fb43dc733a558fb8445e51fd4182070f5
+=======
+      "time": "2026-08-04 20:15:15 UTC",
+>>>>>>> c4f2ba042a479b9e02e7c9e80cb7ab351d137221
       "event": "[INFO] \ud83d\udcda Total Telegram messages loaded: 0",
       "type": "log"
     },
     {
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "time": "2026-08-04 19:08:28 UTC",
@@ -1420,18 +1493,26 @@
 >>>>>>> 6d1cfb71402042e5fcecd543eb3ea0e956263de0
 =======
       "time": "2026-08-04 19:51:33 UTC",
+=======
+      "time": "2026-08-04 20:15:15 UTC",
+>>>>>>> c4f2ba042a479b9e02e7c9e80cb7ab351d137221
       "event": "[INFO] \u2705 Reached end of Telegram history",
       "type": "log"
     },
     {
+<<<<<<< HEAD
       "time": "2026-08-04 19:51:02 UTC",
 >>>>>>> 63fe6a4fb43dc733a558fb8445e51fd4182070f5
+=======
+      "time": "2026-08-04 20:14:45 UTC",
+>>>>>>> c4f2ba042a479b9e02e7c9e80cb7ab351d137221
       "event": "[INFO] \ud83d\udd04 Starting history fetch with negative offset...",
       "type": "log"
     },
     {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       "time": "2026-08-04 19:08:05 UTC",
 =======
       "time": "2026-08-04 19:12:41 UTC",
@@ -1439,12 +1520,16 @@
 =======
       "time": "2026-08-04 19:51:02 UTC",
 >>>>>>> 63fe6a4fb43dc733a558fb8445e51fd4182070f5
+=======
+      "time": "2026-08-04 20:14:45 UTC",
+>>>>>>> c4f2ba042a479b9e02e7c9e80cb7ab351d137221
       "event": "[INFO] \ud83d\udcda Fetching Telegram channel history (last 30 days) - USING NEGATIVE OFFSET...",
       "type": "log"
     },
     {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       "time": "2026-08-04 19:08:05 UTC",
 =======
       "time": "2026-08-04 19:12:41 UTC",
@@ -1452,12 +1537,16 @@
 =======
       "time": "2026-08-04 19:51:02 UTC",
 >>>>>>> 63fe6a4fb43dc733a558fb8445e51fd4182070f5
+=======
+      "time": "2026-08-04 20:14:45 UTC",
+>>>>>>> c4f2ba042a479b9e02e7c9e80cb7ab351d137221
       "event": "[INFO] \ud83d\udd04 Resetting history - fetching all messages from start...",
       "type": "log"
     },
     {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       "time": "2026-08-04 19:08:05 UTC",
 =======
       "time": "2026-08-04 19:12:41 UTC",
@@ -1465,10 +1554,14 @@
 =======
       "time": "2026-08-04 19:51:02 UTC",
 >>>>>>> 63fe6a4fb43dc733a558fb8445e51fd4182070f5
+=======
+      "time": "2026-08-04 20:14:45 UTC",
+>>>>>>> c4f2ba042a479b9e02e7c9e80cb7ab351d137221
       "event": "[SUCCESS] \ud83d\udd10 Account Authorized successfully",
       "type": "log"
     },
     {
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "time": "2026-08-04 19:08:04 UTC",
@@ -1478,10 +1571,14 @@
 =======
       "time": "2026-08-04 19:51:01 UTC",
 >>>>>>> 63fe6a4fb43dc733a558fb8445e51fd4182070f5
+=======
+      "time": "2026-08-04 20:14:44 UTC",
+>>>>>>> c4f2ba042a479b9e02e7c9e80cb7ab351d137221
       "event": "[SUCCESS] \ud83d\udd10 Application Authorized successfully",
       "type": "log"
     },
     {
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "time": "2026-08-04 19:08:00 UTC",
@@ -1491,12 +1588,16 @@
 =======
       "time": "2026-08-04 19:51:00 UTC",
 >>>>>>> 63fe6a4fb43dc733a558fb8445e51fd4182070f5
+=======
+      "time": "2026-08-04 20:14:43 UTC",
+>>>>>>> c4f2ba042a479b9e02e7c9e80cb7ab351d137221
       "event": "[SUCCESS] \u2705 Connected to cTrader OpenAPI at demo.ctraderapi.com:5035",
       "type": "log"
     },
     {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       "time": "2026-08-04 19:07:59 UTC",
 =======
       "time": "2026-08-04 19:12:39 UTC",
@@ -1504,12 +1605,16 @@
 =======
       "time": "2026-08-04 19:51:00 UTC",
 >>>>>>> 63fe6a4fb43dc733a558fb8445e51fd4182070f5
+=======
+      "time": "2026-08-04 20:14:42 UTC",
+>>>>>>> c4f2ba042a479b9e02e7c9e80cb7ab351d137221
       "event": "[INFO] ================================================================================",
       "type": "log"
     },
     {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       "time": "2026-08-04 19:07:59 UTC",
 =======
       "time": "2026-08-04 19:12:39 UTC",
@@ -1517,12 +1622,16 @@
 =======
       "time": "2026-08-04 19:51:00 UTC",
 >>>>>>> 63fe6a4fb43dc733a558fb8445e51fd4182070f5
+=======
+      "time": "2026-08-04 20:14:42 UTC",
+>>>>>>> c4f2ba042a479b9e02e7c9e80cb7ab351d137221
       "event": "[INFO] \ud83e\udd16 cTrader OpenAPI Bot STARTING",
       "type": "log"
     },
     {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       "time": "2026-08-04 19:07:59 UTC",
       "event": "[INFO] ================================================================================",
       "type": "log"
@@ -1531,11 +1640,14 @@
 =======
       "time": "2026-08-04 19:51:00 UTC",
 >>>>>>> 63fe6a4fb43dc733a558fb8445e51fd4182070f5
+=======
+      "time": "2026-08-04 20:14:42 UTC",
+>>>>>>> c4f2ba042a479b9e02e7c9e80cb7ab351d137221
       "event": "[INFO] ================================================================================",
       "type": "log"
     },
     {
-      "time": "2026-08-04 19:51:00 UTC",
+      "time": "2026-08-04 20:14:42 UTC",
       "event": "[INFO] Running in SINGLE RUN mode (suitable for CI/CD)",
       "type": "log"
 >>>>>>> 6d1cfb71402042e5fcecd543eb3ea0e956263de0
@@ -1672,6 +1784,7 @@
   },
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   "lastUpdate": "2026-08-04T19:12:41.961732+00:00"
 =======
   "lastUpdate": "2026-08-04T19:13:27.700813+00:00"
@@ -1679,4 +1792,7 @@
 =======
   "lastUpdate": "2026-08-04T19:52:03.949139+00:00"
 >>>>>>> 63fe6a4fb43dc733a558fb8445e51fd4182070f5
+=======
+  "lastUpdate": "2026-08-04T20:15:45.876007+00:00"
+>>>>>>> c4f2ba042a479b9e02e7c9e80cb7ab351d137221
 }
