@@ -16,62 +16,67 @@
   "signals": [],
   "logs": [
     {
-      "time": "2026-08-04 13:15:08 UTC",
+      "time": "2026-08-04 13:16:41 UTC",
       "level": "INFO",
       "message": "\ud83d\udcbe State saved to docs/system_state.json"
     },
     {
-      "time": "2026-08-04 13:15:08 UTC",
+      "time": "2026-08-04 13:16:41 UTC",
       "level": "INFO",
-      "message": "\ud83d\udce4 Updated offset to 841819975"
+      "message": "\ud83d\udce4 Updated offset to 841819977"
     },
     {
-      "time": "2026-08-04 13:15:08 UTC",
+      "time": "2026-08-04 13:16:41 UTC",
       "level": "DEBUG",
       "message": "Message from chat 7520346243 (expected -1003257960170), skipping"
     },
     {
-      "time": "2026-08-04 13:15:08 UTC",
-      "level": "INFO",
-      "message": "\ud83d\udce5 Received 1 Telegram update(s)"
+      "time": "2026-08-04 13:16:41 UTC",
+      "level": "DEBUG",
+      "message": "Message from chat 7520346243 (expected -1003257960170), skipping"
     },
     {
-      "time": "2026-08-04 13:14:53 UTC",
+      "time": "2026-08-04 13:16:41 UTC",
       "level": "INFO",
-      "message": "\ud83d\udcf1 Checking Telegram updates (offset: 0)..."
+      "message": "\ud83d\udce5 Received 2 Telegram update(s)"
     },
     {
-      "time": "2026-08-04 13:14:53 UTC",
+      "time": "2026-08-04 13:16:41 UTC",
+      "level": "INFO",
+      "message": "\ud83d\udcf1 Checking Telegram updates (offset: 841819975)..."
+    },
+    {
+      "time": "2026-08-04 13:16:41 UTC",
       "level": "SUCCESS",
       "message": "\ud83d\udd10 Account Authorized successfully"
     },
     {
-      "time": "2026-08-04 13:14:52 UTC",
+      "time": "2026-08-04 13:16:40 UTC",
       "level": "SUCCESS",
       "message": "\ud83d\udd10 Application Authorized successfully"
     },
     {
-      "time": "2026-08-04 13:14:49 UTC",
+      "time": "2026-08-04 13:16:39 UTC",
       "level": "SUCCESS",
       "message": "\u2705 Connected to cTrader OpenAPI at demo.ctraderapi.com:5035"
     },
     {
-      "time": "2026-08-04 13:14:45 UTC",
+      "time": "2026-08-04 13:16:39 UTC",
       "level": "INFO",
       "message": "================================================================================"
     },
     {
-      "time": "2026-08-04 13:14:45 UTC",
+      "time": "2026-08-04 13:16:39 UTC",
       "level": "INFO",
       "message": "\ud83e\udd16 cTrader OpenAPI Bot STARTING"
     },
     {
-      "time": "2026-08-04 13:14:45 UTC",
+      "time": "2026-08-04 13:16:39 UTC",
       "level": "INFO",
       "message": "================================================================================"
     },
     {
-      "time": "2026-08-04 13:14:45 UTC",
+      "time": "2026-08-04 13:16:39 UTC",
       "level": "INFO",
       "message": "Running in SINGLE RUN mode (suitable for CI/CD)"
     }
@@ -79,62 +84,67 @@
   "errors": [],
   "backendEvents": [
     {
-      "time": "2026-08-04 13:15:08 UTC",
+      "time": "2026-08-04 13:16:41 UTC",
       "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
       "type": "log"
     },
     {
-      "time": "2026-08-04 13:15:08 UTC",
-      "event": "[INFO] \ud83d\udce4 Updated offset to 841819975",
+      "time": "2026-08-04 13:16:41 UTC",
+      "event": "[INFO] \ud83d\udce4 Updated offset to 841819977",
       "type": "log"
     },
     {
-      "time": "2026-08-04 13:15:08 UTC",
+      "time": "2026-08-04 13:16:41 UTC",
       "event": "[DEBUG] Message from chat 7520346243 (expected -1003257960170), skipping",
       "type": "log"
     },
     {
-      "time": "2026-08-04 13:15:08 UTC",
-      "event": "[INFO] \ud83d\udce5 Received 1 Telegram update(s)",
+      "time": "2026-08-04 13:16:41 UTC",
+      "event": "[DEBUG] Message from chat 7520346243 (expected -1003257960170), skipping",
       "type": "log"
     },
     {
-      "time": "2026-08-04 13:14:53 UTC",
-      "event": "[INFO] \ud83d\udcf1 Checking Telegram updates (offset: 0)...",
+      "time": "2026-08-04 13:16:41 UTC",
+      "event": "[INFO] \ud83d\udce5 Received 2 Telegram update(s)",
       "type": "log"
     },
     {
-      "time": "2026-08-04 13:14:53 UTC",
+      "time": "2026-08-04 13:16:41 UTC",
+      "event": "[INFO] \ud83d\udcf1 Checking Telegram updates (offset: 841819975)...",
+      "type": "log"
+    },
+    {
+      "time": "2026-08-04 13:16:41 UTC",
       "event": "[SUCCESS] \ud83d\udd10 Account Authorized successfully",
       "type": "log"
     },
     {
-      "time": "2026-08-04 13:14:52 UTC",
+      "time": "2026-08-04 13:16:40 UTC",
       "event": "[SUCCESS] \ud83d\udd10 Application Authorized successfully",
       "type": "log"
     },
     {
-      "time": "2026-08-04 13:14:49 UTC",
+      "time": "2026-08-04 13:16:39 UTC",
       "event": "[SUCCESS] \u2705 Connected to cTrader OpenAPI at demo.ctraderapi.com:5035",
       "type": "log"
     },
     {
-      "time": "2026-08-04 13:14:45 UTC",
+      "time": "2026-08-04 13:16:39 UTC",
       "event": "[INFO] ================================================================================",
       "type": "log"
     },
     {
-      "time": "2026-08-04 13:14:45 UTC",
+      "time": "2026-08-04 13:16:39 UTC",
       "event": "[INFO] \ud83e\udd16 cTrader OpenAPI Bot STARTING",
       "type": "log"
     },
     {
-      "time": "2026-08-04 13:14:45 UTC",
+      "time": "2026-08-04 13:16:39 UTC",
       "event": "[INFO] ================================================================================",
       "type": "log"
     },
     {
-      "time": "2026-08-04 13:14:45 UTC",
+      "time": "2026-08-04 13:16:39 UTC",
       "event": "[INFO] Running in SINGLE RUN mode (suitable for CI/CD)",
       "type": "log"
     }
@@ -266,5 +276,5 @@
       "category": "Indices"
     }
   },
-  "lastUpdate": "2026-08-04T13:15:08.844817+00:00"
+  "lastUpdate": "2026-08-04T13:16:41.928369+00:00"
 }
