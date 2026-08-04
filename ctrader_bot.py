@@ -142,6 +142,50 @@ class CTraderOpenAPIBot:
             except:
                 pass
 
+    def load_pending_signals_file(self, client):
+        paths = ["docs/pending_signals.json", "pending_signals.json"]
+        for p in paths:
+            if os.path.exists(p):
+                try:
+                    with open(p, "r") as f:
+                        items = json.load(f)
+                        if isinstance(items, list):
+                            for item in items:
+                                if item.get("type") == "SIGNAL":
+                                    side = item.get("direction", "BUY")
+                                    symbol = item.get("pair", "EURUSD")
+                                    for alias, real in PAIR_ALIASES.items():
+                                        if alias == symbol.upper():
+                                            symbol = real
+                                            break
+                                    qty = item.get("qty") or lot_for(symbol)
+                                    sl = item.get("sl")
+                                    tp = item.get("tp")
+                                    text = f"{side} {symbol} SL:{sl} TP:{tp}"
+                                    ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
+                                    
+                                    signal = {
+                                        "side": side,
+                                        "symbol": symbol,
+                                        "qty": qty,
+                                        "sl": sl,
+                                        "tp": tp,
+                                        "raw": text
+                                    }
+                                    signal_entry = {
+                                        "time": ts,
+                                        "text": text,
+                                        "parsed": True,
+                                        "signal": signal
+                                    }
+                                    if not any(s["text"] == text for s in self.signals):
+                                        self.signals.appendleft(signal_entry)
+                                        self.heartbeat["signals_parsed"] += 1
+                                        place_order(client, symbol, side, qty, sl, tp, text)
+                    self.log("INFO", f"Loaded signals from {p}")
+                except Exception as e:
+                    self.error(f"Failed to load {p}: {e}")
+
     def log(self, level, msg):
         ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
         entry = {"time": ts, "level": level, "message": msg}
@@ -672,17 +716,18 @@ def main(single_run=False):
                 BOT.logged_in = True
                 BOT.log("SUCCESS", "🔐 Account Authorized successfully")
 
-                # Fetch history if offset is too high or file doesn't exist
+                # Fetch history if offset is 0 or file doesn't exist
                 current_offset = get_last_offset()
-                if current_offset == 0 or current_offset > 800000000:
+                if current_offset == 0:
                     BOT.log("INFO", "🔄 Resetting history - fetching all messages from start...")
                     if os.path.exists("telegram_offset.txt"):
                         os.remove("telegram_offset.txt")
                         save_last_offset(0)
                     check_telegram_history(client)
                 
-                # Check for new messages
+                # Check for new messages and pending signals file
                 check_telegram(client)
+                BOT.load_pending_signals_file(client)
                 save_state()
                 
                 if single_run:
