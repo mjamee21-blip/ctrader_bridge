@@ -16,42 +16,74 @@
   "signals": [],
   "logs": [
     {
+<<<<<<< Updated upstream
       "time": "2026-08-04 12:07:22 UTC",
+=======
+      "time": "2026-08-04 12:04:45 UTC",
+>>>>>>> Stashed changes
       "level": "INFO",
       "message": "\ud83d\udce5 Received 0 Telegram update(s)"
     },
     {
+<<<<<<< Updated upstream
       "time": "2026-08-04 12:07:11 UTC",
+=======
+      "time": "2026-08-04 12:04:35 UTC",
+>>>>>>> Stashed changes
       "level": "INFO",
       "message": "\ud83d\udcf1 Checking Telegram updates (offset: 0)..."
     },
     {
+<<<<<<< Updated upstream
       "time": "2026-08-04 12:07:11 UTC",
+=======
+      "time": "2026-08-04 12:04:35 UTC",
+>>>>>>> Stashed changes
       "level": "SUCCESS",
       "message": "\ud83d\udd10 Account Authorized successfully"
     },
     {
+<<<<<<< Updated upstream
       "time": "2026-08-04 12:07:11 UTC",
+=======
+      "time": "2026-08-04 12:04:34 UTC",
+>>>>>>> Stashed changes
       "level": "SUCCESS",
       "message": "\ud83d\udd10 Application Authorized successfully"
     },
     {
+<<<<<<< Updated upstream
       "time": "2026-08-04 12:07:03 UTC",
+=======
+      "time": "2026-08-04 12:04:32 UTC",
+>>>>>>> Stashed changes
       "level": "SUCCESS",
       "message": "\u2705 Connected to cTrader OpenAPI at demo.ctraderapi.com:5035"
     },
     {
+<<<<<<< Updated upstream
       "time": "2026-08-04 12:06:43 UTC",
+=======
+      "time": "2026-08-04 12:04:32 UTC",
+>>>>>>> Stashed changes
       "level": "INFO",
       "message": "================================================================================"
     },
     {
+<<<<<<< Updated upstream
       "time": "2026-08-04 12:06:43 UTC",
+=======
+      "time": "2026-08-04 12:04:32 UTC",
+>>>>>>> Stashed changes
       "level": "INFO",
       "message": "\ud83e\udd16 cTrader OpenAPI Bot STARTING"
     },
     {
+<<<<<<< Updated upstream
       "time": "2026-08-04 12:06:43 UTC",
+=======
+      "time": "2026-08-04 12:04:32 UTC",
+>>>>>>> Stashed changes
       "level": "INFO",
       "message": "================================================================================"
     },
@@ -64,42 +96,74 @@
   "errors": [],
   "backendEvents": [
     {
+<<<<<<< Updated upstream
       "time": "2026-08-04 12:07:22 UTC",
+=======
+      "time": "2026-08-04 12:04:45 UTC",
+>>>>>>> Stashed changes
       "event": "[INFO] \ud83d\udce5 Received 0 Telegram update(s)",
       "type": "log"
     },
     {
+<<<<<<< Updated upstream
       "time": "2026-08-04 12:07:11 UTC",
+=======
+      "time": "2026-08-04 12:04:35 UTC",
+>>>>>>> Stashed changes
       "event": "[INFO] \ud83d\udcf1 Checking Telegram updates (offset: 0)...",
       "type": "log"
     },
     {
+<<<<<<< Updated upstream
       "time": "2026-08-04 12:07:11 UTC",
+=======
+      "time": "2026-08-04 12:04:35 UTC",
+>>>>>>> Stashed changes
       "event": "[SUCCESS] \ud83d\udd10 Account Authorized successfully",
       "type": "log"
     },
     {
+<<<<<<< Updated upstream
       "time": "2026-08-04 12:07:11 UTC",
+=======
+      "time": "2026-08-04 12:04:34 UTC",
+>>>>>>> Stashed changes
       "event": "[SUCCESS] \ud83d\udd10 Application Authorized successfully",
       "type": "log"
     },
     {
+<<<<<<< Updated upstream
       "time": "2026-08-04 12:07:03 UTC",
+=======
+      "time": "2026-08-04 12:04:32 UTC",
+>>>>>>> Stashed changes
       "event": "[SUCCESS] \u2705 Connected to cTrader OpenAPI at demo.ctraderapi.com:5035",
       "type": "log"
     },
     {
+<<<<<<< Updated upstream
       "time": "2026-08-04 12:06:43 UTC",
+=======
+      "time": "2026-08-04 12:04:32 UTC",
+>>>>>>> Stashed changes
       "event": "[INFO] ================================================================================",
       "type": "log"
     },
     {
+<<<<<<< Updated upstream
       "time": "2026-08-04 12:06:43 UTC",
+=======
+      "time": "2026-08-04 12:04:32 UTC",
+>>>>>>> Stashed changes
       "event": "[INFO] \ud83e\udd16 cTrader OpenAPI Bot STARTING",
       "type": "log"
     },
     {
+<<<<<<< Updated upstream
       "time": "2026-08-04 12:06:43 UTC",
+=======
+      "time": "2026-08-04 12:04:32 UTC",
+>>>>>>> Stashed changes
       "event": "[INFO] ================================================================================",
       "type": "log"
     },
@@ -236,5 +300,9 @@
       "category": "Indices"
     }
   },
+<<<<<<< Updated upstream
   "lastUpdate": "2026-08-04T12:07:22.072522+00:00"
+=======
+  "lastUpdate": "2026-08-04T12:04:45.568406+00:00"
+>>>>>>> Stashed changes
 }
