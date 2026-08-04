@@ -2,14 +2,14 @@
   "connected": true,
   "loggedIn": true,
   "heartbeat": {
-    "status": "error_exception",
-    "last_check": "2026-08-04T17:59:21.049896+00:00",
+    "status": "ok_no_new_messages",
+    "last_check": "2026-08-04T18:02:00.498670+00:00",
     "telegram_token_set": true,
     "telegram_chat_set": true,
     "messages_received": 0,
     "signals_parsed": 0,
     "orders_placed": 0,
-    "last_error": "Full traceback: Traceback (most recent call last):\n  File \"/home/runner/work/ctrader_bridge/ctrader_bridge/ctrader_bot.py\", line 514, in check_telegram\n    with urllib.request.urlopen(req, timeout=35, context=ssl_context) as resp:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/urllib/request.py\", line 216, in urlopen\n    return opener.open(url, data, timeout)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/urllib/request.py\", line 525, in open\n    response = meth(req, response)\n               ^^^^^^^^^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/urllib/request.py\", line 634, in http_response\n    response = self.parent.error(\n               ^^^^^^^^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/urllib/request.py\", line 563, in error\n    return self._call_chain(*args)\n           ^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/urllib/request.py\", line 496, in _call_chain\n    result = func(*args)\n             ^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/urllib/request.py\", line 643, in http_error_default\n    raise HTTPError(req.full_url, code, msg, hdrs, fp)\nurllib.error.HTTPError: HTTP Error 409: Conflict\n",
+    "last_error": null,
     "offset": 0
   },
   "account": {
@@ -27,163 +27,185 @@
   "signals": [],
   "logs": [
     {
-      "time": "2026-08-04 17:59:21 UTC",
+      "time": "2026-08-04 18:02:30 UTC",
+      "level": "INFO",
+      "message": "\ud83d\udcda Telegram history saved (0 messages)"
+    },
+    {
+      "time": "2026-08-04 18:02:30 UTC",
+      "level": "INFO",
+      "message": "\ud83d\udcbe State saved to docs/system_state.json"
+    },
+    {
+      "time": "2026-08-04 18:02:30 UTC",
+      "level": "INFO",
+      "message": "\u2705 No new messages (up to date)"
+    },
+    {
+      "time": "2026-08-04 18:02:30 UTC",
+      "level": "INFO",
+      "message": "\ud83d\udce5 Received 0 Telegram update(s)"
+    },
+    {
+      "time": "2026-08-04 18:02:00 UTC",
       "level": "INFO",
       "message": "\ud83d\udcf1 Checking Telegram updates (offset: 0)..."
     },
     {
-      "time": "2026-08-04 17:59:21 UTC",
+      "time": "2026-08-04 18:02:00 UTC",
       "level": "INFO",
       "message": "\ud83d\udcbe Storing all 0 messages in memory"
     },
     {
-      "time": "2026-08-04 17:59:21 UTC",
+      "time": "2026-08-04 18:02:00 UTC",
       "level": "INFO",
       "message": "\ud83d\udcda Total Telegram messages loaded: 0"
     },
     {
-      "time": "2026-08-04 17:58:54 UTC",
+      "time": "2026-08-04 18:02:00 UTC",
+      "level": "INFO",
+      "message": "\u2705 Reached end of Telegram history"
+    },
+    {
+      "time": "2026-08-04 18:01:29 UTC",
       "level": "INFO",
       "message": "\ud83d\udd04 Starting history fetch with negative offset..."
     },
     {
-      "time": "2026-08-04 17:58:54 UTC",
+      "time": "2026-08-04 18:01:29 UTC",
       "level": "INFO",
       "message": "\ud83d\udcda Fetching Telegram channel history (last 30 days) - USING NEGATIVE OFFSET..."
     },
     {
-      "time": "2026-08-04 17:58:54 UTC",
+      "time": "2026-08-04 18:01:29 UTC",
       "level": "INFO",
       "message": "\ud83d\udd04 Resetting history - fetching all messages from start..."
     },
     {
-      "time": "2026-08-04 17:58:54 UTC",
+      "time": "2026-08-04 18:01:29 UTC",
       "level": "SUCCESS",
       "message": "\ud83d\udd10 Account Authorized successfully"
     },
     {
-      "time": "2026-08-04 17:58:53 UTC",
+      "time": "2026-08-04 18:01:28 UTC",
       "level": "SUCCESS",
       "message": "\ud83d\udd10 Application Authorized successfully"
     },
     {
-      "time": "2026-08-04 17:58:48 UTC",
+      "time": "2026-08-04 18:01:27 UTC",
       "level": "SUCCESS",
       "message": "\u2705 Connected to cTrader OpenAPI at demo.ctraderapi.com:5035"
     },
     {
-      "time": "2026-08-04 17:58:40 UTC",
+      "time": "2026-08-04 18:01:27 UTC",
       "level": "INFO",
       "message": "================================================================================"
     },
     {
-      "time": "2026-08-04 17:58:40 UTC",
+      "time": "2026-08-04 18:01:27 UTC",
       "level": "INFO",
       "message": "\ud83e\udd16 cTrader OpenAPI Bot STARTING"
     },
     {
-      "time": "2026-08-04 17:58:40 UTC",
+      "time": "2026-08-04 18:01:27 UTC",
       "level": "INFO",
       "message": "================================================================================"
     },
     {
-      "time": "2026-08-04 17:58:40 UTC",
+      "time": "2026-08-04 18:01:27 UTC",
       "level": "INFO",
       "message": "Running in SINGLE RUN mode (suitable for CI/CD)"
     }
   ],
-  "errors": [
-    {
-      "time": "2026-08-04 17:59:26 UTC",
-      "error": "Full traceback: Traceback (most recent call last):\n  File \"/home/runner/work/ctrader_bridge/ctrader_bridge/ctrader_bot.py\", line 514, in check_telegram\n    with urllib.request.urlopen(req, timeout=35, context=ssl_context) as resp:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/urllib/request.py\", line 216, in urlopen\n    return opener.open(url, data, timeout)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/urllib/request.py\", line 525, in open\n    response = meth(req, response)\n               ^^^^^^^^^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/urllib/request.py\", line 634, in http_response\n    response = self.parent.error(\n               ^^^^^^^^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/urllib/request.py\", line 563, in error\n    return self._call_chain(*args)\n           ^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/urllib/request.py\", line 496, in _call_chain\n    result = func(*args)\n             ^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/urllib/request.py\", line 643, in http_error_default\n    raise HTTPError(req.full_url, code, msg, hdrs, fp)\nurllib.error.HTTPError: HTTP Error 409: Conflict\n"
-    },
-    {
-      "time": "2026-08-04 17:59:26 UTC",
-      "error": "Telegram check failed: HTTP Error 409: Conflict"
-    },
-    {
-      "time": "2026-08-04 17:59:21 UTC",
-      "error": "Error fetching batch 1: HTTP Error 409: Conflict"
-    }
-  ],
+  "errors": [],
   "backendEvents": [
     {
-      "time": "2026-08-04 17:59:26 UTC",
-      "event": "ERROR: Full traceback: Traceback (most recent call last):\n  File \"/home/runner/work/ctrader_bridge/ctrader_bridge/ctrader_bot.py\", line 514, in check_telegram\n    with urllib.request.urlopen(req, timeout=35, context=ssl_context) as resp:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/urllib/request.py\", line 216, in urlopen\n    return opener.open(url, data, timeout)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/urllib/request.py\", line 525, in open\n    response = meth(req, response)\n               ^^^^^^^^^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/urllib/request.py\", line 634, in http_response\n    response = self.parent.error(\n               ^^^^^^^^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/urllib/request.py\", line 563, in error\n    return self._call_chain(*args)\n           ^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/urllib/request.py\", line 496, in _call_chain\n    result = func(*args)\n             ^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/urllib/request.py\", line 643, in http_error_default\n    raise HTTPError(req.full_url, code, msg, hdrs, fp)\nurllib.error.HTTPError: HTTP Error 409: Conflict\n",
-      "type": "error"
+      "time": "2026-08-04 18:02:30 UTC",
+      "event": "[INFO] \ud83d\udcda Telegram history saved (0 messages)",
+      "type": "log"
     },
     {
-      "time": "2026-08-04 17:59:26 UTC",
-      "event": "ERROR: Telegram check failed: HTTP Error 409: Conflict",
-      "type": "error"
+      "time": "2026-08-04 18:02:30 UTC",
+      "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
+      "type": "log"
     },
     {
-      "time": "2026-08-04 17:59:21 UTC",
+      "time": "2026-08-04 18:02:30 UTC",
+      "event": "[INFO] \u2705 No new messages (up to date)",
+      "type": "log"
+    },
+    {
+      "time": "2026-08-04 18:02:30 UTC",
+      "event": "[INFO] \ud83d\udce5 Received 0 Telegram update(s)",
+      "type": "log"
+    },
+    {
+      "time": "2026-08-04 18:02:00 UTC",
       "event": "[INFO] \ud83d\udcf1 Checking Telegram updates (offset: 0)...",
       "type": "log"
     },
     {
-      "time": "2026-08-04 17:59:21 UTC",
+      "time": "2026-08-04 18:02:00 UTC",
       "event": "[INFO] \ud83d\udcbe Storing all 0 messages in memory",
       "type": "log"
     },
     {
-      "time": "2026-08-04 17:59:21 UTC",
+      "time": "2026-08-04 18:02:00 UTC",
       "event": "[INFO] \ud83d\udcda Total Telegram messages loaded: 0",
       "type": "log"
     },
     {
-      "time": "2026-08-04 17:59:21 UTC",
-      "event": "ERROR: Error fetching batch 1: HTTP Error 409: Conflict",
-      "type": "error"
+      "time": "2026-08-04 18:02:00 UTC",
+      "event": "[INFO] \u2705 Reached end of Telegram history",
+      "type": "log"
     },
     {
-      "time": "2026-08-04 17:58:54 UTC",
+      "time": "2026-08-04 18:01:29 UTC",
       "event": "[INFO] \ud83d\udd04 Starting history fetch with negative offset...",
       "type": "log"
     },
     {
-      "time": "2026-08-04 17:58:54 UTC",
+      "time": "2026-08-04 18:01:29 UTC",
       "event": "[INFO] \ud83d\udcda Fetching Telegram channel history (last 30 days) - USING NEGATIVE OFFSET...",
       "type": "log"
     },
     {
-      "time": "2026-08-04 17:58:54 UTC",
+      "time": "2026-08-04 18:01:29 UTC",
       "event": "[INFO] \ud83d\udd04 Resetting history - fetching all messages from start...",
       "type": "log"
     },
     {
-      "time": "2026-08-04 17:58:54 UTC",
+      "time": "2026-08-04 18:01:29 UTC",
       "event": "[SUCCESS] \ud83d\udd10 Account Authorized successfully",
       "type": "log"
     },
     {
-      "time": "2026-08-04 17:58:53 UTC",
+      "time": "2026-08-04 18:01:28 UTC",
       "event": "[SUCCESS] \ud83d\udd10 Application Authorized successfully",
       "type": "log"
     },
     {
-      "time": "2026-08-04 17:58:48 UTC",
+      "time": "2026-08-04 18:01:27 UTC",
       "event": "[SUCCESS] \u2705 Connected to cTrader OpenAPI at demo.ctraderapi.com:5035",
       "type": "log"
     },
     {
-      "time": "2026-08-04 17:58:40 UTC",
+      "time": "2026-08-04 18:01:27 UTC",
       "event": "[INFO] ================================================================================",
       "type": "log"
     },
     {
-      "time": "2026-08-04 17:58:40 UTC",
+      "time": "2026-08-04 18:01:27 UTC",
       "event": "[INFO] \ud83e\udd16 cTrader OpenAPI Bot STARTING",
       "type": "log"
     },
     {
-      "time": "2026-08-04 17:58:40 UTC",
+      "time": "2026-08-04 18:01:27 UTC",
       "event": "[INFO] ================================================================================",
       "type": "log"
     },
     {
-      "time": "2026-08-04 17:58:40 UTC",
+      "time": "2026-08-04 18:01:27 UTC",
       "event": "[INFO] Running in SINGLE RUN mode (suitable for CI/CD)",
       "type": "log"
     }
@@ -317,5 +339,5 @@
       "category": "Indices"
     }
   },
-  "lastUpdate": "2026-08-04T17:59:26.516417+00:00"
+  "lastUpdate": "2026-08-04T18:02:30.956197+00:00"
 }
