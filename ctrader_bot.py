@@ -9,7 +9,7 @@ import time
 import urllib.request
 import urllib.parse
 import logging
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from collections import deque
 
 from twisted.internet import reactor
@@ -107,8 +107,20 @@ class CTraderOpenAPIBot:
         self.logs = deque(maxlen=200)
         self.errors = deque(maxlen=100)
         self.signals = deque(maxlen=100)
+        self.all_telegram_messages = deque(maxlen=5000)
         self.trades = deque(maxlen=100)
         self.backend_events = deque(maxlen=150)
+        self.heartbeat = {
+            "status": "initializing",
+            "last_check": None,
+            "telegram_token_set": bool(TG_TOKEN),
+            "telegram_chat_set": bool(TG_CHAT),
+            "messages_received": 0,
+            "signals_parsed": 0,
+            "orders_placed": 0,
+            "last_error": None,
+            "offset": 0
+        }
         self.account = {
             "balance": 10000.0, "equity": 10000.0, "margin": 0.0,
             "freeMargin": 10000.0, "leverage": 100,
@@ -124,6 +136,9 @@ class CTraderOpenAPIBot:
                     st = json.load(f)
                     if "pairsConfig" in st and isinstance(st["pairsConfig"], dict):
                         self.pairs_config.update(st["pairsConfig"])
+                    if "allTelegramMessages" in st and isinstance(st["allTelegramMessages"], list):
+                        for msg in st["allTelegramMessages"]:
+                            self.all_telegram_messages.append(msg)
             except:
                 pass
 
@@ -141,6 +156,7 @@ class CTraderOpenAPIBot:
         ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
         entry = {"time": ts, "error": msg}
         self.errors.appendleft(entry)
+        self.heartbeat["last_error"] = msg
         self.backend_events.appendleft({"time": ts, "event": f"ERROR: {msg}", "type": "error"})
         try:
             print(f"[ERROR] {msg}")
@@ -154,19 +170,16 @@ def parse_signal(text):
         return None
     t = text.upper()
     
-    # Skip certain message types
     skip_keywords = ["TP HIT", "SL HIT", "CLOSED", "GOOD MORNING", "NEW MONTH", "DO YOU WANT"]
     for keyword in skip_keywords:
         if keyword in t:
             return None
 
-    # Detect side (BUY/SELL)
     side = None
     if "BUY" in t:
         side = "BUY"
     elif "SELL" in t:
         side = "SELL"
-    # Check for common variations
     elif "LONG" in t:
         side = "BUY"
     elif "SHORT" in t:
@@ -177,9 +190,7 @@ def parse_signal(text):
         side = "SELL"
 
     if not side:
-        # Check if this might be a test message
         if "TEST" in t or "DEMO" in t or "EXAMPLE" in t:
-            # For test messages, return a simple test signal
             return {
                 "side": "BUY",
                 "symbol": "EURUSD",
@@ -190,37 +201,28 @@ def parse_signal(text):
             }
         return None
 
-    # Look for symbol/pair
     symbol = None
     
-    # First, try to find exact matches in the text
     for alias, real in PAIR_ALIASES.items():
         if alias in t:
             symbol = real
             break
     
-    # If no exact match, try to find any currency pair pattern
     if not symbol:
-        # Look for common forex patterns like XXX/XXX or XXXXXX
         forex_pattern = r'\b([A-Z]{3})[/\s]?([A-Z]{3})\b'
         forex_match = re.search(forex_pattern, text, re.IGNORECASE)
         if forex_match:
             pair = forex_match.group(1).upper() + forex_match.group(2).upper()
-            # Validate if it's a known pair
             if pair in PAIR_ALIASES.values() or pair in PAIR_ALIASES.keys():
                 symbol = pair if pair in PAIR_ALIASES.values() else PAIR_ALIASES.get(pair, pair)
     
-    # If still no symbol found, use default
     if not symbol:
-        # Check if the message contains a recognizable pair
         possible_pairs = [pair for pair in PAIR_ALIASES.values() if pair in t]
         if possible_pairs:
             symbol = possible_pairs[0]
         else:
-            # If no specific pair found but it's a signal, use EURUSD as default
             symbol = "EURUSD"
 
-    # Parse SL and TP if present
     sl = None
     tp = None
     sl_match = re.search(r'(?:SL|STOP[-_\s]*LOSS|STOP)[:\s]*([0-9.]+)', text, re.IGNORECASE)
@@ -246,30 +248,11 @@ def parse_signal(text):
     }
 
 def is_valid_trading_account():
-    """Check if the trading account is properly configured"""
     return CT_ACCOUNT_ID != 0 and CT_ACCESS_TOKEN and CT_CLIENT_ID and CT_CLIENT_SECRET
-
-def test_signal_parsing():
-    """Test function to debug signal parsing"""
-    test_messages = [
-        "BUY EURUSD",
-        "SELL GBPUSD",
-        "BUY BTCUSD",
-        "TEST SIGNAL BUY EURUSD",
-        "LONG GOLD",
-        "SHORT USOIL"
-    ]
-    
-    print("\nSignal Parsing Tests:")
-    for msg in test_messages:
-        result = parse_signal(msg)
-        print(f"Input: '{msg}' -> Output: {result}")
-    print("")
 
 def place_order(client, symbol, side, qty, sl=None, tp=None, raw_signal=None):
     ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
     
-    # Check if pair is enabled
     p_cfg = BOT.pairs_config.get(symbol.upper(), {})
     if p_cfg.get("enabled", True) is False:
         BOT.log("WARNING", f"⚠️ Pair {symbol} is DISABLED in settings. Skipping order.")
@@ -317,6 +300,7 @@ def place_order(client, symbol, side, qty, sl=None, tp=None, raw_signal=None):
     }
     BOT.trades.appendleft(trade)
     BOT.backend_events.appendleft({"time": ts, "event": f"Order {order_id} sent: {side} {qty} {symbol}", "type": "order"})
+    BOT.heartbeat["orders_placed"] += 1
 
     def on_success(msg):
         msg_str = str(msg)
@@ -371,7 +355,9 @@ def get_last_offset():
     if os.path.exists("telegram_offset.txt"):
         try:
             with open("telegram_offset.txt", "r") as f:
-                return int(f.read().strip() or "0")
+                offset = int(f.read().strip() or "0")
+                BOT.heartbeat["offset"] = offset
+                return offset
         except:
             return 0
     return 0
@@ -380,30 +366,24 @@ def save_last_offset(offset):
     try:
         with open("telegram_offset.txt", "w") as f:
             f.write(str(offset))
+        BOT.heartbeat["offset"] = offset
     except:
         pass
 
-def check_telegram(client):
-    """
-    FIX #1: Properly check Telegram messages with correct offset handling
-    FIX #2: Filter messages by TG_CHAT if configured
-    FIX #3: Save offset ONLY after successful processing
-    """
+def check_telegram_history(client):
+    """Fetch telegram channel history for the last 30 days"""
     if not TG_TOKEN:
-        BOT.log("WARNING", "⚠️ TG_TOKEN not set, skipping Telegram check")
+        BOT.log("WARNING", "⚠️ TG_TOKEN not set, skipping Telegram history check")
+        BOT.error("TG_TOKEN environment variable is not set!")
         return
     
     try:
-        offset = get_last_offset()
-        BOT.log("INFO", f"📱 Checking Telegram updates (offset: {offset})...")
+        BOT.log("INFO", "📚 Fetching Telegram channel history (last 30 days) - USING NEGATIVE OFFSET...")
         url = f"https://api.telegram.org/bot{TG_TOKEN}/getUpdates"
-        params_dict = {"timeout": "30"}  # Long polling timeout
-        if offset > 0:
-            params_dict["offset"] = str(offset)
-        params = urllib.parse.urlencode(params_dict)
-        req = urllib.request.Request(f"{url}?{params}", headers={"User-Agent": "Mozilla/5.0"})
         
-        # Create an SSL context that doesn't verify certificates (for environments with SSL issues)
+        # Use negative offset to get messages from the end going backwards
+        params_dict = {"timeout": "30", "limit": "100", "offset": "-100"}
+        
         import ssl
         try:
             ssl_context = ssl._create_unverified_context()
@@ -412,24 +392,143 @@ def check_telegram(client):
             ssl_context.check_hostname = False
             ssl_context.verify_mode = ssl.CERT_NONE
         
-        with urllib.request.urlopen(req, timeout=35, context=ssl_context) as resp:  # Increased timeout
+        all_messages = []
+        thirty_days_ago = datetime.now(timezone.utc) - timedelta(days=30)
+        offset = -100
+        max_iterations = 30
+        iteration = 0
+        
+        BOT.log("INFO", "🔄 Starting history fetch with negative offset...")
+        
+        while iteration < max_iterations:
+            iteration += 1
+            params_dict["offset"] = str(offset)
+            params = urllib.parse.urlencode(params_dict)
+            req = urllib.request.Request(f"{url}?{params}", headers={"User-Agent": "Mozilla/5.0"})
+            
+            try:
+                with urllib.request.urlopen(req, timeout=35, context=ssl_context) as resp:
+                    data = json.loads(resp.read().decode("utf-8"))
+                    
+                    if not data.get("ok"):
+                        BOT.log("WARNING", f"Failed to fetch history: {data.get('description')}")
+                        break
+                    
+                    results = data.get("result", [])
+                    if not results:
+                        BOT.log("INFO", "✅ Reached end of Telegram history")
+                        break
+                    
+                    messages_batch_count = 0
+                    for result in results:
+                        msg = result.get("message") or result.get("channel_post")
+                        if not msg or "text" not in msg:
+                            continue
+                        
+                        timestamp = msg.get("date", 0)
+                        msg_datetime = datetime.fromtimestamp(timestamp, tz=timezone.utc)
+                        
+                        if msg_datetime < thirty_days_ago:
+                            BOT.log("INFO", "✅ Reached messages older than 30 days")
+                            iteration = max_iterations
+                            break
+                        
+                        text = msg["text"]
+                        chat_id = msg.get("chat", {}).get("id", "Unknown")
+                        
+                        if TG_CHAT:
+                            try:
+                                expected_chat = int(TG_CHAT)
+                                if chat_id != expected_chat:
+                                    continue
+                            except ValueError:
+                                pass
+                        
+                        signal = parse_signal(text)
+                        
+                        message_entry = {
+                            "update_id": result.get("update_id", 0),
+                            "timestamp": timestamp,
+                            "datetime": msg_datetime.strftime("%Y-%m-%d %H:%M:%S UTC"),
+                            "chat_id": chat_id,
+                            "text": text,
+                            "is_signal": signal is not None,
+                            "signal": signal
+                        }
+                        
+                        all_messages.append(message_entry)
+                        BOT.all_telegram_messages.append(message_entry)
+                        messages_batch_count += 1
+                        
+                        if signal:
+                            BOT.heartbeat["signals_parsed"] += 1
+                    
+                    BOT.log("INFO", f"📥 Batch {iteration}: Fetched {messages_batch_count} messages")
+                    
+                    if messages_batch_count == 0:
+                        break
+                    
+                    offset -= 100
+                    
+            except Exception as e:
+                BOT.error(f"Error fetching batch {iteration}: {str(e)}")
+                break
+        
+        BOT.log("INFO", f"📚 Total Telegram messages loaded: {len(all_messages)}")
+        BOT.log("INFO", f"💾 Storing all {len(BOT.all_telegram_messages)} messages in memory")
+        BOT.heartbeat["messages_received"] = len(BOT.all_telegram_messages)
+        
+    except Exception as e:
+        BOT.error(f"Telegram history fetch failed: {str(e)}")
+        import traceback
+        BOT.error(f"Full traceback: {traceback.format_exc()}")
+
+def check_telegram(client):
+    """Check for new Telegram messages since last check"""
+    if not TG_TOKEN:
+        BOT.log("WARNING", "⚠️ TG_TOKEN not set, skipping Telegram check")
+        BOT.heartbeat["status"] = "error_no_token"
+        return
+    
+    try:
+        offset = get_last_offset()
+        BOT.log("INFO", f"📱 Checking Telegram updates (offset: {offset})...")
+        BOT.heartbeat["status"] = "checking_telegram"
+        BOT.heartbeat["last_check"] = datetime.now(timezone.utc).isoformat()
+        
+        url = f"https://api.telegram.org/bot{TG_TOKEN}/getUpdates"
+        params_dict = {"timeout": "30"}
+        if offset > 0:
+            params_dict["offset"] = str(offset)
+        params = urllib.parse.urlencode(params_dict)
+        req = urllib.request.Request(f"{url}?{params}", headers={"User-Agent": "Mozilla/5.0"})
+        
+        import ssl
+        try:
+            ssl_context = ssl._create_unverified_context()
+        except AttributeError:
+            ssl_context = ssl.create_default_context()
+            ssl_context.check_hostname = False
+            ssl_context.verify_mode = ssl.CERT_NONE
+        
+        with urllib.request.urlopen(req, timeout=35, context=ssl_context) as resp:
             data = json.loads(resp.read().decode("utf-8"))
             if data.get("ok"):
                 results = data.get("result", [])
                 BOT.log("INFO", f"📥 Received {len(results)} Telegram update(s)")
                 
                 if not results:
-                    BOT.log("INFO", "No new messages")
+                    BOT.log("INFO", "✅ No new messages (up to date)")
+                    BOT.heartbeat["status"] = "ok_no_new_messages"
+                    save_state()
                     return
                 
-                # FIX #1: Process each update and track the highest update_id
                 highest_update_id = offset - 1 if offset > 0 else -1
                 
                 for result in results:
                     update_id = result.get("update_id", 0)
                     highest_update_id = max(highest_update_id, update_id)
                     
-                    # Get message from either direct message or channel post
                     msg = result.get("message") or result.get("channel_post")
                     
                     if not msg or "text" not in msg:
@@ -438,8 +537,9 @@ def check_telegram(client):
                     
                     text = msg["text"]
                     chat_id = msg.get("chat", {}).get("id", "Unknown")
+                    timestamp = msg.get("date", 0)
+                    msg_datetime = datetime.fromtimestamp(timestamp, tz=timezone.utc)
                     
-                    # FIX #2: Filter by TG_CHAT if configured
                     if TG_CHAT:
                         try:
                             expected_chat = int(TG_CHAT)
@@ -447,14 +547,25 @@ def check_telegram(client):
                                 BOT.log("DEBUG", f"Message from chat {chat_id} (expected {expected_chat}), skipping")
                                 continue
                         except ValueError:
-                            # If TG_CHAT is not a number, treat it as any chat (log warning once)
                             BOT.log("WARNING", f"TG_CHAT is not a valid number: {TG_CHAT}")
                     
-                    # Log the received message for debugging
                     BOT.log("INFO", f"💬 Received message from chat {chat_id}: '{text}'")
+                    BOT.heartbeat["messages_received"] += 1
                     
                     ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
                     signal = parse_signal(text)
+                    
+                    message_entry = {
+                        "update_id": update_id,
+                        "timestamp": timestamp,
+                        "datetime": msg_datetime.strftime("%Y-%m-%d %H:%M:%S UTC"),
+                        "chat_id": chat_id,
+                        "text": text,
+                        "is_signal": signal is not None,
+                        "signal": signal
+                    }
+                    BOT.all_telegram_messages.append(message_entry)
+                    
                     signal_entry = {
                         "time": ts,
                         "text": text,
@@ -466,22 +577,26 @@ def check_telegram(client):
                     
                     if signal:
                         BOT.log("INFO", f"📨 Signal: {signal['side']} {signal['qty']} {signal['symbol']}")
+                        BOT.heartbeat["signals_parsed"] += 1
                         place_order(client, signal['symbol'], signal['side'], signal['qty'], signal['sl'], signal['tp'], text)
                     else:
                         BOT.log("INFO", f"📝 Message did not match signal format: '{text}'")
                 
-                # FIX #3: Save offset AFTER processing all messages
-                # Next offset should be highest_update_id + 1
                 if highest_update_id >= 0:
                     new_offset = highest_update_id + 1
                     save_last_offset(new_offset)
                     BOT.log("INFO", f"📤 Updated offset to {new_offset}")
                 
+                BOT.heartbeat["status"] = "ok_messages_processed"
                 save_state()
             else:
-                BOT.error(f"Telegram API error: {data.get('description', 'Unknown error')}")
+                error_msg = f"Telegram API error: {data.get('description', 'Unknown error')}"
+                BOT.error(error_msg)
+                BOT.heartbeat["status"] = "error_api"
     except Exception as e:
-        BOT.error(f"Telegram check failed: {str(e)}")
+        error_msg = f"Telegram check failed: {str(e)}"
+        BOT.error(error_msg)
+        BOT.heartbeat["status"] = "error_exception"
         import traceback
         BOT.error(f"Full traceback: {traceback.format_exc()}")
 
@@ -491,116 +606,124 @@ def save_state():
         state = {
             "connected": BOT.connected,
             "loggedIn": BOT.logged_in,
+            "heartbeat": BOT.heartbeat,
             "account": BOT.account,
             "trades": list(BOT.trades),
             "signals": list(BOT.signals),
             "logs": list(BOT.logs),
             "errors": list(BOT.errors),
             "backendEvents": list(BOT.backend_events),
+            "allTelegramMessages": list(BOT.all_telegram_messages),
+            "telegramMessageCount": len(BOT.all_telegram_messages),
             "pairsConfig": BOT.pairs_config,
             "lastUpdate": datetime.now(timezone.utc).isoformat()
         }
         with open("docs/system_state.json", "w") as f:
             json.dump(state, f, indent=2)
         BOT.log("INFO", "💾 State saved to docs/system_state.json")
+        
+        try:
+            with open("docs/telegram_history.json", "w") as f:
+                telegram_history = {
+                    "total_messages": len(BOT.all_telegram_messages),
+                    "messages": list(BOT.all_telegram_messages),
+                    "last_update": datetime.now(timezone.utc).isoformat()
+                }
+                json.dump(telegram_history, f, indent=2)
+            BOT.log("INFO", f"📚 Telegram history saved ({len(BOT.all_telegram_messages)} messages)")
+        except Exception as e:
+            BOT.error(f"Failed to save telegram history: {e}")
     except Exception as e:
         BOT.error(f"Failed to save state: {e}")
 
 def main(single_run=False):
-    """
-    Main function to run the cTrader OpenAPI Bot.
-    
-    Args:
-        single_run (bool): If True, the bot will check for signals once and exit.
-                          If False (default), the bot will run continuously.
-    """
     BOT.log("INFO", "=" * 80)
     BOT.log("INFO", "🤖 cTrader OpenAPI Bot STARTING")
     BOT.log("INFO", "=" * 80)
 
     if not CT_CLIENT_ID or not CT_ACCESS_TOKEN or not CT_ACCOUNT_ID:
         BOT.error("Missing cTrader OpenAPI credentials (CT_CLIENT_ID, CT_ACCESS_TOKEN, CT_ACCOUNT_ID)")
+        BOT.heartbeat["status"] = "error_missing_credentials"
         return False
 
     if not is_valid_trading_account():
         BOT.error("Invalid trading account configuration. Please check your environment variables.")
+        BOT.heartbeat["status"] = "error_invalid_account"
         return False
 
     client = Client(HOST, PORT, TcpProtocol)
     
-    # Set appropriate timeouts based on mode
-    # For single run mode, use longer timeouts to allow Telegram to respond
     app_auth_timeout = 30 if not single_run else 60
     acc_auth_timeout = 30 if not single_run else 60
-    safety_timeout = 300 if not single_run else 120
+    safety_timeout = 300 if not single_run else 180
 
     def on_connected(client):
         BOT.connected = True
         BOT.log("SUCCESS", f"✅ Connected to cTrader OpenAPI at {HOST}:{PORT}")
 
-        # 1. Application Auth with improved timeout handling
         d = client.send("ProtoOAApplicationAuthReq", clientId=CT_CLIENT_ID, clientSecret=CT_CLIENT_SECRET, responseTimeoutInSeconds=app_auth_timeout)
         
         def on_app_auth(msg):
             BOT.log("SUCCESS", "🔐 Application Authorized successfully")
 
-            # 2. Account Auth with improved timeout handling
             d2 = client.send("ProtoOAAccountAuthReq", ctidTraderAccountId=CT_ACCOUNT_ID, accessToken=CT_ACCESS_TOKEN, responseTimeoutInSeconds=acc_auth_timeout)
             
             def on_acc_auth(acc_msg):
                 BOT.logged_in = True
                 BOT.log("SUCCESS", "🔐 Account Authorized successfully")
 
-                # Check Telegram immediately after successful authentication
+                # Fetch history if offset is too high or file doesn't exist
+                current_offset = get_last_offset()
+                if current_offset == 0 or current_offset > 800000000:
+                    BOT.log("INFO", "🔄 Resetting history - fetching all messages from start...")
+                    if os.path.exists("telegram_offset.txt"):
+                        os.remove("telegram_offset.txt")
+                        save_last_offset(0)
+                    check_telegram_history(client)
+                
+                # Check for new messages
                 check_telegram(client)
                 save_state()
                 
-                # For single run mode, stop after checking once
                 if single_run:
-                    BOT.log("INFO", "Single run mode completed. Exiting...")
+                    BOT.log("INFO", "✅ Single run mode completed. Exiting...")
                     reactor.callLater(2, lambda: reactor.stop() if reactor.running else None)
                 else:
-                    # Then set up periodic checks
-                    # Check Telegram every 30 seconds for new messages
                     def periodic_telegram_check():
                         if BOT.connected and BOT.logged_in:
                             check_telegram(client)
                             save_state()
-                            # Schedule next check in 30 seconds
                             reactor.callLater(30, periodic_telegram_check)
                     
-                    # Start the periodic check
                     reactor.callLater(30, periodic_telegram_check)
                 
             def on_acc_auth_err(err):
-                # Handle timeout errors more gracefully
                 err_str = str(err)
+                BOT.heartbeat["status"] = "error_account_auth"
                 if "TimeoutError" in err_str or "Deferred" in err_str:
                     BOT.error("Account auth timed out. This may be due to network issues or cTrader server delays.")
-                    BOT.error("Consider increasing the timeout value or checking your connection.")
                 else:
                     BOT.error(f"Account auth failed: {err}")
-                reactor.callLater(1, reactor.stop)  # Stop the reactor after error
+                reactor.callLater(1, reactor.stop)
             
             d2.addCallback(on_acc_auth)
             d2.addErrback(on_acc_auth_err)
         
         def on_app_auth_err(err):
-            # Handle timeout errors more gracefully
             err_str = str(err)
+            BOT.heartbeat["status"] = "error_app_auth"
             if "TimeoutError" in err_str or "Deferred" in err_str:
                 BOT.error("Application auth timed out. This may be due to network issues or cTrader server delays.")
-                BOT.error("Consider increasing the timeout value or checking your connection.")
             else:
                 BOT.error(f"App auth failed: {err}")
-            reactor.callLater(1, reactor.stop)  # Stop the reactor after error
+            reactor.callLater(1, reactor.stop)
         
         d.addCallback(on_app_auth)
         d.addErrback(on_app_auth_err)
 
     def on_disconnected(client, reason):
         BOT.connected = False
-        # Only log disconnection if not intentional (when reactor is stopping)
+        BOT.heartbeat["status"] = "disconnected"
         if reactor.running:
             BOT.log("WARNING", f"Disconnected: {reason}")
         if reactor.running:
@@ -610,14 +733,13 @@ def main(single_run=False):
     client.setDisconnectedCallback(on_disconnected)
     client.startService()
 
-    # Safety timeout
     reactor.callLater(safety_timeout, lambda: reactor.stop() if reactor.running else None)
 
     reactor.run()
+    BOT.heartbeat["status"] = "completed"
     return BOT.logged_in
 
 if __name__ == "__main__":
-    # Check if running in single run mode (for CI/CD environments) - default to continuous mode
     single_run_mode = os.environ.get("SINGLE_RUN", "").lower() in ("true", "1", "yes", "on")
     
     if single_run_mode:
