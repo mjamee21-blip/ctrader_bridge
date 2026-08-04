@@ -82,11 +82,17 @@ jobs:
       - name: Inject Dashboard Credentials
         if: always()
         env:
+          DASHBOARD_USERNAME: ${{ secrets.DASHBOARD_USERNAME }}
           DASHBOARD_USER: ${{ secrets.DASHBOARD_USER }}
+          DASHBOARD_PASSWORD: ${{ secrets.DASHBOARD_PASSWORD }}
           DASHBOARD_PASS: ${{ secrets.DASHBOARD_PASS }}
         run: |
-          USER="${DASHBOARD_USER:-admin}"
-          PASS="${DASHBOARD_PASS:-password123}"
+          USER="${DASHBOARD_USERNAME:-$DASHBOARD_USER}"
+          PASS="${DASHBOARD_PASSWORD:-$DASHBOARD_PASS}"
+          if [ -z "$USER" ] || [ -z "$PASS" ]; then
+            echo "❌ ERROR: DASHBOARD_USERNAME/DASHBOARD_USER and DASHBOARD_PASSWORD/DASHBOARD_PASS secrets must be set!"
+            exit 1
+          fi
           if [ -f "docs/login.html" ]; then
             sed -i "s/__DASHBOARD_USER__/$USER/g" docs/login.html
             sed -i "s/__DASHBOARD_PASS__/$PASS/g" docs/login.html
