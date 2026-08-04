@@ -384,14 +384,20 @@ def save_last_offset(offset):
         pass
 
 def check_telegram(client):
+    """
+    FIX #1: Properly check Telegram messages with correct offset handling
+    FIX #2: Filter messages by TG_CHAT if configured
+    FIX #3: Save offset ONLY after successful processing
+    """
     if not TG_TOKEN:
         BOT.log("WARNING", "⚠️ TG_TOKEN not set, skipping Telegram check")
         return
+    
     try:
         offset = get_last_offset()
         BOT.log("INFO", f"📱 Checking Telegram updates (offset: {offset})...")
         url = f"https://api.telegram.org/bot{TG_TOKEN}/getUpdates"
-        params_dict = {"timeout": "10"}  # Increased timeout
+        params_dict = {"timeout": "30"}  # Long polling timeout
         if offset > 0:
             params_dict["offset"] = str(offset)
         params = urllib.parse.urlencode(params_dict)
@@ -406,44 +412,71 @@ def check_telegram(client):
             ssl_context.check_hostname = False
             ssl_context.verify_mode = ssl.CERT_NONE
         
-        with urllib.request.urlopen(req, timeout=15, context=ssl_context) as resp:  # Increased timeout
+        with urllib.request.urlopen(req, timeout=35, context=ssl_context) as resp:  # Increased timeout
             data = json.loads(resp.read().decode("utf-8"))
             if data.get("ok"):
                 results = data.get("result", [])
                 BOT.log("INFO", f"📥 Received {len(results)} Telegram update(s)")
                 
-                max_update_id = offset
+                if not results:
+                    BOT.log("INFO", "No new messages")
+                    return
+                
+                # FIX #1: Process each update and track the highest update_id
+                highest_update_id = offset - 1 if offset > 0 else -1
+                
                 for result in results:
                     update_id = result.get("update_id", 0)
-                    if update_id >= max_update_id:
-                        max_update_id = update_id + 1
+                    highest_update_id = max(highest_update_id, update_id)
+                    
+                    # Get message from either direct message or channel post
                     msg = result.get("message") or result.get("channel_post")
-                    if msg and "text" in msg:
-                        text = msg["text"]
-                        chat_id = msg.get("chat", {}).get("id", "Unknown")
-                        
-                        # Log the received message for debugging
-                        BOT.log("INFO", f"💬 Received message from chat {chat_id}: '{text}'")
-                        
-                        ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
-                        signal = parse_signal(text)
-                        signal_entry = {
-                            "time": ts,
-                            "text": text,
-                            "parsed": signal is not None,
-                            "signal": signal
-                        }
-                        BOT.signals.appendleft(signal_entry)
-                        BOT.backend_events.appendleft({"time": ts, "event": f"Signal received: {text[:50]}...", "type": "signal"})
-                        if signal:
-                            BOT.log("INFO", f"📨 Signal: {signal['side']} {signal['qty']} {signal['symbol']}")
-                            place_order(client, signal['symbol'], signal['side'], signal['qty'], signal['sl'], signal['tp'], text)
-                        else:
-                            BOT.log("INFO", f"📝 Message did not match signal format: '{text}'")
-                            
-                if max_update_id > offset:
-                    save_last_offset(max_update_id)
-                    BOT.log("INFO", f"📤 Updated offset to {max_update_id}")
+                    
+                    if not msg or "text" not in msg:
+                        BOT.log("DEBUG", f"Update {update_id}: No text message, skipping")
+                        continue
+                    
+                    text = msg["text"]
+                    chat_id = msg.get("chat", {}).get("id", "Unknown")
+                    
+                    # FIX #2: Filter by TG_CHAT if configured
+                    if TG_CHAT:
+                        try:
+                            expected_chat = int(TG_CHAT)
+                            if chat_id != expected_chat:
+                                BOT.log("DEBUG", f"Message from chat {chat_id} (expected {expected_chat}), skipping")
+                                continue
+                        except ValueError:
+                            # If TG_CHAT is not a number, treat it as any chat (log warning once)
+                            BOT.log("WARNING", f"TG_CHAT is not a valid number: {TG_CHAT}")
+                    
+                    # Log the received message for debugging
+                    BOT.log("INFO", f"💬 Received message from chat {chat_id}: '{text}'")
+                    
+                    ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
+                    signal = parse_signal(text)
+                    signal_entry = {
+                        "time": ts,
+                        "text": text,
+                        "parsed": signal is not None,
+                        "signal": signal
+                    }
+                    BOT.signals.appendleft(signal_entry)
+                    BOT.backend_events.appendleft({"time": ts, "event": f"Signal received: {text[:50]}...", "type": "signal"})
+                    
+                    if signal:
+                        BOT.log("INFO", f"📨 Signal: {signal['side']} {signal['qty']} {signal['symbol']}")
+                        place_order(client, signal['symbol'], signal['side'], signal['qty'], signal['sl'], signal['tp'], text)
+                    else:
+                        BOT.log("INFO", f"📝 Message did not match signal format: '{text}'")
+                
+                # FIX #3: Save offset AFTER processing all messages
+                # Next offset should be highest_update_id + 1
+                if highest_update_id >= 0:
+                    new_offset = highest_update_id + 1
+                    save_last_offset(new_offset)
+                    BOT.log("INFO", f"📤 Updated offset to {new_offset}")
+                
                 save_state()
             else:
                 BOT.error(f"Telegram API error: {data.get('description', 'Unknown error')}")
@@ -496,9 +529,10 @@ def main(single_run=False):
     client = Client(HOST, PORT, TcpProtocol)
     
     # Set appropriate timeouts based on mode
-    app_auth_timeout = 30 if not single_run else 60  # Longer timeout for single run
-    acc_auth_timeout = 30 if not single_run else 60  # Longer timeout for single run
-    safety_timeout = 300 if not single_run else 120  # Shorter safety timeout for single run
+    # For single run mode, use longer timeouts to allow Telegram to respond
+    app_auth_timeout = 30 if not single_run else 60
+    acc_auth_timeout = 30 if not single_run else 60
+    safety_timeout = 300 if not single_run else 120
 
     def on_connected(client):
         BOT.connected = True
