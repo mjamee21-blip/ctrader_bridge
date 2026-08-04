@@ -16,104 +16,105 @@
   "signals": [],
   "logs": [
     {
-      "time": "2026-08-04 14:52:56 UTC",
+      "time": "2026-08-04 14:55:15 UTC",
+      "level": "INFO",
+      "message": "No new messages"
+    },
+    {
+      "time": "2026-08-04 14:55:15 UTC",
+      "level": "INFO",
+      "message": "\ud83d\udce5 Received 0 Telegram update(s)"
+    },
+    {
+      "time": "2026-08-04 14:54:44 UTC",
       "level": "INFO",
       "message": "\ud83d\udcf1 Checking Telegram updates (offset: 841819977)..."
     },
     {
-      "time": "2026-08-04 14:52:56 UTC",
+      "time": "2026-08-04 14:54:44 UTC",
       "level": "SUCCESS",
       "message": "\ud83d\udd10 Account Authorized successfully"
     },
     {
-      "time": "2026-08-04 14:52:55 UTC",
+      "time": "2026-08-04 14:54:43 UTC",
       "level": "SUCCESS",
       "message": "\ud83d\udd10 Application Authorized successfully"
     },
     {
-      "time": "2026-08-04 14:52:53 UTC",
+      "time": "2026-08-04 14:54:42 UTC",
       "level": "SUCCESS",
       "message": "\u2705 Connected to cTrader OpenAPI at demo.ctraderapi.com:5035"
     },
     {
-      "time": "2026-08-04 14:52:53 UTC",
+      "time": "2026-08-04 14:54:39 UTC",
       "level": "INFO",
       "message": "================================================================================"
     },
     {
-      "time": "2026-08-04 14:52:53 UTC",
+      "time": "2026-08-04 14:54:39 UTC",
       "level": "INFO",
       "message": "\ud83e\udd16 cTrader OpenAPI Bot STARTING"
     },
     {
-      "time": "2026-08-04 14:52:53 UTC",
+      "time": "2026-08-04 14:54:39 UTC",
       "level": "INFO",
       "message": "================================================================================"
     },
     {
-      "time": "2026-08-04 14:52:53 UTC",
+      "time": "2026-08-04 14:54:39 UTC",
       "level": "INFO",
       "message": "Running in SINGLE RUN mode (suitable for CI/CD)"
     }
   ],
-  "errors": [
-    {
-      "time": "2026-08-04 14:52:56 UTC",
-      "error": "Full traceback: Traceback (most recent call last):\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/urllib/request.py\", line 1348, in do_open\n    h.request(req.get_method(), req.selector, req.data, headers,\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/http/client.py\", line 1323, in request\n    self._send_request(method, url, body, headers, encode_chunked)\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/http/client.py\", line 1369, in _send_request\n    self.endheaders(body, encode_chunked=encode_chunked)\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/http/client.py\", line 1318, in endheaders\n    self._send_output(message_body, encode_chunked=encode_chunked)\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/http/client.py\", line 1078, in _send_output\n    self.send(msg)\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/http/client.py\", line 1016, in send\n    self.connect()\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/http/client.py\", line 1495, in connect\n    self.sock = self._context.wrap_socket(self.sock,\n                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/ssl.py\", line 517, in wrap_socket\n    return self.sslsocket_class._create(\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/ssl.py\", line 1104, in _create\n    self.do_handshake()\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/ssl.py\", line 1382, in do_handshake\n    self._sslobj.do_handshake()\nConnectionResetError: [Errno 104] Connection reset by peer\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/home/runner/work/ctrader_bridge/ctrader_bridge/ctrader_bot.py\", line 383, in check_telegram\n    with urllib.request.urlopen(req, timeout=35, context=ssl_context) as resp:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/urllib/request.py\", line 216, in urlopen\n    return opener.open(url, data, timeout)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/urllib/request.py\", line 519, in open\n    response = self._open(req, data)\n               ^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/urllib/request.py\", line 536, in _open\n    result = self._call_chain(self.handle_open, protocol, protocol +\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/urllib/request.py\", line 496, in _call_chain\n    result = func(*args)\n             ^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/urllib/request.py\", line 1391, in https_open\n    return self.do_open(http.client.HTTPSConnection, req,\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/urllib/request.py\", line 1351, in do_open\n    raise URLError(err)\nurllib.error.URLError: <urlopen error [Errno 104] Connection reset by peer>\n"
-    },
-    {
-      "time": "2026-08-04 14:52:56 UTC",
-      "error": "Telegram check failed: <urlopen error [Errno 104] Connection reset by peer>"
-    }
-  ],
+  "errors": [],
   "backendEvents": [
     {
-      "time": "2026-08-04 14:52:56 UTC",
-      "event": "ERROR: Full traceback: Traceback (most recent call last):\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/urllib/request.py\", line 1348, in do_open\n    h.request(req.get_method(), req.selector, req.data, headers,\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/http/client.py\", line 1323, in request\n    self._send_request(method, url, body, headers, encode_chunked)\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/http/client.py\", line 1369, in _send_request\n    self.endheaders(body, encode_chunked=encode_chunked)\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/http/client.py\", line 1318, in endheaders\n    self._send_output(message_body, encode_chunked=encode_chunked)\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/http/client.py\", line 1078, in _send_output\n    self.send(msg)\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/http/client.py\", line 1016, in send\n    self.connect()\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/http/client.py\", line 1495, in connect\n    self.sock = self._context.wrap_socket(self.sock,\n                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/ssl.py\", line 517, in wrap_socket\n    return self.sslsocket_class._create(\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/ssl.py\", line 1104, in _create\n    self.do_handshake()\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/ssl.py\", line 1382, in do_handshake\n    self._sslobj.do_handshake()\nConnectionResetError: [Errno 104] Connection reset by peer\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/home/runner/work/ctrader_bridge/ctrader_bridge/ctrader_bot.py\", line 383, in check_telegram\n    with urllib.request.urlopen(req, timeout=35, context=ssl_context) as resp:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/urllib/request.py\", line 216, in urlopen\n    return opener.open(url, data, timeout)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/urllib/request.py\", line 519, in open\n    response = self._open(req, data)\n               ^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/urllib/request.py\", line 536, in _open\n    result = self._call_chain(self.handle_open, protocol, protocol +\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/urllib/request.py\", line 496, in _call_chain\n    result = func(*args)\n             ^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/urllib/request.py\", line 1391, in https_open\n    return self.do_open(http.client.HTTPSConnection, req,\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/urllib/request.py\", line 1351, in do_open\n    raise URLError(err)\nurllib.error.URLError: <urlopen error [Errno 104] Connection reset by peer>\n",
-      "type": "error"
+      "time": "2026-08-04 14:55:15 UTC",
+      "event": "[INFO] No new messages",
+      "type": "log"
     },
     {
-      "time": "2026-08-04 14:52:56 UTC",
-      "event": "ERROR: Telegram check failed: <urlopen error [Errno 104] Connection reset by peer>",
-      "type": "error"
+      "time": "2026-08-04 14:55:15 UTC",
+      "event": "[INFO] \ud83d\udce5 Received 0 Telegram update(s)",
+      "type": "log"
     },
     {
-      "time": "2026-08-04 14:52:56 UTC",
+      "time": "2026-08-04 14:54:44 UTC",
       "event": "[INFO] \ud83d\udcf1 Checking Telegram updates (offset: 841819977)...",
       "type": "log"
     },
     {
-      "time": "2026-08-04 14:52:56 UTC",
+      "time": "2026-08-04 14:54:44 UTC",
       "event": "[SUCCESS] \ud83d\udd10 Account Authorized successfully",
       "type": "log"
     },
     {
-      "time": "2026-08-04 14:52:55 UTC",
+      "time": "2026-08-04 14:54:43 UTC",
       "event": "[SUCCESS] \ud83d\udd10 Application Authorized successfully",
       "type": "log"
     },
     {
-      "time": "2026-08-04 14:52:53 UTC",
+      "time": "2026-08-04 14:54:42 UTC",
       "event": "[SUCCESS] \u2705 Connected to cTrader OpenAPI at demo.ctraderapi.com:5035",
       "type": "log"
     },
     {
-      "time": "2026-08-04 14:52:53 UTC",
+      "time": "2026-08-04 14:54:39 UTC",
       "event": "[INFO] ================================================================================",
       "type": "log"
     },
     {
-      "time": "2026-08-04 14:52:53 UTC",
+      "time": "2026-08-04 14:54:39 UTC",
       "event": "[INFO] \ud83e\udd16 cTrader OpenAPI Bot STARTING",
       "type": "log"
     },
     {
-      "time": "2026-08-04 14:52:53 UTC",
+      "time": "2026-08-04 14:54:39 UTC",
       "event": "[INFO] ================================================================================",
       "type": "log"
     },
     {
-      "time": "2026-08-04 14:52:53 UTC",
+      "time": "2026-08-04 14:54:39 UTC",
       "event": "[INFO] Running in SINGLE RUN mode (suitable for CI/CD)",
       "type": "log"
     }
@@ -245,5 +246,5 @@
       "category": "Indices"
     }
   },
-  "lastUpdate": "2026-08-04T14:52:56.341096+00:00"
+  "lastUpdate": "2026-08-04T14:55:15.390178+00:00"
 }
