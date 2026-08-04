@@ -16,37 +16,37 @@
   "signals": [],
   "logs": [
     {
-      "time": "2026-08-04 01:08:43 UTC",
+      "time": "2026-08-04 01:21:00 UTC",
       "level": "INFO",
-      "message": "📱 Checking Telegram updates (offset: 841819971)..."
+      "message": "\ud83d\udcf1 Checking Telegram updates (offset: 841819971)..."
     },
     {
-      "time": "2026-08-04 01:08:42 UTC",
+      "time": "2026-08-04 01:21:00 UTC",
       "level": "SUCCESS",
-      "message": "🔐 Account Authorized successfully"
+      "message": "\ud83d\udd10 Account Authorized successfully"
     },
     {
-      "time": "2026-08-04 01:08:42 UTC",
+      "time": "2026-08-04 01:20:59 UTC",
       "level": "SUCCESS",
-      "message": "🔐 Application Authorized successfully"
+      "message": "\ud83d\udd10 Application Authorized successfully"
     },
     {
-      "time": "2026-08-04 01:08:41 UTC",
+      "time": "2026-08-04 01:20:58 UTC",
       "level": "SUCCESS",
-      "message": "✅ Connected to cTrader OpenAPI at demo.ctraderapi.com:5035"
+      "message": "\u2705 Connected to cTrader OpenAPI at demo.ctraderapi.com:5035"
     },
     {
-      "time": "2026-08-04 01:08:41 UTC",
+      "time": "2026-08-04 01:20:57 UTC",
       "level": "INFO",
       "message": "================================================================================"
     },
     {
-      "time": "2026-08-04 01:08:41 UTC",
+      "time": "2026-08-04 01:20:57 UTC",
       "level": "INFO",
-      "message": "🤖 cTrader OpenAPI Bot STARTING"
+      "message": "\ud83e\udd16 cTrader OpenAPI Bot STARTING"
     },
     {
-      "time": "2026-08-04 01:08:41 UTC",
+      "time": "2026-08-04 01:20:57 UTC",
       "level": "INFO",
       "message": "================================================================================"
     }
@@ -54,37 +54,37 @@
   "errors": [],
   "backendEvents": [
     {
-      "time": "2026-08-04 01:08:43 UTC",
-      "event": "[INFO] 📱 Checking Telegram updates (offset: 841819971)...",
+      "time": "2026-08-04 01:21:00 UTC",
+      "event": "[INFO] \ud83d\udcf1 Checking Telegram updates (offset: 841819971)...",
       "type": "log"
     },
     {
-      "time": "2026-08-04 01:08:42 UTC",
-      "event": "[SUCCESS] 🔐 Account Authorized successfully",
+      "time": "2026-08-04 01:21:00 UTC",
+      "event": "[SUCCESS] \ud83d\udd10 Account Authorized successfully",
       "type": "log"
     },
     {
-      "time": "2026-08-04 01:08:42 UTC",
-      "event": "[SUCCESS] 🔐 Application Authorized successfully",
+      "time": "2026-08-04 01:20:59 UTC",
+      "event": "[SUCCESS] \ud83d\udd10 Application Authorized successfully",
       "type": "log"
     },
     {
-      "time": "2026-08-04 01:08:41 UTC",
-      "event": "[SUCCESS] ✅ Connected to cTrader OpenAPI at demo.ctraderapi.com:5035",
+      "time": "2026-08-04 01:20:58 UTC",
+      "event": "[SUCCESS] \u2705 Connected to cTrader OpenAPI at demo.ctraderapi.com:5035",
       "type": "log"
     },
     {
-      "time": "2026-08-04 01:08:41 UTC",
+      "time": "2026-08-04 01:20:57 UTC",
       "event": "[INFO] ================================================================================",
       "type": "log"
     },
     {
-      "time": "2026-08-04 01:08:41 UTC",
-      "event": "[INFO] 🤖 cTrader OpenAPI Bot STARTING",
+      "time": "2026-08-04 01:20:57 UTC",
+      "event": "[INFO] \ud83e\udd16 cTrader OpenAPI Bot STARTING",
       "type": "log"
     },
     {
-      "time": "2026-08-04 01:08:41 UTC",
+      "time": "2026-08-04 01:20:57 UTC",
       "event": "[INFO] ================================================================================",
       "type": "log"
     }
@@ -216,5 +216,5 @@
       "category": "Indices"
     }
   },
-  "lastUpdate": "2026-08-04T01:08:49.300878+00:00"
+  "lastUpdate": "2026-08-04T01:21:05.742195+00:00"
 }
