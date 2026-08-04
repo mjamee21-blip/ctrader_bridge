@@ -743,8 +743,8 @@ def main(single_run=False):
                 save_state()
                 
                 if single_run:
-                    BOT.log("INFO", "✅ Single run mode completed. Exiting...")
-                    reactor.callLater(2, lambda: reactor.stop() if reactor.running else None)
+                    BOT.log("INFO", "✅ Single run mode completed. Waiting 20 seconds for order responses before exiting...")
+                    reactor.callLater(20, lambda: reactor.stop() if reactor.running else None)
                 else:
                     def periodic_telegram_check():
                         if BOT.connected and BOT.logged_in:
