@@ -581,8 +581,8 @@ def main(single_run=False):
     return BOT.logged_in
 
 if __name__ == "__main__":
-    # Check if running in single run mode (for CI/CD environments)
-    single_run_mode = os.environ.get("SINGLE_RUN", "false").lower() in ("true", "1", "yes", "on")
+    # Check if running in single run mode (for CI/CD environments) - default to continuous mode
+    single_run_mode = os.environ.get("SINGLE_RUN", "").lower() in ("true", "1", "yes", "on")
     
     if single_run_mode:
         BOT.log("INFO", "Running in SINGLE RUN mode (suitable for CI/CD)")
