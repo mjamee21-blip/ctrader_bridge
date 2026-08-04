@@ -16,52 +16,52 @@
   "signals": [],
   "logs": [
     {
-      "time": "2026-08-04 14:05:19 UTC",
+      "time": "2026-08-04 14:07:24 UTC",
       "level": "INFO",
       "message": "No new messages"
     },
     {
-      "time": "2026-08-04 14:05:19 UTC",
+      "time": "2026-08-04 14:07:24 UTC",
       "level": "INFO",
       "message": "\ud83d\udce5 Received 0 Telegram update(s)"
     },
     {
-      "time": "2026-08-04 14:04:49 UTC",
+      "time": "2026-08-04 14:06:53 UTC",
       "level": "INFO",
       "message": "\ud83d\udcf1 Checking Telegram updates (offset: 841819977)..."
     },
     {
-      "time": "2026-08-04 14:04:49 UTC",
+      "time": "2026-08-04 14:06:53 UTC",
       "level": "SUCCESS",
       "message": "\ud83d\udd10 Account Authorized successfully"
     },
     {
-      "time": "2026-08-04 14:04:48 UTC",
+      "time": "2026-08-04 14:06:52 UTC",
       "level": "SUCCESS",
       "message": "\ud83d\udd10 Application Authorized successfully"
     },
     {
-      "time": "2026-08-04 14:04:46 UTC",
+      "time": "2026-08-04 14:06:51 UTC",
       "level": "SUCCESS",
       "message": "\u2705 Connected to cTrader OpenAPI at demo.ctraderapi.com:5035"
     },
     {
-      "time": "2026-08-04 14:04:46 UTC",
+      "time": "2026-08-04 14:06:51 UTC",
       "level": "INFO",
       "message": "================================================================================"
     },
     {
-      "time": "2026-08-04 14:04:46 UTC",
+      "time": "2026-08-04 14:06:51 UTC",
       "level": "INFO",
       "message": "\ud83e\udd16 cTrader OpenAPI Bot STARTING"
     },
     {
-      "time": "2026-08-04 14:04:46 UTC",
+      "time": "2026-08-04 14:06:51 UTC",
       "level": "INFO",
       "message": "================================================================================"
     },
     {
-      "time": "2026-08-04 14:04:46 UTC",
+      "time": "2026-08-04 14:06:51 UTC",
       "level": "INFO",
       "message": "Running in SINGLE RUN mode (suitable for CI/CD)"
     }
@@ -69,52 +69,52 @@
   "errors": [],
   "backendEvents": [
     {
-      "time": "2026-08-04 14:05:19 UTC",
+      "time": "2026-08-04 14:07:24 UTC",
       "event": "[INFO] No new messages",
       "type": "log"
     },
     {
-      "time": "2026-08-04 14:05:19 UTC",
+      "time": "2026-08-04 14:07:24 UTC",
       "event": "[INFO] \ud83d\udce5 Received 0 Telegram update(s)",
       "type": "log"
     },
     {
-      "time": "2026-08-04 14:04:49 UTC",
+      "time": "2026-08-04 14:06:53 UTC",
       "event": "[INFO] \ud83d\udcf1 Checking Telegram updates (offset: 841819977)...",
       "type": "log"
     },
     {
-      "time": "2026-08-04 14:04:49 UTC",
+      "time": "2026-08-04 14:06:53 UTC",
       "event": "[SUCCESS] \ud83d\udd10 Account Authorized successfully",
       "type": "log"
     },
     {
-      "time": "2026-08-04 14:04:48 UTC",
+      "time": "2026-08-04 14:06:52 UTC",
       "event": "[SUCCESS] \ud83d\udd10 Application Authorized successfully",
       "type": "log"
     },
     {
-      "time": "2026-08-04 14:04:46 UTC",
+      "time": "2026-08-04 14:06:51 UTC",
       "event": "[SUCCESS] \u2705 Connected to cTrader OpenAPI at demo.ctraderapi.com:5035",
       "type": "log"
     },
     {
-      "time": "2026-08-04 14:04:46 UTC",
+      "time": "2026-08-04 14:06:51 UTC",
       "event": "[INFO] ================================================================================",
       "type": "log"
     },
     {
-      "time": "2026-08-04 14:04:46 UTC",
+      "time": "2026-08-04 14:06:51 UTC",
       "event": "[INFO] \ud83e\udd16 cTrader OpenAPI Bot STARTING",
       "type": "log"
     },
     {
-      "time": "2026-08-04 14:04:46 UTC",
+      "time": "2026-08-04 14:06:51 UTC",
       "event": "[INFO] ================================================================================",
       "type": "log"
     },
     {
-      "time": "2026-08-04 14:04:46 UTC",
+      "time": "2026-08-04 14:06:51 UTC",
       "event": "[INFO] Running in SINGLE RUN mode (suitable for CI/CD)",
       "type": "log"
     }
@@ -246,5 +246,5 @@
       "category": "Indices"
     }
   },
-  "lastUpdate": "2026-08-04T14:05:19.577543+00:00"
+  "lastUpdate": "2026-08-04T14:07:24.096604+00:00"
 }
