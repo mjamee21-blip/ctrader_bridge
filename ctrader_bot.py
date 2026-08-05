@@ -425,8 +425,9 @@ def check_telegram_history(client):
         BOT.log("INFO", "📚 Fetching Telegram channel history (last 30 days) - USING NEGATIVE OFFSET...")
         url = f"https://api.telegram.org/bot{TG_TOKEN}/getUpdates"
         
-        # Use negative offset to get messages from the end going backwards
-        params_dict = {"timeout": "30", "limit": "100", "offset": "-100"}
+        # Use positive offset starting from last known position
+        last_offset = get_last_offset()
+        params_dict = {"timeout": "30", "limit": "100", "offset": str(last_offset)}
         
         import ssl
         try:
@@ -438,7 +439,7 @@ def check_telegram_history(client):
         
         all_messages = []
         thirty_days_ago = datetime.now(timezone.utc) - timedelta(days=30)
-        offset = -100
+        offset = get_last_offset()
         max_iterations = 30
         iteration = 0
         
@@ -453,6 +454,11 @@ def check_telegram_history(client):
             try:
                 with urllib.request.urlopen(req, timeout=35, context=ssl_context) as resp:
                     data = json.loads(resp.read().decode("utf-8"))
+                    
+                    # Update offset for next iteration
+                    if data.get("result"):
+                        highest_id = max([r.get("update_id", 0) for r in data["result"]])
+                        offset = highest_id + 1
                     
                     if not data.get("ok"):
                         BOT.log("WARNING", f"Failed to fetch history: {data.get('description')}")
@@ -642,6 +648,9 @@ def check_telegram(client):
                 new_offset = highest_update_id + 1
                 save_last_offset(new_offset)
                 BOT.log("INFO", f"📤 Updated offset to {new_offset}")
+                
+                # Also update in-memory offset for immediate use
+                offset = new_offset
             
             BOT.heartbeat["status"] = "ok_messages_processed"
             save_state()
