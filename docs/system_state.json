@@ -3,7 +3,7 @@
   "loggedIn": true,
   "heartbeat": {
     "status": "ok_no_new_messages",
-    "last_check": "2026-08-05T19:04:11.861610+00:00",
+    "last_check": "2026-08-05T19:14:53.731812+00:00",
     "telegram_token_set": true,
     "telegram_chat_set": true,
     "messages_received": 0,
@@ -27,232 +27,232 @@
   "signals": [],
   "logs": [
     {
-      "time": "2026-08-05 19:04:42 UTC",
+      "time": "2026-08-05 19:15:24 UTC",
       "level": "INFO",
       "message": "\ud83d\udcda Telegram history saved (0 messages)"
     },
     {
-      "time": "2026-08-05 19:04:42 UTC",
+      "time": "2026-08-05 19:15:24 UTC",
       "level": "INFO",
       "message": "\ud83d\udcbe State saved to docs/system_state.json"
     },
     {
-      "time": "2026-08-05 19:04:42 UTC",
+      "time": "2026-08-05 19:15:24 UTC",
       "level": "INFO",
       "message": "\u2705 No new messages (up to date)"
     },
     {
-      "time": "2026-08-05 19:04:42 UTC",
+      "time": "2026-08-05 19:15:24 UTC",
       "level": "INFO",
       "message": "\ud83d\udce5 Received 0 Telegram update(s)"
     },
     {
-      "time": "2026-08-05 19:04:42 UTC",
+      "time": "2026-08-05 19:15:24 UTC",
       "level": "DEBUG",
       "message": "Telegram API raw response: {\"ok\":true,\"result\":[]}"
     },
     {
-      "time": "2026-08-05 19:04:11 UTC",
+      "time": "2026-08-05 19:14:53 UTC",
       "level": "INFO",
       "message": "\ud83d\udcf1 Checking Telegram updates (offset: 1000000)..."
     },
     {
-      "time": "2026-08-05 19:03:41 UTC",
+      "time": "2026-08-05 19:14:23 UTC",
       "level": "INFO",
       "message": "\ud83d\udcda Telegram history saved (0 messages)"
     },
     {
-      "time": "2026-08-05 19:03:41 UTC",
+      "time": "2026-08-05 19:14:23 UTC",
       "level": "INFO",
       "message": "\ud83d\udcbe State saved to docs/system_state.json"
     },
     {
-      "time": "2026-08-05 19:03:41 UTC",
+      "time": "2026-08-05 19:14:23 UTC",
       "level": "INFO",
       "message": "\ud83d\udcda Telegram history saved (0 messages)"
     },
     {
-      "time": "2026-08-05 19:03:41 UTC",
+      "time": "2026-08-05 19:14:23 UTC",
       "level": "INFO",
       "message": "\ud83d\udcbe State saved to docs/system_state.json"
     },
     {
-      "time": "2026-08-05 19:03:41 UTC",
+      "time": "2026-08-05 19:14:23 UTC",
       "level": "INFO",
       "message": "\u2705 No new messages (up to date)"
     },
     {
-      "time": "2026-08-05 19:03:41 UTC",
+      "time": "2026-08-05 19:14:23 UTC",
       "level": "INFO",
       "message": "\ud83d\udce5 Received 0 Telegram update(s)"
     },
     {
-      "time": "2026-08-05 19:03:41 UTC",
+      "time": "2026-08-05 19:14:23 UTC",
       "level": "DEBUG",
       "message": "Telegram API raw response: {\"ok\":true,\"result\":[]}"
     },
     {
-      "time": "2026-08-05 19:03:11 UTC",
+      "time": "2026-08-05 19:13:53 UTC",
       "level": "INFO",
       "message": "\ud83d\udcf1 Checking Telegram updates (offset: 1000000)..."
     },
     {
-      "time": "2026-08-05 19:02:41 UTC",
+      "time": "2026-08-05 19:13:23 UTC",
       "level": "INFO",
       "message": "\ud83d\udcda Telegram history saved (0 messages)"
     },
     {
-      "time": "2026-08-05 19:02:41 UTC",
+      "time": "2026-08-05 19:13:23 UTC",
       "level": "INFO",
       "message": "\ud83d\udcbe State saved to docs/system_state.json"
     },
     {
-      "time": "2026-08-05 19:02:41 UTC",
+      "time": "2026-08-05 19:13:23 UTC",
       "level": "INFO",
       "message": "\ud83d\udcda Telegram history saved (0 messages)"
     },
     {
-      "time": "2026-08-05 19:02:41 UTC",
+      "time": "2026-08-05 19:13:23 UTC",
       "level": "INFO",
       "message": "\ud83d\udcbe State saved to docs/system_state.json"
     },
     {
-      "time": "2026-08-05 19:02:41 UTC",
+      "time": "2026-08-05 19:13:23 UTC",
       "level": "INFO",
       "message": "\u2705 No new messages (up to date)"
     },
     {
-      "time": "2026-08-05 19:02:41 UTC",
+      "time": "2026-08-05 19:13:23 UTC",
       "level": "INFO",
       "message": "\ud83d\udce5 Received 0 Telegram update(s)"
     },
     {
-      "time": "2026-08-05 19:02:41 UTC",
+      "time": "2026-08-05 19:13:23 UTC",
       "level": "DEBUG",
       "message": "Telegram API raw response: {\"ok\":true,\"result\":[]}"
     },
     {
-      "time": "2026-08-05 19:02:11 UTC",
+      "time": "2026-08-05 19:12:52 UTC",
       "level": "INFO",
       "message": "\ud83d\udcf1 Checking Telegram updates (offset: 1000000)..."
     },
     {
-      "time": "2026-08-05 19:01:41 UTC",
+      "time": "2026-08-05 19:12:22 UTC",
       "level": "INFO",
       "message": "\ud83d\udcda Telegram history saved (0 messages)"
     },
     {
-      "time": "2026-08-05 19:01:41 UTC",
+      "time": "2026-08-05 19:12:22 UTC",
       "level": "INFO",
       "message": "\ud83d\udcbe State saved to docs/system_state.json"
     },
     {
-      "time": "2026-08-05 19:01:41 UTC",
+      "time": "2026-08-05 19:12:22 UTC",
       "level": "INFO",
       "message": "\ud83d\udcda Telegram history saved (0 messages)"
     },
     {
-      "time": "2026-08-05 19:01:41 UTC",
+      "time": "2026-08-05 19:12:22 UTC",
       "level": "INFO",
       "message": "\ud83d\udcbe State saved to docs/system_state.json"
     },
     {
-      "time": "2026-08-05 19:01:41 UTC",
+      "time": "2026-08-05 19:12:22 UTC",
       "level": "INFO",
       "message": "\u2705 No new messages (up to date)"
     },
     {
-      "time": "2026-08-05 19:01:41 UTC",
+      "time": "2026-08-05 19:12:22 UTC",
       "level": "INFO",
       "message": "\ud83d\udce5 Received 0 Telegram update(s)"
     },
     {
-      "time": "2026-08-05 19:01:41 UTC",
+      "time": "2026-08-05 19:12:22 UTC",
       "level": "DEBUG",
       "message": "Telegram API raw response: {\"ok\":true,\"result\":[]}"
     },
     {
-      "time": "2026-08-05 19:01:10 UTC",
+      "time": "2026-08-05 19:11:52 UTC",
       "level": "INFO",
       "message": "\ud83d\udcf1 Checking Telegram updates (offset: 1000000)..."
     },
     {
-      "time": "2026-08-05 19:00:40 UTC",
+      "time": "2026-08-05 19:11:22 UTC",
       "level": "INFO",
       "message": "\ud83d\udcda Telegram history saved (0 messages)"
     },
     {
-      "time": "2026-08-05 19:00:40 UTC",
+      "time": "2026-08-05 19:11:22 UTC",
       "level": "INFO",
       "message": "\ud83d\udcbe State saved to docs/system_state.json"
     },
     {
-      "time": "2026-08-05 19:00:40 UTC",
+      "time": "2026-08-05 19:11:22 UTC",
       "level": "INFO",
       "message": "Loaded signals from docs/pending_signals.json"
     },
     {
-      "time": "2026-08-05 19:00:40 UTC",
+      "time": "2026-08-05 19:11:22 UTC",
       "level": "INFO",
       "message": "\ud83d\udcda Telegram history saved (0 messages)"
     },
     {
-      "time": "2026-08-05 19:00:40 UTC",
+      "time": "2026-08-05 19:11:22 UTC",
       "level": "INFO",
       "message": "\ud83d\udcbe State saved to docs/system_state.json"
     },
     {
-      "time": "2026-08-05 19:00:40 UTC",
+      "time": "2026-08-05 19:11:22 UTC",
       "level": "INFO",
       "message": "\u2705 No new messages (up to date)"
     },
     {
-      "time": "2026-08-05 19:00:40 UTC",
+      "time": "2026-08-05 19:11:22 UTC",
       "level": "INFO",
       "message": "\ud83d\udce5 Received 0 Telegram update(s)"
     },
     {
-      "time": "2026-08-05 19:00:40 UTC",
+      "time": "2026-08-05 19:11:22 UTC",
       "level": "DEBUG",
       "message": "Telegram API raw response: {\"ok\":true,\"result\":[]}"
     },
     {
-      "time": "2026-08-05 19:00:10 UTC",
+      "time": "2026-08-05 19:10:52 UTC",
       "level": "INFO",
       "message": "\ud83d\udcf1 Checking Telegram updates (offset: 1000000)..."
     },
     {
-      "time": "2026-08-05 19:00:10 UTC",
+      "time": "2026-08-05 19:10:52 UTC",
       "level": "INFO",
       "message": "\ud83d\udd04 Starting periodic Telegram checks (30-second interval)"
     },
     {
-      "time": "2026-08-05 19:00:10 UTC",
+      "time": "2026-08-05 19:10:52 UTC",
       "level": "SUCCESS",
       "message": "\ud83d\udd10 Account Authorized successfully"
     },
     {
-      "time": "2026-08-05 19:00:09 UTC",
+      "time": "2026-08-05 19:10:51 UTC",
       "level": "SUCCESS",
       "message": "\ud83d\udd10 Application Authorized successfully"
     },
     {
-      "time": "2026-08-05 19:00:08 UTC",
+      "time": "2026-08-05 19:10:50 UTC",
       "level": "SUCCESS",
       "message": "\u2705 Connected to cTrader OpenAPI at demo.ctraderapi.com:5035"
     },
     {
-      "time": "2026-08-05 19:00:07 UTC",
+      "time": "2026-08-05 19:10:49 UTC",
       "level": "INFO",
       "message": "================================================================================"
     },
     {
-      "time": "2026-08-05 19:00:07 UTC",
+      "time": "2026-08-05 19:10:49 UTC",
       "level": "INFO",
       "message": "\ud83e\udd16 cTrader OpenAPI Bot STARTING"
     },
     {
-      "time": "2026-08-05 19:00:07 UTC",
+      "time": "2026-08-05 19:10:49 UTC",
       "level": "INFO",
       "message": "================================================================================"
     }
@@ -260,232 +260,232 @@
   "errors": [],
   "backendEvents": [
     {
-      "time": "2026-08-05 19:04:42 UTC",
+      "time": "2026-08-05 19:15:24 UTC",
       "event": "[INFO] \ud83d\udcda Telegram history saved (0 messages)",
       "type": "log"
     },
     {
-      "time": "2026-08-05 19:04:42 UTC",
+      "time": "2026-08-05 19:15:24 UTC",
       "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
       "type": "log"
     },
     {
-      "time": "2026-08-05 19:04:42 UTC",
+      "time": "2026-08-05 19:15:24 UTC",
       "event": "[INFO] \u2705 No new messages (up to date)",
       "type": "log"
     },
     {
-      "time": "2026-08-05 19:04:42 UTC",
+      "time": "2026-08-05 19:15:24 UTC",
       "event": "[INFO] \ud83d\udce5 Received 0 Telegram update(s)",
       "type": "log"
     },
     {
-      "time": "2026-08-05 19:04:42 UTC",
+      "time": "2026-08-05 19:15:24 UTC",
       "event": "[DEBUG] Telegram API raw response: {\"ok\":true,\"result\":[]}",
       "type": "log"
     },
     {
-      "time": "2026-08-05 19:04:11 UTC",
+      "time": "2026-08-05 19:14:53 UTC",
       "event": "[INFO] \ud83d\udcf1 Checking Telegram updates (offset: 1000000)...",
       "type": "log"
     },
     {
-      "time": "2026-08-05 19:03:41 UTC",
+      "time": "2026-08-05 19:14:23 UTC",
       "event": "[INFO] \ud83d\udcda Telegram history saved (0 messages)",
       "type": "log"
     },
     {
-      "time": "2026-08-05 19:03:41 UTC",
+      "time": "2026-08-05 19:14:23 UTC",
       "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
       "type": "log"
     },
     {
-      "time": "2026-08-05 19:03:41 UTC",
+      "time": "2026-08-05 19:14:23 UTC",
       "event": "[INFO] \ud83d\udcda Telegram history saved (0 messages)",
       "type": "log"
     },
     {
-      "time": "2026-08-05 19:03:41 UTC",
+      "time": "2026-08-05 19:14:23 UTC",
       "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
       "type": "log"
     },
     {
-      "time": "2026-08-05 19:03:41 UTC",
+      "time": "2026-08-05 19:14:23 UTC",
       "event": "[INFO] \u2705 No new messages (up to date)",
       "type": "log"
     },
     {
-      "time": "2026-08-05 19:03:41 UTC",
+      "time": "2026-08-05 19:14:23 UTC",
       "event": "[INFO] \ud83d\udce5 Received 0 Telegram update(s)",
       "type": "log"
     },
     {
-      "time": "2026-08-05 19:03:41 UTC",
+      "time": "2026-08-05 19:14:23 UTC",
       "event": "[DEBUG] Telegram API raw response: {\"ok\":true,\"result\":[]}",
       "type": "log"
     },
     {
-      "time": "2026-08-05 19:03:11 UTC",
+      "time": "2026-08-05 19:13:53 UTC",
       "event": "[INFO] \ud83d\udcf1 Checking Telegram updates (offset: 1000000)...",
       "type": "log"
     },
     {
-      "time": "2026-08-05 19:02:41 UTC",
+      "time": "2026-08-05 19:13:23 UTC",
       "event": "[INFO] \ud83d\udcda Telegram history saved (0 messages)",
       "type": "log"
     },
     {
-      "time": "2026-08-05 19:02:41 UTC",
+      "time": "2026-08-05 19:13:23 UTC",
       "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
       "type": "log"
     },
     {
-      "time": "2026-08-05 19:02:41 UTC",
+      "time": "2026-08-05 19:13:23 UTC",
       "event": "[INFO] \ud83d\udcda Telegram history saved (0 messages)",
       "type": "log"
     },
     {
-      "time": "2026-08-05 19:02:41 UTC",
+      "time": "2026-08-05 19:13:23 UTC",
       "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
       "type": "log"
     },
     {
-      "time": "2026-08-05 19:02:41 UTC",
+      "time": "2026-08-05 19:13:23 UTC",
       "event": "[INFO] \u2705 No new messages (up to date)",
       "type": "log"
     },
     {
-      "time": "2026-08-05 19:02:41 UTC",
+      "time": "2026-08-05 19:13:23 UTC",
       "event": "[INFO] \ud83d\udce5 Received 0 Telegram update(s)",
       "type": "log"
     },
     {
-      "time": "2026-08-05 19:02:41 UTC",
+      "time": "2026-08-05 19:13:23 UTC",
       "event": "[DEBUG] Telegram API raw response: {\"ok\":true,\"result\":[]}",
       "type": "log"
     },
     {
-      "time": "2026-08-05 19:02:11 UTC",
+      "time": "2026-08-05 19:12:52 UTC",
       "event": "[INFO] \ud83d\udcf1 Checking Telegram updates (offset: 1000000)...",
       "type": "log"
     },
     {
-      "time": "2026-08-05 19:01:41 UTC",
+      "time": "2026-08-05 19:12:22 UTC",
       "event": "[INFO] \ud83d\udcda Telegram history saved (0 messages)",
       "type": "log"
     },
     {
-      "time": "2026-08-05 19:01:41 UTC",
+      "time": "2026-08-05 19:12:22 UTC",
       "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
       "type": "log"
     },
     {
-      "time": "2026-08-05 19:01:41 UTC",
+      "time": "2026-08-05 19:12:22 UTC",
       "event": "[INFO] \ud83d\udcda Telegram history saved (0 messages)",
       "type": "log"
     },
     {
-      "time": "2026-08-05 19:01:41 UTC",
+      "time": "2026-08-05 19:12:22 UTC",
       "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
       "type": "log"
     },
     {
-      "time": "2026-08-05 19:01:41 UTC",
+      "time": "2026-08-05 19:12:22 UTC",
       "event": "[INFO] \u2705 No new messages (up to date)",
       "type": "log"
     },
     {
-      "time": "2026-08-05 19:01:41 UTC",
+      "time": "2026-08-05 19:12:22 UTC",
       "event": "[INFO] \ud83d\udce5 Received 0 Telegram update(s)",
       "type": "log"
     },
     {
-      "time": "2026-08-05 19:01:41 UTC",
+      "time": "2026-08-05 19:12:22 UTC",
       "event": "[DEBUG] Telegram API raw response: {\"ok\":true,\"result\":[]}",
       "type": "log"
     },
     {
-      "time": "2026-08-05 19:01:10 UTC",
+      "time": "2026-08-05 19:11:52 UTC",
       "event": "[INFO] \ud83d\udcf1 Checking Telegram updates (offset: 1000000)...",
       "type": "log"
     },
     {
-      "time": "2026-08-05 19:00:40 UTC",
+      "time": "2026-08-05 19:11:22 UTC",
       "event": "[INFO] \ud83d\udcda Telegram history saved (0 messages)",
       "type": "log"
     },
     {
-      "time": "2026-08-05 19:00:40 UTC",
+      "time": "2026-08-05 19:11:22 UTC",
       "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
       "type": "log"
     },
     {
-      "time": "2026-08-05 19:00:40 UTC",
+      "time": "2026-08-05 19:11:22 UTC",
       "event": "[INFO] Loaded signals from docs/pending_signals.json",
       "type": "log"
     },
     {
-      "time": "2026-08-05 19:00:40 UTC",
+      "time": "2026-08-05 19:11:22 UTC",
       "event": "[INFO] \ud83d\udcda Telegram history saved (0 messages)",
       "type": "log"
     },
     {
-      "time": "2026-08-05 19:00:40 UTC",
+      "time": "2026-08-05 19:11:22 UTC",
       "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
       "type": "log"
     },
     {
-      "time": "2026-08-05 19:00:40 UTC",
+      "time": "2026-08-05 19:11:22 UTC",
       "event": "[INFO] \u2705 No new messages (up to date)",
       "type": "log"
     },
     {
-      "time": "2026-08-05 19:00:40 UTC",
+      "time": "2026-08-05 19:11:22 UTC",
       "event": "[INFO] \ud83d\udce5 Received 0 Telegram update(s)",
       "type": "log"
     },
     {
-      "time": "2026-08-05 19:00:40 UTC",
+      "time": "2026-08-05 19:11:22 UTC",
       "event": "[DEBUG] Telegram API raw response: {\"ok\":true,\"result\":[]}",
       "type": "log"
     },
     {
-      "time": "2026-08-05 19:00:10 UTC",
+      "time": "2026-08-05 19:10:52 UTC",
       "event": "[INFO] \ud83d\udcf1 Checking Telegram updates (offset: 1000000)...",
       "type": "log"
     },
     {
-      "time": "2026-08-05 19:00:10 UTC",
+      "time": "2026-08-05 19:10:52 UTC",
       "event": "[INFO] \ud83d\udd04 Starting periodic Telegram checks (30-second interval)",
       "type": "log"
     },
     {
-      "time": "2026-08-05 19:00:10 UTC",
+      "time": "2026-08-05 19:10:52 UTC",
       "event": "[SUCCESS] \ud83d\udd10 Account Authorized successfully",
       "type": "log"
     },
     {
-      "time": "2026-08-05 19:00:09 UTC",
+      "time": "2026-08-05 19:10:51 UTC",
       "event": "[SUCCESS] \ud83d\udd10 Application Authorized successfully",
       "type": "log"
     },
     {
-      "time": "2026-08-05 19:00:08 UTC",
+      "time": "2026-08-05 19:10:50 UTC",
       "event": "[SUCCESS] \u2705 Connected to cTrader OpenAPI at demo.ctraderapi.com:5035",
       "type": "log"
     },
     {
-      "time": "2026-08-05 19:00:07 UTC",
+      "time": "2026-08-05 19:10:49 UTC",
       "event": "[INFO] ================================================================================",
       "type": "log"
     },
     {
-      "time": "2026-08-05 19:00:07 UTC",
+      "time": "2026-08-05 19:10:49 UTC",
       "event": "[INFO] \ud83e\udd16 cTrader OpenAPI Bot STARTING",
       "type": "log"
     },
     {
-      "time": "2026-08-05 19:00:07 UTC",
+      "time": "2026-08-05 19:10:49 UTC",
       "event": "[INFO] ================================================================================",
       "type": "log"
     }
@@ -619,5 +619,5 @@
       "category": "Indices"
     }
   },
-  "lastUpdate": "2026-08-05T19:04:42.299260+00:00"
+  "lastUpdate": "2026-08-05T19:15:24.122450+00:00"
 }
