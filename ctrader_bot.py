@@ -706,6 +706,9 @@ def main(single_run=False):
     BOT.log("INFO", "🤖 cTrader OpenAPI Bot STARTING")
     BOT.log("INFO", "=" * 80)
 
+    # Check if running in single-run mode and warn user
+    if single_run:
+        BOT.log("WARNING", "⚠️ Running in SINGLE RUN mode - bot will exit after one execution cycle. Set SINGLE_RUN=false for continuous operation")
     if not CT_CLIENT_ID or not CT_ACCESS_TOKEN or not CT_ACCOUNT_ID:
         BOT.error("Missing cTrader OpenAPI credentials (CT_CLIENT_ID, CT_ACCESS_TOKEN, CT_ACCOUNT_ID)")
         BOT.heartbeat["status"] = "error_missing_credentials"
@@ -747,13 +750,16 @@ def main(single_run=False):
                     check_telegram_history(client)
                 
                 # Check for new messages and pending signals file
+                # Only run periodic checks if not in single-run mode
+                if not single_run:
+                    BOT.log("INFO", "🔄 Starting periodic Telegram checks (30-second interval)")
                 check_telegram(client)
                 BOT.load_pending_signals_file(client)
                 save_state()
                 BOT.cycle_completed = True
                 
                 if single_run:
-                    BOT.log("INFO", "✅ Single run mode completed. Waiting 20 seconds for order responses before exiting...")
+                    BOT.log("INFO", "✅ Single run mode completed. Waiting 20 seconds for order responses before exiting... (Set SINGLE_RUN=false for continuous operation)")
                     reactor.callLater(20, lambda: reactor.stop() if reactor.running else None)
                 else:
                     def periodic_telegram_check():
