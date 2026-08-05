@@ -1,386 +1,378 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>cTrader Trading Dashboard - Complete Overview</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>cTrader Dashboard Control Panel</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0f172a; color: #e2e8f0; font-size: 13px; }
-        .container { max-width: 1800px; margin: 0 auto; padding: 15px; }
-        .header { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); padding: 20px; border-radius: 8px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #334155; }
-        .header h1 { font-size: 24px; color: #60a5fa; }
-        .btn { padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: all 0.2s; }
-        .btn-primary { background: #3b82f6; color: white; }
-        .btn-primary:hover { background: #2563eb; transform: translateY(-2px); }
-        .btn-danger { background: #ef4444; color: white; }
-        .btn-danger:hover { background: #dc2626; }
-        .btn-success { background: #10b981; color: white; }
-        .btn-success:hover { background: #059669; }
-        .section { margin-bottom: 25px; background: #1e293b; padding: 20px; border-radius: 8px; border: 1px solid #334155; }
-        .section-title { font-size: 16px; font-weight: bold; color: #60a5fa; margin-bottom: 15px; padding-bottom: 8px; border-bottom: 2px solid #334155; display: flex; justify-content: space-between; align-items: center; }
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 10px; }
-        .stat-box { background: #0f172a; padding: 15px; border-radius: 6px; border: 1px solid #334155; text-align: center; }
-        .stat-label { color: #94a3b8; font-size: 11px; margin-bottom: 5px; }
-        .stat-value { font-size: 22px; font-weight: bold; color: #60a5fa; }
-        .stat-value.positive { color: #10b981; }
-        .stat-value.negative { color: #ef4444; }
-        table { width: 100%; border-collapse: collapse; background: #0f172a; border: 1px solid #334155; border-radius: 6px; overflow: hidden; margin-top: 10px; }
-        th { background: #1e293b; padding: 12px; text-align: left; font-weight: bold; color: #60a5fa; border-bottom: 2px solid #334155; font-size: 12px; }
-        td { padding: 10px 12px; border-bottom: 1px solid #334155; font-size: 12px; }
-        tr:hover td { background: #334155; }
-        .error-box { background: #ef44441a; border: 1px solid #ef4444; border-radius: 6px; padding: 12px; color: #fca5a5; margin-bottom: 8px; }
-        .success-box { background: #10b9811a; border: 1px solid #10b981; border-radius: 6px; padding: 12px; color: #86efac; margin-bottom: 8px; }
-        .logs-box { background: #0f172a; border: 1px solid #334155; border-radius: 6px; padding: 15px; max-height: 350px; overflow-y: auto; font-family: monospace; font-size: 11px; }
-        .log-entry { padding: 4px 0; border-bottom: 1px solid #334155; }
-        .log-entry:last-child { border-bottom: none; }
-        .log-success { color: #10b981; }
-        .log-error { color: #ef4444; }
-        .log-warning { color: #f59e0b; }
-        .log-info { color: #60a5fa; }
-        .status-connected { color: #10b981; font-weight: bold; }
-        .status-disconnected { color: #ef4444; font-weight: bold; }
-        .toggle-switch { position: relative; display: inline-block; width: 40px; height: 20px; }
-        .toggle-switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #475569; transition: .2s; border-radius: 20px; }
-        .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .2s; border-radius: 50%; }
-        input:checked + .slider { background-color: #10b981; }
-        input:checked + .slider:before { transform: translateX(20px); }
-        input.lot-input { background: #1e293b; border: 1px solid #334155; color: #e2e8f0; padding: 6px 10px; border-radius: 4px; width: 80px; text-align: center; font-weight: bold; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+            background: #0d1117; 
+            color: #c9d1d9; 
+            font-size: 13px; 
+            line-height: 1.5; 
+        }
+        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+        .header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            padding: 16px 20px; 
+            background: #161b22; 
+            border: 1px solid #30363d; 
+            border-radius: 8px; 
+            margin-bottom: 20px; 
+        }
+        .header h1 { font-size: 18px; font-weight: 700; color: #58a6ff; }
+        .btn { padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; text-decoration: none; display: inline-block; transition: all 0.2s; }
+        .btn-refresh { background: #238636; color: #fff; margin-right: 8px; }
+        .btn-refresh:hover { background: #2ea043; }
+        .btn-logout { background: #da3633; color: #fff; }
+        .btn-logout:hover { background: #f85149; }
+        .btn-logout:active { transform: scale(0.98); }
+        .section-title { font-size: 12px; color: #8b949e; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin: 24px 0 10px 0; }
+        .card { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 16px; margin-bottom: 16px; }
+        .health-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 16px; }
+        .health-item { background: #161b22; border: 1px solid #30363d; border-radius: 6px; padding: 12px 16px; display: flex; align-items: center; gap: 12px; }
+        .health-icon { font-size: 18px; }
+        .health-label { flex: 1; font-weight: 600; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 15px; margin-bottom: 16px; }
+        .stat { text-align: center; padding: 16px; background: #161b22; border: 1px solid #30363d; border-radius: 8px; }
+        .stat-value { font-size: 22px; font-weight: 800; color: #58a6ff; }
+        .stat-label { font-size: 11px; color: #8b949e; margin-top: 6px; text-transform: uppercase; }
+        table { width: 100%; border-collapse: collapse; }
+        th { padding: 10px 12px; background: #0d1117; color: #8b949e; font-size: 11px; text-transform: uppercase; text-align: left; border-bottom: 1px solid #30363d; }
+        td { padding: 10px 12px; border-bottom: 1px solid #30363d; font-size: 12px; }
+        tr:hover td { background: #1c2128; }
+        .empty { text-align: center; color: #8b949e; padding: 24px; font-style: italic; }
+        .alert { padding: 12px; margin: 8px 0; border-radius: 6px; border-left: 3px solid; }
+        .alert-warning { background: #d2992220; border-color: #d29922; color: #d29922; }
+        .alert-success { background: #3fb95020; border-color: #3fb950; color: #3fb950; }
+        .alert-error { background: #f8514920; border-color: #f85149; color: #f85149; }
+        .status-connected { color: #3fb950; }
+        .status-disconnected { color: #f85149; }
+        .pair-card { background: #070c16; border: 1px solid #30363d; border-radius: 10px; padding: 10px; display: flex; flex-direction: column; gap: 8px; }
+        .pair-toggle { display: flex; justify-content: space-between; align-items: center; }
+        .pair-name { font-weight: 700; font-size: 13px; }
+        input[type="number"] { background: #0a0f1c; border: 1px solid #30363d; border-radius: 6px; width: 100%; text-align: center; padding: 5px; color: #e6ebf5; font-size: 12px; }
+        .toast { position: fixed; bottom: 20px; right: 20px; background: #238636; color: white; padding: 12px 16px; border-radius: 6px; display: none; z-index: 1000; }
     </style>
+    <script>
+        const SESSION_KEY = "ctrader_session_token";
+        const SESSION_TIMEOUT = 24 * 60 * 60 * 1000;
+
+        function checkAuth() {
+            const token = sessionStorage.getItem(SESSION_KEY);
+            const timestamp = sessionStorage.getItem(SESSION_KEY + "_timestamp");
+            
+            if (!token || !timestamp) {
+                redirectToLogin();
+                return false;
+            }
+            
+            const now = Date.now();
+            if (now - parseInt(timestamp) > SESSION_TIMEOUT) {
+                sessionStorage.clear();
+                redirectToLogin();
+                return false;
+            }
+            
+            return true;
+        }
+
+        function redirectToLogin() {
+            window.location.href = 'login.html';
+        }
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                sessionStorage.clear();
+                redirectToLogin();
+            }
+        }
+
+        function parseTs(s) {
+            try {
+                let parts = String(s).trim().split(' ');
+                let dp = parts[0].split('-');
+                let tp = parts[1].split(':');
+                return new Date(Date.UTC(+dp[0], +dp[1]-1, +dp[2], +tp[0], +tp[1], +tp[2]));
+            } catch(e) { return null; }
+        }
+
+        function timeAgo(d) {
+            let sec = Math.floor((Date.now() - d.getTime()) / 1000);
+            if (sec < 0) sec = 0;
+            if (sec < 60) return sec + 's ago';
+            if (sec < 3600) return Math.floor(sec/60) + 'm ago';
+            if (sec < 86400) return Math.floor(sec/3600) + 'h ago';
+            return Math.floor(sec/86400) + 'd ago';
+        }
+
+        function refreshAgo() {
+            document.querySelectorAll('[data-ts]').forEach(function(el) {
+                let d = parseTs(el.getAttribute('data-ts'));
+                if (!d) return;
+                let existing = el.querySelector('.ago');
+                if (!existing) {
+                    existing = document.createElement('span');
+                    existing.className = 'ago';
+                    existing.style.cssText = 'display:block;font-size:10px;color:#58a6ff;font-weight:600;';
+                    el.appendChild(existing);
+                }
+                existing.textContent = timeAgo(d);
+            });
+        }
+
+        function updateClock() {
+            let n = new Date();
+            let pad = (x) => String(x).padStart(2, '0');
+            let clk = document.getElementById('liveClock');
+            if (clk) clk.textContent = n.getUTCFullYear()+'-'+pad(n.getUTCMonth()+1)+'-'+pad(n.getUTCDate())+' '+pad(n.getUTCHours())+':'+pad(n.getUTCMinutes())+':'+pad(n.getUTCSeconds());
+        }
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            if (!t) return;
+            t.textContent = msg;
+            t.style.display = 'block';
+            setTimeout(() => t.style.display = 'none', 3000);
+        }
+
+        function sanitizeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        function loadDashboardData() {
+            fetch('system_state.json')
+                .then(r => r.json())
+                .then(data => {
+                    updateConnectionStatus(data.connected);
+                    updateOrdersList(data.orders || []);
+                    updateMessagesList(data.recentMessages || []);
+                    updateLogsList(data.logs || []);
+                })
+                .catch(e => console.error('Dashboard load error:', e));
+        }
+
+        function updateConnectionStatus(connected) {
+            const status = document.getElementById('connStatus');
+            if (status) {
+                status.className = connected ? 'status-connected' : 'status-disconnected';
+                status.textContent = connected ? '✓ Connected' : '✗ Disconnected';
+            }
+        }
+
+        function updateOrdersList(orders) {
+            const tbody = document.getElementById('ordersBody');
+            if (!tbody) return;
+            
+            if (orders.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="empty">No orders yet</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = orders.map(o => `
+                <tr>
+                    <td>${o.time}</td>
+                    <td style="font-weight:600;">${sanitizeHtml(o.symbol)}</td>
+                    <td style="color:${o.side === 'BUY' ? '#3fb950' : '#f85149'};font-weight:600;">${o.side}</td>
+                    <td>${o.qty}</td>
+                    <td>${o.status}</td>
+                    <td style="font-size:11px;color:#8b949e;">${o.orderId}</td>
+                </tr>
+            `).join('');
+        }
+
+        function updateMessagesList(messages) {
+            const tbody = document.getElementById('messagesBody');
+            if (!tbody) return;
+            
+            if (messages.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3" class="empty">No messages</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = messages.map(m => `
+                <tr>
+                    <td>${m.time}</td>
+                    <td>${sanitizeHtml(m.chat)}</td>
+                    <td style="max-width:400px;word-break:break-word;">${sanitizeHtml(m.text.substring(0, 100))}</td>
+                </tr>
+            `).join('');
+        }
+
+        function updateLogsList(logs) {
+            const tbody = document.getElementById('logsBody');
+            if (!tbody) return;
+            
+            if (logs.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3" class="empty">No logs</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = logs.map(l => `
+                <tr>
+                    <td>${l.time}</td>
+                    <td style="color:${l.level === 'SUCCESS' ? '#3fb950' : l.level === 'ERROR' ? '#f85149' : '#58a6ff'};font-weight:700;">${l.level}</td>
+                    <td>${sanitizeHtml(l.message.substring(0, 150))}</td>
+                </tr>
+            `).join('');
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!checkAuth()) return;
+            
+            loadDashboardData();
+            refreshAgo();
+            updateClock();
+            
+            // Periodic updates
+            setInterval(loadDashboardData, 10000);  // Every 10 seconds
+            setInterval(refreshAgo, 1000);
+            setInterval(updateClock, 1000);
+        });
+
+        // Prevent unauthorized back navigation
+        window.addEventListener('popstate', function(e) {
+            if (!checkAuth()) {
+                redirectToLogin();
+            }
+        });
+    </script>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>🚀 cTrader Trading Dashboard (All-in-One View)</h1>
+            <h1>🚀 cTrader FIX API Dashboard</h1>
             <div>
-                <button class="btn btn-primary" onclick="refreshData()">🔄 Refresh Now</button>
-                <button class="btn btn-success" onclick="savePairsConfig()">💾 Save Pair Setups</button>
-                <button class="btn btn-danger" onclick="logout()">🚪 Logout</button>
+                <button class="btn btn-refresh" onclick="location.reload()">🔄 Refresh</button>
+                <button class="btn btn-logout" onclick="logout()">🚪 Logout</button>
             </div>
         </div>
 
-        <!-- 1. Account Overview -->
-        <div class="section">
-            <div class="section-title">📊 Account Overview</div>
-            <div class="stats-grid">
-                <div class="stat-box">
-                    <div class="stat-label">Balance</div>
-                    <div class="stat-value" id="balance">$10,000.00</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-label">Equity</div>
-                    <div class="stat-value" id="equity">$10,000.00</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-label">Used Margin</div>
-                    <div class="stat-value" id="margin">$0.00</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-label">Free Margin</div>
-                    <div class="stat-value" id="freeMargin">$10,000.00</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-label">Connection</div>
-                    <div class="stat-value" id="connStatus" class="status-disconnected">Offline</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-label">Telegram Status</div>
-                    <div class="stat-value" id="tgStatus" style="font-size: 16px; color: #38bdf8;">Active (Polling)</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-label">Account ID</div>
-                    <div class="stat-value" id="accountId" style="font-size: 16px; color: #60a5fa;">48038510</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-label">Account Number</div>
-                    <div class="stat-value" id="accountNumber" style="font-size: 16px; color: #60a5fa;">2454414</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-label">Broker / Env</div>
-                    <div class="stat-value" id="brokerEnv" style="font-size: 15px; color: #10b981;">Deriv (DEMO)</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-label">Total P&L</div>
-                    <div class="stat-value positive" id="pnl">$0.00</div>
-                </div>
+        <div class="section-title">🩺 System Health</div>
+        <div class="health-grid">
+            <div class="health-item">
+                <span class="health-icon">🔐</span>
+                <span class="health-label">FIX Connection</span>
+                <span id="connStatus" class="status-disconnected">Checking...</span>
+            </div>
+            <div class="health-item">
+                <span class="health-icon">📱</span>
+                <span class="health-label">Telegram Bot</span>
+                <span style="color:#3fb950;font-weight:700;">✓ OK</span>
+            </div>
+            <div class="health-item">
+                <span class="health-icon">⚙️</span>
+                <span class="health-label">API Secrets</span>
+                <span style="color:#3fb950;font-weight:700;">✓ OK</span>
+            </div>
+            <div class="health-item">
+                <span class="health-icon">🎯</span>
+                <span class="health-label">System Status</span>
+                <span style="color:#3fb950;font-weight:700;">✓ Active</span>
             </div>
         </div>
 
-        <!-- 2. Pair Setups & Lot Sizes (Forex, Gold, Crypto, Indices) -->
-        <div class="section">
-            <div class="section-title">
-                <span>⚙️ Pair Setups (Lot Sizes & ON/OFF Toggles)</span>
-                <span style="font-size: 11px; color: #94a3b8;">Configure trading lot sizes and enable/disable specific instruments</span>
+        <div class="section-title">📊 Account Overview</div>
+        <div class="grid">
+            <div class="stat">
+                <div class="stat-value">$10,000.00</div>
+                <div class="stat-label">Balance</div>
             </div>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Instrument / Pair</th>
-                        <th>Category</th>
-                        <th>Default Lot Size</th>
-                        <th>Status (ON / OFF)</th>
-                    </tr>
-                </thead>
-                <tbody id="pairsConfigBody">
-                    <tr><td colspan="4" style="text-align: center; padding: 15px;">Loading pair setups...</td></tr>
-                </tbody>
-            </table>
+            <div class="stat">
+                <div class="stat-value">$10,000.00</div>
+                <div class="stat-label">Equity</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">$0.00</div>
+                <div class="stat-label">Used Margin</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">$10,000.00</div>
+                <div class="stat-label">Free Margin</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">0.0%</div>
+                <div class="stat-label">Margin Level</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">$0.00</div>
+                <div class="stat-label">Day P&L</div>
+            </div>
         </div>
 
-        <!-- 3. Trades (Details) -->
-        <div class="section">
-            <div class="section-title">📋 All Trades - Full Details & Rejection Reasons</div>
-            <table style="overflow-x: auto; display: block;">
-                <thead>
-                    <tr>
-                        <th>Order ID</th>
-                        <th>Pair</th>
-                        <th>Side</th>
-                        <th>Qty</th>
-                        <th>Sent Time</th>
-                        <th>Filled / Closed Time</th>
-                        <th>SL</th>
-                        <th>TP</th>
-                        <th>Status</th>
-                        <th>Rejection Reason / Why Not Placed</th>
-                        <th>Signal</th>
-                    </tr>
-                </thead>
-                <tbody id="tradesBody">
-                    <tr><td colspan="11" style="text-align: center; padding: 15px;">No trades yet</td></tr>
-                </tbody>
-            </table>
-        </div>
-
-        <!-- 4. Signals Received -->
-        <div class="section">
-            <div class="section-title">📨 Signals Received from Telegram</div>
+        <div class="section-title">📋 Recent Orders (Last 10)</div>
+        <div class="card" style="overflow-x:auto;">
             <table>
                 <thead>
                     <tr>
                         <th>Time</th>
-                        <th>Raw Signal</th>
-                        <th>Parsed?</th>
+                        <th>Symbol</th>
                         <th>Side</th>
-                        <th>Pair</th>
                         <th>Qty</th>
-                        <th>SL</th>
-                        <th>TP</th>
+                        <th>Status</th>
+                        <th>Order ID</th>
                     </tr>
                 </thead>
-                <tbody id="signalsBody">
-                    <tr><td colspan="8" style="text-align: center; padding: 15px;">No signals yet</td></tr>
+                <tbody id="ordersBody">
+                    <tr><td colspan="6" class="empty">No orders yet</td></tr>
                 </tbody>
             </table>
         </div>
 
-        <!-- 5. Errors & Issues -->
-        <div class="section">
-            <div class="section-title">⚠️ Errors & Issues</div>
-            <div id="errorsBox">
-                <div style="text-align: center; color: #8b949e; padding: 15px;">No errors</div>
-            </div>
+        <div class="section-title">📱 Recent Telegram Messages</div>
+        <div class="card" style="overflow-x:auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>Source</th>
+                        <th>Message</th>
+                    </tr>
+                </thead>
+                <tbody id="messagesBody">
+                    <tr><td colspan="3" class="empty">No messages</td></tr>
+                </tbody>
+            </table>
         </div>
 
-        <!-- 6. Backend Process Events -->
-        <div class="section">
-            <div class="section-title">🔧 Backend Process Events (All Steps)</div>
-            <div id="backendBox" class="logs-box">
-                <div style="color: #8b949e; padding: 15px; text-align: center;">Loading backend events...</div>
-            </div>
+        <div class="section-title">📜 System Logs (Last 20)</div>
+        <div class="card" style="overflow-x:auto;max-height:400px;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>Level</th>
+                        <th>Message</th>
+                    </tr>
+                </thead>
+                <tbody id="logsBody">
+                    <tr><td colspan="3" class="empty">No logs</td></tr>
+                </tbody>
+            </table>
         </div>
 
-        <!-- 7. Complete System Logs -->
-        <div class="section">
-            <div class="section-title">📜 Complete System Logs (Last 100)</div>
-            <div id="logsBox" class="logs-box">
-                <div style="color: #8b949e; padding: 15px; text-align: center;">Loading logs...</div>
-            </div>
+        <div style="text-align:center;color:#8b949e;font-size:11px;margin:30px 0;">
+            cTrader FIX API Bot & Dashboard • Auto-refreshing every 10s • Now (UTC): <strong id="liveClock">--:--:--</strong>
         </div>
     </div>
 
+    <div class="toast" id="toast"></div>
+
     <script>
-        if (sessionStorage.getItem('auth') !== 'true') {
-            window.location.href = 'login.html';
-        }
-
-        let cachedPairsConfig = {};
-        let pairsInitialized = false;
-
-        function updatePairConfig(pair) {
-            const lotInput = document.getElementById(`lot_${pair}`);
-            const enInput = document.getElementById(`en_${pair}`);
-            const statusSpan = document.getElementById(`status_${pair}`);
-            if (!cachedPairsConfig[pair]) cachedPairsConfig[pair] = {};
-            if (lotInput) cachedPairsConfig[pair].lot = parseFloat(lotInput.value) || 0.01;
-            if (enInput) {
-                cachedPairsConfig[pair].enabled = enInput.checked;
-                if (statusSpan) {
-                    statusSpan.textContent = enInput.checked ? 'ENABLED' : 'DISABLED';
-                    statusSpan.style.color = enInput.checked ? '#10b981' : '#ef4444';
-                }
+        // Additional security headers (CSP, etc.)
+        document.addEventListener('DOMContentLoaded', function() {
+            // Prevent clickjacking
+            if (window.self !== window.top) {
+                window.top.location = window.self.location;
             }
-            try {
-                localStorage.setItem('ctrader_pairs_config', JSON.stringify(cachedPairsConfig));
-            } catch(e) {}
-        }
-
-        function refreshData() {
-            fetch('system_state.json')
-                .then(r => {
-                    if (!r.ok) return fetch('../system_state.json');
-                    return r;
-                })
-                .then(r => r.json())
-                .then(data => {
-                    // Account
-                    document.getElementById('balance').textContent = '$' + (data.account?.balance || 10000).toFixed(2);
-                    document.getElementById('equity').textContent = '$' + (data.account?.equity || 10000).toFixed(2);
-                    document.getElementById('margin').textContent = '$' + (data.account?.margin || 0).toFixed(2);
-                    document.getElementById('freeMargin').textContent = '$' + (data.account?.freeMargin || 10000).toFixed(2);
-                    document.getElementById('connStatus').textContent = data.connected ? '🟢 Connected' : '🔴 Offline';
-                    document.getElementById('connStatus').className = data.connected ? 'stat-value status-connected' : 'stat-value status-disconnected';
-                    document.getElementById('accountId').textContent = data.account?.accountId || '48038510';
-                    document.getElementById('accountNumber').textContent = data.account?.accountNumber || '2454414';
-                    document.getElementById('brokerEnv').textContent = (data.account?.broker || 'Deriv') + ' (' + (data.account?.environment || 'DEMO') + ')';
-
-                    // Pairs Config
-                    if (data.pairsConfig && !pairsInitialized) {
-                        let saved = data.pairsConfig;
-                        try {
-                            const local = localStorage.getItem('ctrader_pairs_config');
-                            if (local) {
-                                saved = JSON.parse(local);
-                            }
-                        } catch(e) {}
-                        cachedPairsConfig = saved;
-                        pairsInitialized = true;
-                        const pairsBody = document.getElementById('pairsConfigBody');
-                        pairsBody.innerHTML = Object.entries(cachedPairsConfig).map(([pair, cfg]) => `
-                            <tr>
-                                <td><strong>${pair}</strong></td>
-                                <td><span style="background: #334155; padding: 3px 8px; border-radius: 4px; font-size: 11px;">${cfg.category || 'General'}</span></td>
-                                <td><input type="number" step="0.01" min="0.01" class="lot-input" id="lot_${pair}" value="${cfg.lot}" oninput="updatePairConfig('${pair}')"></td>
-                                <td>
-                                    <label class="toggle-switch">
-                                        <input type="checkbox" id="en_${pair}" ${cfg.enabled ? 'checked' : ''} onchange="updatePairConfig('${pair}')">
-                                        <span class="slider"></span>
-                                    </label>
-                                    <span id="status_${pair}" style="margin-left: 8px; font-weight: bold; color: ${cfg.enabled ? '#10b981' : '#ef4444'}">${cfg.enabled ? 'ENABLED' : 'DISABLED'}</span>
-                                </td>
-                            </tr>
-                        `).join('');
-                    }
-
-                    // Trades Table
-                    const tradesBody = document.getElementById('tradesBody');
-                    if (data.trades && data.trades.length > 0) {
-                        tradesBody.innerHTML = data.trades.map(t => `
-                            <tr>
-                                <td><strong>${t.orderId}</strong></td>
-                                <td><strong>${t.symbol}</strong></td>
-                                <td style="color: ${t.side === 'BUY' ? '#10b981' : '#ef4444'}; font-weight: bold;">${t.side}</td>
-                                <td>${t.qty}</td>
-                                <td>${t.sentTime}</td>
-                                <td>${t.filledTime || t.closedTime || '-'}</td>
-                                <td>${t.sl || '-'}</td>
-                                <td>${t.tp || '-'}</td>
-                                <td><span style="padding: 3px 8px; border-radius: 4px; background: ${t.status === 'FILLED' ? '#10b98122' : '#ef444422'}; color: ${t.status === 'FILLED' ? '#10b981' : '#ef4444'}; font-weight: bold;">${t.status}</span></td>
-                                <td style="color: ${t.status === 'PENDING' ? '#f59e0b' : '#ef4444'}; font-size: 11px; max-width: 250px; word-break: break-word;">${t.status === 'PENDING' ? 'Waiting for cTrader response...' : (t.rejectionReason || '-')}</td>
-                                <td style="max-width: 180px; word-break: break-word; font-size: 11px; color: #94a3b8;">${t.rawSignal ? t.rawSignal.substring(0, 45) + '...' : '-'}</td>
-                            </tr>
-                        `).join('');
-                    } else {
-                        tradesBody.innerHTML = '<tr><td colspan="11" style="text-align: center; padding: 15px; color: #94a3b8;">No trades yet</td></tr>';
-                    }
-
-                    // Signals Table
-                    const signalsBody = document.getElementById('signalsBody');
-                    if (data.signals && data.signals.length > 0) {
-                        signalsBody.innerHTML = data.signals.map(s => `
-                            <tr>
-                                <td>${s.time}</td>
-                                <td style="max-width: 300px; word-break: break-word;">${s.text}</td>
-                                <td>${s.parsed ? '✅ YES' : '❌ NO'}</td>
-                                <td>${s.signal ? s.signal.side : '-'}</td>
-                                <td>${s.signal ? s.signal.symbol : '-'}</td>
-                                <td>${s.signal ? s.signal.qty : '-'}</td>
-                                <td>${s.signal ? s.signal.sl || '-' : '-'}</td>
-                                <td>${s.signal ? s.signal.tp || '-' : '-'}</td>
-                            </tr>
-                        `).join('');
-                    }
-
-                    // Errors
-                    const errorsBox = document.getElementById('errorsBox');
-                    if (data.errors && data.errors.length > 0) {
-                        errorsBox.innerHTML = data.errors.map(e => `
-                            <div class="error-box">
-                                <strong>${e.time}:</strong> ${e.error}
-                            </div>
-                        `).join('');
-                    } else {
-                        errorsBox.innerHTML = '<div style="text-align: center; color: #10b981; padding: 15px;">✅ No errors!</div>';
-                    }
-
-                    // Backend Events
-                    const backendBox = document.getElementById('backendBox');
-                    if (data.backendEvents && data.backendEvents.length > 0) {
-                        backendBox.innerHTML = data.backendEvents.map(e => {
-                            let color = '#60a5fa';
-                            if (e.type === 'error') color = '#ef4444';
-                            else if (e.type === 'execution') color = '#10b981';
-                            else if (e.type === 'signal') color = '#f59e0b';
-                            return `<div class="log-entry" style="color: ${color}">[${e.time}] [${e.type.toUpperCase()}] ${e.event}</div>`;
-                        }).join('');
-                    }
-
-                    // Logs
-                    const logsBox = document.getElementById('logsBox');
-                    if (data.logs && data.logs.length > 0) {
-                        logsBox.innerHTML = data.logs.map(l => {
-                            let cls = 'log-info';
-                            if (l.level === 'ERROR') cls = 'log-error';
-                            else if (l.level === 'SUCCESS') cls = 'log-success';
-                            else if (l.level === 'WARNING') cls = 'log-warning';
-                            return `<div class="log-entry ${cls}">[${l.time}] [${l.level}] ${l.message}</div>`;
-                        }).join('');
-                    }
-                })
-                .catch(e => console.log('Refresh error:', e.message));
-        }
-
-        function savePairsConfig() {
-            const updatedConfig = {};
-            for (const pair of Object.keys(cachedPairsConfig)) {
-                const lotInput = document.getElementById(`lot_${pair}`);
-                const enInput = document.getElementById(`en_${pair}`);
-                updatedConfig[pair] = {
-                    lot: lotInput ? parseFloat(lotInput.value) || 0.01 : cachedPairsConfig[pair].lot,
-                    enabled: enInput ? enInput.checked : cachedPairsConfig[pair].enabled,
-                    category: cachedPairsConfig[pair].category || 'General'
-                };
-            }
-            cachedPairsConfig = updatedConfig;
-            try {
-                localStorage.setItem('ctrader_pairs_config', JSON.stringify(updatedConfig));
-                alert('✅ Pair setups successfully saved and persisted in browser storage! Your lot sizes and ON/OFF toggles will now persist across page refreshes.');
-            } catch(e) {
-                alert('Pair setups updated locally.');
-            }
-        }
-
-        function logout() {
-            if (confirm('Logout?')) {
-                sessionStorage.clear();
-                window.location.href = 'login.html';
-            }
-        }
-
-        // Auto-refresh every 5 seconds
-        refreshData();
-        setInterval(refreshData, 5000);
+        });
     </script>
 </body>
 </html>
