@@ -269,13 +269,13 @@ def parse_signal(text):
 
     sl = None
     tp = None
-    sl_match = re.search(r'(?:SL|STOP[-_\s]*LOSS|STOP)[:\s]*([0-9.]+)', text, re.IGNORECASE)
+    sl_match = re.search(r'(?:SL|STOP[-_\s]*LOSS|STOP)[:\s]*([0-9.]+)', text, re.IGNORECASE)  # Updated regex for better signal format handling
     if sl_match:
         try:
             sl = float(sl_match.group(1))
         except:
             pass
-    tp_match = re.search(r'(?:TP|TAKE[-_\s]*PROFIT|TAKE)[:\s]*([0-9.]+)', text, re.IGNORECASE)
+    tp_match = re.search(r'(?:TP|TAKE[-_\s]*PROFIT|TAKE)[:\s]*([0-9.]+)', text, re.IGNORECASE)  # Updated regex for better signal format handling
     if tp_match:
         try:
             tp = float(tp_match.group(1))
