@@ -305,9 +305,12 @@ def place_order(client, symbol, side, qty, sl=None, tp=None, raw_signal=None):
     if symbol.upper() in BOT.pairs_config:
         qty = BOT.pairs_config[symbol.upper()]["lot"]
 
+    # cTrader Symbol IDs (demo environment)
     SYMBOL_IDS = {
         "EURUSD": 1, "GBPUSD": 2, "USDJPY": 3, "AUDUSD": 4, "USDCAD": 5,
-        "NZDUSD": 6, "USDCHF": 7, "EURGBP": 8, "EURJPY": 9, "GBPJPY": 10,
+        "NZDUSD": 6, "USDCHF": 7, "EURGBP":   8, "EURJPY": 9, "GBPJPY": 10,
+        "AUDJPY": 11, "NZDJPY": 12, "CADJPY": 13, "CHFJPY": 14,
+        "EURNZD": 15, "EURCHF": 16, "GBPCHF": 17, "AUDNZD": 18,
         "XAUUSD": 38, "XAGUSD": 39, "BTCUSD": 22, "ETHUSD": 28, "USOIL": 50,
         "NAS100": 10001, "US30": 10002, "SPX500": 10003, "GER40": 10004
     }
@@ -425,9 +428,9 @@ def check_telegram_history(client):
         BOT.log("INFO", "📚 Fetching Telegram channel history (last 30 days) - USING NEGATIVE OFFSET...")
         url = f"https://api.telegram.org/bot{TG_TOKEN}/getUpdates"
         
-        # Use positive offset starting from last known position
+        # Use positive offset starting from last known position + 1
         last_offset = get_last_offset()
-        params_dict = {"timeout": "30", "limit": "100", "offset": str(last_offset)}
+        params_dict = {"timeout": "30", "limit": "100", "offset": str(last_offset + 1)}
         
         import ssl
         try:

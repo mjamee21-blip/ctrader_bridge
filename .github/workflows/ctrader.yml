@@ -49,7 +49,7 @@ jobs:
           CT_ENV: ${{ secrets.CT_ENV || 'demo' }}
           TG_TOKEN: ${{ secrets.TG_TOKEN || '' }}
           TG_CHAT: ${{ secrets.TG_CHAT || '' }}
-          SINGLE_RUN: "true"
+          SINGLE_RUN: "false"
         run: |
           echo "🤖 Starting cTrader OpenAPI Bot..."
           python3 ctrader_bot.py
