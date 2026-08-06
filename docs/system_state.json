@@ -3,7 +3,7 @@
   "loggedIn": true,
   "heartbeat": {
     "status": "checking_telegram",
-    "last_check": "2026-08-06T00:48:23.583565+00:00",
+    "last_check": "2026-08-06T00:59:16.880695+00:00",
     "telegram_token_set": true,
     "telegram_chat_set": true,
     "messages_received": 0,
@@ -27,272 +27,282 @@
   "signals": [],
   "logs": [
     {
-      "time": "2026-08-06 00:48:23 UTC",
+      "time": "2026-08-06 00:59:17 UTC",
       "level": "DEBUG",
-      "message": "Telegram API error response: {\"ok\":false,\"error_code\":409,\"description\":\"Conflict: can't use getUpdates method while webhook is active; use deleteWebhook to delete the webhook first\"}"
+      "message": "Telegram API error response: {\"ok\":false,\"error_code\":401,\"description\":\"Unauthorized\"}"
     },
     {
-      "time": "2026-08-06 00:48:23 UTC",
+      "time": "2026-08-06 00:59:17 UTC",
       "level": "ERROR",
-      "message": "Telegram API HTTP error: 409 - Conflict"
+      "message": "Telegram API HTTP error: 401 - Unauthorized"
     },
     {
-      "time": "2026-08-06 00:48:23 UTC",
+      "time": "2026-08-06 00:59:16 UTC",
       "level": "INFO",
       "message": "\ud83d\udcf1 Checking Telegram updates (offset: 1000000)..."
     },
     {
-      "time": "2026-08-06 00:47:53 UTC",
+      "time": "2026-08-06 00:58:46 UTC",
       "level": "INFO",
       "message": "\ud83d\udcda Telegram history saved (0 messages)"
     },
     {
-      "time": "2026-08-06 00:47:53 UTC",
+      "time": "2026-08-06 00:58:46 UTC",
       "level": "INFO",
       "message": "\ud83d\udcbe State saved to docs/system_state.json"
     },
     {
-      "time": "2026-08-06 00:47:53 UTC",
+      "time": "2026-08-06 00:58:46 UTC",
       "level": "DEBUG",
-      "message": "Telegram API error response: {\"ok\":false,\"error_code\":409,\"description\":\"Conflict: can't use getUpdates method while webhook is active; use deleteWebhook to delete the webhook first\"}"
+      "message": "Telegram API error response: {\"ok\":false,\"error_code\":401,\"description\":\"Unauthorized\"}"
     },
     {
-      "time": "2026-08-06 00:47:53 UTC",
+      "time": "2026-08-06 00:58:46 UTC",
       "level": "ERROR",
-      "message": "Telegram API HTTP error: 409 - Conflict"
+      "message": "Telegram API HTTP error: 401 - Unauthorized"
     },
     {
-      "time": "2026-08-06 00:47:53 UTC",
+      "time": "2026-08-06 00:58:46 UTC",
       "level": "INFO",
       "message": "\ud83d\udcf1 Checking Telegram updates (offset: 1000000)..."
     },
     {
-      "time": "2026-08-06 00:47:23 UTC",
+      "time": "2026-08-06 00:58:16 UTC",
       "level": "INFO",
       "message": "\ud83d\udcda Telegram history saved (0 messages)"
     },
     {
-      "time": "2026-08-06 00:47:23 UTC",
+      "time": "2026-08-06 00:58:16 UTC",
       "level": "INFO",
       "message": "\ud83d\udcbe State saved to docs/system_state.json"
     },
     {
-      "time": "2026-08-06 00:47:23 UTC",
+      "time": "2026-08-06 00:58:16 UTC",
       "level": "DEBUG",
-      "message": "Telegram API error response: {\"ok\":false,\"error_code\":409,\"description\":\"Conflict: can't use getUpdates method while webhook is active; use deleteWebhook to delete the webhook first\"}"
+      "message": "Telegram API error response: {\"ok\":false,\"error_code\":401,\"description\":\"Unauthorized\"}"
     },
     {
-      "time": "2026-08-06 00:47:23 UTC",
+      "time": "2026-08-06 00:58:16 UTC",
       "level": "ERROR",
-      "message": "Telegram API HTTP error: 409 - Conflict"
+      "message": "Telegram API HTTP error: 401 - Unauthorized"
     },
     {
-      "time": "2026-08-06 00:47:22 UTC",
+      "time": "2026-08-06 00:58:16 UTC",
       "level": "INFO",
       "message": "\ud83d\udcf1 Checking Telegram updates (offset: 1000000)..."
     },
     {
-      "time": "2026-08-06 00:46:52 UTC",
+      "time": "2026-08-06 00:57:46 UTC",
       "level": "INFO",
       "message": "\ud83d\udcda Telegram history saved (0 messages)"
     },
     {
-      "time": "2026-08-06 00:46:52 UTC",
+      "time": "2026-08-06 00:57:46 UTC",
       "level": "INFO",
       "message": "\ud83d\udcbe State saved to docs/system_state.json"
     },
     {
-      "time": "2026-08-06 00:46:52 UTC",
+      "time": "2026-08-06 00:57:46 UTC",
       "level": "DEBUG",
-      "message": "Telegram API error response: {\"ok\":false,\"error_code\":409,\"description\":\"Conflict: can't use getUpdates method while webhook is active; use deleteWebhook to delete the webhook first\"}"
+      "message": "Telegram API error response: {\"ok\":false,\"error_code\":401,\"description\":\"Unauthorized\"}"
     },
     {
-      "time": "2026-08-06 00:46:52 UTC",
+      "time": "2026-08-06 00:57:46 UTC",
       "level": "ERROR",
-      "message": "Telegram API HTTP error: 409 - Conflict"
+      "message": "Telegram API HTTP error: 401 - Unauthorized"
     },
     {
-      "time": "2026-08-06 00:46:52 UTC",
+      "time": "2026-08-06 00:57:45 UTC",
       "level": "INFO",
       "message": "\ud83d\udcf1 Checking Telegram updates (offset: 1000000)..."
     },
     {
-      "time": "2026-08-06 00:46:22 UTC",
+      "time": "2026-08-06 00:57:15 UTC",
       "level": "INFO",
       "message": "\ud83d\udcda Telegram history saved (0 messages)"
     },
     {
-      "time": "2026-08-06 00:46:22 UTC",
+      "time": "2026-08-06 00:57:15 UTC",
       "level": "INFO",
       "message": "\ud83d\udcbe State saved to docs/system_state.json"
     },
     {
-      "time": "2026-08-06 00:46:22 UTC",
+      "time": "2026-08-06 00:57:15 UTC",
       "level": "DEBUG",
-      "message": "Telegram API error response: {\"ok\":false,\"error_code\":409,\"description\":\"Conflict: can't use getUpdates method while webhook is active; use deleteWebhook to delete the webhook first\"}"
+      "message": "Telegram API error response: {\"ok\":false,\"error_code\":401,\"description\":\"Unauthorized\"}"
     },
     {
-      "time": "2026-08-06 00:46:22 UTC",
+      "time": "2026-08-06 00:57:15 UTC",
       "level": "ERROR",
-      "message": "Telegram API HTTP error: 409 - Conflict"
+      "message": "Telegram API HTTP error: 401 - Unauthorized"
     },
     {
-      "time": "2026-08-06 00:46:22 UTC",
+      "time": "2026-08-06 00:57:15 UTC",
       "level": "INFO",
       "message": "\ud83d\udcf1 Checking Telegram updates (offset: 1000000)..."
     },
     {
-      "time": "2026-08-06 00:45:52 UTC",
+      "time": "2026-08-06 00:56:45 UTC",
       "level": "INFO",
       "message": "\ud83d\udcda Telegram history saved (0 messages)"
     },
     {
-      "time": "2026-08-06 00:45:52 UTC",
+      "time": "2026-08-06 00:56:45 UTC",
       "level": "INFO",
       "message": "\ud83d\udcbe State saved to docs/system_state.json"
     },
     {
-      "time": "2026-08-06 00:45:52 UTC",
+      "time": "2026-08-06 00:56:45 UTC",
       "level": "DEBUG",
-      "message": "Telegram API error response: {\"ok\":false,\"error_code\":409,\"description\":\"Conflict: can't use getUpdates method while webhook is active; use deleteWebhook to delete the webhook first\"}"
+      "message": "Telegram API error response: {\"ok\":false,\"error_code\":401,\"description\":\"Unauthorized\"}"
     },
     {
-      "time": "2026-08-06 00:45:52 UTC",
+      "time": "2026-08-06 00:56:45 UTC",
       "level": "ERROR",
-      "message": "Telegram API HTTP error: 409 - Conflict"
+      "message": "Telegram API HTTP error: 401 - Unauthorized"
     },
     {
-      "time": "2026-08-06 00:45:51 UTC",
+      "time": "2026-08-06 00:56:44 UTC",
       "level": "INFO",
       "message": "\ud83d\udcf1 Checking Telegram updates (offset: 1000000)..."
     },
     {
-      "time": "2026-08-06 00:45:21 UTC",
+      "time": "2026-08-06 00:56:14 UTC",
       "level": "INFO",
       "message": "\ud83d\udcda Telegram history saved (0 messages)"
     },
     {
-      "time": "2026-08-06 00:45:21 UTC",
+      "time": "2026-08-06 00:56:14 UTC",
       "level": "INFO",
       "message": "\ud83d\udcbe State saved to docs/system_state.json"
     },
     {
-      "time": "2026-08-06 00:45:21 UTC",
+      "time": "2026-08-06 00:56:14 UTC",
       "level": "DEBUG",
-      "message": "Telegram API error response: {\"ok\":false,\"error_code\":409,\"description\":\"Conflict: can't use getUpdates method while webhook is active; use deleteWebhook to delete the webhook first\"}"
+      "message": "Telegram API error response: {\"ok\":false,\"error_code\":401,\"description\":\"Unauthorized\"}"
     },
     {
-      "time": "2026-08-06 00:45:21 UTC",
+      "time": "2026-08-06 00:56:14 UTC",
       "level": "ERROR",
-      "message": "Telegram API HTTP error: 409 - Conflict"
+      "message": "Telegram API HTTP error: 401 - Unauthorized"
     },
     {
-      "time": "2026-08-06 00:45:21 UTC",
+      "time": "2026-08-06 00:56:14 UTC",
       "level": "INFO",
       "message": "\ud83d\udcf1 Checking Telegram updates (offset: 1000000)..."
     },
     {
-      "time": "2026-08-06 00:44:51 UTC",
+      "time": "2026-08-06 00:55:44 UTC",
       "level": "INFO",
       "message": "\ud83d\udcda Telegram history saved (0 messages)"
     },
     {
-      "time": "2026-08-06 00:44:51 UTC",
+      "time": "2026-08-06 00:55:44 UTC",
       "level": "INFO",
       "message": "\ud83d\udcbe State saved to docs/system_state.json"
     },
     {
-      "time": "2026-08-06 00:44:51 UTC",
+      "time": "2026-08-06 00:55:44 UTC",
       "level": "DEBUG",
-      "message": "Telegram API error response: {\"ok\":false,\"error_code\":409,\"description\":\"Conflict: can't use getUpdates method while webhook is active; use deleteWebhook to delete the webhook first\"}"
+      "message": "Telegram API error response: {\"ok\":false,\"error_code\":401,\"description\":\"Unauthorized\"}"
     },
     {
-      "time": "2026-08-06 00:44:51 UTC",
+      "time": "2026-08-06 00:55:44 UTC",
       "level": "ERROR",
-      "message": "Telegram API HTTP error: 409 - Conflict"
+      "message": "Telegram API HTTP error: 401 - Unauthorized"
     },
     {
-      "time": "2026-08-06 00:44:50 UTC",
+      "time": "2026-08-06 00:55:43 UTC",
       "level": "INFO",
       "message": "\ud83d\udcf1 Checking Telegram updates (offset: 1000000)..."
     },
     {
-      "time": "2026-08-06 00:44:20 UTC",
+      "time": "2026-08-06 00:55:13 UTC",
       "level": "INFO",
       "message": "\ud83d\udcda Telegram history saved (0 messages)"
     },
     {
-      "time": "2026-08-06 00:44:20 UTC",
+      "time": "2026-08-06 00:55:13 UTC",
       "level": "INFO",
       "message": "\ud83d\udcbe State saved to docs/system_state.json"
     },
     {
-      "time": "2026-08-06 00:44:20 UTC",
+      "time": "2026-08-06 00:55:13 UTC",
+      "level": "DEBUG",
+      "message": "Telegram API error response: {\"ok\":false,\"error_code\":401,\"description\":\"Unauthorized\"}"
+    },
+    {
+      "time": "2026-08-06 00:55:13 UTC",
+      "level": "ERROR",
+      "message": "Telegram API HTTP error: 401 - Unauthorized"
+    },
+    {
+      "time": "2026-08-06 00:55:13 UTC",
+      "level": "INFO",
+      "message": "\ud83d\udcf1 Checking Telegram updates (offset: 1000000)..."
+    },
+    {
+      "time": "2026-08-06 00:54:43 UTC",
+      "level": "INFO",
+      "message": "\ud83d\udcda Telegram history saved (0 messages)"
+    },
+    {
+      "time": "2026-08-06 00:54:43 UTC",
+      "level": "INFO",
+      "message": "\ud83d\udcbe State saved to docs/system_state.json"
+    },
+    {
+      "time": "2026-08-06 00:54:43 UTC",
       "level": "INFO",
       "message": "Loaded signals from docs/pending_signals.json"
     },
     {
-      "time": "2026-08-06 00:44:20 UTC",
-      "level": "INFO",
-      "message": "\ud83d\udcda Telegram history saved (0 messages)"
-    },
-    {
-      "time": "2026-08-06 00:44:20 UTC",
-      "level": "INFO",
-      "message": "\ud83d\udcbe State saved to docs/system_state.json"
-    },
-    {
-      "time": "2026-08-06 00:44:20 UTC",
-      "level": "INFO",
-      "message": "\u2705 No new messages (up to date)"
-    },
-    {
-      "time": "2026-08-06 00:44:20 UTC",
-      "level": "INFO",
-      "message": "\ud83d\udce5 Received 0 Telegram update(s)"
-    },
-    {
-      "time": "2026-08-06 00:44:20 UTC",
+      "time": "2026-08-06 00:54:43 UTC",
       "level": "DEBUG",
-      "message": "Telegram API raw response: {\"ok\":true,\"result\":[]}"
+      "message": "Telegram API error response: {\"ok\":false,\"error_code\":401,\"description\":\"Unauthorized\"}"
     },
     {
-      "time": "2026-08-06 00:43:50 UTC",
+      "time": "2026-08-06 00:54:43 UTC",
+      "level": "ERROR",
+      "message": "Telegram API HTTP error: 401 - Unauthorized"
+    },
+    {
+      "time": "2026-08-06 00:54:43 UTC",
       "level": "INFO",
       "message": "\ud83d\udcf1 Checking Telegram updates (offset: 1000000)..."
     },
     {
-      "time": "2026-08-06 00:43:50 UTC",
+      "time": "2026-08-06 00:54:43 UTC",
       "level": "INFO",
       "message": "\ud83d\udd04 Starting periodic Telegram checks (30-second interval)"
     },
     {
-      "time": "2026-08-06 00:43:50 UTC",
+      "time": "2026-08-06 00:54:43 UTC",
       "level": "SUCCESS",
       "message": "\ud83d\udd10 Account Authorized successfully"
     },
     {
-      "time": "2026-08-06 00:43:49 UTC",
+      "time": "2026-08-06 00:54:42 UTC",
       "level": "SUCCESS",
       "message": "\ud83d\udd10 Application Authorized successfully"
     },
     {
-      "time": "2026-08-06 00:43:47 UTC",
+      "time": "2026-08-06 00:54:40 UTC",
       "level": "SUCCESS",
       "message": "\u2705 Connected to cTrader OpenAPI at demo.ctraderapi.com:5035"
     },
     {
-      "time": "2026-08-06 00:43:46 UTC",
+      "time": "2026-08-06 00:54:40 UTC",
       "level": "INFO",
       "message": "================================================================================"
     },
     {
-      "time": "2026-08-06 00:43:46 UTC",
+      "time": "2026-08-06 00:54:40 UTC",
       "level": "INFO",
       "message": "\ud83e\udd16 cTrader OpenAPI Bot STARTING"
     },
     {
-      "time": "2026-08-06 00:43:46 UTC",
+      "time": "2026-08-06 00:54:40 UTC",
       "level": "INFO",
       "message": "================================================================================"
     }
@@ -300,272 +310,282 @@
   "errors": [],
   "backendEvents": [
     {
-      "time": "2026-08-06 00:48:23 UTC",
-      "event": "[DEBUG] Telegram API error response: {\"ok\":false,\"error_code\":409,\"description\":\"Conflict: can't use getUpdates method while webhook is active; use deleteWebhook to delete the webhook first\"}",
+      "time": "2026-08-06 00:59:17 UTC",
+      "event": "[DEBUG] Telegram API error response: {\"ok\":false,\"error_code\":401,\"description\":\"Unauthorized\"}",
       "type": "log"
     },
     {
-      "time": "2026-08-06 00:48:23 UTC",
-      "event": "[ERROR] Telegram API HTTP error: 409 - Conflict",
+      "time": "2026-08-06 00:59:17 UTC",
+      "event": "[ERROR] Telegram API HTTP error: 401 - Unauthorized",
       "type": "log"
     },
     {
-      "time": "2026-08-06 00:48:23 UTC",
+      "time": "2026-08-06 00:59:16 UTC",
       "event": "[INFO] \ud83d\udcf1 Checking Telegram updates (offset: 1000000)...",
       "type": "log"
     },
     {
-      "time": "2026-08-06 00:47:53 UTC",
+      "time": "2026-08-06 00:58:46 UTC",
       "event": "[INFO] \ud83d\udcda Telegram history saved (0 messages)",
       "type": "log"
     },
     {
-      "time": "2026-08-06 00:47:53 UTC",
+      "time": "2026-08-06 00:58:46 UTC",
       "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
       "type": "log"
     },
     {
-      "time": "2026-08-06 00:47:53 UTC",
-      "event": "[DEBUG] Telegram API error response: {\"ok\":false,\"error_code\":409,\"description\":\"Conflict: can't use getUpdates method while webhook is active; use deleteWebhook to delete the webhook first\"}",
+      "time": "2026-08-06 00:58:46 UTC",
+      "event": "[DEBUG] Telegram API error response: {\"ok\":false,\"error_code\":401,\"description\":\"Unauthorized\"}",
       "type": "log"
     },
     {
-      "time": "2026-08-06 00:47:53 UTC",
-      "event": "[ERROR] Telegram API HTTP error: 409 - Conflict",
+      "time": "2026-08-06 00:58:46 UTC",
+      "event": "[ERROR] Telegram API HTTP error: 401 - Unauthorized",
       "type": "log"
     },
     {
-      "time": "2026-08-06 00:47:53 UTC",
+      "time": "2026-08-06 00:58:46 UTC",
       "event": "[INFO] \ud83d\udcf1 Checking Telegram updates (offset: 1000000)...",
       "type": "log"
     },
     {
-      "time": "2026-08-06 00:47:23 UTC",
+      "time": "2026-08-06 00:58:16 UTC",
       "event": "[INFO] \ud83d\udcda Telegram history saved (0 messages)",
       "type": "log"
     },
     {
-      "time": "2026-08-06 00:47:23 UTC",
+      "time": "2026-08-06 00:58:16 UTC",
       "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
       "type": "log"
     },
     {
-      "time": "2026-08-06 00:47:23 UTC",
-      "event": "[DEBUG] Telegram API error response: {\"ok\":false,\"error_code\":409,\"description\":\"Conflict: can't use getUpdates method while webhook is active; use deleteWebhook to delete the webhook first\"}",
+      "time": "2026-08-06 00:58:16 UTC",
+      "event": "[DEBUG] Telegram API error response: {\"ok\":false,\"error_code\":401,\"description\":\"Unauthorized\"}",
       "type": "log"
     },
     {
-      "time": "2026-08-06 00:47:23 UTC",
-      "event": "[ERROR] Telegram API HTTP error: 409 - Conflict",
+      "time": "2026-08-06 00:58:16 UTC",
+      "event": "[ERROR] Telegram API HTTP error: 401 - Unauthorized",
       "type": "log"
     },
     {
-      "time": "2026-08-06 00:47:22 UTC",
+      "time": "2026-08-06 00:58:16 UTC",
       "event": "[INFO] \ud83d\udcf1 Checking Telegram updates (offset: 1000000)...",
       "type": "log"
     },
     {
-      "time": "2026-08-06 00:46:52 UTC",
+      "time": "2026-08-06 00:57:46 UTC",
       "event": "[INFO] \ud83d\udcda Telegram history saved (0 messages)",
       "type": "log"
     },
     {
-      "time": "2026-08-06 00:46:52 UTC",
+      "time": "2026-08-06 00:57:46 UTC",
       "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
       "type": "log"
     },
     {
-      "time": "2026-08-06 00:46:52 UTC",
-      "event": "[DEBUG] Telegram API error response: {\"ok\":false,\"error_code\":409,\"description\":\"Conflict: can't use getUpdates method while webhook is active; use deleteWebhook to delete the webhook first\"}",
+      "time": "2026-08-06 00:57:46 UTC",
+      "event": "[DEBUG] Telegram API error response: {\"ok\":false,\"error_code\":401,\"description\":\"Unauthorized\"}",
       "type": "log"
     },
     {
-      "time": "2026-08-06 00:46:52 UTC",
-      "event": "[ERROR] Telegram API HTTP error: 409 - Conflict",
+      "time": "2026-08-06 00:57:46 UTC",
+      "event": "[ERROR] Telegram API HTTP error: 401 - Unauthorized",
       "type": "log"
     },
     {
-      "time": "2026-08-06 00:46:52 UTC",
+      "time": "2026-08-06 00:57:45 UTC",
       "event": "[INFO] \ud83d\udcf1 Checking Telegram updates (offset: 1000000)...",
       "type": "log"
     },
     {
-      "time": "2026-08-06 00:46:22 UTC",
+      "time": "2026-08-06 00:57:15 UTC",
       "event": "[INFO] \ud83d\udcda Telegram history saved (0 messages)",
       "type": "log"
     },
     {
-      "time": "2026-08-06 00:46:22 UTC",
+      "time": "2026-08-06 00:57:15 UTC",
       "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
       "type": "log"
     },
     {
-      "time": "2026-08-06 00:46:22 UTC",
-      "event": "[DEBUG] Telegram API error response: {\"ok\":false,\"error_code\":409,\"description\":\"Conflict: can't use getUpdates method while webhook is active; use deleteWebhook to delete the webhook first\"}",
+      "time": "2026-08-06 00:57:15 UTC",
+      "event": "[DEBUG] Telegram API error response: {\"ok\":false,\"error_code\":401,\"description\":\"Unauthorized\"}",
       "type": "log"
     },
     {
-      "time": "2026-08-06 00:46:22 UTC",
-      "event": "[ERROR] Telegram API HTTP error: 409 - Conflict",
+      "time": "2026-08-06 00:57:15 UTC",
+      "event": "[ERROR] Telegram API HTTP error: 401 - Unauthorized",
       "type": "log"
     },
     {
-      "time": "2026-08-06 00:46:22 UTC",
+      "time": "2026-08-06 00:57:15 UTC",
       "event": "[INFO] \ud83d\udcf1 Checking Telegram updates (offset: 1000000)...",
       "type": "log"
     },
     {
-      "time": "2026-08-06 00:45:52 UTC",
+      "time": "2026-08-06 00:56:45 UTC",
       "event": "[INFO] \ud83d\udcda Telegram history saved (0 messages)",
       "type": "log"
     },
     {
-      "time": "2026-08-06 00:45:52 UTC",
+      "time": "2026-08-06 00:56:45 UTC",
       "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
       "type": "log"
     },
     {
-      "time": "2026-08-06 00:45:52 UTC",
-      "event": "[DEBUG] Telegram API error response: {\"ok\":false,\"error_code\":409,\"description\":\"Conflict: can't use getUpdates method while webhook is active; use deleteWebhook to delete the webhook first\"}",
+      "time": "2026-08-06 00:56:45 UTC",
+      "event": "[DEBUG] Telegram API error response: {\"ok\":false,\"error_code\":401,\"description\":\"Unauthorized\"}",
       "type": "log"
     },
     {
-      "time": "2026-08-06 00:45:52 UTC",
-      "event": "[ERROR] Telegram API HTTP error: 409 - Conflict",
+      "time": "2026-08-06 00:56:45 UTC",
+      "event": "[ERROR] Telegram API HTTP error: 401 - Unauthorized",
       "type": "log"
     },
     {
-      "time": "2026-08-06 00:45:51 UTC",
+      "time": "2026-08-06 00:56:44 UTC",
       "event": "[INFO] \ud83d\udcf1 Checking Telegram updates (offset: 1000000)...",
       "type": "log"
     },
     {
-      "time": "2026-08-06 00:45:21 UTC",
+      "time": "2026-08-06 00:56:14 UTC",
       "event": "[INFO] \ud83d\udcda Telegram history saved (0 messages)",
       "type": "log"
     },
     {
-      "time": "2026-08-06 00:45:21 UTC",
+      "time": "2026-08-06 00:56:14 UTC",
       "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
       "type": "log"
     },
     {
-      "time": "2026-08-06 00:45:21 UTC",
-      "event": "[DEBUG] Telegram API error response: {\"ok\":false,\"error_code\":409,\"description\":\"Conflict: can't use getUpdates method while webhook is active; use deleteWebhook to delete the webhook first\"}",
+      "time": "2026-08-06 00:56:14 UTC",
+      "event": "[DEBUG] Telegram API error response: {\"ok\":false,\"error_code\":401,\"description\":\"Unauthorized\"}",
       "type": "log"
     },
     {
-      "time": "2026-08-06 00:45:21 UTC",
-      "event": "[ERROR] Telegram API HTTP error: 409 - Conflict",
+      "time": "2026-08-06 00:56:14 UTC",
+      "event": "[ERROR] Telegram API HTTP error: 401 - Unauthorized",
       "type": "log"
     },
     {
-      "time": "2026-08-06 00:45:21 UTC",
+      "time": "2026-08-06 00:56:14 UTC",
       "event": "[INFO] \ud83d\udcf1 Checking Telegram updates (offset: 1000000)...",
       "type": "log"
     },
     {
-      "time": "2026-08-06 00:44:51 UTC",
+      "time": "2026-08-06 00:55:44 UTC",
       "event": "[INFO] \ud83d\udcda Telegram history saved (0 messages)",
       "type": "log"
     },
     {
-      "time": "2026-08-06 00:44:51 UTC",
+      "time": "2026-08-06 00:55:44 UTC",
       "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
       "type": "log"
     },
     {
-      "time": "2026-08-06 00:44:51 UTC",
-      "event": "[DEBUG] Telegram API error response: {\"ok\":false,\"error_code\":409,\"description\":\"Conflict: can't use getUpdates method while webhook is active; use deleteWebhook to delete the webhook first\"}",
+      "time": "2026-08-06 00:55:44 UTC",
+      "event": "[DEBUG] Telegram API error response: {\"ok\":false,\"error_code\":401,\"description\":\"Unauthorized\"}",
       "type": "log"
     },
     {
-      "time": "2026-08-06 00:44:51 UTC",
-      "event": "[ERROR] Telegram API HTTP error: 409 - Conflict",
+      "time": "2026-08-06 00:55:44 UTC",
+      "event": "[ERROR] Telegram API HTTP error: 401 - Unauthorized",
       "type": "log"
     },
     {
-      "time": "2026-08-06 00:44:50 UTC",
+      "time": "2026-08-06 00:55:43 UTC",
       "event": "[INFO] \ud83d\udcf1 Checking Telegram updates (offset: 1000000)...",
       "type": "log"
     },
     {
-      "time": "2026-08-06 00:44:20 UTC",
+      "time": "2026-08-06 00:55:13 UTC",
       "event": "[INFO] \ud83d\udcda Telegram history saved (0 messages)",
       "type": "log"
     },
     {
-      "time": "2026-08-06 00:44:20 UTC",
+      "time": "2026-08-06 00:55:13 UTC",
       "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
       "type": "log"
     },
     {
-      "time": "2026-08-06 00:44:20 UTC",
+      "time": "2026-08-06 00:55:13 UTC",
+      "event": "[DEBUG] Telegram API error response: {\"ok\":false,\"error_code\":401,\"description\":\"Unauthorized\"}",
+      "type": "log"
+    },
+    {
+      "time": "2026-08-06 00:55:13 UTC",
+      "event": "[ERROR] Telegram API HTTP error: 401 - Unauthorized",
+      "type": "log"
+    },
+    {
+      "time": "2026-08-06 00:55:13 UTC",
+      "event": "[INFO] \ud83d\udcf1 Checking Telegram updates (offset: 1000000)...",
+      "type": "log"
+    },
+    {
+      "time": "2026-08-06 00:54:43 UTC",
+      "event": "[INFO] \ud83d\udcda Telegram history saved (0 messages)",
+      "type": "log"
+    },
+    {
+      "time": "2026-08-06 00:54:43 UTC",
+      "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
+      "type": "log"
+    },
+    {
+      "time": "2026-08-06 00:54:43 UTC",
       "event": "[INFO] Loaded signals from docs/pending_signals.json",
       "type": "log"
     },
     {
-      "time": "2026-08-06 00:44:20 UTC",
-      "event": "[INFO] \ud83d\udcda Telegram history saved (0 messages)",
+      "time": "2026-08-06 00:54:43 UTC",
+      "event": "[DEBUG] Telegram API error response: {\"ok\":false,\"error_code\":401,\"description\":\"Unauthorized\"}",
       "type": "log"
     },
     {
-      "time": "2026-08-06 00:44:20 UTC",
-      "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
+      "time": "2026-08-06 00:54:43 UTC",
+      "event": "[ERROR] Telegram API HTTP error: 401 - Unauthorized",
       "type": "log"
     },
     {
-      "time": "2026-08-06 00:44:20 UTC",
-      "event": "[INFO] \u2705 No new messages (up to date)",
-      "type": "log"
-    },
-    {
-      "time": "2026-08-06 00:44:20 UTC",
-      "event": "[INFO] \ud83d\udce5 Received 0 Telegram update(s)",
-      "type": "log"
-    },
-    {
-      "time": "2026-08-06 00:44:20 UTC",
-      "event": "[DEBUG] Telegram API raw response: {\"ok\":true,\"result\":[]}",
-      "type": "log"
-    },
-    {
-      "time": "2026-08-06 00:43:50 UTC",
+      "time": "2026-08-06 00:54:43 UTC",
       "event": "[INFO] \ud83d\udcf1 Checking Telegram updates (offset: 1000000)...",
       "type": "log"
     },
     {
-      "time": "2026-08-06 00:43:50 UTC",
+      "time": "2026-08-06 00:54:43 UTC",
       "event": "[INFO] \ud83d\udd04 Starting periodic Telegram checks (30-second interval)",
       "type": "log"
     },
     {
-      "time": "2026-08-06 00:43:50 UTC",
+      "time": "2026-08-06 00:54:43 UTC",
       "event": "[SUCCESS] \ud83d\udd10 Account Authorized successfully",
       "type": "log"
     },
     {
-      "time": "2026-08-06 00:43:49 UTC",
+      "time": "2026-08-06 00:54:42 UTC",
       "event": "[SUCCESS] \ud83d\udd10 Application Authorized successfully",
       "type": "log"
     },
     {
-      "time": "2026-08-06 00:43:47 UTC",
+      "time": "2026-08-06 00:54:40 UTC",
       "event": "[SUCCESS] \u2705 Connected to cTrader OpenAPI at demo.ctraderapi.com:5035",
       "type": "log"
     },
     {
-      "time": "2026-08-06 00:43:46 UTC",
+      "time": "2026-08-06 00:54:40 UTC",
       "event": "[INFO] ================================================================================",
       "type": "log"
     },
     {
-      "time": "2026-08-06 00:43:46 UTC",
+      "time": "2026-08-06 00:54:40 UTC",
       "event": "[INFO] \ud83e\udd16 cTrader OpenAPI Bot STARTING",
       "type": "log"
     },
     {
-      "time": "2026-08-06 00:43:46 UTC",
+      "time": "2026-08-06 00:54:40 UTC",
       "event": "[INFO] ================================================================================",
       "type": "log"
     }
@@ -699,5 +719,5 @@
       "category": "Indices"
     }
   },
-  "lastUpdate": "2026-08-06T00:48:23.973778+00:00"
+  "lastUpdate": "2026-08-06T00:59:17.287439+00:00"
 }
