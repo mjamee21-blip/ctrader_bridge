@@ -3,7 +3,7 @@
   "loggedIn": true,
   "heartbeat": {
     "status": "checking_telegram",
-    "last_check": "2026-08-08T05:57:21.462066+00:00",
+    "last_check": "2026-08-08T06:07:59.671056+00:00",
     "telegram_token_set": true,
     "telegram_chat_set": true,
     "messages_received": 0,
@@ -27,282 +27,257 @@
   "signals": [],
   "logs": [
     {
-      "time": "2026-08-08 05:57:21 UTC",
+      "time": "2026-08-08 06:07:59 UTC",
       "level": "DEBUG",
       "message": "Telegram API error response: {\"ok\":false,\"error_code\":401,\"description\":\"Unauthorized\"}"
     },
     {
-      "time": "2026-08-08 05:57:21 UTC",
+      "time": "2026-08-08 06:07:59 UTC",
       "level": "ERROR",
       "message": "Telegram API HTTP error: 401 - Unauthorized"
     },
     {
-      "time": "2026-08-08 05:57:21 UTC",
+      "time": "2026-08-08 06:07:59 UTC",
       "level": "INFO",
       "message": "\ud83d\udcf1 Checking Telegram updates (offset: 1000000)..."
     },
     {
-      "time": "2026-08-08 05:56:51 UTC",
+      "time": "2026-08-08 06:07:29 UTC",
       "level": "INFO",
       "message": "\ud83d\udcda Telegram history saved (0 messages)"
     },
     {
-      "time": "2026-08-08 05:56:51 UTC",
+      "time": "2026-08-08 06:07:29 UTC",
       "level": "INFO",
       "message": "\ud83d\udcbe State saved to docs/system_state.json"
     },
     {
-      "time": "2026-08-08 05:56:51 UTC",
+      "time": "2026-08-08 06:07:29 UTC",
       "level": "DEBUG",
       "message": "Telegram API error response: {\"ok\":false,\"error_code\":401,\"description\":\"Unauthorized\"}"
     },
     {
-      "time": "2026-08-08 05:56:51 UTC",
+      "time": "2026-08-08 06:07:29 UTC",
       "level": "ERROR",
       "message": "Telegram API HTTP error: 401 - Unauthorized"
     },
     {
-      "time": "2026-08-08 05:56:51 UTC",
+      "time": "2026-08-08 06:07:27 UTC",
       "level": "INFO",
       "message": "\ud83d\udcf1 Checking Telegram updates (offset: 1000000)..."
     },
     {
-      "time": "2026-08-08 05:56:21 UTC",
+      "time": "2026-08-08 06:06:57 UTC",
       "level": "INFO",
       "message": "\ud83d\udcda Telegram history saved (0 messages)"
     },
     {
-      "time": "2026-08-08 05:56:21 UTC",
+      "time": "2026-08-08 06:06:57 UTC",
       "level": "INFO",
       "message": "\ud83d\udcbe State saved to docs/system_state.json"
     },
     {
-      "time": "2026-08-08 05:56:21 UTC",
+      "time": "2026-08-08 06:06:57 UTC",
       "level": "DEBUG",
       "message": "Telegram API error response: {\"ok\":false,\"error_code\":401,\"description\":\"Unauthorized\"}"
     },
     {
-      "time": "2026-08-08 05:56:21 UTC",
+      "time": "2026-08-08 06:06:57 UTC",
       "level": "ERROR",
       "message": "Telegram API HTTP error: 401 - Unauthorized"
     },
     {
-      "time": "2026-08-08 05:56:20 UTC",
+      "time": "2026-08-08 06:06:57 UTC",
       "level": "INFO",
       "message": "\ud83d\udcf1 Checking Telegram updates (offset: 1000000)..."
     },
     {
-      "time": "2026-08-08 05:55:50 UTC",
+      "time": "2026-08-08 06:06:27 UTC",
       "level": "INFO",
       "message": "\ud83d\udcda Telegram history saved (0 messages)"
     },
     {
-      "time": "2026-08-08 05:55:50 UTC",
+      "time": "2026-08-08 06:06:27 UTC",
       "level": "INFO",
       "message": "\ud83d\udcbe State saved to docs/system_state.json"
     },
     {
-      "time": "2026-08-08 05:55:50 UTC",
+      "time": "2026-08-08 06:06:27 UTC",
       "level": "DEBUG",
       "message": "Telegram API error response: {\"ok\":false,\"error_code\":401,\"description\":\"Unauthorized\"}"
     },
     {
-      "time": "2026-08-08 05:55:50 UTC",
+      "time": "2026-08-08 06:06:27 UTC",
       "level": "ERROR",
       "message": "Telegram API HTTP error: 401 - Unauthorized"
     },
     {
-      "time": "2026-08-08 05:55:50 UTC",
+      "time": "2026-08-08 06:06:26 UTC",
       "level": "INFO",
       "message": "\ud83d\udcf1 Checking Telegram updates (offset: 1000000)..."
     },
     {
-      "time": "2026-08-08 05:55:20 UTC",
+      "time": "2026-08-08 06:05:56 UTC",
       "level": "INFO",
       "message": "\ud83d\udcda Telegram history saved (0 messages)"
     },
     {
-      "time": "2026-08-08 05:55:20 UTC",
+      "time": "2026-08-08 06:05:56 UTC",
       "level": "INFO",
       "message": "\ud83d\udcbe State saved to docs/system_state.json"
     },
     {
-      "time": "2026-08-08 05:55:20 UTC",
+      "time": "2026-08-08 06:05:56 UTC",
       "level": "DEBUG",
       "message": "Telegram API error response: {\"ok\":false,\"error_code\":401,\"description\":\"Unauthorized\"}"
     },
     {
-      "time": "2026-08-08 05:55:20 UTC",
+      "time": "2026-08-08 06:05:56 UTC",
       "level": "ERROR",
       "message": "Telegram API HTTP error: 401 - Unauthorized"
     },
     {
-      "time": "2026-08-08 05:55:19 UTC",
+      "time": "2026-08-08 06:05:56 UTC",
       "level": "INFO",
       "message": "\ud83d\udcf1 Checking Telegram updates (offset: 1000000)..."
     },
     {
-      "time": "2026-08-08 05:54:49 UTC",
+      "time": "2026-08-08 06:05:26 UTC",
       "level": "INFO",
       "message": "\ud83d\udcda Telegram history saved (0 messages)"
     },
     {
-      "time": "2026-08-08 05:54:49 UTC",
+      "time": "2026-08-08 06:05:26 UTC",
       "level": "INFO",
       "message": "\ud83d\udcbe State saved to docs/system_state.json"
     },
     {
-      "time": "2026-08-08 05:54:49 UTC",
+      "time": "2026-08-08 06:05:26 UTC",
       "level": "DEBUG",
       "message": "Telegram API error response: {\"ok\":false,\"error_code\":401,\"description\":\"Unauthorized\"}"
     },
     {
-      "time": "2026-08-08 05:54:49 UTC",
+      "time": "2026-08-08 06:05:26 UTC",
       "level": "ERROR",
       "message": "Telegram API HTTP error: 401 - Unauthorized"
     },
     {
-      "time": "2026-08-08 05:54:49 UTC",
+      "time": "2026-08-08 06:05:26 UTC",
       "level": "INFO",
       "message": "\ud83d\udcf1 Checking Telegram updates (offset: 1000000)..."
     },
     {
-      "time": "2026-08-08 05:54:19 UTC",
+      "time": "2026-08-08 06:04:56 UTC",
       "level": "INFO",
       "message": "\ud83d\udcda Telegram history saved (0 messages)"
     },
     {
-      "time": "2026-08-08 05:54:19 UTC",
+      "time": "2026-08-08 06:04:56 UTC",
       "level": "INFO",
       "message": "\ud83d\udcbe State saved to docs/system_state.json"
     },
     {
-      "time": "2026-08-08 05:54:19 UTC",
+      "time": "2026-08-08 06:04:56 UTC",
       "level": "DEBUG",
       "message": "Telegram API error response: {\"ok\":false,\"error_code\":401,\"description\":\"Unauthorized\"}"
     },
     {
-      "time": "2026-08-08 05:54:19 UTC",
+      "time": "2026-08-08 06:04:56 UTC",
       "level": "ERROR",
       "message": "Telegram API HTTP error: 401 - Unauthorized"
     },
     {
-      "time": "2026-08-08 05:54:18 UTC",
+      "time": "2026-08-08 06:04:55 UTC",
       "level": "INFO",
       "message": "\ud83d\udcf1 Checking Telegram updates (offset: 1000000)..."
     },
     {
-      "time": "2026-08-08 05:53:48 UTC",
+      "time": "2026-08-08 06:04:25 UTC",
       "level": "INFO",
       "message": "\ud83d\udcda Telegram history saved (0 messages)"
     },
     {
-      "time": "2026-08-08 05:53:48 UTC",
+      "time": "2026-08-08 06:04:25 UTC",
       "level": "INFO",
       "message": "\ud83d\udcbe State saved to docs/system_state.json"
     },
     {
-      "time": "2026-08-08 05:53:48 UTC",
+      "time": "2026-08-08 06:04:25 UTC",
       "level": "DEBUG",
       "message": "Telegram API error response: {\"ok\":false,\"error_code\":401,\"description\":\"Unauthorized\"}"
     },
     {
-      "time": "2026-08-08 05:53:48 UTC",
+      "time": "2026-08-08 06:04:25 UTC",
       "level": "ERROR",
       "message": "Telegram API HTTP error: 401 - Unauthorized"
     },
     {
-      "time": "2026-08-08 05:53:48 UTC",
+      "time": "2026-08-08 06:04:25 UTC",
       "level": "INFO",
       "message": "\ud83d\udcf1 Checking Telegram updates (offset: 1000000)..."
     },
     {
-      "time": "2026-08-08 05:53:18 UTC",
+      "time": "2026-08-08 06:03:55 UTC",
       "level": "INFO",
       "message": "\ud83d\udcda Telegram history saved (0 messages)"
     },
     {
-      "time": "2026-08-08 05:53:18 UTC",
+      "time": "2026-08-08 06:03:55 UTC",
       "level": "INFO",
       "message": "\ud83d\udcbe State saved to docs/system_state.json"
     },
     {
-      "time": "2026-08-08 05:53:18 UTC",
-      "level": "DEBUG",
-      "message": "Telegram API error response: {\"ok\":false,\"error_code\":401,\"description\":\"Unauthorized\"}"
-    },
-    {
-      "time": "2026-08-08 05:53:18 UTC",
-      "level": "ERROR",
-      "message": "Telegram API HTTP error: 401 - Unauthorized"
-    },
-    {
-      "time": "2026-08-08 05:53:17 UTC",
-      "level": "INFO",
-      "message": "\ud83d\udcf1 Checking Telegram updates (offset: 1000000)..."
-    },
-    {
-      "time": "2026-08-08 05:52:47 UTC",
-      "level": "INFO",
-      "message": "\ud83d\udcda Telegram history saved (0 messages)"
-    },
-    {
-      "time": "2026-08-08 05:52:47 UTC",
-      "level": "INFO",
-      "message": "\ud83d\udcbe State saved to docs/system_state.json"
-    },
-    {
-      "time": "2026-08-08 05:52:47 UTC",
+      "time": "2026-08-08 06:03:55 UTC",
       "level": "INFO",
       "message": "Loaded signals from docs/pending_signals.json"
     },
     {
-      "time": "2026-08-08 05:52:47 UTC",
+      "time": "2026-08-08 06:03:55 UTC",
       "level": "DEBUG",
       "message": "Telegram API error response: {\"ok\":false,\"error_code\":401,\"description\":\"Unauthorized\"}"
     },
     {
-      "time": "2026-08-08 05:52:47 UTC",
+      "time": "2026-08-08 06:03:55 UTC",
       "level": "ERROR",
       "message": "Telegram API HTTP error: 401 - Unauthorized"
     },
     {
-      "time": "2026-08-08 05:52:47 UTC",
+      "time": "2026-08-08 06:03:55 UTC",
       "level": "INFO",
       "message": "\ud83d\udcf1 Checking Telegram updates (offset: 1000000)..."
     },
     {
-      "time": "2026-08-08 05:52:47 UTC",
+      "time": "2026-08-08 06:03:55 UTC",
       "level": "INFO",
       "message": "\ud83d\udd04 Starting periodic Telegram checks (30-second interval)"
     },
     {
-      "time": "2026-08-08 05:52:47 UTC",
+      "time": "2026-08-08 06:03:55 UTC",
       "level": "SUCCESS",
       "message": "\ud83d\udd10 Account Authorized successfully"
     },
     {
-      "time": "2026-08-08 05:52:46 UTC",
+      "time": "2026-08-08 06:03:54 UTC",
       "level": "SUCCESS",
       "message": "\ud83d\udd10 Application Authorized successfully"
     },
     {
-      "time": "2026-08-08 05:52:45 UTC",
+      "time": "2026-08-08 06:03:53 UTC",
       "level": "SUCCESS",
       "message": "\u2705 Connected to cTrader OpenAPI at demo.ctraderapi.com:5035"
     },
     {
-      "time": "2026-08-08 05:52:44 UTC",
+      "time": "2026-08-08 06:03:21 UTC",
       "level": "INFO",
       "message": "================================================================================"
     },
     {
-      "time": "2026-08-08 05:52:44 UTC",
+      "time": "2026-08-08 06:03:21 UTC",
       "level": "INFO",
       "message": "\ud83e\udd16 cTrader OpenAPI Bot STARTING"
     },
     {
-      "time": "2026-08-08 05:52:44 UTC",
+      "time": "2026-08-08 06:03:21 UTC",
       "level": "INFO",
       "message": "================================================================================"
     }
@@ -310,282 +285,257 @@
   "errors": [],
   "backendEvents": [
     {
-      "time": "2026-08-08 05:57:21 UTC",
+      "time": "2026-08-08 06:07:59 UTC",
       "event": "[DEBUG] Telegram API error response: {\"ok\":false,\"error_code\":401,\"description\":\"Unauthorized\"}",
       "type": "log"
     },
     {
-      "time": "2026-08-08 05:57:21 UTC",
+      "time": "2026-08-08 06:07:59 UTC",
       "event": "[ERROR] Telegram API HTTP error: 401 - Unauthorized",
       "type": "log"
     },
     {
-      "time": "2026-08-08 05:57:21 UTC",
+      "time": "2026-08-08 06:07:59 UTC",
       "event": "[INFO] \ud83d\udcf1 Checking Telegram updates (offset: 1000000)...",
       "type": "log"
     },
     {
-      "time": "2026-08-08 05:56:51 UTC",
+      "time": "2026-08-08 06:07:29 UTC",
       "event": "[INFO] \ud83d\udcda Telegram history saved (0 messages)",
       "type": "log"
     },
     {
-      "time": "2026-08-08 05:56:51 UTC",
+      "time": "2026-08-08 06:07:29 UTC",
       "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
       "type": "log"
     },
     {
-      "time": "2026-08-08 05:56:51 UTC",
+      "time": "2026-08-08 06:07:29 UTC",
       "event": "[DEBUG] Telegram API error response: {\"ok\":false,\"error_code\":401,\"description\":\"Unauthorized\"}",
       "type": "log"
     },
     {
-      "time": "2026-08-08 05:56:51 UTC",
+      "time": "2026-08-08 06:07:29 UTC",
       "event": "[ERROR] Telegram API HTTP error: 401 - Unauthorized",
       "type": "log"
     },
     {
-      "time": "2026-08-08 05:56:51 UTC",
+      "time": "2026-08-08 06:07:27 UTC",
       "event": "[INFO] \ud83d\udcf1 Checking Telegram updates (offset: 1000000)...",
       "type": "log"
     },
     {
-      "time": "2026-08-08 05:56:21 UTC",
+      "time": "2026-08-08 06:06:57 UTC",
       "event": "[INFO] \ud83d\udcda Telegram history saved (0 messages)",
       "type": "log"
     },
     {
-      "time": "2026-08-08 05:56:21 UTC",
+      "time": "2026-08-08 06:06:57 UTC",
       "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
       "type": "log"
     },
     {
-      "time": "2026-08-08 05:56:21 UTC",
+      "time": "2026-08-08 06:06:57 UTC",
       "event": "[DEBUG] Telegram API error response: {\"ok\":false,\"error_code\":401,\"description\":\"Unauthorized\"}",
       "type": "log"
     },
     {
-      "time": "2026-08-08 05:56:21 UTC",
+      "time": "2026-08-08 06:06:57 UTC",
       "event": "[ERROR] Telegram API HTTP error: 401 - Unauthorized",
       "type": "log"
     },
     {
-      "time": "2026-08-08 05:56:20 UTC",
+      "time": "2026-08-08 06:06:57 UTC",
       "event": "[INFO] \ud83d\udcf1 Checking Telegram updates (offset: 1000000)...",
       "type": "log"
     },
     {
-      "time": "2026-08-08 05:55:50 UTC",
+      "time": "2026-08-08 06:06:27 UTC",
       "event": "[INFO] \ud83d\udcda Telegram history saved (0 messages)",
       "type": "log"
     },
     {
-      "time": "2026-08-08 05:55:50 UTC",
+      "time": "2026-08-08 06:06:27 UTC",
       "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
       "type": "log"
     },
     {
-      "time": "2026-08-08 05:55:50 UTC",
+      "time": "2026-08-08 06:06:27 UTC",
       "event": "[DEBUG] Telegram API error response: {\"ok\":false,\"error_code\":401,\"description\":\"Unauthorized\"}",
       "type": "log"
     },
     {
-      "time": "2026-08-08 05:55:50 UTC",
+      "time": "2026-08-08 06:06:27 UTC",
       "event": "[ERROR] Telegram API HTTP error: 401 - Unauthorized",
       "type": "log"
     },
     {
-      "time": "2026-08-08 05:55:50 UTC",
+      "time": "2026-08-08 06:06:26 UTC",
       "event": "[INFO] \ud83d\udcf1 Checking Telegram updates (offset: 1000000)...",
       "type": "log"
     },
     {
-      "time": "2026-08-08 05:55:20 UTC",
+      "time": "2026-08-08 06:05:56 UTC",
       "event": "[INFO] \ud83d\udcda Telegram history saved (0 messages)",
       "type": "log"
     },
     {
-      "time": "2026-08-08 05:55:20 UTC",
+      "time": "2026-08-08 06:05:56 UTC",
       "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
       "type": "log"
     },
     {
-      "time": "2026-08-08 05:55:20 UTC",
+      "time": "2026-08-08 06:05:56 UTC",
       "event": "[DEBUG] Telegram API error response: {\"ok\":false,\"error_code\":401,\"description\":\"Unauthorized\"}",
       "type": "log"
     },
     {
-      "time": "2026-08-08 05:55:20 UTC",
+      "time": "2026-08-08 06:05:56 UTC",
       "event": "[ERROR] Telegram API HTTP error: 401 - Unauthorized",
       "type": "log"
     },
     {
-      "time": "2026-08-08 05:55:19 UTC",
+      "time": "2026-08-08 06:05:56 UTC",
       "event": "[INFO] \ud83d\udcf1 Checking Telegram updates (offset: 1000000)...",
       "type": "log"
     },
     {
-      "time": "2026-08-08 05:54:49 UTC",
+      "time": "2026-08-08 06:05:26 UTC",
       "event": "[INFO] \ud83d\udcda Telegram history saved (0 messages)",
       "type": "log"
     },
     {
-      "time": "2026-08-08 05:54:49 UTC",
+      "time": "2026-08-08 06:05:26 UTC",
       "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
       "type": "log"
     },
     {
-      "time": "2026-08-08 05:54:49 UTC",
+      "time": "2026-08-08 06:05:26 UTC",
       "event": "[DEBUG] Telegram API error response: {\"ok\":false,\"error_code\":401,\"description\":\"Unauthorized\"}",
       "type": "log"
     },
     {
-      "time": "2026-08-08 05:54:49 UTC",
+      "time": "2026-08-08 06:05:26 UTC",
       "event": "[ERROR] Telegram API HTTP error: 401 - Unauthorized",
       "type": "log"
     },
     {
-      "time": "2026-08-08 05:54:49 UTC",
+      "time": "2026-08-08 06:05:26 UTC",
       "event": "[INFO] \ud83d\udcf1 Checking Telegram updates (offset: 1000000)...",
       "type": "log"
     },
     {
-      "time": "2026-08-08 05:54:19 UTC",
+      "time": "2026-08-08 06:04:56 UTC",
       "event": "[INFO] \ud83d\udcda Telegram history saved (0 messages)",
       "type": "log"
     },
     {
-      "time": "2026-08-08 05:54:19 UTC",
+      "time": "2026-08-08 06:04:56 UTC",
       "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
       "type": "log"
     },
     {
-      "time": "2026-08-08 05:54:19 UTC",
+      "time": "2026-08-08 06:04:56 UTC",
       "event": "[DEBUG] Telegram API error response: {\"ok\":false,\"error_code\":401,\"description\":\"Unauthorized\"}",
       "type": "log"
     },
     {
-      "time": "2026-08-08 05:54:19 UTC",
+      "time": "2026-08-08 06:04:56 UTC",
       "event": "[ERROR] Telegram API HTTP error: 401 - Unauthorized",
       "type": "log"
     },
     {
-      "time": "2026-08-08 05:54:18 UTC",
+      "time": "2026-08-08 06:04:55 UTC",
       "event": "[INFO] \ud83d\udcf1 Checking Telegram updates (offset: 1000000)...",
       "type": "log"
     },
     {
-      "time": "2026-08-08 05:53:48 UTC",
+      "time": "2026-08-08 06:04:25 UTC",
       "event": "[INFO] \ud83d\udcda Telegram history saved (0 messages)",
       "type": "log"
     },
     {
-      "time": "2026-08-08 05:53:48 UTC",
+      "time": "2026-08-08 06:04:25 UTC",
       "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
       "type": "log"
     },
     {
-      "time": "2026-08-08 05:53:48 UTC",
+      "time": "2026-08-08 06:04:25 UTC",
       "event": "[DEBUG] Telegram API error response: {\"ok\":false,\"error_code\":401,\"description\":\"Unauthorized\"}",
       "type": "log"
     },
     {
-      "time": "2026-08-08 05:53:48 UTC",
+      "time": "2026-08-08 06:04:25 UTC",
       "event": "[ERROR] Telegram API HTTP error: 401 - Unauthorized",
       "type": "log"
     },
     {
-      "time": "2026-08-08 05:53:48 UTC",
+      "time": "2026-08-08 06:04:25 UTC",
       "event": "[INFO] \ud83d\udcf1 Checking Telegram updates (offset: 1000000)...",
       "type": "log"
     },
     {
-      "time": "2026-08-08 05:53:18 UTC",
+      "time": "2026-08-08 06:03:55 UTC",
       "event": "[INFO] \ud83d\udcda Telegram history saved (0 messages)",
       "type": "log"
     },
     {
-      "time": "2026-08-08 05:53:18 UTC",
+      "time": "2026-08-08 06:03:55 UTC",
       "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
       "type": "log"
     },
     {
-      "time": "2026-08-08 05:53:18 UTC",
-      "event": "[DEBUG] Telegram API error response: {\"ok\":false,\"error_code\":401,\"description\":\"Unauthorized\"}",
-      "type": "log"
-    },
-    {
-      "time": "2026-08-08 05:53:18 UTC",
-      "event": "[ERROR] Telegram API HTTP error: 401 - Unauthorized",
-      "type": "log"
-    },
-    {
-      "time": "2026-08-08 05:53:17 UTC",
-      "event": "[INFO] \ud83d\udcf1 Checking Telegram updates (offset: 1000000)...",
-      "type": "log"
-    },
-    {
-      "time": "2026-08-08 05:52:47 UTC",
-      "event": "[INFO] \ud83d\udcda Telegram history saved (0 messages)",
-      "type": "log"
-    },
-    {
-      "time": "2026-08-08 05:52:47 UTC",
-      "event": "[INFO] \ud83d\udcbe State saved to docs/system_state.json",
-      "type": "log"
-    },
-    {
-      "time": "2026-08-08 05:52:47 UTC",
+      "time": "2026-08-08 06:03:55 UTC",
       "event": "[INFO] Loaded signals from docs/pending_signals.json",
       "type": "log"
     },
     {
-      "time": "2026-08-08 05:52:47 UTC",
+      "time": "2026-08-08 06:03:55 UTC",
       "event": "[DEBUG] Telegram API error response: {\"ok\":false,\"error_code\":401,\"description\":\"Unauthorized\"}",
       "type": "log"
     },
     {
-      "time": "2026-08-08 05:52:47 UTC",
+      "time": "2026-08-08 06:03:55 UTC",
       "event": "[ERROR] Telegram API HTTP error: 401 - Unauthorized",
       "type": "log"
     },
     {
-      "time": "2026-08-08 05:52:47 UTC",
+      "time": "2026-08-08 06:03:55 UTC",
       "event": "[INFO] \ud83d\udcf1 Checking Telegram updates (offset: 1000000)...",
       "type": "log"
     },
     {
-      "time": "2026-08-08 05:52:47 UTC",
+      "time": "2026-08-08 06:03:55 UTC",
       "event": "[INFO] \ud83d\udd04 Starting periodic Telegram checks (30-second interval)",
       "type": "log"
     },
     {
-      "time": "2026-08-08 05:52:47 UTC",
+      "time": "2026-08-08 06:03:55 UTC",
       "event": "[SUCCESS] \ud83d\udd10 Account Authorized successfully",
       "type": "log"
     },
     {
-      "time": "2026-08-08 05:52:46 UTC",
+      "time": "2026-08-08 06:03:54 UTC",
       "event": "[SUCCESS] \ud83d\udd10 Application Authorized successfully",
       "type": "log"
     },
     {
-      "time": "2026-08-08 05:52:45 UTC",
+      "time": "2026-08-08 06:03:53 UTC",
       "event": "[SUCCESS] \u2705 Connected to cTrader OpenAPI at demo.ctraderapi.com:5035",
       "type": "log"
     },
     {
-      "time": "2026-08-08 05:52:44 UTC",
+      "time": "2026-08-08 06:03:21 UTC",
       "event": "[INFO] ================================================================================",
       "type": "log"
     },
     {
-      "time": "2026-08-08 05:52:44 UTC",
+      "time": "2026-08-08 06:03:21 UTC",
       "event": "[INFO] \ud83e\udd16 cTrader OpenAPI Bot STARTING",
       "type": "log"
     },
     {
-      "time": "2026-08-08 05:52:44 UTC",
+      "time": "2026-08-08 06:03:21 UTC",
       "event": "[INFO] ================================================================================",
       "type": "log"
     }
@@ -719,5 +669,5 @@
       "category": "Indices"
     }
   },
-  "lastUpdate": "2026-08-08T05:57:21.887510+00:00"
+  "lastUpdate": "2026-08-08T06:07:59.987639+00:00"
 }
